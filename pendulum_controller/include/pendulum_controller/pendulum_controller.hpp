@@ -33,7 +33,12 @@
 
 namespace pendulum
 {
-
+    //TODO: add controller by composition or inheritance
+    //TODO: change QoS
+    //TODO: add config parameters
+    //TODO: use mutex to protect shared data
+    //TODO: add logic to transition callbacks
+    //TODO: change msg definition
 class Controller : public rclcpp_lifecycle::LifecycleNode
 {
 public:
@@ -44,8 +49,17 @@ public:
     void on_pendulum_setpoint(const pendulum_msgs::msg::JointCommand::SharedPtr msg);
 
     void notification_callback(const lifecycle_msgs::msg::TransitionEvent::SharedPtr msg);
+    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+    on_configure(const rclcpp_lifecycle::State &);
+    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+    on_activate(const rclcpp_lifecycle::State &);
+    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+    on_deactivate(const rclcpp_lifecycle::State &);
+    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+    on_cleanup(const rclcpp_lifecycle::State &);
+    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+    on_shutdown(const rclcpp_lifecycle::State & state);
 
-    // TODO(carlosvg) add transition callbacks
 
 private:
     std::shared_ptr<rclcpp::Subscription<pendulum_msgs::msg::JointState>> sub_sensor_;
