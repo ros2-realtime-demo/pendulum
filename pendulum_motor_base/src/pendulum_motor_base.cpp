@@ -22,19 +22,22 @@ namespace pendulum
     MotorBase::MotorBase(const rclcpp::NodeOptions & options)
     : rclcpp_lifecycle::LifecycleNode("motor_node", options)
 {
-   sub_sensor_ = this->create_subscription<pendulum_msgs::msg::JointState>(
-            "pendulum_sensor", 10, std::bind(&MotorBase::on_sensor_message, this, std::placeholders::_1));
+    // Initialize the publisher for the sensor message (the current position of the pendulum).
+    sensor_pub = this->create_publisher<pendulum_msgs::msg::JointState>("pendulum_sensor", 10);
 
-    // Initialize the publisher for the command message.
-    command_pub_ = this->create_publisher<pendulum_msgs::msg::JointCommand>(
-            "pendulum_command", 10);
 
-    setpoint_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
-            "pendulum_setpoint", 10, std::bind(&MotorBase::on_pendulum_setpoint, this, std::placeholders::_1));
+    // Create a lambda function to invoke the motor callback when a command is received.
+    auto motor_subscribe_callback =
+            [&pendulum_motor](pendulum_msgs::msg::JointCommand::ConstSharedPtr msg) -> void
+            {
+                // TODO: implement on_command_message function
+                pendulum_motor->on_command_message(msg);
+            };
 
-    // Initialize the logger publisher.
-    logger_pub_ = this->create_publisher<pendulum_msgs::msg::RttestResults>(
-            "pendulum_statistics", 10);
+    // Initialize the subscription to the command message.
+    command_sub = this->create_subscription<pendulum_msgs::msg::JointCommand>(
+            "pendulum_command", 10, std::bind(&MotorBase::motor_subscribe_callback, this, std::placeholders_1));
+
 
     // Notification event topic. All state changes
     // are published here as TransitionEvents with
@@ -44,20 +47,6 @@ namespace pendulum
       10,
       std::bind(&MotorBase::notification_callback, this, std::placeholders::_1));
 }
-
-void MotorBase::on_sensor_message(const pendulum_msgs::msg::JointState::SharedPtr msg)
-{
-    RCLCPP_INFO(this->get_logger(), "position: %f", msg->position);
-}
-
-void MotorBase::on_pendulum_setpoint(const pendulum_msgs::msg::JointCommand::SharedPtr msg)
-{
-    RCLCPP_INFO(this->get_logger(), "position: %f", msg->position);
-
-    // just publish again the msg for the moment
-    command_pub_->publish(*msg);
-}
-
 
 void MotorBase::notification_callback(const lifecycle_msgs::msg::TransitionEvent::SharedPtr msg)
 {
