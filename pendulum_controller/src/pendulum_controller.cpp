@@ -18,7 +18,6 @@
 
 namespace pendulum
 {
-
     ControllerNode::ControllerNode(const rclcpp::NodeOptions & options)
     : rclcpp_lifecycle::LifecycleNode("controller_node", options)
 {

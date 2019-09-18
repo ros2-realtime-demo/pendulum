@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM__CONTROLLER_HPP_
-#define PENDULUM__CONTROLLER_HPP_
+#ifndef PENDULUM__CONTROLLER_NODE_HPP_
+#define PENDULUM__CONTROLLER_NODE_HPP_
 
 #include <memory>
 #include <string>
@@ -29,6 +29,7 @@
 #include "pendulum_msgs/msg/joint_state.hpp"
 #include <pendulum_msgs/msg/rttest_results.hpp>
 
+#include "Controller.h"
 #include "pendulum_controller/visibility_control.h"
 
 namespace pendulum
@@ -68,8 +69,10 @@ private:
     std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<pendulum_msgs::msg::RttestResults>> logger_pub_;
     std::shared_ptr<rclcpp::Subscription<lifecycle_msgs::msg::TransitionEvent>> sub_notification_;
     pendulum_msgs::msg::JointCommand command_message_;
+
+    std::unique_ptr<Controller> controller_;
 };
 
 }  // namespace pendulum
 
-#endif  // PENDULUM__CONTROLLER_HPP_
+#endif  // PENDULUM__CONTROLLER_NODE_HPP_
