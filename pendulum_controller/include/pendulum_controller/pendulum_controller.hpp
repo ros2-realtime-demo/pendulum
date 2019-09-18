@@ -39,11 +39,11 @@ namespace pendulum
     //TODO: use mutex to protect shared data
     //TODO: add logic to transition callbacks
     //TODO: change msg definition
-class Controller : public rclcpp_lifecycle::LifecycleNode
+class ControllerNode : public rclcpp_lifecycle::LifecycleNode
 {
 public:
     COMPOSITION_PUBLIC
-    explicit Controller(const rclcpp::NodeOptions & options);
+    explicit ControllerNode(const rclcpp::NodeOptions & options);
 
     void on_sensor_message(const pendulum_msgs::msg::JointState::SharedPtr msg);
     void on_pendulum_setpoint(const pendulum_msgs::msg::JointCommand::SharedPtr msg);
