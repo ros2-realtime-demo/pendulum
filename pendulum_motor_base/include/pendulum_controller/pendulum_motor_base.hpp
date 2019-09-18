@@ -46,9 +46,6 @@ public:
     COMPOSITION_PUBLIC
     explicit MotorBase(const rclcpp::NodeOptions & options);
 
-    void on_sensor_message(const pendulum_msgs::msg::JointState::SharedPtr msg);
-    void on_pendulum_setpoint(const pendulum_msgs::msg::JointCommand::SharedPtr msg);
-
     void notification_callback(const lifecycle_msgs::msg::TransitionEvent::SharedPtr msg);
     rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
     on_configure(const rclcpp_lifecycle::State &);
@@ -63,12 +60,9 @@ public:
 
 
 private:
-    std::shared_ptr<rclcpp::Subscription<pendulum_msgs::msg::JointState>> sub_sensor_;
-    std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<pendulum_msgs::msg::JointCommand>> command_pub_;
-    std::shared_ptr<rclcpp::Subscription<pendulum_msgs::msg::JointCommand>> setpoint_sub_;
-    std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<pendulum_msgs::msg::RttestResults>> logger_pub_;
+    std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<pendulum_msgs::msg::JointState>> sensor_pub;
+    std::shared_ptr<rclcpp::Subscription<pendulum_msgs::msg::JointCommand>> command_sub;
     std::shared_ptr<rclcpp::Subscription<lifecycle_msgs::msg::TransitionEvent>> sub_notification_;
-    pendulum_msgs::msg::JointCommand command_message_;
 };
 
 }  // namespace pendulum
