@@ -47,6 +47,8 @@ public:
     explicit MotorBase(const rclcpp::NodeOptions & options);
 
     void notification_callback(const lifecycle_msgs::msg::TransitionEvent::SharedPtr msg);
+    void on_command_received(const pendulum_msgs::msg::JointCommand::SharedPtr msg);
+
     rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
     on_configure(const rclcpp_lifecycle::State &);
     rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn

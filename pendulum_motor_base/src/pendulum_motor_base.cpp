@@ -26,17 +26,9 @@ namespace pendulum
     sensor_pub = this->create_publisher<pendulum_msgs::msg::JointState>("pendulum_sensor", 10);
 
 
-    // Create a lambda function to invoke the motor callback when a command is received.
-    auto motor_subscribe_callback =
-            [&pendulum_motor](pendulum_msgs::msg::JointCommand::ConstSharedPtr msg) -> void
-            {
-                // TODO: implement on_command_message function
-                pendulum_motor->on_command_message(msg);
-            };
-
     // Initialize the subscription to the command message.
     command_sub = this->create_subscription<pendulum_msgs::msg::JointCommand>(
-            "pendulum_command", 10, std::bind(&MotorBase::motor_subscribe_callback, this, std::placeholders_1));
+            "pendulum_command", 10, std::bind(&MotorBase::on_command_received, this, std::placeholders_1));
 
 
     // Notification event topic. All state changes
@@ -54,6 +46,11 @@ void MotorBase::notification_callback(const lifecycle_msgs::msg::TransitionEvent
             msg->start_state.label.c_str(), msg->goal_state.label.c_str());
 }
 
+void MotorBase::on_command_received (const pendulum::msg::JointCommand::SharedPtr msg)
+{
+    RCLCPP_INFO(this->get_logger(), "Command: %f", msg->position);
+
+}
 
 
 }  // namespace pendulum_controller
