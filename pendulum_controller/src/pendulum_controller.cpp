@@ -16,56 +16,94 @@
 #include "lifecycle_msgs/msg/transition_event.hpp"
 #include "rttest/utils.h"
 
+
 namespace pendulum
 {
     ControllerNode::ControllerNode(const rclcpp::NodeOptions & options)
     : rclcpp_lifecycle::LifecycleNode("controller_node", options)
 {
-   sub_sensor_ = this->create_subscription<pendulum_msgs::msg::JointState>(
-            "pendulum_sensor", 10, std::bind(&ControllerNode::on_sensor_message, this, std::placeholders::_1));
 
-    // Initialize the publisher for the command message.
-    command_pub_ = this->create_publisher<pendulum_msgs::msg::JointCommand>(
-            "pendulum_command", 10);
-
-    setpoint_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
-            "pendulum_setpoint", 10, std::bind(&ControllerNode::on_pendulum_setpoint, this, std::placeholders::_1));
-
-    // Initialize the logger publisher.
-    logger_pub_ = this->create_publisher<pendulum_msgs::msg::RttestResults>(
-            "pendulum_statistics", 10);
-
-    // Notification event topic. All state changes
-    // are published here as TransitionEvents with
-    // a start and goal state indicating the transition
-    sub_notification_ = this->create_subscription<lifecycle_msgs::msg::TransitionEvent>(
-      "/lc_talker/transition_event",
-      10,
-      std::bind(&ControllerNode::notification_callback, this, std::placeholders::_1));
 }
 
 void ControllerNode::on_sensor_message(const pendulum_msgs::msg::JointState::SharedPtr msg)
 {
     RCLCPP_INFO(this->get_logger(), "position: %f", msg->position);
+    joint_state_ = msg->position;
 }
 
 void ControllerNode::on_pendulum_setpoint(const pendulum_msgs::msg::JointCommand::SharedPtr msg)
 {
     RCLCPP_INFO(this->get_logger(), "position: %f", msg->position);
 
-    // just publish again the msg for the moment
-    command_pub_->publish(*msg);
+    joint_command_ = msg->position;
 }
 
-
-void ControllerNode::notification_callback(const lifecycle_msgs::msg::TransitionEvent::SharedPtr msg)
+void ControllerNode::control_timer_callback()
 {
-    RCLCPP_INFO(get_logger(), "notify callback: Transition from state %s to %s",
-            msg->start_state.label.c_str(), msg->goal_state.label.c_str());
+    command_message_.position = controller_->compute_output(joint_command_, joint_state_);
+    command_pub_->publish(command_message_);
 }
 
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+    ControllerNode::on_configure(const rclcpp_lifecycle::State &)
+    {
+        sub_sensor_ = this->create_subscription<pendulum_msgs::msg::JointState>(
+                "pendulum_sensor", 10, std::bind(&ControllerNode::on_sensor_message, this, std::placeholders::_1));
+
+        // Initialize the publisher for the command message.
+        command_pub_ = this->create_publisher<pendulum_msgs::msg::JointCommand>(
+                "pendulum_command", 10);
+
+        setpoint_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
+                "pendulum_setpoint", 10, std::bind(&ControllerNode::on_pendulum_setpoint, this, std::placeholders::_1));
+
+        // Initialize the logger publisher.
+        logger_pub_ = this->create_publisher<pendulum_msgs::msg::RttestResults>(
+                "pendulum_statistics", 10);
+
+        timer_ = this->create_wall_timer(1s, std::bind(&ControllerNode::control_timer_callback, this));
+
+        return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+    }
 
 
+    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+    ControllerNode::on_activate(const rclcpp_lifecycle::State &)
+    {
+        command_pub_->on_activate();
+        logger_pub_->on_activate();
+        return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+    }
+
+    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+    ControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
+    {
+        command_pub_->on_deactivate();
+        logger_pub_->on_deactivate();
+        return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+    }
+
+    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+    ControllerNode::on_cleanup(const rclcpp_lifecycle::State &)
+    {
+        timer_.reset();
+        command_pub_.reset();
+        logger_pub_.reset();
+        sub_sensor_.reset();
+        setpoint_sub_.reset();
+        return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+    }
+
+    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+    ControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
+    {
+        timer_.reset();
+        command_pub_.reset();
+        logger_pub_.reset();
+        sub_sensor_.reset();
+        setpoint_sub_.reset();
+        return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+    }
 }  // namespace pendulum_controller
 
 #include "rclcpp_components/register_node_macro.hpp"

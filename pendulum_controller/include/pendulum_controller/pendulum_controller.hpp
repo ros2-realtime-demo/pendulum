@@ -32,6 +32,8 @@
 #include "Controller.h"
 #include "pendulum_controller/visibility_control.h"
 
+using namespace std::chrono_literals;
+
 namespace pendulum
 {
     //TODO: add controller by composition or inheritance
@@ -61,6 +63,8 @@ public:
     rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
     on_shutdown(const rclcpp_lifecycle::State & state);
 
+    void control_timer_callback();
+
 
 private:
     std::shared_ptr<rclcpp::Subscription<pendulum_msgs::msg::JointState>> sub_sensor_;
@@ -68,9 +72,18 @@ private:
     std::shared_ptr<rclcpp::Subscription<pendulum_msgs::msg::JointCommand>> setpoint_sub_;
     std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<pendulum_msgs::msg::RttestResults>> logger_pub_;
     std::shared_ptr<rclcpp::Subscription<lifecycle_msgs::msg::TransitionEvent>> sub_notification_;
+
+    rclcpp::TimerBase::SharedPtr timer_;
+
     pendulum_msgs::msg::JointCommand command_message_;
 
+    std::chrono::nanoseconds update_period_;
+
     std::unique_ptr<Controller> controller_;
+
+    std::atomic<float> joint_state_;
+    std::atomic<float> joint_command_;
+    std::atomic<float> controller_output_;
 };
 
 }  // namespace pendulum
