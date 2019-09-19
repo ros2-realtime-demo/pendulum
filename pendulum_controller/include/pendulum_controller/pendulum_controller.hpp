@@ -32,6 +32,15 @@
 #include "Controller.h"
 #include "pendulum_controller/visibility_control.h"
 
+
+#include "lifecycle_msgs/msg/transition.hpp"
+
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp/publisher.hpp"
+
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
+#include "rclcpp_lifecycle/lifecycle_publisher.hpp"
+
 using namespace std::chrono_literals;
 
 namespace pendulum
@@ -47,7 +56,9 @@ class ControllerNode : public rclcpp_lifecycle::LifecycleNode
 public:
     COMPOSITION_PUBLIC
     explicit ControllerNode(const rclcpp::NodeOptions & options);
-
+    COMPOSITION_PUBLIC
+    explicit ControllerNode(const std::string & node_name, const rclcpp::NodeOptions & options,
+            std::unique_ptr<Controller> controller);
     void on_sensor_message(const pendulum_msgs::msg::JointState::SharedPtr msg);
     void on_pendulum_setpoint(const pendulum_msgs::msg::JointCommand::SharedPtr msg);
 

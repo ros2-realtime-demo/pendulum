@@ -19,8 +19,10 @@
 
 namespace pendulum
 {
-    ControllerNode::ControllerNode(const rclcpp::NodeOptions & options)
-    : rclcpp_lifecycle::LifecycleNode("controller_node", options)
+
+ControllerNode::ControllerNode(const std::string & node_name,
+        const rclcpp::NodeOptions & options, std::unique_ptr<Controller> controller)
+: rclcpp_lifecycle::LifecycleNode(node_name, options), controller_(std::move(controller))
 {
 
 }
@@ -28,19 +30,18 @@ namespace pendulum
 void ControllerNode::on_sensor_message(const pendulum_msgs::msg::JointState::SharedPtr msg)
 {
     RCLCPP_INFO(this->get_logger(), "position: %f", msg->position);
-    joint_state_ = msg->position;
+    controller_->update_sensor_data(*msg);
 }
 
 void ControllerNode::on_pendulum_setpoint(const pendulum_msgs::msg::JointCommand::SharedPtr msg)
 {
     RCLCPP_INFO(this->get_logger(), "position: %f", msg->position);
-
-    joint_command_ = msg->position;
+    controller_->update_setpoint_data(*msg);
 }
 
 void ControllerNode::control_timer_callback()
 {
-    command_message_.position = controller_->compute_output(joint_command_, joint_state_);
+    command_message_.position = controller_->compute_output();
     command_pub_->publish(command_message_);
 }
 
@@ -67,7 +68,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
     }
 
 
-    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
     ControllerNode::on_activate(const rclcpp_lifecycle::State &)
     {
         command_pub_->on_activate();
@@ -83,7 +84,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
         return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
     }
 
-    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
     ControllerNode::on_cleanup(const rclcpp_lifecycle::State &)
     {
         timer_.reset();
@@ -94,7 +95,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
         return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
     }
 
-    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
     ControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
     {
         timer_.reset();
