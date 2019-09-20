@@ -29,7 +29,7 @@
 #include "pendulum_msgs/msg/joint_state.hpp"
 #include <pendulum_msgs/msg/rttest_results.hpp>
 
-#include "Controller.h"
+#include "controller.h"
 #include "pendulum_controller/visibility_control.h"
 
 
