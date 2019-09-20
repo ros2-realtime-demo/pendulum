@@ -1,5 +1,6 @@
 #include <chrono>
 #include <cmath>
+#include <atomic>
 
 #include "controller.h"
 
@@ -22,12 +23,13 @@ struct PIDProperties
     double command = PI / 2;
 };
 
+
 class PIDController : public Controller
 {
 public:
 
-    Controller(std::chrono::nanoseconds period, PIDProperties pid)
-    : publish_period_(period), pid_(pid),
+    PIDController(std::chrono::nanoseconds period, PIDProperties pid)
+    : publish_period_(period), pid_(pid)
     {
         // Calculate the controller timestep (for discrete differentiation/integration).
         dt_ = publish_period_.count() / (1000.0 * 1000.0 * 1000.0);
@@ -63,11 +65,11 @@ public:
         last_error_ = error;
 
         // Calculate the message based on PID gains
-        command_position_output= msg->position + p_gain + i_gain_ + d_gain;
+        command_position_output = sensor_position_ + p_gain + i_gain_ + d_gain;
         // Enforce positional limits
         if (command_position_output > PI) {
             command_position_output = PI;
-        } else if (command_message_.position < 0) {
+        } else if (command_position_output < 0) {
             command_position_output = 0;
         }
 
@@ -83,9 +85,9 @@ private:
     double last_error_ = 0;
     double i_gain_ = 0;
     double dt_;
-private:
-    std::atomic<float> setpoint_position_ = 0;
-    std::atomic<float> sensor_position_ = 0;
+    std::atomic<float> setpoint_position_;
+    std::atomic<float> sensor_position_;
 };
+
 
 } // namespace pendulum
