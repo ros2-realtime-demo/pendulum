@@ -50,7 +50,9 @@ class ControllerNode : public rclcpp_lifecycle::LifecycleNode
 {
 public:
     COMPOSITION_PUBLIC
-    explicit ControllerNode(const rclcpp::NodeOptions & options);
+    explicit ControllerNode(const rclcpp::NodeOptions & options) : rclcpp_lifecycle::LifecycleNode("Controller", options)
+    { }
+
     COMPOSITION_PUBLIC
     explicit ControllerNode(const std::string & node_name, const rclcpp::NodeOptions & options,
             std::unique_ptr<Controller> controller);
@@ -86,10 +88,6 @@ private:
     std::chrono::nanoseconds update_period_;
 
     std::unique_ptr<Controller> controller_;
-
-    std::atomic<float> joint_state_;
-    std::atomic<float> joint_command_;
-    std::atomic<float> controller_output_;
 };
 
 }  // namespace pendulum

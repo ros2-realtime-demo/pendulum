@@ -76,7 +76,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
         return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
     }
 
-    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
     ControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
     {
         command_pub_->on_deactivate();
