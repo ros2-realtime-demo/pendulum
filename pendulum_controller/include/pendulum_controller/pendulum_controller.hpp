@@ -18,10 +18,14 @@
 #include <memory>
 #include <string>
 
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp/publisher.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
+#include "rclcpp_lifecycle/lifecycle_publisher.hpp"
+
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "lifecycle_msgs/msg/transition_event.hpp"
-
-#include "rclcpp/rclcpp.hpp"
+#include "lifecycle_msgs/msg/transition.hpp"
 
 #include "rcutils/logging_macros.h"
 
@@ -31,15 +35,6 @@
 
 #include "controller.h"
 #include "pendulum_controller/visibility_control.h"
-
-
-#include "lifecycle_msgs/msg/transition.hpp"
-
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp/publisher.hpp"
-
-#include "rclcpp_lifecycle/lifecycle_node.hpp"
-#include "rclcpp_lifecycle/lifecycle_publisher.hpp"
 
 using namespace std::chrono_literals;
 
