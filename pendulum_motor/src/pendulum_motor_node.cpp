@@ -21,23 +21,31 @@ namespace pendulum
 
 MotorNode::MotorNode(const std::string & node_name,
         std::chrono::nanoseconds publish_period,
+        std::unique_ptr<Motor> motor,
         const rclcpp::NodeOptions & options = rclcpp::NodeOptions().use_intra_process_comms(false))
 : rclcpp_lifecycle::LifecycleNode(node_name, options),
-  publish_period_(publish_period)
+  publish_period_(publish_period), motor_(std::move(motor))
 {
-
 }
-
 
 void MotorNode::on_command_received (const pendulum_msgs::msg::JointCommand::SharedPtr msg)
 {
     RCLCPP_INFO(this->get_logger(), "Command: %f", msg->position);
+
+    motor_->update_motor_command(*msg);
 }
 
 void MotorNode::sensor_timer_callback()
 {
     //RCLCPP_INFO(this->get_logger(), "position: %f", command_message_.position);
-    //sensor_pub_->publish(command_message_);
+    sensor_message_.velocity = motor_->get_velocity();
+    sensor_message_.position = motor_->get_position();
+    sensor_pub_->publish(sensor_message_);
+}
+
+void MotorNode::update_motor_callback()
+{
+  motor_->update_motor_state();
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -48,11 +56,11 @@ MotorNode::on_configure(const rclcpp_lifecycle::State &)
     command_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
             "pendulum_command", 1, std::bind(&MotorNode::on_command_received, this, std::placeholders::_1));
 
-    timer_ = this->create_wall_timer(publish_period_, std::bind(&MotorNode::sensor_timer_callback, this));
+    sensor_timer_ = this->create_wall_timer(publish_period_, std::bind(&MotorNode::sensor_timer_callback, this));
+    update_motor_timer_ = this->create_wall_timer(publish_period_, std::bind(&MotorNode::update_motor_callback, this));
 
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
-
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 MotorNode::on_activate(const rclcpp_lifecycle::State &)
@@ -71,7 +79,8 @@ MotorNode::on_deactivate(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 MotorNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
-    timer_.reset();
+    sensor_timer_.reset();
+    update_motor_timer_.reset();
     command_sub_.reset();
     sensor_pub_.reset();
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
@@ -80,7 +89,8 @@ MotorNode::on_cleanup(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 MotorNode::on_shutdown(const rclcpp_lifecycle::State &)
 {
-    //timer_.reset();
+    sensor_timer_.reset();
+    update_motor_timer_.reset();
     command_sub_.reset();
     sensor_pub_.reset();
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;

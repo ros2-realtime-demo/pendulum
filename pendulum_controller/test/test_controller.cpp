@@ -14,6 +14,7 @@ int main(int argc, char * argv[])
 {
     rclcpp::init(argc, argv);
     PIDProperties pid;
+    pid.p = 2.0;
     rclcpp::executors::SingleThreadedExecutor exec;
 
     std::chrono::nanoseconds update_period = 1000000ns;

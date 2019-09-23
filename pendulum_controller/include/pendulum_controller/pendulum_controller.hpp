@@ -78,11 +78,8 @@ private:
     std::shared_ptr<rclcpp::Subscription<lifecycle_msgs::msg::TransitionEvent>> sub_notification_;
 
     rclcpp::TimerBase::SharedPtr timer_;
-
     pendulum_msgs::msg::JointCommand command_message_;
-
     std::chrono::nanoseconds update_period_ = 1000000ns;
-
     std::unique_ptr<Controller> controller_;
 };
 

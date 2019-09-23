@@ -38,6 +38,21 @@ ament_target_dependencies(pendulum_motor_node
         "rclcpp_components")
 rclcpp_components_register_nodes(pendulum_motor_node "pendulum::MotorNode")
 
+add_executable(test_pendulum_motor
+        test/test_pendulum_motor.cpp
+        src/pendulum_motor_node.cpp)
+
+ament_target_dependencies(test_pendulum_motor
+        "rclcpp"
+        "rclcpp_lifecycle"
+        "lifecycle_msgs"
+        "pendulum_msgs"
+        "rclcpp"
+        "rclcpp_components")
+
+target_link_libraries(
+        pendulum_motor_node
+)
 
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported
@@ -52,5 +67,9 @@ install(TARGETS
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)
+
+install(TARGETS
+        test_pendulum_motor
+        DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

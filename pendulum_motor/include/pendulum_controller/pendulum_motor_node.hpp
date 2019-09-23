@@ -17,7 +17,7 @@
 
 #include <memory>
 #include <string>
-#include <chrono>
+#include <cmath>
 
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "lifecycle_msgs/msg/transition_event.hpp"
@@ -30,34 +30,13 @@
 #include "pendulum_msgs/msg/joint_state.hpp"
 #include <pendulum_msgs/msg/rttest_results.hpp>
 
+#include "pendulum_controller/motor.h"
 #include "pendulum_controller/visibility_control.h"
 
 using namespace std::chrono_literals;
 
 namespace pendulum
 {
-
-/// Struct representing the physical properties of the pendulum.
-struct PendulumProperties
-{
-  // Mass of the weight on the end of the pendulum in kilograms
-  double mass = 0.01;
-  // Length of the pendulum in meters
-  double length = 0.5;
-};
-
-/// Struct representing the dynamic/kinematic state of the pendulum.
-struct PendulumState
-{
-  // Angle from the ground in radians
-  double position = 0;
-  // Angular velocity in radians/sec
-  double velocity = 0;
-  // Angular acceleration in radians/sec^2
-  double acceleration = 0;
-  // Torque on the joint (currently unused)
-  double torque = 0;
-};
 
 class MotorNode : public rclcpp_lifecycle::LifecycleNode
 {
@@ -68,9 +47,11 @@ public:
     COMPOSITION_PUBLIC
     explicit MotorNode(const std::string & node_name,
             std::chrono::nanoseconds update_period,
+            std::unique_ptr<Motor> motor,
             const rclcpp::NodeOptions & options);
     void on_command_received(const pendulum_msgs::msg::JointCommand::SharedPtr msg);
     void sensor_timer_callback();
+    void update_motor_callback();
 
     rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
     on_configure(const rclcpp_lifecycle::State &);
@@ -86,12 +67,13 @@ public:
 private:
     std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<pendulum_msgs::msg::JointState>> sensor_pub_;
     std::shared_ptr<rclcpp::Subscription<pendulum_msgs::msg::JointCommand>> command_sub_;
-    PendulumProperties properties_;
-    PendulumState state_;
-    rclcpp::TimerBase::SharedPtr timer_;
+
+    rclcpp::TimerBase::SharedPtr sensor_timer_;
+    rclcpp::TimerBase::SharedPtr update_motor_timer_;
     std::chrono::nanoseconds publish_period_ = 1000000ns;
     std::chrono::nanoseconds physics_update_period_ = 1000000ns;
     pendulum_msgs::msg::JointState sensor_message_;
+    std::unique_ptr<Motor> motor_;
 };
 
 }  // namespace pendulum
