@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM__MOTOR_BASE_HPP_
-#define PENDULUM__MOTOR_BASE_HPP_
+#ifndef PENDULUM__MOTOR_NODE_HPP_
+#define PENDULUM__MOTOR_NODE_HPP_
 
 #include <memory>
 #include <string>
@@ -34,11 +34,11 @@
 namespace pendulum
 {
 
-class MotorBase : public rclcpp_lifecycle::LifecycleNode
+class MotorNode : public rclcpp_lifecycle::LifecycleNode
 {
 public:
     COMPOSITION_PUBLIC
-    explicit MotorBase(const rclcpp::NodeOptions & options);
+    explicit MotorNode(const rclcpp::NodeOptions & options);
 
     void on_command_received(const pendulum_msgs::msg::JointCommand::SharedPtr msg);
 
@@ -61,4 +61,4 @@ private:
 
 }  // namespace pendulum
 
-#endif  // PENDULUM__MOTOR_BASE_HPP_
+#endif  // PENDULUM__MOTOR_NODE_HPP_
