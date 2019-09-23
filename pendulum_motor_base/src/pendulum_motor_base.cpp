@@ -22,36 +22,15 @@ namespace pendulum
     MotorBase::MotorBase(const rclcpp::NodeOptions & options)
     : rclcpp_lifecycle::LifecycleNode("motor_node", options)
 {
-    // Initialize the publisher for the sensor message (the current position of the pendulum).
-    sensor_pub = this->create_publisher<pendulum_msgs::msg::JointState>("pendulum_sensor", 10);
 
-
-    // Initialize the subscription to the command message.
-    command_sub = this->create_subscription<pendulum_msgs::msg::JointCommand>(
-            "pendulum_command", 10, std::bind(&MotorBase::on_command_received, this, std::placeholders_1));
-
-
-    // Notification event topic. All state changes
-    // are published here as TransitionEvents with
-    // a start and goal state indicating the transition
-    sub_notification_ = this->create_subscription<lifecycle_msgs::msg::TransitionEvent>(
-      "/lc_talker/transition_event",
-      10,
-      std::bind(&MotorBase::notification_callback, this, std::placeholders::_1));
 }
 
-void MotorBase::notification_callback(const lifecycle_msgs::msg::TransitionEvent::SharedPtr msg)
-{
-    RCLCPP_INFO(get_logger(), "notify callback: Transition from state %s to %s",
-            msg->start_state.label.c_str(), msg->goal_state.label.c_str());
-}
 
-void MotorBase::on_command_received (const pendulum::msg::JointCommand::SharedPtr msg)
+void MotorBase::on_command_received (const pendulum_msgs::msg::JointCommand::SharedPtr msg)
 {
     RCLCPP_INFO(this->get_logger(), "Command: %f", msg->position);
 
 }
-
 
 }  // namespace pendulum_controller
 

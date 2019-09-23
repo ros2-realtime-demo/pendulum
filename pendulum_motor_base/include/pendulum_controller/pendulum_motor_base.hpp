@@ -33,20 +33,13 @@
 
 namespace pendulum
 {
-    //TODO: add controller by composition or inheritance
-    //TODO: change QoS
-    //TODO: add config parameters
-    //TODO: use mutex to protect shared data
-    //TODO: add logic to transition callbacks
-    //TODO: change msg definition
-    //TODO: add real-time settings
+
 class MotorBase : public rclcpp_lifecycle::LifecycleNode
 {
 public:
     COMPOSITION_PUBLIC
     explicit MotorBase(const rclcpp::NodeOptions & options);
 
-    void notification_callback(const lifecycle_msgs::msg::TransitionEvent::SharedPtr msg);
     void on_command_received(const pendulum_msgs::msg::JointCommand::SharedPtr msg);
 
     rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -64,7 +57,6 @@ public:
 private:
     std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<pendulum_msgs::msg::JointState>> sensor_pub;
     std::shared_ptr<rclcpp::Subscription<pendulum_msgs::msg::JointCommand>> command_sub;
-    std::shared_ptr<rclcpp::Subscription<lifecycle_msgs::msg::TransitionEvent>> sub_notification_;
 };
 
 }  // namespace pendulum
