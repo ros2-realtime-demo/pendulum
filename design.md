@@ -24,8 +24,10 @@ Controller:
 * [ ] Improve current PID implemetation (add clamping).
 * [ ] Create an aditional controller i.e: LQR
 
-Robot:
+Robot/Motor:
 
+* [ ] Add timer to publish position.
+* [ ] Add a simple pendulum model implementation.
 * [ ] Add unit test to test the pendulum (motor) basic interface behavior.
 * [ ] Add unit test or executable to test the dynamics of the model.
 
