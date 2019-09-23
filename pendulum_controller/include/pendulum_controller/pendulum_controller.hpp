@@ -70,7 +70,6 @@ public:
 
     void control_timer_callback();
 
-
 private:
     std::shared_ptr<rclcpp::Subscription<pendulum_msgs::msg::JointState>> sub_sensor_;
     std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<pendulum_msgs::msg::JointCommand>> command_pub_;
