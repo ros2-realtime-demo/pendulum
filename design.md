@@ -13,7 +13,7 @@ General:
 * [ ] Change pub/sub QoS with a more real-time friendly one.
 * [ ] Create launchfile using composition for the whole demo.
 * [ ] Add doxygen documentation support.
-* [ ] Create custom msg
+* [ ] Create custom msg.
 * [ ] Use tools to check memory allocation. i.e: valgrind memcheck or OSRF memory tools.
 
 Controller:
@@ -21,6 +21,7 @@ Controller:
 * [ ] Add unit test to test controller basic interface behavior.
 * [ ] Add unit test or executable to test a PID implementation.
 * [ ] Use parameters to change controller configuration in runtime. For example to tune a PID.
+* [ ] Improve current PID implemetation (add clamping).
 * [ ] Create an aditional controller i.e: LQR
 
 Robot:
