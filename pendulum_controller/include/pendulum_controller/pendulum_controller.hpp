@@ -40,12 +40,7 @@ using namespace std::chrono_literals;
 
 namespace pendulum
 {
-    //TODO: add controller by composition or inheritance
-    //TODO: change QoS
-    //TODO: add config parameters
-    //TODO: use mutex to protect shared data
-    //TODO: add logic to transition callbacks
-    //TODO: change msg definition
+
 class ControllerNode : public rclcpp_lifecycle::LifecycleNode
 {
 public:
