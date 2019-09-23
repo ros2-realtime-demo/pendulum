@@ -15,11 +15,14 @@ int main(int argc, char * argv[])
     rclcpp::init(argc, argv);
     PIDProperties pid;
     rclcpp::executors::SingleThreadedExecutor exec;
+
+    std::chrono::nanoseconds update_period = 1000000ns;
     std::unique_ptr<Controller> pid_controller =
-            std::make_unique<PIDController>(std::chrono::nanoseconds(1000000), pid);
+            std::make_unique<PIDController>(update_period, pid);
     auto controller_node =  std::make_shared<ControllerNode>(
             "pendulum_controller",
             std::move(pid_controller),
+            update_period,
             rclcpp::NodeOptions().use_intra_process_comms(true));
 
     exec.add_node(controller_node->get_node_base_interface());

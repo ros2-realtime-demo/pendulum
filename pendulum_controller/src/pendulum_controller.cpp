@@ -22,8 +22,10 @@ namespace pendulum
 
 ControllerNode::ControllerNode(const std::string & node_name,
         std::unique_ptr<Controller> controller,
+        std::chrono::nanoseconds update_period,
         const rclcpp::NodeOptions & options = rclcpp::NodeOptions().use_intra_process_comms(false))
-: rclcpp_lifecycle::LifecycleNode(node_name, options), controller_(std::move(controller))
+: rclcpp_lifecycle::LifecycleNode(node_name, options), update_period_(update_period),
+  controller_(std::move(controller))
 {
 
 }
@@ -63,7 +65,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
         logger_pub_ = this->create_publisher<pendulum_msgs::msg::RttestResults>(
                 "pendulum_statistics", 10);
 
-        timer_ = this->create_wall_timer(1s, std::bind(&ControllerNode::control_timer_callback, this));
+        timer_ = this->create_wall_timer(update_period_, std::bind(&ControllerNode::control_timer_callback, this));
 
         return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
     }
