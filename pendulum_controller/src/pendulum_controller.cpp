@@ -32,19 +32,20 @@ ControllerNode::ControllerNode(const std::string & node_name,
 
 void ControllerNode::on_sensor_message(const pendulum_msgs::msg::JointState::SharedPtr msg)
 {
-    RCLCPP_INFO(this->get_logger(), "position: %f", msg->position);
+    RCLCPP_INFO(this->get_logger(), "on_sensor_message: position: %f", msg->position);
     controller_->update_sensor_data(*msg);
 }
 
 void ControllerNode::on_pendulum_setpoint(const pendulum_msgs::msg::JointCommand::SharedPtr msg)
 {
-    RCLCPP_INFO(this->get_logger(), "position: %f", msg->position);
+    RCLCPP_INFO(this->get_logger(), "on_pendulum_setpoint: position: %f", msg->position);
     controller_->update_setpoint_data(*msg);
 }
 
 void ControllerNode::control_timer_callback()
 {
     command_message_.position = controller_->compute_output();
+    RCLCPP_INFO(this->get_logger(), "position: %f", command_message_.position);
     command_pub_->publish(command_message_);
 }
 
@@ -52,18 +53,18 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
     ControllerNode::on_configure(const rclcpp_lifecycle::State &)
     {
         sub_sensor_ = this->create_subscription<pendulum_msgs::msg::JointState>(
-                "pendulum_sensor", 10, std::bind(&ControllerNode::on_sensor_message, this, std::placeholders::_1));
+                "pendulum_sensor", 1, std::bind(&ControllerNode::on_sensor_message, this, std::placeholders::_1));
 
         // Initialize the publisher for the command message.
         command_pub_ = this->create_publisher<pendulum_msgs::msg::JointCommand>(
-                "pendulum_command", 10);
+                "pendulum_command", 1);
 
         setpoint_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
-                "pendulum_setpoint", 10, std::bind(&ControllerNode::on_pendulum_setpoint, this, std::placeholders::_1));
+                "pendulum_setpoint", 1, std::bind(&ControllerNode::on_pendulum_setpoint, this, std::placeholders::_1));
 
         // Initialize the logger publisher.
         logger_pub_ = this->create_publisher<pendulum_msgs::msg::RttestResults>(
-                "pendulum_statistics", 10);
+                "pendulum_statistics", 1);
 
         timer_ = this->create_wall_timer(update_period_, std::bind(&ControllerNode::control_timer_callback, this));
 

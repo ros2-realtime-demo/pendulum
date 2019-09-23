@@ -55,7 +55,7 @@ public:
             throw std::runtime_error("Sensor value was NaN in on_sensor_message callback");
         }
         // PID controller algorithm
-        double error = pid_.command - sensor_position_;
+        double error = setpoint_position_ - sensor_position_;
         // Proportional gain is proportional to error
         double p_gain = pid_.p * error;
         // Integral gain is proportional to the accumulation of error
