@@ -49,8 +49,9 @@ public:
     { }
 
     COMPOSITION_PUBLIC
-    explicit ControllerNode(const std::string & node_name, const rclcpp::NodeOptions & options,
-            std::unique_ptr<Controller> controller);
+    explicit ControllerNode(const std::string & node_name,
+            std::unique_ptr<Controller> controller,
+            const rclcpp::NodeOptions & options);
     void on_sensor_message(const pendulum_msgs::msg::JointState::SharedPtr msg);
     void on_pendulum_setpoint(const pendulum_msgs::msg::JointCommand::SharedPtr msg);
 

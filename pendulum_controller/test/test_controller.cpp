@@ -19,8 +19,8 @@ int main(int argc, char * argv[])
             std::make_unique<PIDController>(std::chrono::nanoseconds(1000000), pid);
     auto controller_node =  std::make_shared<ControllerNode>(
             "pendulum_controller",
-            rclcpp::NodeOptions().use_intra_process_comms(true),
-            std::move(pid_controller));
+            std::move(pid_controller),
+            rclcpp::NodeOptions().use_intra_process_comms(true));
 
     exec.add_node(controller_node->get_node_base_interface());
     exec.spin();

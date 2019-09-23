@@ -21,7 +21,8 @@ namespace pendulum
 {
 
 ControllerNode::ControllerNode(const std::string & node_name,
-        const rclcpp::NodeOptions & options, std::unique_ptr<Controller> controller)
+        std::unique_ptr<Controller> controller,
+        const rclcpp::NodeOptions & options = rclcpp::NodeOptions().use_intra_process_comms(false))
 : rclcpp_lifecycle::LifecycleNode(node_name, options), controller_(std::move(controller))
 {
 
