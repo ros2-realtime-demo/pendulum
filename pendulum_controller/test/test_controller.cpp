@@ -13,16 +13,17 @@ using namespace pendulum;
 int main(int argc, char * argv[])
 {
     rclcpp::init(argc, argv);
-
     PIDProperties pid;
-
+    rclcpp::executors::SingleThreadedExecutor exec;
     std::unique_ptr<Controller> pid_controller =
-            std::make_unique<PIDController>(std::chrono::nanoseconds(960000), pid);
-
-    auto controller_node =  std::make_unique<ControllerNode>(
+            std::make_unique<PIDController>(std::chrono::nanoseconds(1000000), pid);
+    auto controller_node =  std::make_shared<ControllerNode>(
             "pendulum_controller",
             rclcpp::NodeOptions().use_intra_process_comms(true),
             std::move(pid_controller));
-    
+
+    exec.add_node(controller_node->get_node_base_interface());
+    exec.spin();
+    rclcpp::shutdown();
     return EXIT_SUCCESS;
 }
