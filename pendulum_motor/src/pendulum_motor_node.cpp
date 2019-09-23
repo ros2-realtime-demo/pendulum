@@ -35,9 +35,9 @@ void MotorNode::on_command_received (const pendulum_msgs::msg::JointCommand::Sha
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 MotorNode::on_configure(const rclcpp_lifecycle::State &)
 {
-    sensor_pub = this->create_publisher<pendulum_msgs::msg::JointState>("pendulum_sensor", 1);
+    sensor_pub_ = this->create_publisher<pendulum_msgs::msg::JointState>("pendulum_sensor", 1);
 
-    command_sub = this->create_subscription<pendulum_msgs::msg::JointCommand>(
+    command_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
             "pendulum_command", 1, std::bind(&MotorNode::on_command_received, this, std::placeholders::_1));
 
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
@@ -47,14 +47,14 @@ MotorNode::on_configure(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 MotorNode::on_activate(const rclcpp_lifecycle::State &)
 {
-    sensor_pub->on_activate();
+    sensor_pub_->on_activate();
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 MotorNode::on_deactivate(const rclcpp_lifecycle::State &)
 {
-    sensor_pub->on_deactivate();
+    sensor_pub_->on_deactivate();
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -62,8 +62,8 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 MotorNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
     //timer_.reset();
-    command_sub.reset();
-    sensor_pub.reset();
+    command_sub_.reset();
+    sensor_pub_.reset();
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -71,8 +71,8 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 MotorNode::on_shutdown(const rclcpp_lifecycle::State &)
 {
     //timer_.reset();
-    command_sub.reset();
-    sensor_pub.reset();
+    command_sub_.reset();
+    sensor_pub_.reset();
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 

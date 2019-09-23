@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
-  <name>pendulum_motor_base</name>
+  <name>pendulum_motor</name>
   <version>0.7.6</version>
   <description>Package containing demos for lifecycle implementation</description>
   <maintainer email="karsten@osrfoundation.org">Karsten Knese</maintainer>

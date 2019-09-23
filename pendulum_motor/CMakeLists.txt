@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(pendulum_motor_base)
+project(pendulum_motor)
 
 # Default to C++14
 if (NOT CMAKE_CXX_STANDARD)

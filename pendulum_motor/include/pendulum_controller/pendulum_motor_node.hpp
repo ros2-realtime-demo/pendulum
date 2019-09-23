@@ -55,8 +55,9 @@ public:
 
 
 private:
-    std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<pendulum_msgs::msg::JointState>> sensor_pub;
-    std::shared_ptr<rclcpp::Subscription<pendulum_msgs::msg::JointCommand>> command_sub;
+    std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<pendulum_msgs::msg::JointState>> sensor_pub_;
+    std::shared_ptr<rclcpp::Subscription<pendulum_msgs::msg::JointCommand>> command_sub_;
+    rclcpp::TimerBase::SharedPtr timer_;
 };
 
 }  // namespace pendulum
