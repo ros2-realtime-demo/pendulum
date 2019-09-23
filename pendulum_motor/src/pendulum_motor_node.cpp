@@ -19,8 +19,11 @@
 namespace pendulum
 {
 
-    MotorNode::MotorNode(const rclcpp::NodeOptions & options)
-    : rclcpp_lifecycle::LifecycleNode("motor_node", options)
+MotorNode::MotorNode(const std::string & node_name,
+        std::chrono::nanoseconds publish_period,
+        const rclcpp::NodeOptions & options = rclcpp::NodeOptions().use_intra_process_comms(false))
+: rclcpp_lifecycle::LifecycleNode(node_name, options),
+  publish_period_(publish_period)
 {
 
 }
@@ -29,7 +32,12 @@ namespace pendulum
 void MotorNode::on_command_received (const pendulum_msgs::msg::JointCommand::SharedPtr msg)
 {
     RCLCPP_INFO(this->get_logger(), "Command: %f", msg->position);
+}
 
+void MotorNode::sensor_timer_callback()
+{
+    //RCLCPP_INFO(this->get_logger(), "position: %f", command_message_.position);
+    //sensor_pub_->publish(command_message_);
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -39,6 +47,8 @@ MotorNode::on_configure(const rclcpp_lifecycle::State &)
 
     command_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
             "pendulum_command", 1, std::bind(&MotorNode::on_command_received, this, std::placeholders::_1));
+
+    timer_ = this->create_wall_timer(publish_period_, std::bind(&MotorNode::sensor_timer_callback, this));
 
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
@@ -61,7 +71,7 @@ MotorNode::on_deactivate(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 MotorNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
-    //timer_.reset();
+    timer_.reset();
     command_sub_.reset();
     sensor_pub_.reset();
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
