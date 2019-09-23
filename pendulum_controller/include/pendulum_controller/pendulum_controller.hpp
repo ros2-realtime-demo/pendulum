@@ -82,7 +82,7 @@ private:
 
     pendulum_msgs::msg::JointCommand command_message_;
 
-    std::chrono::nanoseconds update_period_;
+    std::chrono::nanoseconds update_period_ = 1000000ns;
 
     std::unique_ptr<Controller> controller_;
 };
