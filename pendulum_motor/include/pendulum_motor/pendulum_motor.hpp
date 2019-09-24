@@ -6,7 +6,7 @@
 
 namespace pendulum {
 
-class Motor {
+class PendulumMotor {
 public:
 
     virtual void update_motor_command(const pendulum_msgs::msg::JointCommand &msg) = 0;

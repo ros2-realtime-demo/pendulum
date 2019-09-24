@@ -2,7 +2,7 @@
 #include <cmath>
 #include <atomic>
 
-#include "motor.h"
+#include "pendulum_motor/pendulum_motor.hpp"
 
 #ifndef GRAVITY
 #define GRAVITY 9.80665
@@ -37,11 +37,11 @@ namespace pendulum {
     double torque = 0;
   };
 
-class MotorSim : public Motor
+class PendulumMotorSim : public PendulumMotor
 {
 public:
 
-    MotorSim(std::chrono::nanoseconds period)
+    PendulumMotorSim(std::chrono::nanoseconds period)
     : publish_period_(period)
     {
         // Calculate the controller timestep (for discrete differentiation/integration).

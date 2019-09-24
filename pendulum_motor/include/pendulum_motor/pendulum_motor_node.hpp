@@ -30,24 +30,24 @@
 #include "pendulum_msgs/msg/joint_state.hpp"
 #include <pendulum_msgs/msg/rttest_results.hpp>
 
-#include "pendulum_controller/motor.h"
-#include "pendulum_controller/visibility_control.h"
+#include "pendulum_motor/pendulum_motor.hpp"
+#include "pendulum_motor/visibility_control.h"
 
 using namespace std::chrono_literals;
 
 namespace pendulum
 {
 
-class MotorNode : public rclcpp_lifecycle::LifecycleNode
+class PendulumMotorNode : public rclcpp_lifecycle::LifecycleNode
 {
 public:
     COMPOSITION_PUBLIC
-    explicit MotorNode(const rclcpp::NodeOptions & options): rclcpp_lifecycle::LifecycleNode("Controller", options)
+    explicit PendulumMotorNode(const rclcpp::NodeOptions & options): rclcpp_lifecycle::LifecycleNode("PendulumMotor", options)
     { };
     COMPOSITION_PUBLIC
-    explicit MotorNode(const std::string & node_name,
+    explicit PendulumMotorNode(const std::string & node_name,
             std::chrono::nanoseconds update_period,
-            std::unique_ptr<Motor> motor,
+            std::unique_ptr<PendulumMotor> motor,
             const rclcpp::NodeOptions & options);
     void on_command_received(const pendulum_msgs::msg::JointCommand::SharedPtr msg);
     void sensor_timer_callback();
@@ -73,7 +73,7 @@ private:
     std::chrono::nanoseconds publish_period_ = 1000000ns;
     std::chrono::nanoseconds physics_update_period_ = 1000000ns;
     pendulum_msgs::msg::JointState sensor_message_;
-    std::unique_ptr<Motor> motor_;
+    std::unique_ptr<PendulumMotor> motor_;
 };
 
 }  // namespace pendulum

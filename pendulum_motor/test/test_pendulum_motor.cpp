@@ -2,8 +2,8 @@
 #include <chrono>
 #include <memory>
 
-#include "pendulum_controller/motor_sim.hpp"
-#include "pendulum_controller/pendulum_motor_node.hpp"
+#include "simple_pendulum_sim.hpp"
+#include "pendulum_motor/pendulum_motor_node.hpp"
 
 using namespace std::chrono_literals;
 using namespace pendulum;
@@ -14,9 +14,9 @@ int main(int argc, char * argv[])
     rclcpp::executors::SingleThreadedExecutor exec;
 
     std::chrono::nanoseconds update_period = 1000000ns;
-    std::unique_ptr<Motor> motor =
-            std::make_unique<MotorSim>(update_period);
-    auto motor_node =  std::make_shared<MotorNode>(
+    std::unique_ptr<PendulumMotor> motor =
+            std::make_unique<PendulumMotorSim>(update_period);
+    auto motor_node =  std::make_shared<PendulumMotorNode>(
             "pendulum_motor_node",
             update_period,
             std::move(motor),
