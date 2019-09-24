@@ -34,21 +34,30 @@ void PendulumControllerNode::on_sensor_message(
   const pendulum_msgs::msg::JointState::SharedPtr msg)
 {
     RCLCPP_INFO(this->get_logger(), "on_sensor_message: position: %f", msg->position);
-    controller_->update_sensor_data(*msg);
+    //controller_->update_sensor_data(*msg);
+    controller_->write(*msg);
 }
 
 void PendulumControllerNode::on_pendulum_setpoint(
   const pendulum_msgs::msg::JointCommand::SharedPtr msg)
 {
     RCLCPP_INFO(this->get_logger(), "on_pendulum_setpoint: position: %f", msg->position);
-    controller_->update_setpoint_data(*msg);
+    //controller_->update_setpoint_data(*msg);
+    controller_->write(*msg);
 }
 
 void PendulumControllerNode::control_timer_callback()
 {
-    command_message_.position = controller_->compute_output();
+    //command_message_.position = controller_->compute_output();
+    controller_->read(command_message_);
     RCLCPP_INFO(this->get_logger(), "position: %f", command_message_.position);
     command_pub_->publish(command_message_);
+}
+
+const pendulum_msgs::msg::JointCommand &
+  PendulumControllerNode::get_next_command_message() const
+{
+  return command_message_;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn

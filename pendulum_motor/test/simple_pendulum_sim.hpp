@@ -61,23 +61,28 @@ public:
             throw std::runtime_error("Invalid dt_ calculated in PendulumController constructor");
         }
     }
-
-    virtual void update_motor_command(
-      const pendulum_msgs::msg::JointCommand &msg) override
+    
+    virtual void write(const pendulum_msgs::msg::JointCommand &msg)
     {
-        // Assume direct, instantaneous position control
-        // (It would be more realistic to simulate a motor model)
-        state_.position = msg.position;
+      // Assume direct, instantaneous position control
+      // (It would be more realistic to simulate a motor model)
+      state_.position = msg.position;
 
-        // Enforce position limits
-        if (state_.position > PI) {
-          state_.position = PI;
-        } else if (state_.position < 0) {
-          state_.position = 0;
-        }
+      // Enforce position limits
+      if (state_.position > PI) {
+        state_.position = PI;
+      } else if (state_.position < 0) {
+        state_.position = 0;
+      }
     }
 
-    virtual void update_motor_state()
+    virtual void read(pendulum_msgs::msg::JointState &msg)
+    {
+      msg.velocity = state_.velocity;
+      msg.position = state_.position;
+    }
+
+    virtual void update()
     {
       // TODO: add mutex
       state_.acceleration =
@@ -90,13 +95,6 @@ public:
       } else if (state_.position < 0) {
         state_.position = 0;
       }
-    }
-
-    virtual void update_joint_state_msg(pendulum_msgs::msg::JointState &msg)
-    {
-      // TODO: add mutex
-      msg.velocity = state_.velocity;
-      msg.position = state_.position;
     }
 
 private:

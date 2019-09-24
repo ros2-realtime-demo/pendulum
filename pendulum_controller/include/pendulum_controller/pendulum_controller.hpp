@@ -22,13 +22,10 @@ namespace pendulum {
 
 class PendulumController {
 public:
-
-    virtual void update_setpoint_data(const pendulum_msgs::msg::JointCommand &msg) = 0;
-
-    virtual void update_sensor_data(const pendulum_msgs::msg::JointState &msg) = 0;
-
-    virtual float compute_output() = 0;
-
+    virtual void write(const pendulum_msgs::msg::JointCommand &msg) = 0;
+    virtual void write(const pendulum_msgs::msg::JointState &msg) = 0;
+    virtual void read(pendulum_msgs::msg::JointCommand &msg) = 0;
+    virtual void update() = 0;
 };
 
 } // namespace pendulum

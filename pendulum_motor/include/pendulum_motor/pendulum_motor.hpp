@@ -22,10 +22,9 @@ namespace pendulum {
 
 class PendulumMotor {
 public:
-
-    virtual void update_motor_command(const pendulum_msgs::msg::JointCommand &msg) = 0;
-    virtual void update_motor_state() = 0;
-    virtual void update_joint_state_msg(pendulum_msgs::msg::JointState &msg) = 0;
+    virtual void write(const pendulum_msgs::msg::JointCommand &msg) = 0;
+    virtual void update() = 0;
+    virtual void read(pendulum_msgs::msg::JointState &msg) = 0;
 };
 
 } // namespace pendulum

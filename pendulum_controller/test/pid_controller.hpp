@@ -50,48 +50,49 @@ public:
             throw std::runtime_error("Invalid dt_ calculated in PendulumController constructor");
         }
     }
-
-    virtual void update_setpoint_data(
-      const pendulum_msgs::msg::JointCommand &msg) override
+    virtual void write(const pendulum_msgs::msg::JointCommand &msg) override
     {
-        setpoint_position_ = msg.position;
+      setpoint_position_ = msg.position;
     }
 
-    virtual void update_sensor_data(
-      const pendulum_msgs::msg::JointState &msg) override
+    virtual void write(const pendulum_msgs::msg::JointState &msg) override
     {
-        sensor_position_ = msg.position;
+      sensor_position_ = msg.position;
     }
 
-    virtual float compute_output() override
+    virtual void read(pendulum_msgs::msg::JointCommand &msg) override
     {
-        float command_position_output = 0;
-        if (std::isnan(sensor_position_)) {
-            throw std::runtime_error("Sensor value was NaN in on_sensor_message callback");
-        }
-        // PID controller algorithm
-        double error = setpoint_position_ - sensor_position_;
-        // Proportional gain is proportional to error
-        double p_gain = pid_.p * error;
-        // Integral gain is proportional to the accumulation of error
-        i_gain_ = pid_.i * (i_gain_ + error * dt_);
-        // Differential gain is proportional to the change in error
-        double d_gain = pid_.d * (error - last_error_) / dt_;
-        last_error_ = error;
+      this->update();
+      msg.position = pid_.command;
+    }
 
-        // Calculate the message based on PID gains
-        command_position_output = sensor_position_ + p_gain + i_gain_ + d_gain;
-        // Enforce positional limits
-        if (command_position_output > PI) {
-            command_position_output = PI;
-        } else if (command_position_output < 0) {
-            command_position_output = 0;
-        }
+    virtual void update() override
+    {
+      if (std::isnan(sensor_position_)) {
+          throw std::runtime_error("Sensor value was NaN in on_sensor_message callback");
+      }
+      // PID controller algorithm
+      double error = setpoint_position_ - sensor_position_;
+      // Proportional gain is proportional to error
+      double p_gain = pid_.p * error;
+      // Integral gain is proportional to the accumulation of error
+      i_gain_ = pid_.i * (i_gain_ + error * dt_);
+      // Differential gain is proportional to the change in error
+      double d_gain = pid_.d * (error - last_error_) / dt_;
+      last_error_ = error;
 
-        if (std::isnan(command_position_output)) {
-            throw std::runtime_error("Resulting command was NaN in on_sensor_message callback");
-        }
-        return command_position_output;
+      // Calculate the message based on PID gains
+      pid_.command = sensor_position_ + p_gain + i_gain_ + d_gain;
+      // Enforce positional limits
+      if (pid_.command > PI) {
+          pid_.command = PI;
+      } else if (pid_.command < 0) {
+          pid_.command = 0;
+      }
+
+      if (std::isnan(pid_.command)) {
+          throw std::runtime_error("Resulting command was NaN in on_sensor_message callback");
+      }
     }
 
 private:

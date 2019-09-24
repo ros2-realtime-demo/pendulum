@@ -55,9 +55,9 @@ public:
     void on_sensor_message(const pendulum_msgs::msg::JointState::SharedPtr msg);
     void on_pendulum_setpoint(
       const pendulum_msgs::msg::JointCommand::SharedPtr msg);
-
-    void notification_callback(
-      const lifecycle_msgs::msg::TransitionEvent::SharedPtr msg);
+      /// Retrieve the command calculated from the last sensor message.
+      // \return Command message
+    const pendulum_msgs::msg::JointCommand & get_next_command_message() const;
     rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
       on_configure(const rclcpp_lifecycle::State &);
     rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn

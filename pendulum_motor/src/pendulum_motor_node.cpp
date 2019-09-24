@@ -34,20 +34,19 @@ void PendulumMotorNode::on_command_received (
   const pendulum_msgs::msg::JointCommand::SharedPtr msg)
 {
     RCLCPP_INFO(this->get_logger(), "Command: %f", msg->position);
-
-    motor_->update_motor_command(*msg);
+    motor_->write(*msg);
 }
 
 void PendulumMotorNode::sensor_timer_callback()
 {
     //RCLCPP_INFO(this->get_logger(), "position: %f", command_message_.position);
-    motor_->update_joint_state_msg(sensor_message_);
+    motor_->read(sensor_message_);
     sensor_pub_->publish(sensor_message_);
 }
 
 void PendulumMotorNode::update_motor_callback()
 {
-  motor_->update_motor_state();
+  motor_->update();
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
