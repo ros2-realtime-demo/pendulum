@@ -25,7 +25,7 @@ include_directories(
   ${rclcpp_INCLUDE_DIRS})
 
 add_library(pendulum_controller SHARED
-        src/pendulum_controller.cpp)
+        src/pendulum_controller_node.cpp)
 
 target_compile_definitions(pendulum_controller
         PRIVATE "COMPOSITION_BUILDING_DLL")
@@ -38,11 +38,11 @@ ament_target_dependencies(pendulum_controller
         "rclcpp_components")
 rclcpp_components_register_nodes(pendulum_controller "pendulum::Controller")
 
-add_executable(test_controller
-        test/test_controller.cpp
-        src/pendulum_controller.cpp)
+add_executable(test_pendulum_controller
+        test/test_pendulum_controller.cpp
+        src/pendulum_controller_node.cpp)
 
-ament_target_dependencies(test_controller
+ament_target_dependencies(test_pendulum_controller
         "rclcpp"
         "rclcpp_lifecycle"
         "lifecycle_msgs"
@@ -54,14 +54,12 @@ target_link_libraries(
         pendulum_controller
 )
 
-
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported
 if(NOT WIN32)
   ament_environment_hooks(
           "${ament_cmake_package_templates_ENVIRONMENT_HOOK_LIBRARY_PATH}")
 endif()
-
 
 install(TARGETS
         pendulum_controller
@@ -70,7 +68,7 @@ install(TARGETS
         RUNTIME DESTINATION bin)
 
 install(TARGETS
-        test_controller
+        test_pendulum_controller
         DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

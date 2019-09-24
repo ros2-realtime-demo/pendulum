@@ -2,7 +2,7 @@
 #include <cmath>
 #include <atomic>
 
-#include "controller.h"
+#include "pendulum_controller/pendulum_controller.hpp"
 
 #ifndef PI
 #define PI 3.14159265359
@@ -24,7 +24,7 @@ struct PIDProperties
 };
 
 
-class PIDController : public Controller
+class PIDController : public PendulumController
 {
 public:
 

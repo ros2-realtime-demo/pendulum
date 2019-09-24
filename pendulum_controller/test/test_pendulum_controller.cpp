@@ -1,6 +1,6 @@
-#include "pendulum_controller/controller.h"
 #include "pendulum_controller/pendulum_controller.hpp"
-#include "pendulum_controller/PIDController.hpp"
+#include "pendulum_controller/pendulum_controller_node.hpp"
+#include "pid_controller.hpp"
 
 
 #include <iostream>
@@ -18,9 +18,9 @@ int main(int argc, char * argv[])
     rclcpp::executors::SingleThreadedExecutor exec;
 
     std::chrono::nanoseconds update_period = 1000000ns;
-    std::unique_ptr<Controller> pid_controller =
+    std::unique_ptr<PendulumController> pid_controller =
             std::make_unique<PIDController>(update_period, pid);
-    auto controller_node =  std::make_shared<ControllerNode>(
+    auto controller_node =  std::make_shared<PendulumControllerNode>(
             "pendulum_controller",
             std::move(pid_controller),
             update_period,
