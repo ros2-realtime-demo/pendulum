@@ -1,4 +1,4 @@
-// Copyright 2016 Open Source Robotics Foundation, Inc.
+// Copyright 2019
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pendulum_controller/pendulum_controller_node.hpp"
-#include "lifecycle_msgs/msg/transition_event.hpp"
 #include "rttest/utils.h"
+#include "pendulum_controller/pendulum_controller_node.hpp"
 
+using namespace rclcpp_lifecycle::node_interfaces;
 
 namespace pendulum
 {
@@ -23,20 +23,22 @@ namespace pendulum
 PendulumControllerNode::PendulumControllerNode(const std::string & node_name,
         std::unique_ptr<PendulumController> controller,
         std::chrono::nanoseconds update_period,
-        const rclcpp::NodeOptions & options = rclcpp::NodeOptions().use_intra_process_comms(false))
-: rclcpp_lifecycle::LifecycleNode(node_name, options), update_period_(update_period),
+        const rclcpp::NodeOptions & options =
+         rclcpp::NodeOptions().use_intra_process_comms(false))
+: rclcpp_lifecycle::LifecycleNode(node_name, options),
+  update_period_(update_period),
   controller_(std::move(controller))
-{
+  { }
 
-}
-
-void PendulumControllerNode::on_sensor_message(const pendulum_msgs::msg::JointState::SharedPtr msg)
+void PendulumControllerNode::on_sensor_message(
+  const pendulum_msgs::msg::JointState::SharedPtr msg)
 {
     RCLCPP_INFO(this->get_logger(), "on_sensor_message: position: %f", msg->position);
     controller_->update_sensor_data(*msg);
 }
 
-void PendulumControllerNode::on_pendulum_setpoint(const pendulum_msgs::msg::JointCommand::SharedPtr msg)
+void PendulumControllerNode::on_pendulum_setpoint(
+  const pendulum_msgs::msg::JointCommand::SharedPtr msg)
 {
     RCLCPP_INFO(this->get_logger(), "on_pendulum_setpoint: position: %f", msg->position);
     controller_->update_setpoint_data(*msg);
@@ -50,8 +52,8 @@ void PendulumControllerNode::control_timer_callback()
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-    PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
-    {
+  PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
+{
         sub_sensor_ = this->create_subscription<pendulum_msgs::msg::JointState>(
                 "pendulum_sensor", 1, std::bind(&PendulumControllerNode::on_sensor_message, this, std::placeholders::_1));
 
@@ -71,44 +73,44 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
         return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
     }
 
-
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-    PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
-    {
+  PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
+{
         command_pub_->on_activate();
         logger_pub_->on_activate();
-        return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
-    }
+        return LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-    PendulumControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
-    {
+  PendulumControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
+{
         command_pub_->on_deactivate();
         logger_pub_->on_deactivate();
-        return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
-    }
+        return LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-    PendulumControllerNode::on_cleanup(const rclcpp_lifecycle::State &)
-    {
+  PendulumControllerNode::on_cleanup(const rclcpp_lifecycle::State &)
+{
         timer_.reset();
         command_pub_.reset();
         logger_pub_.reset();
         sub_sensor_.reset();
         setpoint_sub_.reset();
-        return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
-    }
+        return LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-    PendulumControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
-    {
+  PendulumControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
+{
         timer_.reset();
         command_pub_.reset();
         logger_pub_.reset();
         sub_sensor_.reset();
         setpoint_sub_.reset();
-        return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
-    }
+        return LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
+
 }  // namespace pendulum_controller
 
 #include "rclcpp_components/register_node_macro.hpp"

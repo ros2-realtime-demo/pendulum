@@ -1,3 +1,17 @@
+// Copyright 2019
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include <chrono>
 #include <cmath>
 #include <atomic>
@@ -23,12 +37,11 @@ struct PIDProperties
     double command = PI / 2;
 };
 
-
 class PIDController : public PendulumController
 {
 public:
 
-    PIDController(std::chrono::nanoseconds period, PIDProperties pid)
+    PIDController(std::chrono::nanoseconds period, const PIDProperties &pid)
     : publish_period_(period), pid_(pid)
     {
         // Calculate the controller timestep (for discrete differentiation/integration).
@@ -38,12 +51,14 @@ public:
         }
     }
 
-    virtual void update_setpoint_data(const pendulum_msgs::msg::JointCommand &msg) override
+    virtual void update_setpoint_data(
+      const pendulum_msgs::msg::JointCommand &msg) override
     {
         setpoint_position_ = msg.position;
     }
 
-    virtual void update_sensor_data(const pendulum_msgs::msg::JointState &msg) override
+    virtual void update_sensor_data(
+      const pendulum_msgs::msg::JointState &msg) override
     {
         sensor_position_ = msg.position;
     }
@@ -88,6 +103,5 @@ private:
     std::atomic<float> setpoint_position_;
     std::atomic<float> sensor_position_;
 };
-
 
 } // namespace pendulum

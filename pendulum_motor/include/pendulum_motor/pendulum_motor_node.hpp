@@ -1,4 +1,4 @@
-// Copyright 2016 Open Source Robotics Foundation, Inc.
+// Copyright 2019
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,16 +19,15 @@
 #include <string>
 #include <cmath>
 
+#include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "lifecycle_msgs/msg/transition_event.hpp"
 
-#include "rclcpp/rclcpp.hpp"
-
 #include "rcutils/logging_macros.h"
+#include <pendulum_msgs/msg/rttest_results.hpp>
 
 #include "pendulum_msgs/msg/joint_command.hpp"
 #include "pendulum_msgs/msg/joint_state.hpp"
-#include <pendulum_msgs/msg/rttest_results.hpp>
 
 #include "pendulum_motor/pendulum_motor.hpp"
 #include "pendulum_motor/visibility_control.h"
@@ -42,7 +41,8 @@ class PendulumMotorNode : public rclcpp_lifecycle::LifecycleNode
 {
 public:
     COMPOSITION_PUBLIC
-    explicit PendulumMotorNode(const rclcpp::NodeOptions & options): rclcpp_lifecycle::LifecycleNode("PendulumMotor", options)
+    explicit PendulumMotorNode(const rclcpp::NodeOptions & options)
+    : rclcpp_lifecycle::LifecycleNode("PendulumMotor", options)
     { };
     COMPOSITION_PUBLIC
     explicit PendulumMotorNode(const std::string & node_name,
@@ -65,8 +65,10 @@ public:
     on_shutdown(const rclcpp_lifecycle::State & state);
 
 private:
-    std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<pendulum_msgs::msg::JointState>> sensor_pub_;
-    std::shared_ptr<rclcpp::Subscription<pendulum_msgs::msg::JointCommand>> command_sub_;
+    std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
+      pendulum_msgs::msg::JointState>> sensor_pub_;
+    std::shared_ptr<rclcpp::Subscription<
+      pendulum_msgs::msg::JointCommand>> command_sub_;
 
     rclcpp::TimerBase::SharedPtr sensor_timer_;
     rclcpp::TimerBase::SharedPtr update_motor_timer_;
