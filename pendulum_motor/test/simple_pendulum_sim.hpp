@@ -79,6 +79,7 @@ public:
 
     virtual void update_motor_state()
     {
+      // TODO: add mutex
       state_.acceleration =
         GRAVITY * std::sin(state_.position - PI / 2.0) / properties_.length +
         state_.torque / (properties_.mass * properties_.length * properties_.length);
@@ -91,13 +92,11 @@ public:
       }
     }
 
-    virtual float get_position() const
+    virtual void update_joint_state_msg(pendulum_msgs::msg::JointState &msg)
     {
-      return state_.position;
-    }
-    virtual float get_velocity() const
-    {
-      return state_.velocity;
+      // TODO: add mutex
+      msg.velocity = state_.velocity;
+      msg.position = state_.position;
     }
 
 private:

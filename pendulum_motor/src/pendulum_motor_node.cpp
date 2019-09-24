@@ -41,8 +41,7 @@ void PendulumMotorNode::on_command_received (
 void PendulumMotorNode::sensor_timer_callback()
 {
     //RCLCPP_INFO(this->get_logger(), "position: %f", command_message_.position);
-    sensor_message_.velocity = motor_->get_velocity();
-    sensor_message_.position = motor_->get_position();
+    motor_->update_joint_state_msg(sensor_message_);
     sensor_pub_->publish(sensor_message_);
 }
 
