@@ -17,6 +17,7 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
+find_package(rttest)
 
 include_directories(
         include
@@ -27,8 +28,16 @@ include_directories(
 add_library(pendulum_motor_node SHARED
         src/pendulum_motor_node.cpp)
 
+target_include_directories(pendulum_motor_node
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+
 target_compile_definitions(pendulum_motor_node
         PRIVATE "COMPOSITION_BUILDING_DLL")
+
+ament_export_include_directories(include)
+ament_export_libraries(pendulum_motor_node)
 
 ament_target_dependencies(pendulum_motor_node
         "rclcpp_lifecycle"
@@ -38,9 +47,13 @@ ament_target_dependencies(pendulum_motor_node
         "rclcpp_components")
 rclcpp_components_register_nodes(pendulum_motor_node "pendulum::MotorNode")
 
+
+
 add_executable(test_pendulum_motor
         test/test_pendulum_motor.cpp
         src/pendulum_motor_node.cpp)
+
+ament_export_include_directories(include)
 
 ament_target_dependencies(test_pendulum_motor
         "rclcpp"
@@ -48,6 +61,7 @@ ament_target_dependencies(test_pendulum_motor
         "lifecycle_msgs"
         "pendulum_msgs"
         "rclcpp"
+        "rttest"
         "rclcpp_components")
 
 target_link_libraries(
@@ -61,6 +75,11 @@ if (NOT WIN32)
             "${ament_cmake_package_templates_ENVIRONMENT_HOOK_LIBRARY_PATH}")
 endif ()
 
+
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
 
 install(TARGETS
         pendulum_motor_node

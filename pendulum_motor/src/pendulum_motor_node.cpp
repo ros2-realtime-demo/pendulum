@@ -19,14 +19,15 @@ using namespace rclcpp_lifecycle::node_interfaces;
 
 namespace pendulum
 {
-
 PendulumMotorNode::PendulumMotorNode(const std::string & node_name,
         std::chrono::nanoseconds publish_period,
+        std::chrono::nanoseconds physics_update_period,
         std::unique_ptr<PendulumMotor> motor,
         const rclcpp::NodeOptions & options =
          rclcpp::NodeOptions().use_intra_process_comms(false))
 : rclcpp_lifecycle::LifecycleNode(node_name, options),
-  publish_period_(publish_period), motor_(std::move(motor))
+  publish_period_(publish_period), physics_update_period_(physics_update_period),
+  motor_(std::move(motor))
 {
 }
 
@@ -58,7 +59,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
             "pendulum_command", 1, std::bind(&PendulumMotorNode::on_command_received, this, std::placeholders::_1));
 
     sensor_timer_ = this->create_wall_timer(publish_period_, std::bind(&PendulumMotorNode::sensor_timer_callback, this));
-    update_motor_timer_ = this->create_wall_timer(publish_period_, std::bind(&PendulumMotorNode::update_motor_callback, this));
+    //update_motor_timer_ = this->create_wall_timer(publish_period_, std::bind(&PendulumMotorNode::update_motor_callback, this));
 
     return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
