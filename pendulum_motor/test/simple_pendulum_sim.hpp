@@ -98,7 +98,6 @@ public:
 
     virtual void update()
     {
-      // TODO: add mutex
       state_.acceleration =
         GRAVITY * std::sin(state_.position - PI / 2.0) / properties_.length +
         state_.torque / (properties_.mass * properties_.length * properties_.length);

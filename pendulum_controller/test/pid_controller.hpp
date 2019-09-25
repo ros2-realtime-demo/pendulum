@@ -14,7 +14,6 @@
 
 #include <chrono>
 #include <cmath>
-#include <atomic>
 
 #include "pendulum_controller/pendulum_controller.hpp"
 
@@ -101,8 +100,8 @@ private:
     double last_error_ = 0;
     double i_gain_ = 0;
     double dt_;
-    std::atomic<float> setpoint_position_{PI/2};
-    std::atomic<float> sensor_position_{PI/2};
+    double setpoint_position_ = PI/2;
+    double sensor_position_ = PI/2;
 };
 
 } // namespace pendulum
