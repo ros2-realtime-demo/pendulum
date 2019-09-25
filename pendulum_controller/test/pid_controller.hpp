@@ -101,8 +101,8 @@ private:
     double last_error_ = 0;
     double i_gain_ = 0;
     double dt_;
-    std::atomic<float> setpoint_position_;
-    std::atomic<float> sensor_position_;
+    std::atomic<float> setpoint_position_{PI/2};
+    std::atomic<float> sensor_position_{PI/2};
 };
 
 } // namespace pendulum
