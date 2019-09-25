@@ -39,7 +39,7 @@ namespace pendulum {
   struct PendulumState
   {
     // Angle from the ground in radians
-    double position = 0;
+    double position = PI / 2;
     // Angular velocity in radians/sec
     double velocity = 0;
     // Angular acceleration in radians/sec^2
@@ -61,7 +61,7 @@ public:
             throw std::runtime_error("Invalid dt_ calculated in PendulumController constructor");
         }
     }
-    
+
     virtual void write(const pendulum_msgs::msg::JointCommand &msg)
     {
       // Assume direct, instantaneous position control
