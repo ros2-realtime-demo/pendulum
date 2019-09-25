@@ -46,8 +46,7 @@ public:
     { };
     COMPOSITION_PUBLIC
     explicit PendulumMotorNode(const std::string & node_name,
-            std::chrono::nanoseconds update_period,
-            std::chrono::nanoseconds physics_update_period,
+            std::chrono::nanoseconds publish_period,
             std::unique_ptr<PendulumMotor> motor,
             const rclcpp::NodeOptions & options);
     void on_command_received(const pendulum_msgs::msg::JointCommand::SharedPtr msg);
@@ -74,7 +73,6 @@ private:
     rclcpp::TimerBase::SharedPtr sensor_timer_;
     rclcpp::TimerBase::SharedPtr update_motor_timer_;
     std::chrono::nanoseconds publish_period_ = 1000000ns;
-    std::chrono::nanoseconds physics_update_period_ = 1000000ns;
     pendulum_msgs::msg::JointState sensor_message_;
     std::unique_ptr<PendulumMotor> motor_;
 };

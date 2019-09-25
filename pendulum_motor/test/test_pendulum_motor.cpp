@@ -26,15 +26,13 @@ int main(int argc, char * argv[])
     rclcpp::init(argc, argv);
     rclcpp::executors::SingleThreadedExecutor exec;
 
-    std::chrono::nanoseconds controller_publish_period =  800000ns;
-    std::chrono::nanoseconds sensor_publish_period =  800000ns;
+    std::chrono::nanoseconds sensor_publish_period =  960000ns;
     std::chrono::nanoseconds physics_update_period = 1000000ns;
     std::unique_ptr<PendulumMotor> motor =
-            std::make_unique<PendulumMotorSim>(controller_publish_period);
+            std::make_unique<PendulumMotorSim>(physics_update_period);
     auto motor_node =  std::make_shared<PendulumMotorNode>(
             "pendulum_motor_node",
             sensor_publish_period,
-            physics_update_period,
             std::move(motor),
             rclcpp::NodeOptions().use_intra_process_comms(true));
 

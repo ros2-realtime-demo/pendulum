@@ -22,11 +22,11 @@ namespace pendulum
 
 PendulumControllerNode::PendulumControllerNode(const std::string & node_name,
         std::unique_ptr<PendulumController> controller,
-        std::chrono::nanoseconds update_period,
+        std::chrono::nanoseconds publish_period,
         const rclcpp::NodeOptions & options =
          rclcpp::NodeOptions().use_intra_process_comms(false))
 : rclcpp_lifecycle::LifecycleNode(node_name, options),
-  update_period_(update_period),
+  publish_period_(publish_period),
   controller_(std::move(controller))
   { }
 
@@ -35,8 +35,6 @@ void PendulumControllerNode::on_sensor_message(
 {
     RCLCPP_INFO(this->get_logger(), "on_sensor_message: position: %f", msg->position);
     controller_->write(*msg);
-    controller_->read(command_message_);
-    command_pub_->publish(command_message_);
 }
 
 void PendulumControllerNode::on_pendulum_setpoint(
@@ -76,7 +74,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
         logger_pub_ = this->create_publisher<pendulum_msgs::msg::RttestResults>(
                 "pendulum_statistics", 1);
 
-        //timer_ = this->create_wall_timer(update_period_, std::bind(&PendulumControllerNode::control_timer_callback, this));
+        timer_ = this->create_wall_timer(publish_period_, std::bind(&PendulumControllerNode::control_timer_callback, this));
 
         return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
     }
@@ -100,7 +98,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   PendulumControllerNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
-        //timer_.reset();
+        timer_.reset();
         command_pub_.reset();
         logger_pub_.reset();
         sub_sensor_.reset();
@@ -111,7 +109,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   PendulumControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
 {
-        //timer_.reset();
+        timer_.reset();
         command_pub_.reset();
         logger_pub_.reset();
         sub_sensor_.reset();
