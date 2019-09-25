@@ -20,7 +20,7 @@
 
 #include "pendulum_controller/pendulum_controller.hpp"
 #include "pendulum_controller/pendulum_controller_node.hpp"
-#include "pid_controller.hpp"
+#include "pendulum_controller/pid_controller.hpp"
 
 using namespace std::chrono_literals;
 using namespace pendulum;
@@ -28,11 +28,11 @@ using namespace pendulum;
 int main(int argc, char * argv[])
 {
     rclcpp::init(argc, argv);
+    rclcpp::executors::SingleThreadedExecutor exec;
+
     PIDProperties pid;
     pid.p = 1.5;
     pid.i = 0.0;
-    rclcpp::executors::SingleThreadedExecutor exec;
-
     std::chrono::nanoseconds update_period = 970000ns;
     std::unique_ptr<PendulumController> pid_controller =
             std::make_unique<PIDController>(update_period, pid);

@@ -26,7 +26,8 @@ include_directories(
         ${rclcpp_lifecycle_INCLUDE_DIRS}
         ${rclcpp_INCLUDE_DIRS})
 
-add_executable(pendulum_manual_composition src/pendulum_manual_composition.cpp)
+add_executable(pendulum_manual_composition
+  "src/pendulum_manual_composition.cpp")
 
 ament_export_include_directories(include)
 

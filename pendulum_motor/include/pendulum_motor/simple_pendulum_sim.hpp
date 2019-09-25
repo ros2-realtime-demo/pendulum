@@ -56,15 +56,14 @@ class PendulumMotorSim : public PendulumMotor
 {
 public:
 
-    explicit PendulumMotorSim(std::chrono::nanoseconds period)
-    : publish_period_(period), done_(false)
+    explicit PendulumMotorSim(std::chrono::nanoseconds physics_update_period)
+    : physics_update_period_(physics_update_period), done_(false)
     {
         // Calculate the controller timestep (for discrete differentiation/integration).
-        dt_ = publish_period_.count() / (1000.0 * 1000.0 * 1000.0);
+        dt_ = physics_update_period_.count() / (1000.0 * 1000.0 * 1000.0);
         if (std::isnan(dt_) || dt_ == 0) {
             throw std::runtime_error("Invalid dt_ calculated in PendulumController constructor");
         }
-        auto physics_update_period_ = std::chrono::nanoseconds(1000000);
         long_to_timespec(physics_update_period_.count(), &physics_update_timespec_);
 
         // Initialize a separate high-priority thread to run the physics update loop.
@@ -99,7 +98,6 @@ public:
 
     virtual void update()
     {
-      // TODO: add mutex
       state_.acceleration =
         GRAVITY * std::sin(state_.position - PI / 2.0) / properties_.length +
         state_.torque / (properties_.mass * properties_.length * properties_.length);
@@ -138,6 +136,7 @@ private:
   // Set kinematic and dynamic properties of the pendulum based on state inputs
   void * physics_update()
   {
+
     rttest_lock_and_prefault_dynamic();
     while (!done_) {
       state_.acceleration = GRAVITY * std::sin(state_.position - PI / 2.0) / properties_.length +
@@ -153,12 +152,7 @@ private:
       if (std::isnan(state_.position)) {
         throw std::runtime_error("Tried to set state to NaN in on_command_message callback");
       }
-
-      // sensor_message_.velocity = state_.velocity;
-      // // Simulate a noisy sensor on position
-      // sensor_message_.position = state_.position;
-      //
-      // message_ready_ = true;
+      
       // high resolution sleep
       clock_nanosleep(CLOCK_MONOTONIC, 0, &physics_update_timespec_, NULL);
     }
@@ -167,7 +161,7 @@ private:
 
 
 private:
-    std::chrono::nanoseconds publish_period_;
+    std::chrono::nanoseconds physics_update_period_;
     double dt_;
     PendulumProperties properties_;
     PendulumState state_;
