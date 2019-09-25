@@ -47,8 +47,6 @@ ament_target_dependencies(pendulum_motor_node
         "rclcpp_components")
 rclcpp_components_register_nodes(pendulum_motor_node "pendulum::MotorNode")
 
-
-
 add_executable(test_pendulum_motor
         test/test_pendulum_motor.cpp
         src/pendulum_motor_node.cpp)

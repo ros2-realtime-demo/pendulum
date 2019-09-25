@@ -26,10 +26,11 @@ int main(int argc, char * argv[])
 {
     rclcpp::init(argc, argv);
     PIDProperties pid;
-    pid.p = 1.0;
+    pid.p = 1.5;
+    pid.i = 0.0;
     rclcpp::executors::SingleThreadedExecutor exec;
 
-    std::chrono::nanoseconds update_period = 960000ns;
+    std::chrono::nanoseconds update_period = 970000ns;
     std::unique_ptr<PendulumController> pid_controller =
             std::make_unique<PIDController>(update_period, pid);
     auto controller_node =  std::make_shared<PendulumControllerNode>(

@@ -4,7 +4,7 @@
 
 This is a rework of the existing pendulum demo in ros2/demos. In this project we want to create a new version that updates some the new features of ROS 2 such as compositions, lifecycle, new QoS and real-time support.
 
-The project is structured in a modular way so each node component can be tested and extended individually. We also decouple the actual controller implementation of the controller node so it is easy to implement new kind of controllers. This is the same approach that ros_control uses. In the same way we decouple the actual motor base implementation so it is possible to simulate the robot or to communicate with a real one.  
+The project is structured in a modular way so each node component can be tested and extended individually. We also decouple the actual controller implementation of the controller node so it is easy to implement new kind of controllers. This is the same approach that `ros_control` uses. In the same way we decouple the actual motor base implementation so it is possible to simulate the robot or to communicate with a real one.  
 
 ### TODO
 
@@ -33,7 +33,7 @@ Robot/Motor:
 
 Visualization:
 
-* [ ] Create a simple demo to show how to log teh robot position. Make use of rosbag if possible.
+* [ ] Create a simple demo to show how to log the robot position. Make use of rosbag if possible.
 * [ ] Create an example with rqt to visualize some plots with the robot position.
 * [ ] Create a model for Visualization with rviz.
 

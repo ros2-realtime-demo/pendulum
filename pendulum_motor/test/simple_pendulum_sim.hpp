@@ -56,15 +56,14 @@ class PendulumMotorSim : public PendulumMotor
 {
 public:
 
-    explicit PendulumMotorSim(std::chrono::nanoseconds period)
-    : publish_period_(period), done_(false)
+    explicit PendulumMotorSim(std::chrono::nanoseconds physics_update_period)
+    : physics_update_period_(physics_update_period), done_(false)
     {
         // Calculate the controller timestep (for discrete differentiation/integration).
-        dt_ = publish_period_.count() / (1000.0 * 1000.0 * 1000.0);
+        dt_ = physics_update_period_.count() / (1000.0 * 1000.0 * 1000.0);
         if (std::isnan(dt_) || dt_ == 0) {
             throw std::runtime_error("Invalid dt_ calculated in PendulumController constructor");
         }
-        auto physics_update_period_ = std::chrono::nanoseconds(1000000);
         long_to_timespec(physics_update_period_.count(), &physics_update_timespec_);
 
         // Initialize a separate high-priority thread to run the physics update loop.
@@ -167,7 +166,7 @@ private:
 
 
 private:
-    std::chrono::nanoseconds publish_period_;
+    std::chrono::nanoseconds physics_update_period_;
     double dt_;
     PendulumProperties properties_;
     PendulumState state_;

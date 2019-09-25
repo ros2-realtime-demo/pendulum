@@ -50,7 +50,7 @@ public:
     COMPOSITION_PUBLIC
     explicit PendulumControllerNode(const std::string & node_name,
             std::unique_ptr<PendulumController> controller,
-            std::chrono::nanoseconds update_period,
+            std::chrono::nanoseconds publish_period,
             const rclcpp::NodeOptions & options);
     void on_sensor_message(const pendulum_msgs::msg::JointState::SharedPtr msg);
     void on_pendulum_setpoint(
@@ -85,7 +85,7 @@ private:
 
     rclcpp::TimerBase::SharedPtr timer_;
     pendulum_msgs::msg::JointCommand command_message_;
-    std::chrono::nanoseconds update_period_ = 1000000ns;
+    std::chrono::nanoseconds publish_period_ = 1000000ns;
     std::unique_ptr<PendulumController> controller_;
 };
 

@@ -21,12 +21,11 @@ namespace pendulum
 {
 PendulumMotorNode::PendulumMotorNode(const std::string & node_name,
         std::chrono::nanoseconds publish_period,
-        std::chrono::nanoseconds physics_update_period,
         std::unique_ptr<PendulumMotor> motor,
         const rclcpp::NodeOptions & options =
          rclcpp::NodeOptions().use_intra_process_comms(false))
 : rclcpp_lifecycle::LifecycleNode(node_name, options),
-  publish_period_(publish_period), physics_update_period_(physics_update_period),
+  publish_period_(publish_period),
   motor_(std::move(motor))
 {
 }
