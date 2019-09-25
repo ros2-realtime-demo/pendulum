@@ -17,6 +17,7 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
+find_package(rttest)
 
 include_directories(
   include
@@ -55,6 +56,7 @@ ament_target_dependencies(test_pendulum_controller
         "rclcpp_lifecycle"
         "lifecycle_msgs"
         "pendulum_msgs"
+        "rttest"
         "rclcpp"
         "rclcpp_components")
 

@@ -12,11 +12,13 @@
   <build_depend>lifecycle_msgs</build_depend>
   <build_depend>pendulum_msgs</build_depend>
   <build_depend>rclcpp_lifecycle</build_depend>
+  <build_depend>rttest</build_depend>
 
   <exec_depend>pendulum_msgs</exec_depend>
   <exec_depend>rclcpp_lifecycle</exec_depend>
   <exec_depend>lifecycle_msgs</exec_depend>
   <exec_depend>ros2run</exec_depend>
+  <exec_depend>rttest</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
