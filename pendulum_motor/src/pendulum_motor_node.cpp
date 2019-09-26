@@ -33,7 +33,6 @@ PendulumMotorNode::PendulumMotorNode(const std::string & node_name,
 void PendulumMotorNode::on_command_received (
   const pendulum_msgs::msg::JointCommand::SharedPtr msg)
 {
-    RCLCPP_INFO(this->get_logger(), "Command: %f", msg->position);
     motor_->write(*msg);
 }
 
@@ -52,13 +51,33 @@ void PendulumMotorNode::update_motor_callback()
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
 {
-    sensor_pub_ = this->create_publisher<pendulum_msgs::msg::JointState>("pendulum_sensor", 1);
+    RCUTILS_LOG_INFO_NAMED(get_name(), "on_configure() is called.");
+    std::chrono::milliseconds deadline_duration(1); //TODO: change this period
+    rclcpp::QoS qos_deadline_profile(10);
+    qos_deadline_profile.deadline(deadline_duration);
+    sensor_pub_ = this->create_publisher<pendulum_msgs::msg::JointState>(
+      "pendulum_sensor", qos_deadline_profile, sensor_publisher_options_);
+
+    this->get_sensor_options().event_callbacks.deadline_callback =
+       [this](rclcpp::QOSDeadlineOfferedInfo & event) -> void
+       {
+         RCUTILS_LOG_INFO_NAMED(get_name(),
+           "Offered deadline missed - total %d delta %d",
+           event.total_count, event.total_count_change);
+       };
 
     command_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
-            "pendulum_command", 1, std::bind(&PendulumMotorNode::on_command_received, this, std::placeholders::_1));
+            "pendulum_command", qos_deadline_profile,
+             std::bind(&PendulumMotorNode::on_command_received, this, std::placeholders::_1),
+           command_subscription_options_);
 
-    sensor_timer_ = this->create_wall_timer(publish_period_, std::bind(&PendulumMotorNode::sensor_timer_callback, this));
-    //update_motor_timer_ = this->create_wall_timer(publish_period_, std::bind(&PendulumMotorNode::update_motor_callback, this));
+    this->get_command_options().event_callbacks.deadline_callback =
+     [this](rclcpp::QOSDeadlineRequestedInfo & event) -> void
+     {
+       RCUTILS_LOG_INFO_NAMED(get_name(),
+         "Requested deadline missed - total %d delta %d",
+         event.total_count, event.total_count_change);
+     };
 
     return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
@@ -66,7 +85,9 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   PendulumMotorNode::on_activate(const rclcpp_lifecycle::State &)
 {
+    RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
     sensor_pub_->on_activate();
+    sensor_timer_ = this->create_wall_timer(publish_period_, std::bind(&PendulumMotorNode::sensor_timer_callback, this));
     return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -90,6 +111,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   PendulumMotorNode::on_shutdown(const rclcpp_lifecycle::State &)
 {
+    RCUTILS_LOG_INFO_NAMED(get_name(), "on_shutdown() is called.");
     sensor_timer_.reset();
     update_motor_timer_.reset();
     command_sub_.reset();

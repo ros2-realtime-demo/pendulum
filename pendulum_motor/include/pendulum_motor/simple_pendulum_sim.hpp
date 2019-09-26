@@ -152,7 +152,7 @@ private:
       if (std::isnan(state_.position)) {
         throw std::runtime_error("Tried to set state to NaN in on_command_message callback");
       }
-      
+
       // high resolution sleep
       clock_nanosleep(CLOCK_MONOTONIC, 0, &physics_update_timespec_, NULL);
     }

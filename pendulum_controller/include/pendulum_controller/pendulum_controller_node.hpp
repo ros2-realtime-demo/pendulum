@@ -71,6 +71,11 @@ public:
 
     void control_timer_callback();
 
+    /// Get the subscription's settings options.
+    rclcpp::SubscriptionOptions & get_sensor_options() {return sensor_subscription_options_;}
+    rclcpp::PublisherOptions & get_command_options() {return command_publisher_options_;}
+
+
 private:
     std::shared_ptr<rclcpp::Subscription<
       pendulum_msgs::msg::JointState>> sub_sensor_;
@@ -82,6 +87,9 @@ private:
       pendulum_msgs::msg::RttestResults>> logger_pub_;
     std::shared_ptr<rclcpp::Subscription<
       lifecycle_msgs::msg::TransitionEvent>> sub_notification_;
+
+    rclcpp::PublisherOptions command_publisher_options_;
+    rclcpp::SubscriptionOptions sensor_subscription_options_;
 
     rclcpp::TimerBase::SharedPtr timer_;
     pendulum_msgs::msg::JointCommand command_message_;

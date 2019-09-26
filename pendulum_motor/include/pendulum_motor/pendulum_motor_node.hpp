@@ -53,6 +53,10 @@ public:
     void sensor_timer_callback();
     void update_motor_callback();
 
+    /// Get the subscription's settings options.
+    rclcpp::SubscriptionOptions & get_command_options() {return command_subscription_options_;}
+    rclcpp::PublisherOptions & get_sensor_options() {return sensor_publisher_options_;}
+
     rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
     on_configure(const rclcpp_lifecycle::State &);
     rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -69,6 +73,9 @@ private:
       pendulum_msgs::msg::JointState>> sensor_pub_;
     std::shared_ptr<rclcpp::Subscription<
       pendulum_msgs::msg::JointCommand>> command_sub_;
+
+    rclcpp::SubscriptionOptions command_subscription_options_;
+    rclcpp::PublisherOptions sensor_publisher_options_;
 
     rclcpp::TimerBase::SharedPtr sensor_timer_;
     rclcpp::TimerBase::SharedPtr update_motor_timer_;
