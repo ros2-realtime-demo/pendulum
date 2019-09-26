@@ -10,7 +10,7 @@ The project is structured in a modular way so each node component can be tested 
 
 General:
 
-* [ ] Change pub/sub QoS with a more real-time friendly one.
+* [X] Change pub/sub QoS with a more real-time friendly one.
 * [ ] Create launchfile using composition for the whole demo.
 * [ ] Add doxygen documentation support.
 * [ ] Create custom msg.
@@ -22,12 +22,12 @@ Controller:
 * [ ] Add unit test or executable to test a PID implementation.
 * [ ] Use parameters to change controller configuration in runtime. For example to tune a PID.
 * [ ] Improve current PID implemetation (add clamping).
-* [ ] Create an aditional controller i.e: LQR
+* [ ] Create an additional controller i.e: LQR
 
 Robot/Motor:
 
-* [ ] Add timer to publish position.
-* [ ] Add a simple pendulum model implementation.
+* [X] Add timer to publish position.
+* [X] Add a simple pendulum model implementation.
 * [ ] Add unit test to test the pendulum (motor) basic interface behavior.
 * [ ] Add unit test or executable to test the dynamics of the model.
 
@@ -48,12 +48,12 @@ Teleoperation:
 
 As a first step we are going to create a functional prototype that implements the same functionality existing the previous pendulum demo but with the new design. This prototype will contain the following components:
 
-* `ControllerNode`: Class derived from `LifecycleNode` that implements the ROS 2 interface for the pendulum controller.
-* `Controller`: Abstract class used by `ControllerNode` to call the specific controller implementation.
-* `TestController`: Class used to test `ControllerNode`.
+* `PendulumControllerNode`: Class derived from `LifecycleNode` that implements the ROS 2 interface for the pendulum controller.
+* `PendulumController`: Abstract class used by `PendulumControllerNode` to call the specific controller implementation.
+* `TestPendulumController`: Class used to test `PendulumControllerNode`.
 * `PIDController`:Simple PID controller implementation derived from `Controller`.
-* `MotorBaseNode`: Class derived from `LifecycleNode` that implements the ROS 2 interface for the pendulum motor base.
-* `MotorBase`: Abstract class used by `MotorBaseNode` to call the specific motor base implementation.
-* `MotorBaseSimpleSim`: Simple motor base physics simulation from `MotorBase`.
-* `TestMotorBase`: Class used to test `MotorBaseNode`.
-* `demo_main`: Program that creates and executor, adds a `ControllerNode` and a `MotorBaseNode` nodes with a `PIDController` and a `MotorBaseSimpleSim` instances and spins all the nodes.
+* `PendulumMotorNode`: Class derived from `LifecycleNode` that implements the ROS 2 interface for the pendulum motor base.
+* `PendulumMotor`: Abstract class used by `PendulumMotorNode` to call the specific motor base implementation.
+* `PendulumMotorSim`: Simple motor base physics simulation from `PendulumMotor`.
+* `TestPendulumMotor`: Class used to test `PendulumMotorNode`.
+* `pendulum_manual_composition`: Program that creates and executor, adds a `PendulumControllerNode` and a `PendulumMotorNode` nodes with a `PIDController` and a `PendulumMotorSim` instances and spins all the nodes.
