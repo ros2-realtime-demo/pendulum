@@ -33,13 +33,13 @@ PendulumMotorNode::PendulumMotorNode(const std::string & node_name,
 void PendulumMotorNode::on_command_received (
   const pendulum_msgs::msg::JointCommand::SharedPtr msg)
 {
-    motor_->write(*msg);
+    motor_->update_command_data(*msg);
 }
 
 void PendulumMotorNode::sensor_timer_callback()
 {
     //RCLCPP_INFO(this->get_logger(), "position: %f", command_message_.position);
-    motor_->read(sensor_message_);
+    motor_->update_sensor_data(sensor_message_);
     sensor_pub_->publish(sensor_message_);
 }
 

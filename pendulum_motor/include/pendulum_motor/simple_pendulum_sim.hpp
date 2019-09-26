@@ -76,7 +76,7 @@ public:
           &pendulum::PendulumMotorSim::physics_update_wrapper, this);
     }
 
-    virtual void write(const pendulum_msgs::msg::JointCommand &msg)
+    virtual void update_command_data(const pendulum_msgs::msg::JointCommand &msg)
     {
       // Assume direct, instantaneous position control
       // (It would be more realistic to simulate a motor model)
@@ -90,7 +90,7 @@ public:
       }
     }
 
-    virtual void read(pendulum_msgs::msg::JointState &msg)
+    virtual void update_sensor_data(pendulum_msgs::msg::JointState &msg)
     {
       msg.velocity = state_.velocity;
       msg.position = state_.position;
