@@ -44,7 +44,7 @@ int main(int argc, char * argv[])
             rclcpp::NodeOptions().use_intra_process_comms(true));
     exec.add_node(controller_node->get_node_base_interface());
 
-    std::chrono::nanoseconds sensor_publish_period =  960000ns;
+    std::chrono::nanoseconds sensor_publish_period =   960000ns;
     std::chrono::nanoseconds physics_update_period = 10000000ns;
     std::unique_ptr<PendulumMotor> motor =
             std::make_unique<PendulumMotorSim>(physics_update_period);

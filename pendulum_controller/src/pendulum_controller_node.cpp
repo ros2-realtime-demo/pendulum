@@ -61,29 +61,32 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
         std::chrono::milliseconds deadline_duration(1);
         rclcpp::QoS qos_deadline_profile(10);
         qos_deadline_profile.deadline(deadline_duration);
+        this->get_sensor_options().event_callbacks.deadline_callback =
+         [this](rclcpp::QOSDeadlineRequestedInfo & event) -> void
+         {
+           RCUTILS_LOG_INFO_NAMED(get_name(),
+             "Requested deadline missed - total %d delta %d",
+             event.total_count, event.total_count_change);
+         };
+
         sub_sensor_ = this->create_subscription<pendulum_msgs::msg::JointState>(
                 "pendulum_sensor", qos_deadline_profile,
                  std::bind(&PendulumControllerNode::on_sensor_message, this, std::placeholders::_1),
                  sensor_subscription_options_);
-       this->get_sensor_options().event_callbacks.deadline_callback =
-        [this](rclcpp::QOSDeadlineRequestedInfo & event) -> void
-        {
-          RCUTILS_LOG_INFO_NAMED(get_name(),
-            "Requested deadline missed - total %d delta %d",
-            event.total_count, event.total_count_change);
-        };
 
+
+       this->get_command_options().event_callbacks.deadline_callback =
+          [this](rclcpp::QOSDeadlineOfferedInfo & event) -> void
+          {
+            RCUTILS_LOG_INFO_NAMED(get_name(),
+              "Offered deadline missed - total %d delta %d",
+              event.total_count, event.total_count_change);
+          };
         // Initialize the publisher for the command message.
         command_pub_ = this->create_publisher<pendulum_msgs::msg::JointCommand>(
                 "pendulum_command", qos_deadline_profile, command_publisher_options_);
 
-        this->get_command_options().event_callbacks.deadline_callback =
-           [this](rclcpp::QOSDeadlineOfferedInfo & event) -> void
-           {
-             RCUTILS_LOG_INFO_NAMED(get_name(),
-               "Offered deadline missed - total %d delta %d",
-               event.total_count, event.total_count_change);
-           };
+
         setpoint_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
                 "pendulum_setpoint", 1, std::bind(&PendulumControllerNode::on_pendulum_setpoint, this, std::placeholders::_1));
 
