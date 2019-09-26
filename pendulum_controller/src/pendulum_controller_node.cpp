@@ -33,18 +33,18 @@ PendulumControllerNode::PendulumControllerNode(const std::string & node_name,
 void PendulumControllerNode::on_sensor_message(
   const pendulum_msgs::msg::JointState::SharedPtr msg)
 {
-    controller_->write(*msg);
+    controller_->update_sensor_data(*msg);
 }
 
 void PendulumControllerNode::on_pendulum_setpoint(
   const pendulum_msgs::msg::JointCommand::SharedPtr msg)
 {
-    controller_->write(*msg);
+    controller_->update_setpoint_data(*msg);
 }
 
 void PendulumControllerNode::control_timer_callback()
 {
-    controller_->read(command_message_);
+    controller_->update_command_data(command_message_);
     command_pub_->publish(command_message_);
 }
 
