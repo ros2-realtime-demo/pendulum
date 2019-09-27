@@ -10,10 +10,6 @@ The project is structured in a modular way so each node component can be tested 
 
 General:
 
-* [ ] CHange folder structure to XXX_node and XXX_driver (follow autoware).
-* [ ] Create a design doc as in autoware.
-* [ ] Change visibility.h to hpp.
-* [ ] Use nested namespaces (pendulum, controller_node, ...)
 * [X] Change pub/sub QoS with a more real-time friendly one.
 * [ ] Create launchfile using composition for the whole demo.
 * [ ] Add doxygen documentation support.
