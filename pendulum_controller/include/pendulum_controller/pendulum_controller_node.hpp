@@ -32,7 +32,7 @@
 #include <pendulum_msgs/msg/rttest_results.hpp>
 
 #include "pendulum_controller.hpp"
-#include "pendulum_controller/visibility_control.h"
+#include "pendulum_controller/visibility_control.hpp"
 
 using namespace std::chrono_literals;
 

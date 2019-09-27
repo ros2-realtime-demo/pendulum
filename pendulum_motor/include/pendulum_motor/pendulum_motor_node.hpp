@@ -30,7 +30,7 @@
 #include "pendulum_msgs/msg/joint_state.hpp"
 
 #include "pendulum_motor/pendulum_motor.hpp"
-#include "pendulum_motor/visibility_control.h"
+#include "pendulum_motor/visibility_control.hpp"
 
 using namespace std::chrono_literals;
 
