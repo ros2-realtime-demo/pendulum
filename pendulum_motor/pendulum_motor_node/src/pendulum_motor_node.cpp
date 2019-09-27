@@ -52,7 +52,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
 {
     RCUTILS_LOG_INFO_NAMED(get_name(), "on_configure() is called.");
-    std::chrono::milliseconds deadline_duration(1); //TODO: change this period
+    std::chrono::milliseconds deadline_duration(10); //TODO: change this period
     rclcpp::QoS qos_deadline_profile(10);
     qos_deadline_profile.deadline(deadline_duration);
     this->get_sensor_options().event_callbacks.deadline_callback =
