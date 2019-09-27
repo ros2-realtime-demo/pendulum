@@ -29,8 +29,8 @@
 #include "pendulum_msgs/msg/joint_command.hpp"
 #include "pendulum_msgs/msg/joint_state.hpp"
 
-#include "pendulum_motor/pendulum_motor.hpp"
-#include "pendulum_motor/visibility_control.hpp"
+#include "pendulum_motor_driver/pendulum_motor_driver.hpp"
+#include "pendulum_motor_node/visibility_control.hpp"
 
 using namespace std::chrono_literals;
 

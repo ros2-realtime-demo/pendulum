@@ -1,18 +1,24 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
-  <name>pendulum_motor_driver</name>
+  <name>pendulum_controller_node</name>
   <version>0.0.1</version>
-  <description>Implements a class to communicate with a real or simulated motor</description>
+  <description>Implementation of the ROS 2 interface for the pendulum motor</description>
   <maintainer email="carlos.svic@gmail.com">Carlos San Vicente</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <build_depend>pendulum_msgs</build_depend>
+  <build_depend>pendulum_controller</build_depend>
+  <build_depend>rclcpp_lifecycle</build_depend>
+  <build_depend>lifecycle_msgs</build_depend>
   <build_depend>rttest</build_depend>
 
   <exec_depend>pendulum_msgs</exec_depend>
+  <exec_depend>pendulum_controller</exec_depend>
+  <exec_depend>rclcpp_lifecycle</exec_depend>
+  <exec_depend>lifecycle_msgs</exec_depend>
   <exec_depend>ros2run</exec_depend>
   <exec_depend>rttest</exec_depend>
 

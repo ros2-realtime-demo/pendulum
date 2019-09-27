@@ -31,8 +31,8 @@
 #include "pendulum_msgs/msg/joint_state.hpp"
 #include <pendulum_msgs/msg/rttest_results.hpp>
 
-#include "pendulum_controller.hpp"
-#include "pendulum_controller/visibility_control.hpp"
+#include "pendulum_controller/pendulum_controller.hpp"
+#include "pendulum_controller_node/visibility_control.hpp"
 
 using namespace std::chrono_literals;
 

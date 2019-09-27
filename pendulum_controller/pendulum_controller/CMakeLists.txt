@@ -17,7 +17,7 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
-find_package(rttest)
+find_package(rttest REQUIRED)
 
 include_directories(
   include
@@ -25,44 +25,12 @@ include_directories(
   ${rclcpp_lifecycle_INCLUDE_DIRS}
   ${rclcpp_INCLUDE_DIRS})
 
-add_library(pendulum_controller_node SHARED
-        src/pendulum_controller_node.cpp)
+add_library(pendulum_controller INTERFACE)
 
-target_include_directories(pendulum_controller_node
-  PUBLIC
+target_include_directories(pendulum_controller
+  INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
-
-target_compile_definitions(pendulum_controller_node
-        PRIVATE "COMPOSITION_BUILDING_DLL")
-
-ament_export_include_directories(include)
-ament_export_libraries(pendulum_controller_node)
-
-ament_target_dependencies(pendulum_controller_node
-        "rclcpp_lifecycle"
-        "lifecycle_msgs"
-        "pendulum_msgs"
-        "rclcpp"
-        "rclcpp_components")
-rclcpp_components_register_nodes(pendulum_controller_node "pendulum::Controller")
-
-add_executable(test_pendulum_controller
-        test/test_pendulum_controller.cpp
-        src/pendulum_controller_node.cpp)
-
-ament_target_dependencies(test_pendulum_controller
-        "rclcpp"
-        "rclcpp_lifecycle"
-        "lifecycle_msgs"
-        "pendulum_msgs"
-        "rttest"
-        "rclcpp"
-        "rclcpp_components")
-
-target_link_libraries(
-        pendulum_controller_node
-)
 
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported
@@ -77,13 +45,9 @@ install(
 )
 
 install(TARGETS
-        pendulum_controller_node
+        pendulum_controller
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)
-
-install(TARGETS
-        test_pendulum_controller
-        DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

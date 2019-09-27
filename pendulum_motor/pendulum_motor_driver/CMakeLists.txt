@@ -18,24 +18,15 @@ find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(rttest)
-find_package(rttest)
-find_package(pendulum_motor_node)
 
 include_directories(include)
 
-add_executable(test_pendulum_motor
-        test/test_pendulum_motor.cpp)
+add_library(pendulum_motor_driver INTERFACE)
 
-ament_export_include_directories(include)
-
-ament_target_dependencies(test_pendulum_motor
-        "rclcpp"
-        "pendulum_msgs"
-        "rttest"
-        "rclcpp_lifecycle"
-        "lifecycle_msgs"
-        "pendulum_motor_node"
-        "rclcpp_components")
+target_include_directories(pendulum_motor_driver
+  INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
 
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported
@@ -51,7 +42,9 @@ install(
 )
 
 install(TARGETS
-        test_pendulum_motor
-        DESTINATION lib/${PROJECT_NAME})
+        pendulum_motor_driver
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        RUNTIME DESTINATION bin)
 
 ament_package()

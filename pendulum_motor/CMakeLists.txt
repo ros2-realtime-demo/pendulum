@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(pendulum_motor_node)
+project(pendulum_motor)
 
 # Default to C++14
 if (NOT CMAKE_CXX_STANDARD)
@@ -17,10 +17,12 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
-find_package(rttest)
+find_package(rttest REQUIRED)
+find_package(pendulum_motor_driver REQUIRED)
 
 include_directories(
         include
+        ${pendulum_motor_driver_INCLUDE_DIRS}
         ${lifecycle_msgs_INCLUDE_DIRS}
         ${rclcpp_lifecycle_INCLUDE_DIRS}
         ${rclcpp_INCLUDE_DIRS})
@@ -37,22 +39,52 @@ target_compile_definitions(pendulum_motor_node
         PRIVATE "COMPOSITION_BUILDING_DLL")
 
 ament_export_include_directories(include)
-ament_export_libraries(pendulum_motor_node)
 
 ament_target_dependencies(pendulum_motor_node
         "rclcpp_lifecycle"
         "lifecycle_msgs"
         "pendulum_msgs"
+        "pendulum_motor_driver"
         "rclcpp"
         "rclcpp_components")
 rclcpp_components_register_nodes(pendulum_motor_node "pendulum::MotorNode")
 
+add_executable(test_pendulum_motor
+        test/test_pendulum_motor.cpp
+        src/pendulum_motor_node.cpp)
+
+ament_export_include_directories(include)
+
+ament_target_dependencies(test_pendulum_motor
+        "rclcpp"
+<<<<<<< HEAD:pendulum_motor/pendulum_motor_node/CMakeLists.txt
+        "pendulum_msgs"
+        "pendulum_motor_driver"
+        "rttest"
+        "rclcpp_lifecycle"
+        "lifecycle_msgs"
+        "rclcpp_components")
+
+=======
+        "rclcpp_lifecycle"
+        "lifecycle_msgs"
+        "pendulum_msgs"
+        "rclcpp"
+        "rttest"
+        "rclcpp_components")
+
+target_link_libraries(
+        pendulum_motor_node
+)
+
+>>>>>>> parent of f3c52b4... Separated pendulum_motor into different packages:pendulum_motor/CMakeLists.txt
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported
 if (NOT WIN32)
     ament_environment_hooks(
             "${ament_cmake_package_templates_ENVIRONMENT_HOOK_LIBRARY_PATH}")
 endif ()
+
 
 install(
   DIRECTORY include/
@@ -64,5 +96,9 @@ install(TARGETS
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)
+
+install(TARGETS
+        test_pendulum_motor
+        DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

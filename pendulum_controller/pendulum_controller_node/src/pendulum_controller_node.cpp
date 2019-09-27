@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "rttest/utils.h"
-#include "pendulum_controller/pendulum_controller_node.hpp"
+#include "pendulum_controller_node/pendulum_controller_node.hpp"
 
 using namespace rclcpp_lifecycle::node_interfaces;
 

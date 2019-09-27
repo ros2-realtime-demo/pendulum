@@ -18,7 +18,7 @@
 #include "rttest/rttest.h"
 #include "rttest/utils.h"
 
-#include "pendulum_motor_driver/pendulum_motor_driver.hpp"
+#include "pendulum_motor/pendulum_motor.hpp"
 
 #ifndef GRAVITY
 #define GRAVITY 9.80665

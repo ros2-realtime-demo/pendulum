@@ -18,8 +18,8 @@
 #include "rttest/rttest.h"
 #include "rttest/utils.h"
 
+#include "pendulum_controller_node/pendulum_controller_node.hpp"
 #include "pendulum_controller/pendulum_controller.hpp"
-#include "pendulum_controller/pendulum_controller_node.hpp"
 #include "pendulum_controller/pid_controller.hpp"
 
 using namespace std::chrono_literals;
