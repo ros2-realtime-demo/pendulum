@@ -16,11 +16,11 @@
 #include <memory>
 
 #include "rclcpp/rclcpp.hpp"
-#include "pendulum_motor/pendulum_motor.hpp"
-#include "pendulum_motor/pendulum_motor_node.hpp"
+#include "pendulum_motor_node/pendulum_motor_node.hpp"
+#include "pendulum_motor_driver/pendulum_motor_driver.hpp"
+#include "pendulum_motor_driver/simple_pendulum_sim.hpp"
+#include "pendulum_controller_node/pendulum_controller_node.hpp"
 #include "pendulum_controller/pendulum_controller.hpp"
-#include "pendulum_controller/pendulum_controller_node.hpp"
-#include "pendulum_motor/simple_pendulum_sim.hpp"
 #include "pendulum_controller/pid_controller.hpp"
 
 using namespace std::chrono_literals;

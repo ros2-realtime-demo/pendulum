@@ -9,14 +9,18 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <build_depend>pendulum_motor</build_depend>
+  <build_depend>pendulum_motor_node</build_depend>
+  <build_depend>pendulum_motor_driver</build_depend>
   <build_depend>pendulum_controller</build_depend>
+  <build_depend>pendulum_controller_node</build_depend>
   <build_depend>pendulum_msgs</build_depend>
   <build_depend>rclcpp_lifecycle</build_depend>
 
   <exec_depend>pendulum_msgs</exec_depend>
-  <exec_depend>pendulum_motor</exec_depend>
+  <exec_depend>pendulum_motor_node</exec_depend>
+  <exec_depend>pendulum_motor_driver</exec_depend>
   <exec_depend>pendulum_controller</exec_depend>
+  <exec_depend>pendulum_controller_node</exec_depend>
   <exec_depend>lifecycle_msgs</exec_depend>
   <exec_depend>ros2run</exec_depend>
 

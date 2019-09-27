@@ -18,8 +18,10 @@ find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(rttest)
-find_package(pendulum_motor)
+find_package(pendulum_motor_driver)
 find_package(pendulum_controller)
+find_package(pendulum_motor_node)
+find_package(pendulum_controller_node)
 
 include_directories(
         ${lifecycle_msgs_INCLUDE_DIRS}
@@ -36,8 +38,10 @@ ament_target_dependencies(pendulum_manual_composition
         "rclcpp_lifecycle"
         "lifecycle_msgs"
         "pendulum_msgs"
-        "pendulum_motor"
+        "pendulum_motor_driver"
         "pendulum_controller"
+        "pendulum_motor_node"
+        "pendulum_controller_node"
         "rclcpp"
         "rttest"
         "rclcpp_components")
