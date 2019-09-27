@@ -28,6 +28,10 @@ target_include_directories(pendulum_motor_driver
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
+#ament_export_interfaces(export_pendulum_motor_driver )
+ament_export_include_directories(include)
+#ament_export_libraries(pendulum_motor_driver HAS_LIBRARY_TARGET)
+
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported
 if (NOT WIN32)

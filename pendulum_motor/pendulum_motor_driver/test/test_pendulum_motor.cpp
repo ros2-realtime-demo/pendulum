@@ -15,8 +15,8 @@
 #include <iostream>
 #include <memory>
 
-#include "pendulum_motor/simple_pendulum_sim.hpp"
-#include "pendulum_motor/pendulum_motor_node.hpp"
+#include "pendulum_motor_driver/simple_pendulum_sim.hpp"
+#include "pendulum_motor_node/pendulum_motor_node.hpp"
 
 using namespace std::chrono_literals;
 using namespace pendulum;

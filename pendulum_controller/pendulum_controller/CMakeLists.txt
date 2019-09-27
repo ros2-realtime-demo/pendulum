@@ -32,6 +32,8 @@ target_include_directories(pendulum_controller
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
+ament_export_include_directories(include)
+
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported
 if(NOT WIN32)

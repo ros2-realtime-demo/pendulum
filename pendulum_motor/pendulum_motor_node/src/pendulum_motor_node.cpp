@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pendulum_motor/pendulum_motor_node.hpp"
+#include "pendulum_motor_node/pendulum_motor_node.hpp"
 #include "rttest/utils.h"
 
 using namespace rclcpp_lifecycle::node_interfaces;

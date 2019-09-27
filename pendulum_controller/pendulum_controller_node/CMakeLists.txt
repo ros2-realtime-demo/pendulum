@@ -22,7 +22,6 @@ find_package(pendulum_controller REQUIRED)
 
 include_directories(
   include
-  ${pendulum_controller_INCLUDE_DIRS}
   ${lifecycle_msgs_INCLUDE_DIRS}
   ${rclcpp_lifecycle_INCLUDE_DIRS}
   ${rclcpp_INCLUDE_DIRS})
@@ -66,7 +65,6 @@ ament_target_dependencies(test_pendulum_controller
 
 target_link_libraries(test_pendulum_controller pendulum_controller_node)
 
-
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported
 if(NOT WIN32)
@@ -88,6 +86,5 @@ install(TARGETS
 install(TARGETS
         test_pendulum_controller
         DESTINATION lib/${PROJECT_NAME})
-
-
+        
 ament_package()
