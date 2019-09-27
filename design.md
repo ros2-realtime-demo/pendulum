@@ -6,6 +6,18 @@ This is a rework of the existing pendulum demo in ros2/demos. In this project we
 
 The project is structured in a modular way so each node component can be tested and extended individually. We also decouple the actual controller implementation of the controller node so it is easy to implement new kind of controllers. This is the same approach that `ros_control` uses. In the same way we decouple the actual motor base implementation so it is possible to simulate the robot or to communicate with a real one.  
 
+### Real-time use case
+
+One of the main goals of this demo is to show a representative example of a real-time capable ROS 2 based application. In order to demonstrate these capabilities we can start with the following points:
+
+* Show no memory page faults when nodes are active. Make use of lifecycle activate/deactivate to show the stats.
+* Assert there is memory allocation during runtime. Make use of the [OSRF memory tools](https://github.com/osrf/osrf_testing_tools_cpp). Take [`performance_test`](https://github.com/ros2/performance_test) as a reference.
+* Use deadline QoS. Store and show the statistics. Show that there are no missing deadlines.
+* Add a dynamic analyzer to measure additional statistics (latencies, context switches, etc). For example the [ROS 2 Bosch lttng](https://gitlab.com/micro-ROS/ros_tracing/ros2_tracing) package.
+* Think about using experimental executors more suitable for real-time (waitset, polling).
+* Add liveliness QoS.
+* Explore the use of callback groups.
+
 ### TODO
 
 General:
