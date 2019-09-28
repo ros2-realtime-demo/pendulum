@@ -84,6 +84,10 @@ int main(int argc, char * argv[])
     //     std::stoul(rcutils_cli_get_option(argv, argv + argc, OPTION_PAUSE_FOR)));
     // }
 
+    // Pass the input arguments to rttest.
+    // rttest will store relevant parameters and allocate buffers for data collection
+    rttest_read_args(argc, argv);
+    
     rclcpp::init(argc, argv);
     rclcpp::executors::SingleThreadedExecutor exec;
 

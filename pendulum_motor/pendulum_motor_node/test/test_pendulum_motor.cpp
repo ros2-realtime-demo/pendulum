@@ -24,6 +24,7 @@ using namespace pendulum;
 int main(int argc, char * argv[])
 {
     rclcpp::init(argc, argv);
+    rclcpp::init(argc, argv);
     rclcpp::executors::SingleThreadedExecutor exec;
 
     std::chrono::nanoseconds sensor_publish_period =  960000ns;
