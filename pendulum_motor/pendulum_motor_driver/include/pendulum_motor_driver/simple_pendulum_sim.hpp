@@ -80,14 +80,14 @@ public:
     {
       // Assume direct, instantaneous position control
       // (It would be more realistic to simulate a motor model)
-      state_.torque = msg.position;
+      state_.position = msg.position;
 
-      // // Enforce position limits
-      // if (state_.position > PI) {
-      //   state_.position = PI;
-      // } else if (state_.position < 0) {
-      //   state_.position = 0;
-      // }
+      // Enforce position limits
+      if (state_.position > PI) {
+        state_.position = PI;
+      } else if (state_.position < 0) {
+        state_.position = 0;
+      }
     }
 
     virtual void update_sensor_data(pendulum_msgs::msg::JointState &msg)
@@ -99,16 +99,6 @@ public:
 
     virtual void update()
     {
-      state_.acceleration = GRAVITY;
-        //GRAVITY * std::sin(state_.position - PI / 2.0) / properties_.length;// +
-        //state_.torque / (properties_.mass * properties_.length * properties_.length);
-      state_.velocity += state_.acceleration * dt_;
-      state_.position += state_.velocity * dt_;
-      // if (state_.position > PI) {
-      //   state_.position = PI;
-      // } else if (state_.position < 0) {
-      //   state_.position = 0;
-      // }
     }
     /// Set the boolean to signal that the physics engine should finish.
     // \param[in] done True if the physics engine should stop.
@@ -140,16 +130,16 @@ private:
 
     rttest_lock_and_prefault_dynamic();
     while (!done_) {
-      state_.acceleration = GRAVITY * std::sin(state_.position - PI / 2.0) / properties_.length;
-      // +
-      //  state_.torque / (properties_.mass * properties_.length * properties_.length);
+      state_.acceleration = GRAVITY * std::sin(state_.position - PI / 2.0) / properties_.length
+       +
+        state_.torque / (properties_.mass * properties_.length * properties_.length);
       state_.velocity += state_.acceleration * dt_;
       state_.position += state_.velocity * dt_;
-      // if (state_.position > PI) {
-      //   state_.position = PI;
-      // } else if (state_.position < 0) {
-      //   state_.position = 0;
-      // }
+      if (state_.position > PI) {
+        state_.position = PI;
+      } else if (state_.position < 0) {
+        state_.position = 0;
+      }
 
       if (std::isnan(state_.position)) {
         throw std::runtime_error("Tried to set state to NaN in on_command_message callback");
