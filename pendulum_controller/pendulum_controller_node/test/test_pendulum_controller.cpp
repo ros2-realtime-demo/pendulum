@@ -33,6 +33,11 @@ int main(int argc, char * argv[])
     PIDProperties pid;
     pid.p = 1.5;
     pid.i = 0.0;
+
+    std::chrono::milliseconds deadline_duration(10);
+    rclcpp::QoS qos_deadline_profile(10);
+    qos_deadline_profile.deadline(deadline_duration);
+
     std::chrono::nanoseconds update_period = 970000ns;
     std::unique_ptr<PendulumController> pid_controller =
             std::make_unique<PIDController>(update_period, pid);
@@ -40,6 +45,8 @@ int main(int argc, char * argv[])
             "pendulum_controller",
             std::move(pid_controller),
             update_period,
+            qos_deadline_profile,
+            rclcpp::QoS(1),
             rclcpp::NodeOptions().use_intra_process_comms(true));
 
     exec.add_node(controller_node->get_node_base_interface());

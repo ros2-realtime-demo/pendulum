@@ -20,14 +20,19 @@ using namespace rclcpp_lifecycle::node_interfaces;
 namespace pendulum
 {
 
-PendulumControllerNode::PendulumControllerNode(const std::string & node_name,
-        std::unique_ptr<PendulumController> controller,
-        std::chrono::nanoseconds publish_period,
-        const rclcpp::NodeOptions & options =
-         rclcpp::NodeOptions().use_intra_process_comms(false))
+PendulumControllerNode::PendulumControllerNode(
+  const std::string & node_name,
+  std::unique_ptr<PendulumController> controller,
+  std::chrono::nanoseconds publish_period,
+  const rclcpp::QoS & qos_profile,
+  const rclcpp::QoS & setpoint_qos_profile,
+  const rclcpp::NodeOptions & options =
+    rclcpp::NodeOptions().use_intra_process_comms(false))
 : rclcpp_lifecycle::LifecycleNode(node_name, options),
   publish_period_(publish_period),
-  controller_(std::move(controller))
+  controller_(std::move(controller)),
+  qos_profile_(qos_profile),
+  setpoint_qos_profile_(setpoint_qos_profile)
   { }
 
 void PendulumControllerNode::on_sensor_message(
@@ -58,9 +63,6 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
 {
         RCUTILS_LOG_INFO_NAMED(get_name(), "on_configure() is called.");
-        std::chrono::milliseconds deadline_duration(10); //TODO: change this period
-        rclcpp::QoS qos_deadline_profile(10);
-        qos_deadline_profile.deadline(deadline_duration);
         this->get_sensor_options().event_callbacks.deadline_callback =
          [this](rclcpp::QOSDeadlineRequestedInfo & event) -> void
          {
@@ -70,12 +72,11 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
          };
 
         sub_sensor_ = this->create_subscription<pendulum_msgs::msg::JointState>(
-                "pendulum_sensor", qos_deadline_profile,
+                "pendulum_sensor", qos_profile_,
                  std::bind(&PendulumControllerNode::on_sensor_message, this, std::placeholders::_1),
                  sensor_subscription_options_);
 
-
-       this->get_command_options().event_callbacks.deadline_callback =
+        this->get_command_options().event_callbacks.deadline_callback =
           [this](rclcpp::QOSDeadlineOfferedInfo & event) -> void
           {
             RCUTILS_LOG_INFO_NAMED(get_name(),
@@ -84,18 +85,19 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
           };
         // Initialize the publisher for the command message.
         command_pub_ = this->create_publisher<pendulum_msgs::msg::JointCommand>(
-                "pendulum_command", qos_deadline_profile, command_publisher_options_);
+                "pendulum_command", qos_profile_, command_publisher_options_);
 
 
         setpoint_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
-                "pendulum_setpoint", 1, std::bind(&PendulumControllerNode::on_pendulum_setpoint, this, std::placeholders::_1));
+                "pendulum_setpoint", setpoint_qos_profile_,
+                 std::bind(&PendulumControllerNode::on_pendulum_setpoint, this, std::placeholders::_1));
 
         // Initialize the logger publisher.
         logger_pub_ = this->create_publisher<pendulum_msgs::msg::RttestResults>(
                 "pendulum_statistics", 1);
 
         return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
-    }
+}
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)

@@ -87,6 +87,10 @@ int main(int argc, char * argv[])
     rclcpp::init(argc, argv);
     rclcpp::executors::SingleThreadedExecutor exec;
 
+    std::chrono::milliseconds deadline_duration(10);
+    rclcpp::QoS qos_deadline_profile(10);
+    qos_deadline_profile.deadline(deadline_duration);
+
     PIDProperties pid;
     pid.p = 0;
     pid.i = 0;
@@ -97,14 +101,14 @@ int main(int argc, char * argv[])
             "pendulum_controller",
             std::move(pid_controller),
             update_period,
+            qos_deadline_profile,
+            rclcpp::QoS(1),
             rclcpp::NodeOptions().use_intra_process_comms(true));
     exec.add_node(controller_node->get_node_base_interface());
 
     std::chrono::nanoseconds sensor_publish_period =  960000ns;
     std::chrono::nanoseconds physics_update_period = 1000000ns;
-    std::chrono::milliseconds deadline_duration(10);
-    rclcpp::QoS qos_deadline_profile(10);
-    qos_deadline_profile.deadline(deadline_duration);
+
 
     std::unique_ptr<PendulumMotor> motor =
             std::make_unique<PendulumMotorSim>(physics_update_period);

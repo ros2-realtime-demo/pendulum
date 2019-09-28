@@ -47,11 +47,14 @@ public:
     : rclcpp_lifecycle::LifecycleNode("Controller", options)
     { }
 
-    COMPOSITION_PUBLIC
-    explicit PendulumControllerNode(const std::string & node_name,
-            std::unique_ptr<PendulumController> controller,
-            std::chrono::nanoseconds publish_period,
-            const rclcpp::NodeOptions & options);
+    COMPOSITION_PUBLIC PendulumControllerNode(
+      const std::string & node_name,
+      std::unique_ptr<PendulumController> controller,
+      std::chrono::nanoseconds publish_period,
+      const rclcpp::QoS & qos_profile,
+      const rclcpp::QoS & setpoint_qos_profile,
+      const rclcpp::NodeOptions & options);
+
     void on_sensor_message(const pendulum_msgs::msg::JointState::SharedPtr msg);
     void on_pendulum_setpoint(
       const pendulum_msgs::msg::JointCommand::SharedPtr msg);
@@ -95,6 +98,8 @@ private:
     pendulum_msgs::msg::JointCommand command_message_;
     std::chrono::nanoseconds publish_period_ = 1000000ns;
     std::unique_ptr<PendulumController> controller_;
+    rclcpp::QoS qos_profile_ = rclcpp::QoS(1);
+    rclcpp::QoS setpoint_qos_profile_ = rclcpp::QoS(1);
 };
 
 }  // namespace pendulum
