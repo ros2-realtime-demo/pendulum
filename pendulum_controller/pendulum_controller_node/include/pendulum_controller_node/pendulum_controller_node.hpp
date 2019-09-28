@@ -99,7 +99,8 @@ private:
     std::chrono::nanoseconds publish_period_ = 1000000ns;
     std::unique_ptr<PendulumController> controller_;
     rclcpp::QoS qos_profile_ = rclcpp::QoS(1);
-    rclcpp::QoS setpoint_qos_profile_ = rclcpp::QoS(1);
+    rclcpp::QoS setpoint_qos_profile_ = rclcpp::QoS(
+      rclcpp::KeepLast(10)).transient_local().reliable();
 };
 
 }  // namespace pendulum
