@@ -14,9 +14,11 @@ One of the main goals of this demo is to show a representative example of a real
 * Assert there is memory allocation during runtime. Make use of the [OSRF memory tools](https://github.com/osrf/osrf_testing_tools_cpp). Take [`performance_test`](https://github.com/ros2/performance_test) as a reference.
 * Use deadline QoS. Store and show the statistics. Show that there are no missing deadlines.
 * Add a dynamic analyzer to measure additional statistics (latencies, context switches, etc). For example the [ROS 2 Bosch lttng](https://gitlab.com/micro-ROS/ros_tracing/ros2_tracing) package.
-* Think about using experimental executors more suitable for real-time (waitset, polling).
+* Think about using experimental executors more suitable for real-time (waitset, polling). 
 * Add liveliness QoS.
 * Explore the use of callback groups.
+
+**A cool usage would be to make use of lifecycle and show all the resulting stats when we deactivate a node.**
 
 ### TODO
 
