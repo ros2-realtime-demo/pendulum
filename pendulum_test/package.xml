@@ -15,6 +15,7 @@
   <build_depend>pendulum_controller_node</build_depend>
   <build_depend>pendulum_msgs</build_depend>
   <build_depend>rclcpp_lifecycle</build_depend>
+  <build_depend>rcutils</build_depend>
 
   <exec_depend>pendulum_msgs</exec_depend>
   <exec_depend>pendulum_motor_node</exec_depend>

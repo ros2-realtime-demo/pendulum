@@ -16,6 +16,8 @@
 #include <memory>
 
 #include "rclcpp/rclcpp.hpp"
+#include "rcutils/cmdline_parser.h"
+
 #include "pendulum_motor_node/pendulum_motor_node.hpp"
 #include "pendulum_motor_driver/pendulum_motor_driver.hpp"
 #include "pendulum_motor_driver/simple_pendulum_sim.hpp"
@@ -26,14 +28,68 @@
 using namespace std::chrono_literals;
 using namespace pendulum;
 
+static const double DEFAULT_PID_K = 1.0;
+static const double DEFAULT_PID_I = 0.0;
+static const double DEFAULT_PID_D = 0.0;
+
+static const char * OPTION_PID_K = "--pid-k";
+static const char * OPTION_PID_I = "--pid-i";
+static const char * OPTION_PID_D = "--pid-d";
+
+static const size_t DEFAULT_CONTROLLER_UPDATE_PERIOD = 970000;
+static const size_t DEFAULT_PHYSICS_UPDATE_PERIOD = 10000000;
+static const size_t DEFAULT_SENSOR_UPDATE_PERIOD = 960000;
+
+static const char * OPTION_CONTROLLER_UPDATE_PERIOD = "--controller-update";
+static const char * OPTION_PHYSICS_UPDATE_PERIOD = "--physics-update";
+static const char * OPTION_SENSOR_UPDATE_PERIOD = "--sensor-update";
+
+void print_usage()
+{
+  printf("Usage for pendulum_test:\n");
+  printf("pendulum_test "
+    "[%s pid proportional gain] "
+    "[%s pid integral gain] "
+    "[%s pid derivative gain] "
+    "[%s controller update period] "
+    "[%s physics simulation update period] "
+    "[%s motor sensor update period] "
+    "[-h]\n",
+    OPTION_PID_K,
+    OPTION_PID_I,
+    OPTION_PID_D,
+    OPTION_CONTROLLER_UPDATE_PERIOD,
+    OPTION_PHYSICS_UPDATE_PERIOD,
+    OPTION_SENSOR_UPDATE_PERIOD);
+}
+
 int main(int argc, char * argv[])
 {
+    // Force flush of the stdout buffer.
+    setvbuf(stdout, NULL, _IONBF, BUFSIZ);
+
+    // Argument count and usage
+    if (rcutils_cli_option_exist(argv, argv + argc, "-h")) {
+      print_usage();
+      return 0;
+    }
+
+    // // Optional argument parsing
+    // if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PUBLISH_FOR)) {
+    //   period_pause_talker = std::chrono::milliseconds(
+    //     std::stoul(rcutils_cli_get_option(argv, argv + argc, OPTION_PUBLISH_FOR)));
+    // }
+    // if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PAUSE_FOR)) {
+    //   duration_pause_talker = std::chrono::milliseconds(
+    //     std::stoul(rcutils_cli_get_option(argv, argv + argc, OPTION_PAUSE_FOR)));
+    // }
+
     rclcpp::init(argc, argv);
     rclcpp::executors::SingleThreadedExecutor exec;
 
     PIDProperties pid;
-    pid.p = 1.5;
-    pid.i = 0.0;
+    pid.p = 0;
+    pid.i = 0;
     std::chrono::nanoseconds update_period = 970000ns;
     std::unique_ptr<PendulumController> pid_controller =
             std::make_unique<PIDController>(update_period, pid);
