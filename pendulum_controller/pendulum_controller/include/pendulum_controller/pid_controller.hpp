@@ -49,23 +49,23 @@ public:
       throw std::runtime_error("Invalid dt_ calculated in PendulumController constructor");
     }
   }
-  virtual void update_setpoint_data(const pendulum_msgs::msg::JointCommand & msg) override
+  void update_setpoint_data(const pendulum_msgs::msg::JointCommand & msg) override
   {
     setpoint_position_ = msg.position;
   }
 
-  virtual void update_sensor_data(const pendulum_msgs::msg::JointState & msg) override
+  void update_sensor_data(const pendulum_msgs::msg::JointState & msg) override
   {
     sensor_position_ = msg.position;
   }
 
-  virtual void update_command_data(pendulum_msgs::msg::JointCommand & msg) override
+  void update_command_data(pendulum_msgs::msg::JointCommand & msg) override
   {
     this->update();
     msg.position = pid_.command;
   }
 
-  virtual void update() override
+  void update() override
   {
     if (std::isnan(sensor_position_)) {
       throw std::runtime_error("Sensor value was NaN in on_sensor_message callback");
@@ -104,4 +104,4 @@ private:
   double sensor_position_ = PI / 2;
 };
 
-} // namespace pendulum
+}  // namespace pendulum
