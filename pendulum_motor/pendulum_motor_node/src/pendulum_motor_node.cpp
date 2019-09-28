@@ -19,16 +19,19 @@ using namespace rclcpp_lifecycle::node_interfaces;
 
 namespace pendulum
 {
-PendulumMotorNode::PendulumMotorNode(const std::string & node_name,
-        std::chrono::nanoseconds publish_period,
-        std::unique_ptr<PendulumMotor> motor,
-        const rclcpp::NodeOptions & options =
-         rclcpp::NodeOptions().use_intra_process_comms(false))
-: rclcpp_lifecycle::LifecycleNode(node_name, options),
-  publish_period_(publish_period),
-  motor_(std::move(motor))
-{
-}
+
+PendulumMotorNode::PendulumMotorNode(
+      const std::string & node_name,
+      std::unique_ptr<PendulumMotor> motor,
+      std::chrono::nanoseconds publish_period,
+      const rclcpp::QoS & qos_profile,
+      const rclcpp::NodeOptions & options =
+        rclcpp::NodeOptions().use_intra_process_comms(false))
+      : rclcpp_lifecycle::LifecycleNode(node_name, options),
+        publish_period_(publish_period),
+        motor_(std::move(motor)),
+        qos_profile_(qos_profile)
+        {}
 
 void PendulumMotorNode::on_command_received (
   const pendulum_msgs::msg::JointCommand::SharedPtr msg)
@@ -52,9 +55,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
 {
     RCUTILS_LOG_INFO_NAMED(get_name(), "on_configure() is called.");
-    std::chrono::milliseconds deadline_duration(10); //TODO: change this period
-    rclcpp::QoS qos_deadline_profile(10);
-    qos_deadline_profile.deadline(deadline_duration);
+
     this->get_sensor_options().event_callbacks.deadline_callback =
        [this](rclcpp::QOSDeadlineOfferedInfo & event) -> void
        {
@@ -63,7 +64,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
            event.total_count, event.total_count_change);
        };
     sensor_pub_ = this->create_publisher<pendulum_msgs::msg::JointState>(
-      "pendulum_sensor", qos_deadline_profile, sensor_publisher_options_);
+      "pendulum_sensor", qos_profile_, sensor_publisher_options_);
 
       this->get_command_options().event_callbacks.deadline_callback =
        [this](rclcpp::QOSDeadlineRequestedInfo & event) -> void
@@ -73,7 +74,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
            event.total_count, event.total_count_change);
        };
     command_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
-            "pendulum_command", qos_deadline_profile,
+            "pendulum_command", qos_profile_,
              std::bind(&PendulumMotorNode::on_command_received, this, std::placeholders::_1),
            command_subscription_options_);
 

@@ -42,13 +42,15 @@ class PendulumMotorNode : public rclcpp_lifecycle::LifecycleNode
 public:
     COMPOSITION_PUBLIC
     explicit PendulumMotorNode(const rclcpp::NodeOptions & options)
-    : rclcpp_lifecycle::LifecycleNode("PendulumMotor", options)
+    : rclcpp_lifecycle::LifecycleNode("PendulumMotor", options),
+      qos_profile_(rclcpp::QoS(1))
     { };
-    COMPOSITION_PUBLIC
-    explicit PendulumMotorNode(const std::string & node_name,
-            std::chrono::nanoseconds publish_period,
-            std::unique_ptr<PendulumMotor> motor,
-            const rclcpp::NodeOptions & options);
+    COMPOSITION_PUBLIC PendulumMotorNode(
+        const std::string & node_name,
+        std::unique_ptr<PendulumMotor> motor,
+        std::chrono::nanoseconds publish_period,
+        const rclcpp::QoS & qos_profile,
+        const rclcpp::NodeOptions & options);
     void on_command_received(const pendulum_msgs::msg::JointCommand::SharedPtr msg);
     void sensor_timer_callback();
     void update_motor_callback();
@@ -82,6 +84,7 @@ private:
     std::chrono::nanoseconds publish_period_ = 1000000ns;
     pendulum_msgs::msg::JointState sensor_message_;
     std::unique_ptr<PendulumMotor> motor_;
+    rclcpp::QoS qos_profile_;
 };
 
 }  // namespace pendulum
