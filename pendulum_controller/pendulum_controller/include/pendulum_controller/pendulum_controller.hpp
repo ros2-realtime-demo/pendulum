@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_CONTROLLER_H
-#define PENDULUM_CONTROLLER_H
+#ifndef PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
+#define PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
 
 #include "pendulum_msgs/msg/joint_command.hpp"
 #include "pendulum_msgs/msg/joint_state.hpp"
@@ -30,7 +30,6 @@ public:
   virtual void update() = 0;
 };
 
-} // namespace pendulum
+}  // namespace pendulum
 
-#endif //PENDULUM_CONTROLLER_H
-
+#endif  // PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
