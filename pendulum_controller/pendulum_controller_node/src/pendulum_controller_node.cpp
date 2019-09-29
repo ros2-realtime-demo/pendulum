@@ -105,13 +105,14 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
 {
-  show_new_pagefault_count("on_activate", ">=0", ">=0");
+
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
   command_pub_->on_activate();
   logger_pub_->on_activate();
   timer_ =
     this->create_wall_timer(publish_period_,
       std::bind(&PendulumControllerNode::control_timer_callback, this));
+  show_new_pagefault_count("on_activate", ">=0", ">=0");
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 

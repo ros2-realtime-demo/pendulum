@@ -87,12 +87,13 @@ PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumMotorNode::on_activate(const rclcpp_lifecycle::State &)
 {
-  show_new_pagefault_count("on_activate", ">=0", ">=0");
+
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
   sensor_pub_->on_activate();
   sensor_timer_ =
     this->create_wall_timer(publish_period_,
       std::bind(&PendulumMotorNode::sensor_timer_callback, this));
+  show_new_pagefault_count("on_activate", ">=0", ">=0");
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
