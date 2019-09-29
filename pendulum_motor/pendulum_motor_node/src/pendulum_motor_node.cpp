@@ -78,7 +78,7 @@ PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
   command_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
     "pendulum_command", qos_profile_,
     std::bind(&PendulumMotorNode::on_command_received,
-       this, std::placeholders::_1),
+    this, std::placeholders::_1),
     command_subscription_options_);
 
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
@@ -127,9 +127,10 @@ PendulumMotorNode::on_shutdown(const rclcpp_lifecycle::State &)
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
-void PendulumMotorNode::show_new_pagefault_count(const char* logtext,
-  const char* allowed_maj,
-  const char* allowed_min)
+void PendulumMotorNode::show_new_pagefault_count(
+  const char * logtext,
+  const char * allowed_maj,
+  const char * allowed_min)
 {
   struct rusage usage;
 
