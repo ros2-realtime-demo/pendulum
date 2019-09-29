@@ -1,0 +1,10 @@
+job:
+  image: ros:dashing
+  script:
+    - mkdir -p ./pendulum_ws/src
+    - mv * ./pendulum_ws/src && cd ./pendulum_ws
+    - apt update
+    - "rosdep install -q -y --from-paths . --ignore-src \
+     --rosdistro ${ROS_DISTRO} --as-root=apt:false || true"
+    - colcon build --merge-install
+    - colcon test --merge-install
