@@ -11,7 +11,7 @@ The project is structured in a modular way so each node component can be tested 
 One of the main goals of this demo is to show a representative example of a real-time capable ROS 2 based application. In order to demonstrate these capabilities we can start with the following points:
 
 * Show no memory page faults when nodes are active. Make use of lifecycle activate/deactivate to show the stats.
-* Assert there is memory allocation during runtime. Make use of the [OSRF memory tools](https://github.com/osrf/osrf_testing_tools_cpp). Take [`performance_test`](https://github.com/ros2/performance_test) as a reference.
+* Assert there is no memory allocation during runtime. Make use of the [OSRF memory tools](https://github.com/osrf/osrf_testing_tools_cpp). Take [`performance_test`](https://github.com/ros2/performance_test) as a reference.
 * Use deadline QoS. Store and show the statistics. Show that there are no missing deadlines.
 * Add a dynamic analyzer to measure additional statistics (latencies, context switches, etc). For example the [ROS 2 Bosch lttng](https://gitlab.com/micro-ROS/ros_tracing/ros2_tracing) package.
 * Think about using experimental executors more suitable for real-time (waitset, polling).
