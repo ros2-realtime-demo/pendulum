@@ -15,13 +15,14 @@
 #ifndef PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_NODE_HPP_
 #define PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_NODE_HPP_
 
+#include <pendulum_msgs/msg/rttest_results.hpp>
+
 #include <sys/time.h>  // needed for getrusage
 #include <sys/resource.h>  // needed for getrusage
 
 #include <memory>
 #include <string>
 
-#include <pendulum_msgs/msg/rttest_results.hpp>
 #include "rcutils/logging_macros.h"
 
 #include "pendulum_msgs/msg/joint_command.hpp"
@@ -43,45 +44,46 @@ namespace pendulum
 class PendulumControllerNode : public rclcpp_lifecycle::LifecycleNode
 {
 public:
-    COMPOSITION_PUBLIC
-    explicit PendulumControllerNode(const rclcpp::NodeOptions & options)
-    : rclcpp_lifecycle::LifecycleNode("Controller", options)
-    { }
+  COMPOSITION_PUBLIC
+  explicit PendulumControllerNode(const rclcpp::NodeOptions & options)
+  : rclcpp_lifecycle::LifecycleNode("Controller", options)
+  {}
 
-    COMPOSITION_PUBLIC PendulumControllerNode(
-      const std::string & node_name,
-      std::unique_ptr<PendulumController> controller,
-      std::chrono::nanoseconds publish_period,
-      const rclcpp::QoS & qos_profile,
-      const rclcpp::QoS & setpoint_qos_profile,
-      const rclcpp::NodeOptions & options);
+  COMPOSITION_PUBLIC PendulumControllerNode(
+    const std::string & node_name,
+    std::unique_ptr<PendulumController> controller,
+    std::chrono::nanoseconds publish_period,
+    const rclcpp::QoS & qos_profile,
+    const rclcpp::QoS & setpoint_qos_profile,
+    const rclcpp::NodeOptions & options);
 
-    void on_sensor_message(const pendulum_msgs::msg::JointState::SharedPtr msg);
-    void on_pendulum_setpoint(
-      const pendulum_msgs::msg::JointCommand::SharedPtr msg);
-      /// Retrieve the command calculated from the last sensor message.
-      // \return Command message
-    const pendulum_msgs::msg::JointCommand & get_next_command_message() const;
-    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-      on_configure(const rclcpp_lifecycle::State &);
-    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-      on_activate(const rclcpp_lifecycle::State &);
-    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-      on_deactivate(const rclcpp_lifecycle::State &);
-    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-      on_cleanup(const rclcpp_lifecycle::State &);
-    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-      on_shutdown(const rclcpp_lifecycle::State & state);
+  void on_sensor_message(const pendulum_msgs::msg::JointState::SharedPtr msg);
+  void on_pendulum_setpoint(
+    const pendulum_msgs::msg::JointCommand::SharedPtr msg);
+  /// Retrieve the command calculated from the last sensor message.
+  // \return Command message
+  const pendulum_msgs::msg::JointCommand & get_next_command_message() const;
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_configure(const rclcpp_lifecycle::State &);
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_activate(const rclcpp_lifecycle::State &);
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_deactivate(const rclcpp_lifecycle::State &);
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_cleanup(const rclcpp_lifecycle::State &);
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_shutdown(const rclcpp_lifecycle::State & state);
 
-    void control_timer_callback();
+  void control_timer_callback();
 
-    /// Get the subscription's settings options.
-    rclcpp::SubscriptionOptions & get_sensor_options() {return sensor_subscription_options_;}
-    rclcpp::PublisherOptions & get_command_options() {return command_publisher_options_;}
+  /// Get the subscription's settings options.
+  rclcpp::SubscriptionOptions & get_sensor_options() {return sensor_subscription_options_;}
+  rclcpp::PublisherOptions & get_command_options() {return command_publisher_options_;}
 
-    void show_new_pagefault_count(const char* logtext,
-               const char* allowed_maj,
-               const char* allowed_min);
+  void show_new_pagefault_count(
+    const char * logtext,
+    const char * allowed_maj,
+    const char * allowed_min);
 
 private:
   std::shared_ptr<rclcpp::Subscription<
