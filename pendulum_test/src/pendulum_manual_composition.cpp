@@ -43,6 +43,7 @@ static const size_t DEFAULT_SENSOR_UPDATE_PERIOD = 960000;
 static const char * OPTION_CONTROLLER_UPDATE_PERIOD = "--controller-update";
 static const char * OPTION_PHYSICS_UPDATE_PERIOD = "--physics-update";
 static const char * OPTION_SENSOR_UPDATE_PERIOD = "--sensor-update";
+static const char * OPTION_MEMORY_LOCK = "--memory-lock";
 
 void print_usage()
 {
@@ -54,17 +55,20 @@ void print_usage()
     "[%s controller update period] "
     "[%s physics simulation update period] "
     "[%s motor sensor update period] "
+    "[%s use memory lock] "
     "[-h]\n",
     OPTION_PID_K,
     OPTION_PID_I,
     OPTION_PID_D,
     OPTION_CONTROLLER_UPDATE_PERIOD,
     OPTION_PHYSICS_UPDATE_PERIOD,
-    OPTION_SENSOR_UPDATE_PERIOD);
+    OPTION_SENSOR_UPDATE_PERIOD,
+    OPTION_MEMORY_LOCK);
 }
 
 int main(int argc, char * argv[])
 {
+    bool use_memory_lock = false;
     // Force flush of the stdout buffer.
     setvbuf(stdout, NULL, _IONBF, BUFSIZ);
 
@@ -74,20 +78,19 @@ int main(int argc, char * argv[])
       return 0;
     }
 
-    // // Optional argument parsing
-    // if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PUBLISH_FOR)) {
-    //   period_pause_talker = std::chrono::milliseconds(
-    //     std::stoul(rcutils_cli_get_option(argv, argv + argc, OPTION_PUBLISH_FOR)));
-    // }
-    // if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PAUSE_FOR)) {
-    //   duration_pause_talker = std::chrono::milliseconds(
-    //     std::stoul(rcutils_cli_get_option(argv, argv + argc, OPTION_PAUSE_FOR)));
-    // }
+    // Optional argument parsing
+    if (rcutils_cli_option_exist(argv, argv + argc, OPTION_MEMORY_LOCK)) {
+      use_memory_lock = true;
+    }
 
     // Pass the input arguments to rttest.
     // rttest will store relevant parameters and allocate buffers for data collection
-    rttest_read_args(argc, argv);
-    
+    //rttest_read_args(argc, argv);
+    struct timespec rttest_update_period;
+    rttest_update_period.tv_sec = 0;
+    rttest_update_period.tv_nsec = 1000000;
+    rttest_init(1, rttest_update_period, SCHED_FIFO, 80, 0, NULL);
+
     rclcpp::init(argc, argv);
     rclcpp::executors::SingleThreadedExecutor exec;
 
@@ -126,7 +129,7 @@ int main(int argc, char * argv[])
 
     // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
     // deterministic (real-time safe) algorithm, round robin.
-    if (rttest_set_sched_priority(98, SCHED_RR)) {
+    if (rttest_set_sched_priority(80, SCHED_FIFO)) {
       perror("Couldn't set scheduling priority and policy");
     }
 
@@ -137,9 +140,14 @@ int main(int argc, char * argv[])
     // Always do this as the last step of the initialization phase.
     // See README.md for instructions on setting permissions.
     // See rttest/rttest.cpp for more details.
-    if (rttest_lock_and_prefault_dynamic() != 0) {
-      fprintf(stderr, "Couldn't lock all cached virtual memory.\n");
-      fprintf(stderr, "Pagefaults from reading pages not yet mapped into RAM will be recorded.\n");
+    if(use_memory_lock){
+      if (rttest_lock_and_prefault_dynamic() != 0) {
+        std::cerr << "Couldn't lock all cached virtual memory\n";
+        std::cerr << "Pagefaults from reading pages not yet mapped into RAM will be recorded.\n";
+      }
+      else{
+        std::cout << "Locked virtual memory\n";
+      }
     }
 
     exec.spin();

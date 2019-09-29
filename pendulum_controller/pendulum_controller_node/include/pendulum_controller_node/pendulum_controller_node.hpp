@@ -18,6 +18,9 @@
 #include <memory>
 #include <string>
 
+#include <sys/time.h>	// needed for getrusage
+#include <sys/resource.h>	// needed for getrusage
+
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/publisher.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
@@ -78,6 +81,9 @@ public:
     rclcpp::SubscriptionOptions & get_sensor_options() {return sensor_subscription_options_;}
     rclcpp::PublisherOptions & get_command_options() {return command_publisher_options_;}
 
+    void show_new_pagefault_count(const char* logtext,
+               const char* allowed_maj,
+               const char* allowed_min);
 
 private:
     std::shared_ptr<rclcpp::Subscription<
@@ -101,6 +107,8 @@ private:
     rclcpp::QoS qos_profile_ = rclcpp::QoS(1);
     rclcpp::QoS setpoint_qos_profile_ = rclcpp::QoS(
       rclcpp::KeepLast(10)).transient_local().reliable();
+    int last_majflt_ = 0;
+    int last_minflt_ = 0;
 };
 
 }  // namespace pendulum

@@ -19,6 +19,9 @@
 #include <string>
 #include <cmath>
 
+#include <sys/time.h>	// needed for getrusage
+#include <sys/resource.h>	// needed for getrusage
+
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "lifecycle_msgs/msg/transition_event.hpp"
@@ -70,6 +73,10 @@ public:
     rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
     on_shutdown(const rclcpp_lifecycle::State & state);
 
+    void show_new_pagefault_count(const char* logtext,
+               const char* allowed_maj,
+               const char* allowed_min);
+               
 private:
     std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
       pendulum_msgs::msg::JointState>> sensor_pub_;
@@ -85,6 +92,8 @@ private:
     pendulum_msgs::msg::JointState sensor_message_;
     std::unique_ptr<PendulumMotor> motor_;
     rclcpp::QoS qos_profile_;
+    int last_majflt_ = 0;
+    int last_minflt_ = 0;
 };
 
 }  // namespace pendulum

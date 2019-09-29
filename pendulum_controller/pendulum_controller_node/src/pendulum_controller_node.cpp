@@ -102,6 +102,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
 {
+        show_new_pagefault_count("on_activate", ">=0", ">=0");
         RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
         command_pub_->on_activate();
         logger_pub_->on_activate();
@@ -112,7 +113,9 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   PendulumControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
 {
+        show_new_pagefault_count("on_deactivate", "0", "0");
         RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
+        timer_->cancel();
         command_pub_->on_deactivate();
         logger_pub_->on_deactivate();
         return LifecycleNodeInterface::CallbackReturn::SUCCESS;
@@ -142,7 +145,25 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
         return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
+void PendulumControllerNode::show_new_pagefault_count(const char* logtext,
+           const char* allowed_maj,
+           const char* allowed_min)
+{
+   struct rusage usage;
+
+   getrusage(RUSAGE_SELF, &usage);
+
+   RCUTILS_LOG_INFO_NAMED(get_name(),
+    "%-30.30s: Pagefaults, Major:%ld (Allowed %s), "
+    "Minor:%ld (Allowed %s)", logtext,
+    usage.ru_majflt - last_majflt_, allowed_maj,
+    usage.ru_minflt - last_minflt_, allowed_min);
+   last_majflt_ = usage.ru_majflt;
+   last_minflt_ = usage.ru_minflt;
+}
+
 }  // namespace pendulum_controller
+
 
 #include "rclcpp_components/register_node_macro.hpp"
 

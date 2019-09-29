@@ -84,6 +84,7 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   PendulumMotorNode::on_activate(const rclcpp_lifecycle::State &)
 {
+    show_new_pagefault_count("on_activate", ">=0", ">=0");
     RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
     sensor_pub_->on_activate();
     sensor_timer_ = this->create_wall_timer(publish_period_, std::bind(&PendulumMotorNode::sensor_timer_callback, this));
@@ -93,6 +94,8 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   PendulumMotorNode::on_deactivate(const rclcpp_lifecycle::State &)
 {
+    show_new_pagefault_count("on_deactivate", "0", "0");
+    sensor_timer_->cancel();
     sensor_pub_->on_deactivate();
     return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
@@ -116,6 +119,23 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
     command_sub_.reset();
     sensor_pub_.reset();
     return LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
+
+void PendulumMotorNode::show_new_pagefault_count(const char* logtext,
+           const char* allowed_maj,
+           const char* allowed_min)
+{
+   struct rusage usage;
+
+   getrusage(RUSAGE_SELF, &usage);
+
+   RCUTILS_LOG_INFO_NAMED(get_name(),
+    "%-30.30s: Pagefaults, Major:%ld (Allowed %s), "
+    "Minor:%ld (Allowed %s)", logtext,
+    usage.ru_majflt - last_majflt_, allowed_maj,
+    usage.ru_minflt - last_minflt_, allowed_min);
+   last_majflt_ = usage.ru_majflt;
+   last_minflt_ = usage.ru_minflt;
 }
 
 }  // namespace pendulum_controller
