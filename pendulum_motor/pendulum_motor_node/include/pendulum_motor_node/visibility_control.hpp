@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef COMPOSITION__VISIBILITY_CONTROL_H_
-#define COMPOSITION__VISIBILITY_CONTROL_H_
+#ifndef PENDULUM_MOTOR_NODE__VISIBILITY_CONTROL_HPP_
+#define PENDULUM_MOTOR_NODE__VISIBILITY_CONTROL_HPP_
 
 #ifdef __cplusplus
 extern "C"
@@ -55,4 +55,4 @@ extern "C"
 }
 #endif
 
-#endif  // COMPOSITION__VISIBILITY_CONTROL_H_
+#endif  // PENDULUM_MOTOR_NODE__VISIBILITY_CONTROL_HPP_

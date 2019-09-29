@@ -1,4 +1,4 @@
-// Copyright 2019
+// Copyright 2019 Carlos San Vicente
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <string>
+#include <memory>
+#include <utility>
+
 #include "rttest/utils.h"
 #include "pendulum_controller_node/pendulum_controller_node.hpp"
-
-using namespace rclcpp_lifecycle::node_interfaces;
 
 namespace pendulum
 {
@@ -27,127 +29,129 @@ PendulumControllerNode::PendulumControllerNode(
   const rclcpp::QoS & qos_profile,
   const rclcpp::QoS & setpoint_qos_profile,
   const rclcpp::NodeOptions & options =
-    rclcpp::NodeOptions().use_intra_process_comms(false))
+  rclcpp::NodeOptions().use_intra_process_comms(false))
 : rclcpp_lifecycle::LifecycleNode(node_name, options),
   publish_period_(publish_period),
   controller_(std::move(controller)),
   qos_profile_(qos_profile),
   setpoint_qos_profile_(setpoint_qos_profile)
-  { }
+{}
 
 void PendulumControllerNode::on_sensor_message(
   const pendulum_msgs::msg::JointState::SharedPtr msg)
 {
-    controller_->update_sensor_data(*msg);
+  controller_->update_sensor_data(*msg);
 }
 
 void PendulumControllerNode::on_pendulum_setpoint(
   const pendulum_msgs::msg::JointCommand::SharedPtr msg)
 {
-    controller_->update_setpoint_data(*msg);
+  controller_->update_setpoint_data(*msg);
 }
 
 void PendulumControllerNode::control_timer_callback()
 {
-    controller_->update_command_data(command_message_);
-    command_pub_->publish(command_message_);
+  controller_->update_command_data(command_message_);
+  command_pub_->publish(command_message_);
 }
 
 const pendulum_msgs::msg::JointCommand &
-  PendulumControllerNode::get_next_command_message() const
+PendulumControllerNode::get_next_command_message() const
 {
   return command_message_;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-  PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
+PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
 {
-        RCUTILS_LOG_INFO_NAMED(get_name(), "on_configure() is called.");
-        this->get_sensor_options().event_callbacks.deadline_callback =
-         [this](rclcpp::QOSDeadlineRequestedInfo & event) -> void
-         {
-           RCUTILS_LOG_INFO_NAMED(get_name(),
-             "Requested deadline missed - total %d delta %d",
-             event.total_count, event.total_count_change);
-         };
+  RCUTILS_LOG_INFO_NAMED(get_name(), "on_configure() is called.");
+  this->get_sensor_options().event_callbacks.deadline_callback =
+    [this](rclcpp::QOSDeadlineRequestedInfo & event) -> void
+    {
+      RCUTILS_LOG_INFO_NAMED(get_name(),
+        "Requested deadline missed - total %d delta %d",
+        event.total_count, event.total_count_change);
+    };
 
-        sub_sensor_ = this->create_subscription<pendulum_msgs::msg::JointState>(
-                "pendulum_sensor", qos_profile_,
-                 std::bind(&PendulumControllerNode::on_sensor_message, this, std::placeholders::_1),
-                 sensor_subscription_options_);
+  sub_sensor_ = this->create_subscription<pendulum_msgs::msg::JointState>(
+    "pendulum_sensor", qos_profile_,
+    std::bind(&PendulumControllerNode::on_sensor_message, this, std::placeholders::_1),
+    sensor_subscription_options_);
 
-        this->get_command_options().event_callbacks.deadline_callback =
-          [this](rclcpp::QOSDeadlineOfferedInfo & event) -> void
-          {
-            RCUTILS_LOG_INFO_NAMED(get_name(),
-              "Offered deadline missed - total %d delta %d",
-              event.total_count, event.total_count_change);
-          };
-        // Initialize the publisher for the command message.
-        command_pub_ = this->create_publisher<pendulum_msgs::msg::JointCommand>(
-                "pendulum_command", qos_profile_, command_publisher_options_);
+  this->get_command_options().event_callbacks.deadline_callback =
+    [this](rclcpp::QOSDeadlineOfferedInfo & event) -> void
+    {
+      RCUTILS_LOG_INFO_NAMED(get_name(),
+        "Offered deadline missed - total %d delta %d",
+        event.total_count, event.total_count_change);
+    };
+  // Initialize the publisher for the command message.
+  command_pub_ = this->create_publisher<pendulum_msgs::msg::JointCommand>(
+    "pendulum_command", qos_profile_, command_publisher_options_);
 
 
-        setpoint_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
-                "pendulum_setpoint", setpoint_qos_profile_,
-                 std::bind(&PendulumControllerNode::on_pendulum_setpoint, this, std::placeholders::_1));
+  setpoint_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
+    "pendulum_setpoint", setpoint_qos_profile_,
+    std::bind(&PendulumControllerNode::on_pendulum_setpoint, this, std::placeholders::_1));
 
-        // Initialize the logger publisher.
-        logger_pub_ = this->create_publisher<pendulum_msgs::msg::RttestResults>(
-                "pendulum_statistics", 1);
+  // Initialize the logger publisher.
+  logger_pub_ = this->create_publisher<pendulum_msgs::msg::RttestResults>(
+    "pendulum_statistics", 1);
 
-        return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-  PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
+PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
 {
-        show_new_pagefault_count("on_activate", ">=0", ">=0");
-        RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
-        command_pub_->on_activate();
-        logger_pub_->on_activate();
-        timer_ = this->create_wall_timer(publish_period_, std::bind(&PendulumControllerNode::control_timer_callback, this));
-        return LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  show_new_pagefault_count("on_activate", ">=0", ">=0");
+  RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
+  command_pub_->on_activate();
+  logger_pub_->on_activate();
+  timer_ =
+    this->create_wall_timer(publish_period_,
+      std::bind(&PendulumControllerNode::control_timer_callback, this));
+  return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-  PendulumControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
+PendulumControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
 {
-        show_new_pagefault_count("on_deactivate", "0", "0");
-        RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
-        timer_->cancel();
-        command_pub_->on_deactivate();
-        logger_pub_->on_deactivate();
-        return LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  show_new_pagefault_count("on_deactivate", "0", "0");
+  RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
+  timer_->cancel();
+  command_pub_->on_deactivate();
+  logger_pub_->on_deactivate();
+  return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-  PendulumControllerNode::on_cleanup(const rclcpp_lifecycle::State &)
+PendulumControllerNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
-        RCUTILS_LOG_INFO_NAMED(get_name(), "on_cleanup() is called.");
-        timer_.reset();
-        command_pub_.reset();
-        logger_pub_.reset();
-        sub_sensor_.reset();
-        setpoint_sub_.reset();
-        return LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  RCUTILS_LOG_INFO_NAMED(get_name(), "on_cleanup() is called.");
+  timer_.reset();
+  command_pub_.reset();
+  logger_pub_.reset();
+  sub_sensor_.reset();
+  setpoint_sub_.reset();
+  return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-  PendulumControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
+PendulumControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
 {
-        RCUTILS_LOG_INFO_NAMED(get_name(), "on_shutdown() is called.");
-        timer_.reset();
-        command_pub_.reset();
-        logger_pub_.reset();
-        sub_sensor_.reset();
-        setpoint_sub_.reset();
-        return LifecycleNodeInterface::CallbackReturn::SUCCESS;
-}
+  RCUTILS_LOG_INFO_NAMED(get_name(), "on_shutdown() is called.");
+  timer_.reset();
+  command_pub_.reset();
+  logger_pub_.reset();
+  sub_sensor_.reset();
+  setpoint_sub_.reset();
+  return LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}  // namespace pendulum
 
 void PendulumControllerNode::show_new_pagefault_count(const char* logtext,
-           const char* allowed_maj,
-           const char* allowed_min)
+  const char* allowed_maj,
+  const char* allowed_min)
 {
    struct rusage usage;
 
@@ -162,7 +166,7 @@ void PendulumControllerNode::show_new_pagefault_count(const char* logtext,
    last_minflt_ = usage.ru_minflt;
 }
 
-}  // namespace pendulum_controller
+}  // namespace pendulum
 
 
 #include "rclcpp_components/register_node_macro.hpp"

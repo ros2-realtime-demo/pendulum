@@ -1,4 +1,4 @@
-// Copyright 2019
+// Copyright 2019 Carlos San Vicente
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM__CONTROLLER_NODE_HPP_
-#define PENDULUM__CONTROLLER_NODE_HPP_
+#ifndef PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_NODE_HPP_
+#define PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_NODE_HPP_
+
+#include <pendulum_msgs/msg/rttest_results.hpp>
 
 #include <memory>
 #include <string>
@@ -21,23 +23,20 @@
 #include <sys/time.h>	// needed for getrusage
 #include <sys/resource.h>	// needed for getrusage
 
+#include "rcutils/logging_macros.h"
+
+#include "pendulum_msgs/msg/joint_command.hpp"
+#include "pendulum_msgs/msg/joint_state.hpp"
+#include "pendulum_controller_node/visibility_control.hpp"
+#include "pendulum_controller/pendulum_controller.hpp"
+
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/publisher.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "rclcpp_lifecycle/lifecycle_publisher.hpp"
-#include "rcutils/logging_macros.h"
 
 #include "lifecycle_msgs/msg/transition_event.hpp"
 #include "lifecycle_msgs/msg/transition.hpp"
-
-#include "pendulum_msgs/msg/joint_command.hpp"
-#include "pendulum_msgs/msg/joint_state.hpp"
-#include <pendulum_msgs/msg/rttest_results.hpp>
-
-#include "pendulum_controller/pendulum_controller.hpp"
-#include "pendulum_controller_node/visibility_control.hpp"
-
-using namespace std::chrono_literals;
 
 namespace pendulum
 {
@@ -86,31 +85,31 @@ public:
                const char* allowed_min);
 
 private:
-    std::shared_ptr<rclcpp::Subscription<
+  std::shared_ptr<rclcpp::Subscription<
       pendulum_msgs::msg::JointState>> sub_sensor_;
-    std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
+  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
       pendulum_msgs::msg::JointCommand>> command_pub_;
-    std::shared_ptr<rclcpp::Subscription<
+  std::shared_ptr<rclcpp::Subscription<
       pendulum_msgs::msg::JointCommand>> setpoint_sub_;
-    std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
+  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
       pendulum_msgs::msg::RttestResults>> logger_pub_;
-    std::shared_ptr<rclcpp::Subscription<
+  std::shared_ptr<rclcpp::Subscription<
       lifecycle_msgs::msg::TransitionEvent>> sub_notification_;
 
-    rclcpp::PublisherOptions command_publisher_options_;
-    rclcpp::SubscriptionOptions sensor_subscription_options_;
+  rclcpp::PublisherOptions command_publisher_options_;
+  rclcpp::SubscriptionOptions sensor_subscription_options_;
 
-    rclcpp::TimerBase::SharedPtr timer_;
-    pendulum_msgs::msg::JointCommand command_message_;
-    std::chrono::nanoseconds publish_period_ = 1000000ns;
-    std::unique_ptr<PendulumController> controller_;
-    rclcpp::QoS qos_profile_ = rclcpp::QoS(1);
-    rclcpp::QoS setpoint_qos_profile_ = rclcpp::QoS(
-      rclcpp::KeepLast(10)).transient_local().reliable();
-    int last_majflt_ = 0;
-    int last_minflt_ = 0;
+  rclcpp::TimerBase::SharedPtr timer_;
+  pendulum_msgs::msg::JointCommand command_message_;
+  std::chrono::nanoseconds publish_period_ = std::chrono::nanoseconds(1000000);
+  std::unique_ptr<PendulumController> controller_;
+  rclcpp::QoS qos_profile_ = rclcpp::QoS(1);
+  rclcpp::QoS setpoint_qos_profile_ = rclcpp::QoS(
+    rclcpp::KeepLast(10)).transient_local().reliable();
+  int last_majflt_ = 0;
+  int last_minflt_ = 0;
 };
 
 }  // namespace pendulum
 
-#endif  // PENDULUM__CONTROLLER_NODE_HPP_
+#endif  // PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_NODE_HPP_

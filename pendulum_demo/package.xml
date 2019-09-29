@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
-  <name>pendulum_test</name>
+  <name>pendulum_demo</name>
   <version>0.7.6</version>
   <description>Package containing demos for lifecycle implementation</description>
   <maintainer email="karsten@osrfoundation.org">Karsten Knese</maintainer>
@@ -24,6 +24,11 @@
   <exec_depend>pendulum_controller_node</exec_depend>
   <exec_depend>lifecycle_msgs</exec_depend>
   <exec_depend>ros2run</exec_depend>
+
+  <test_depend>ament_cmake_gmock</test_depend>
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

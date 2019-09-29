@@ -1,4 +1,4 @@
-// Copyright 2019
+// Copyright 2019 Carlos San Vicente
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,22 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_CONTROLLER_H
-#define PENDULUM_CONTROLLER_H
+#ifndef PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
+#define PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
 
 #include "pendulum_msgs/msg/joint_command.hpp"
 #include "pendulum_msgs/msg/joint_state.hpp"
 
-namespace pendulum {
+namespace pendulum
+{
 
-class PendulumController {
+class PendulumController
+{
 public:
-    virtual void update_setpoint_data(const pendulum_msgs::msg::JointCommand &msg) = 0;
-    virtual void update_sensor_data(const pendulum_msgs::msg::JointState &msg) = 0;
-    virtual void update_command_data(pendulum_msgs::msg::JointCommand &msg) = 0;
-    virtual void update() = 0;
+  virtual void update_setpoint_data(const pendulum_msgs::msg::JointCommand & msg) = 0;
+  virtual void update_sensor_data(const pendulum_msgs::msg::JointState & msg) = 0;
+  virtual void update_command_data(pendulum_msgs::msg::JointCommand & msg) = 0;
+  virtual void update() = 0;
 };
 
-} // namespace pendulum
+}  // namespace pendulum
 
-#endif //PENDULUM_CONTROLLER_H
+#endif  // PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
