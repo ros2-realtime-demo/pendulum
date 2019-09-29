@@ -15,14 +15,13 @@
 #ifndef PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_NODE_HPP_
 #define PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_NODE_HPP_
 
-#include <pendulum_msgs/msg/rttest_results.hpp>
+#include <sys/time.h>  // needed for getrusage
+#include <sys/resource.h>  // needed for getrusage
 
 #include <memory>
 #include <string>
 
-#include <sys/time.h>	// needed for getrusage
-#include <sys/resource.h>	// needed for getrusage
-
+#include <pendulum_msgs/msg/rttest_results.hpp>
 #include "rcutils/logging_macros.h"
 
 #include "pendulum_msgs/msg/joint_command.hpp"

@@ -77,7 +77,8 @@ PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
     };
   command_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
     "pendulum_command", qos_profile_,
-    std::bind(&PendulumMotorNode::on_command_received, this, std::placeholders::_1),
+    std::bind(&PendulumMotorNode::on_command_received,
+       this, std::placeholders::_1),
     command_subscription_options_);
 
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
@@ -130,24 +131,25 @@ void PendulumMotorNode::show_new_pagefault_count(const char* logtext,
   const char* allowed_maj,
   const char* allowed_min)
 {
-   struct rusage usage;
+  struct rusage usage;
 
-   getrusage(RUSAGE_SELF, &usage);
+  getrusage(RUSAGE_SELF, &usage);
 
-   RCUTILS_LOG_INFO_NAMED(get_name(),
+  RCUTILS_LOG_INFO_NAMED(get_name(),
     "%-30.30s: Pagefaults, Major:%ld (Allowed %s), "
     "Minor:%ld (Allowed %s)", logtext,
     usage.ru_majflt - last_majflt_, allowed_maj,
     usage.ru_minflt - last_minflt_, allowed_min);
-   last_majflt_ = usage.ru_majflt;
-   last_minflt_ = usage.ru_minflt;
+  last_majflt_ = usage.ru_majflt;
+  last_minflt_ = usage.ru_minflt;
 }
 
-}  // namespace pendulum_controller
+}  // namespace pendulum
 
 #include "rclcpp_components/register_node_macro.hpp"
 
 // Register the component with class_loader.
-// This acts as a sort of entry point, allowing the component to be discoverable when its library
+// This acts as a sort of entry point,
+// allowing the component to be discoverable when its library
 // is being loaded into a running process.
 RCLCPP_COMPONENTS_REGISTER_NODE(pendulum::PendulumMotorNode)

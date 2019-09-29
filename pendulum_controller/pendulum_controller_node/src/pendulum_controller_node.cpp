@@ -75,7 +75,8 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
 
   sub_sensor_ = this->create_subscription<pendulum_msgs::msg::JointState>(
     "pendulum_sensor", qos_profile_,
-    std::bind(&PendulumControllerNode::on_sensor_message, this, std::placeholders::_1),
+    std::bind(&PendulumControllerNode::on_sensor_message,
+       this, std::placeholders::_1),
     sensor_subscription_options_);
 
   this->get_command_options().event_callbacks.deadline_callback =
@@ -152,19 +153,19 @@ PendulumControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
 void PendulumControllerNode::show_new_pagefault_count(const char* logtext,
   const char* allowed_maj,
   const char* allowed_min)
-{
-   struct rusage usage;
+  {
+    struct rusage usage;
 
-   getrusage(RUSAGE_SELF, &usage);
+    getrusage(RUSAGE_SELF, &usage);
 
-   RCUTILS_LOG_INFO_NAMED(get_name(),
-    "%-30.30s: Pagefaults, Major:%ld (Allowed %s), "
-    "Minor:%ld (Allowed %s)", logtext,
-    usage.ru_majflt - last_majflt_, allowed_maj,
-    usage.ru_minflt - last_minflt_, allowed_min);
-   last_majflt_ = usage.ru_majflt;
-   last_minflt_ = usage.ru_minflt;
-}
+    RCUTILS_LOG_INFO_NAMED(get_name(),
+      "%-30.30s: Pagefaults, Major:%ld (Allowed %s), "
+      "Minor:%ld (Allowed %s)", logtext,
+      usage.ru_majflt - last_majflt_, allowed_maj,
+      usage.ru_minflt - last_minflt_, allowed_min);
+    last_majflt_ = usage.ru_majflt;
+    last_minflt_ = usage.ru_minflt;
+  }
 
 }  // namespace pendulum
 
