@@ -15,14 +15,14 @@
 #ifndef PENDULUM_MOTOR_NODE__PENDULUM_MOTOR_NODE_HPP_
 #define PENDULUM_MOTOR_NODE__PENDULUM_MOTOR_NODE_HPP_
 
+#include <sys/time.h>  // needed for getrusage
+#include <sys/resource.h>  // needed for getrusage
+
 #include <pendulum_msgs/msg/rttest_results.hpp>
 
 #include <memory>
 #include <string>
 #include <cmath>
-
-#include <sys/time.h>	// needed for getrusage
-#include <sys/resource.h>	// needed for getrusage
 
 #include "rcutils/logging_macros.h"
 
@@ -72,9 +72,10 @@ public:
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_shutdown(const rclcpp_lifecycle::State & state);
 
-    void show_new_pagefault_count(const char* logtext,
-               const char* allowed_maj,
-               const char* allowed_min);
+  void show_new_pagefault_count(
+    const char * logtext,
+    const char * allowed_maj,
+    const char * allowed_min);
 
 private:
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
@@ -85,14 +86,14 @@ private:
   rclcpp::SubscriptionOptions command_subscription_options_;
   rclcpp::PublisherOptions sensor_publisher_options_;
 
-    rclcpp::TimerBase::SharedPtr sensor_timer_;
-    rclcpp::TimerBase::SharedPtr update_motor_timer_;
-    std::chrono::nanoseconds publish_period_ = std::chrono::nanoseconds(1000000);
-    pendulum_msgs::msg::JointState sensor_message_;
-    std::unique_ptr<PendulumMotor> motor_;
-    rclcpp::QoS qos_profile_;
-    int last_majflt_ = 0;
-    int last_minflt_ = 0;
+  rclcpp::TimerBase::SharedPtr sensor_timer_;
+  rclcpp::TimerBase::SharedPtr update_motor_timer_;
+  std::chrono::nanoseconds publish_period_ = std::chrono::nanoseconds(1000000);
+  pendulum_msgs::msg::JointState sensor_message_;
+  std::unique_ptr<PendulumMotor> motor_;
+  rclcpp::QoS qos_profile_;
+  int last_majflt_ = 0;
+  int last_minflt_ = 0;
 };
 
 }  // namespace pendulum
