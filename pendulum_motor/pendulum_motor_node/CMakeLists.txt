@@ -3,13 +3,13 @@ cmake_minimum_required(VERSION 3.5)
 project(pendulum_motor_node)
 
 # Default to C++14
-if (NOT CMAKE_CXX_STANDARD)
+if(NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 14)
-endif ()
+endif()
 
-if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wall -Wextra -Wpedantic)
-endif ()
+endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -53,10 +53,10 @@ rclcpp_components_register_nodes(pendulum_motor_node "pendulum::MotorNode")
 
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported
-if (NOT WIN32)
+if(NOT WIN32)
     ament_environment_hooks(
             "${ament_cmake_package_templates_ENVIRONMENT_HOOK_LIBRARY_PATH}")
-endif ()
+endif()
 
 install(
   DIRECTORY include/
@@ -68,5 +68,11 @@ install(TARGETS
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)
+
+if(BUILD_TESTING)
+  find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
 ament_package()
