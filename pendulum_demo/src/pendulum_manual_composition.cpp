@@ -104,7 +104,6 @@ int main(int argc, char * argv[])
   // Optional argument parsing
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_MEMORY_CHECK)) {
     use_memory_check = true;
-    enable_memory_tools();
     std::cout << "Enable memory check\n";
   }
 
@@ -169,6 +168,9 @@ int main(int argc, char * argv[])
     fprintf(stderr, "Pagefaults from reading pages not yet mapped into RAM will be recorded.\n");
   }
 
+  if(use_memory_check){
+    enable_memory_tools();
+  }
   exec.spin();
   rclcpp::shutdown();
   return EXIT_SUCCESS;
