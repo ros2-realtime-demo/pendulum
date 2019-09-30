@@ -46,6 +46,7 @@ int main(int argc, char * argv[])
     update_period,
     qos_deadline_profile,
     rclcpp::QoS(1),
+    false,
     rclcpp::NodeOptions().use_intra_process_comms(true));
 
   exec.add_node(controller_node->get_node_base_interface());

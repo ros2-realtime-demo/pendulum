@@ -28,15 +28,41 @@ PendulumControllerNode::PendulumControllerNode(
   std::chrono::nanoseconds publish_period,
   const rclcpp::QoS & qos_profile,
   const rclcpp::QoS & setpoint_qos_profile,
+  const bool check_memory = false,
   const rclcpp::NodeOptions & options =
   rclcpp::NodeOptions().use_intra_process_comms(false))
 : rclcpp_lifecycle::LifecycleNode(node_name, options),
   publish_period_(publish_period),
   controller_(std::move(controller)),
   qos_profile_(qos_profile),
-  setpoint_qos_profile_(setpoint_qos_profile)
-{}
+  setpoint_qos_profile_(setpoint_qos_profile),
+  check_memory_(check_memory)
+{
+    if (check_memory_) {
+  #ifdef PENDULUM_MEMORYTOOLS_ENABLED
+    osrf_testing_tools_cpp::memory_tools::initialize();
+    osrf_testing_tools_cpp::memory_tools::enable_monitoring();
+    if (!osrf_testing_tools_cpp::memory_tools::is_working()) {
+      throw std::runtime_error(
+            "Memory checking does not work properly. Please consult the documentation on how to "
+            "properly set it up.");
+    }
+    const auto on_unexpected_memory =
+      [](osrf_testing_tools_cpp::memory_tools::MemoryToolsService & service) {
+        // this will cause a backtrace to be printed for each unexpected memory operations
+        service.print_backtrace();
+      };
+    osrf_testing_tools_cpp::memory_tools::on_unexpected_calloc(on_unexpected_memory);
+    osrf_testing_tools_cpp::memory_tools::on_unexpected_free(on_unexpected_memory);
+    osrf_testing_tools_cpp::memory_tools::on_unexpected_malloc(on_unexpected_memory);
+    osrf_testing_tools_cpp::memory_tools::on_unexpected_realloc(on_unexpected_memory);
 
+  #else
+    throw std::runtime_error(
+            "OSRF memory tools is not installed. Memory check must be disabled.");
+  #endif
+  }
+}
 void PendulumControllerNode::on_sensor_message(
   const pendulum_msgs::msg::JointState::SharedPtr msg)
 {
