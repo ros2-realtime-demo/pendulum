@@ -41,6 +41,8 @@ static const size_t DEFAULT_SENSOR_UPDATE_PERIOD = 960000;
 static const char * OPTION_CONTROLLER_UPDATE_PERIOD = "--controller-update";
 static const char * OPTION_PHYSICS_UPDATE_PERIOD = "--physics-update";
 static const char * OPTION_SENSOR_UPDATE_PERIOD = "--sensor-update";
+static const char * OPTION_MEMORY_CHECK = "--memory_check";
+
 
 void print_usage()
 {
@@ -52,17 +54,20 @@ void print_usage()
     "[%s controller update period] "
     "[%s physics simulation update period] "
     "[%s motor sensor update period] "
+    "[%s use OSRF memory check tool] "
     "[-h]\n",
     OPTION_PID_K,
     OPTION_PID_I,
     OPTION_PID_D,
     OPTION_CONTROLLER_UPDATE_PERIOD,
     OPTION_PHYSICS_UPDATE_PERIOD,
-    OPTION_SENSOR_UPDATE_PERIOD);
+    OPTION_SENSOR_UPDATE_PERIOD,
+    OPTION_MEMORY_CHECK);
 }
 
 int main(int argc, char * argv[])
 {
+  bool use_memory_check = false;
   // Force flush of the stdout buffer.
   setvbuf(stdout, NULL, _IONBF, BUFSIZ);
 
@@ -72,20 +77,17 @@ int main(int argc, char * argv[])
     return 0;
   }
 
-  // // Optional argument parsing
-  // if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PUBLISH_FOR)) {
-  //   period_pause_talker = std::chrono::milliseconds(
-  //     std::stoul(rcutils_cli_get_option(argv, argv + argc, OPTION_PUBLISH_FOR)));
-  // }
-  // if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PAUSE_FOR)) {
-  //   duration_pause_talker = std::chrono::milliseconds(
-  //     std::stoul(rcutils_cli_get_option(argv, argv + argc, OPTION_PAUSE_FOR)));
-  // }
 
-  // Pass the input arguments to rttest.
-  // rttest will store relevant parameters and allocate buffers for data collection
-  rttest_read_args(argc, argv);
+  // Optional argument parsing
+  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_MEMORY_CHECK)) {
+    use_memory_check = true;
+  }
 
+  // use a dummy period to initialize rttest
+  struct timespec dummy_period;
+  dummy_period.tv_sec = 0;
+  dummy_period.tv_nsec = 1000000;
+  rttest_init(1, dummy_period, SCHED_FIFO, 80, 0, NULL);
   rclcpp::init(argc, argv);
   rclcpp::executors::SingleThreadedExecutor exec;
 
@@ -105,7 +107,7 @@ int main(int argc, char * argv[])
     update_period,
     qos_deadline_profile,
     rclcpp::QoS(1),
-    false,
+    use_memory_check,
     rclcpp::NodeOptions().use_intra_process_comms(true));
   exec.add_node(controller_node->get_node_base_interface());
 
@@ -120,7 +122,7 @@ int main(int argc, char * argv[])
     std::move(motor),
     sensor_publish_period,
     qos_deadline_profile,
-    false,
+    use_memory_check,
     rclcpp::NodeOptions().use_intra_process_comms(true));
   exec.add_node(motor_node->get_node_base_interface());
 
