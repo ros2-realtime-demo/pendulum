@@ -23,7 +23,7 @@
 #include <memory>
 #include <string>
 
-#ifdef PENDULUM_MEMORYTOOLS_ENABLED
+#ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
 #include <osrf_testing_tools_cpp/memory_tools/memory_tools.hpp>
 #include <osrf_testing_tools_cpp/scope_exit.hpp>
 #endif

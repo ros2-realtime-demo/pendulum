@@ -120,6 +120,7 @@ int main(int argc, char * argv[])
     std::move(motor),
     sensor_publish_period,
     qos_deadline_profile,
+    false,
     rclcpp::NodeOptions().use_intra_process_comms(true));
   exec.add_node(motor_node->get_node_base_interface());
 

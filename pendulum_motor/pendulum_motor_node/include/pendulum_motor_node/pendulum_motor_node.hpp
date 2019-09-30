@@ -18,6 +18,11 @@
 #include <sys/time.h>  // needed for getrusage
 #include <sys/resource.h>  // needed for getrusage
 
+#ifdef PENDULUM_MOTOR_MEMORYTOOLS_ENABLED
+#include <osrf_testing_tools_cpp/memory_tools/memory_tools.hpp>
+#include <osrf_testing_tools_cpp/scope_exit.hpp>
+#endif
+
 #include <pendulum_msgs/msg/rttest_results.hpp>
 
 #include <memory>
@@ -52,6 +57,7 @@ public:
     std::unique_ptr<PendulumMotor> motor,
     std::chrono::nanoseconds publish_period,
     const rclcpp::QoS & qos_profile,
+    const bool check_memory,
     const rclcpp::NodeOptions & options);
   void on_command_received(const pendulum_msgs::msg::JointCommand::SharedPtr msg);
   void sensor_timer_callback();
@@ -94,6 +100,7 @@ private:
   rclcpp::QoS qos_profile_;
   int last_majflt_ = 0;
   int last_minflt_ = 0;
+  bool check_memory_ = false;
 };
 
 }  // namespace pendulum

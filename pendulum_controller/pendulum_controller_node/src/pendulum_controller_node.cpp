@@ -39,7 +39,7 @@ PendulumControllerNode::PendulumControllerNode(
   check_memory_(check_memory)
 {
     if (check_memory_) {
-  #ifdef PENDULUM_MEMORYTOOLS_ENABLED
+  #ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
     osrf_testing_tools_cpp::memory_tools::initialize();
     osrf_testing_tools_cpp::memory_tools::enable_monitoring();
     if (!osrf_testing_tools_cpp::memory_tools::is_working()) {

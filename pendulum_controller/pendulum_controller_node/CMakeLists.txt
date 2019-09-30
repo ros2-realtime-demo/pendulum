@@ -14,6 +14,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 find_package(ament_cmake REQUIRED)
 find_package(pendulum_msgs REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
@@ -27,7 +29,7 @@ find_package(osrf_testing_tools_cpp)
 if(${osrf_testing_tools_cpp_FOUND})
     list(APPEND OPTIONAL_AMENT_DEPENDENCES "osrf_testing_tools_cpp")
     list(APPEND OPTIONAL_LIBRARIES osrf_testing_tools_cpp::memory_tools)
-    add_definitions(-DPENDULUM_MEMORYTOOLS_ENABLED)
+    add_definitions(-DPENDULUM__CONTROLLER_MEMORYTOOLS_ENABLED)
 endif()
 
 include_directories(
