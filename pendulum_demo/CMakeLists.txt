@@ -34,11 +34,18 @@ if(${osrf_testing_tools_cpp_FOUND})
     add_definitions(-DPENDULUM_DEMO_MEMORYTOOLS_ENABLED)
 endif()
 
+find_package(tlsf_cpp)
+if(${tlsf_cpp_FOUND})
+    list(APPEND OPTIONAL_AMENT_DEPENDENCES "tlsf_cpp")
+    add_definitions(-DPENDULUM_DEMO_TLSF_ENABLED)
+endif()
+
 include_directories(
         ${lifecycle_msgs_INCLUDE_DIRS}
         ${rclcpp_lifecycle_INCLUDE_DIRS}
         ${rclcpp_INCLUDE_DIRS}
-        ${osrf_testing_tools_cpp_INCLUDE_DIR})
+        ${osrf_testing_tools_cpp_INCLUDE_DIR}
+        ${tlsf_cpp_INCLUDE_DIR})
 
 add_executable(pendulum_manual_composition
   "src/pendulum_manual_composition.cpp")
