@@ -38,14 +38,14 @@ PendulumControllerNode::PendulumControllerNode(
   setpoint_qos_profile_(setpoint_qos_profile),
   check_memory_(check_memory)
 {
-    if (check_memory_) {
+  if (check_memory_) {
   #ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
     osrf_testing_tools_cpp::memory_tools::initialize();
     osrf_testing_tools_cpp::memory_tools::enable_monitoring();
     if (!osrf_testing_tools_cpp::memory_tools::is_working()) {
       throw std::runtime_error(
-            "Memory checking does not work properly. Please consult the documentation on how to "
-            "properly set it up.");
+              "Memory checking does not work properly. Please consult the documentation on how to "
+              "properly set it up.");
     }
     const auto on_unexpected_memory =
       [](osrf_testing_tools_cpp::memory_tools::MemoryToolsService & service) {
@@ -131,7 +131,6 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
 {
-
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
   command_pub_->on_activate();
   logger_pub_->on_activate();
