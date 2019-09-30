@@ -168,7 +168,7 @@ int main(int argc, char * argv[])
     fprintf(stderr, "Pagefaults from reading pages not yet mapped into RAM will be recorded.\n");
   }
 
-  if(use_memory_check){
+  if (use_memory_check) {
     enable_memory_tools();
   }
   exec.spin();
