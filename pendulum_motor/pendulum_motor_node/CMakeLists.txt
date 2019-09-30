@@ -80,7 +80,7 @@ ament_target_dependencies(test_pendulum_motor
         ${OPTIONAL_AMENT_DEPENDENCES})
 
 target_link_libraries(test_pendulum_motor
-        pendulum_controller_node
+        pendulum_motor_node
         ${OPTIONAL_LIBRARIES})
 
 # since the package installs libraries without exporting them
