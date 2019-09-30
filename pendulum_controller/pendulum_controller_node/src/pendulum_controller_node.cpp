@@ -22,6 +22,9 @@
 namespace pendulum
 {
 
+using rclcpp::strategies::message_pool_memory_strategy::MessagePoolMemoryStrategy;
+using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
+
 PendulumControllerNode::PendulumControllerNode(
   const std::string & node_name,
   std::unique_ptr<PendulumController> controller,
@@ -92,6 +95,16 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
 {
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_configure() is called.");
+
+  // The MessagePoolMemoryStrategy preallocates a pool of messages to be used by the subscription.
+  // Typically, one MessagePoolMemoryStrategy is used per subscription type, and the size of the
+  // message pool is determined by the number of threads (the maximum number of concurrent accesses
+  // to the subscription).
+  auto state_msg_strategy =
+    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs::msg::JointState, 1>>();
+  auto setpoint_msg_strategy =
+    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs::msg::JointCommand, 1>>();
+
   this->get_sensor_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo & event) -> void
     {
@@ -104,7 +117,8 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
     "pendulum_sensor", qos_profile_,
     std::bind(&PendulumControllerNode::on_sensor_message,
     this, std::placeholders::_1),
-    sensor_subscription_options_);
+    sensor_subscription_options_,
+    state_msg_strategy);
 
   this->get_command_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineOfferedInfo & event) -> void
@@ -115,12 +129,16 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
     };
   // Initialize the publisher for the command message.
   command_pub_ = this->create_publisher<pendulum_msgs::msg::JointCommand>(
-    "pendulum_command", qos_profile_, command_publisher_options_);
-
+    "pendulum_command",
+    qos_profile_,
+    command_publisher_options_);
 
   setpoint_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
     "pendulum_setpoint", setpoint_qos_profile_,
-    std::bind(&PendulumControllerNode::on_pendulum_setpoint, this, std::placeholders::_1));
+    std::bind(&PendulumControllerNode::on_pendulum_setpoint,
+    this, std::placeholders::_1),
+    rclcpp::SubscriptionOptions(),
+    setpoint_msg_strategy);
 
   // Initialize the logger publisher.
   logger_pub_ = this->create_publisher<pendulum_msgs::msg::RttestResults>(

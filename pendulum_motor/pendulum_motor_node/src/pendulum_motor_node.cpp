@@ -22,6 +22,10 @@
 namespace pendulum
 {
 
+using rclcpp::strategies::message_pool_memory_strategy::MessagePoolMemoryStrategy;
+using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
+
+
 PendulumMotorNode::PendulumMotorNode(
   const std::string & node_name,
   std::unique_ptr<PendulumMotor> motor,
@@ -85,6 +89,13 @@ PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
 {
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_configure() is called.");
 
+  // The MessagePoolMemoryStrategy preallocates a pool of messages to be used by the subscription.
+  // Typically, one MessagePoolMemoryStrategy is used per subscription type, and the size of the
+  // message pool is determined by the number of threads (the maximum number of concurrent accesses
+  // to the subscription).
+  auto command_msg_strategy =
+    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs::msg::JointCommand, 1>>();
+
   this->get_sensor_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineOfferedInfo & event) -> void
     {
@@ -106,7 +117,8 @@ PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
     "pendulum_command", qos_profile_,
     std::bind(&PendulumMotorNode::on_command_received,
     this, std::placeholders::_1),
-    command_subscription_options_);
+    command_subscription_options_,
+    command_msg_strategy);
 
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }

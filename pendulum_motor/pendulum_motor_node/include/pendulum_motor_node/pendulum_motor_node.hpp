@@ -18,22 +18,26 @@
 #include <sys/time.h>  // needed for getrusage
 #include <sys/resource.h>  // needed for getrusage
 
-#ifdef PENDULUM_MOTOR_MEMORYTOOLS_ENABLED
-#include <osrf_testing_tools_cpp/memory_tools/memory_tools.hpp>
-#include <osrf_testing_tools_cpp/scope_exit.hpp>
-#endif
-
 #include <pendulum_msgs/msg/rttest_results.hpp>
+#include <rclcpp/strategies/message_pool_memory_strategy.hpp>
+#include <rclcpp/strategies/allocator_memory_strategy.hpp>
 
 #include <memory>
 #include <string>
 #include <cmath>
 
+#ifdef PENDULUM_MOTOR_MEMORYTOOLS_ENABLED
+#include <osrf_testing_tools_cpp/memory_tools/memory_tools.hpp>
+#include <osrf_testing_tools_cpp/scope_exit.hpp>
+#endif
+
 #include "rcutils/logging_macros.h"
 
 #include "rclcpp/rclcpp.hpp"
+
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "lifecycle_msgs/msg/transition_event.hpp"
+
 
 #include "pendulum_msgs/msg/joint_command.hpp"
 #include "pendulum_msgs/msg/joint_state.hpp"
