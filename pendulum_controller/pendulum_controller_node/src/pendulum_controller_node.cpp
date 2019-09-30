@@ -116,7 +116,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
   sub_sensor_ = this->create_subscription<pendulum_msgs::msg::JointState>(
     "pendulum_sensor", qos_profile_,
     std::bind(&PendulumControllerNode::on_sensor_message,
-      this, std::placeholders::_1),
+    this, std::placeholders::_1),
     sensor_subscription_options_,
     state_msg_strategy);
 
@@ -136,7 +136,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
   setpoint_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
     "pendulum_setpoint", setpoint_qos_profile_,
     std::bind(&PendulumControllerNode::on_pendulum_setpoint,
-      this, std::placeholders::_1),
+    this, std::placeholders::_1),
     rclcpp::SubscriptionOptions(),
     setpoint_msg_strategy);
 

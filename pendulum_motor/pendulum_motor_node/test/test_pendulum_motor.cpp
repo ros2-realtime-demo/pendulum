@@ -26,7 +26,7 @@ int main(int argc, char * argv[])
   dummy_period.tv_sec = 0;
   dummy_period.tv_nsec = 1000000;
   rttest_init(1, dummy_period, SCHED_FIFO, 80, 0, NULL);
-  
+
   rclcpp::init(argc, argv);
   rclcpp::executors::SingleThreadedExecutor exec;
 

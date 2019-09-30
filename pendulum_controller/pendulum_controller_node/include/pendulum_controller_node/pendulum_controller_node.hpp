@@ -15,10 +15,12 @@
 #ifndef PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_NODE_HPP_
 #define PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_NODE_HPP_
 
-#include <pendulum_msgs/msg/rttest_results.hpp>
-
 #include <sys/time.h>  // needed for getrusage
 #include <sys/resource.h>  // needed for getrusage
+
+#include <pendulum_msgs/msg/rttest_results.hpp>
+#include <rclcpp/strategies/message_pool_memory_strategy.hpp>
+#include <rclcpp/strategies/allocator_memory_strategy.hpp>
 
 #include <memory>
 #include <string>
@@ -29,15 +31,12 @@
 #endif
 
 #include "rcutils/logging_macros.h"
-
 #include "pendulum_msgs/msg/joint_command.hpp"
 #include "pendulum_msgs/msg/joint_state.hpp"
 #include "pendulum_controller_node/visibility_control.hpp"
 #include "pendulum_controller/pendulum_controller.hpp"
 
 #include "rclcpp/rclcpp.hpp"
-#include <rclcpp/strategies/message_pool_memory_strategy.hpp>
-#include <rclcpp/strategies/allocator_memory_strategy.hpp>
 #include "rclcpp/publisher.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "rclcpp_lifecycle/lifecycle_publisher.hpp"
