@@ -48,8 +48,6 @@ static const char * OPTION_PHYSICS_UPDATE_PERIOD = "--physics-update";
 static const char * OPTION_SENSOR_UPDATE_PERIOD = "--sensor-update";
 static const char * OPTION_MEMORY_CHECK = "--memory_check";
 
-static bool g_memory_tools_on;
-
 void print_usage()
 {
   printf("Usage for pendulum_test:\n");
@@ -69,24 +67,6 @@ void print_usage()
     OPTION_PHYSICS_UPDATE_PERIOD,
     OPTION_SENSOR_UPDATE_PERIOD,
     OPTION_MEMORY_CHECK);
-}
-
-/// Enables the memory tool checker.
-void enable_memory_tools()
-{
-  #ifdef PENDULUM_DEMO_MEMORYTOOLS_ENABLED
-  // Do not turn the memory tools on several times.
-  if (g_memory_tools_on) {
-    return;
-  }
-
-  osrf_testing_tools_cpp::memory_tools::expect_no_calloc_begin();
-  osrf_testing_tools_cpp::memory_tools::expect_no_free_begin();
-  osrf_testing_tools_cpp::memory_tools::expect_no_malloc_begin();
-  osrf_testing_tools_cpp::memory_tools::expect_no_realloc_begin();
-
-  g_memory_tools_on = true;
-  #endif
 }
 
 int main(int argc, char * argv[])
@@ -168,9 +148,6 @@ int main(int argc, char * argv[])
     fprintf(stderr, "Pagefaults from reading pages not yet mapped into RAM will be recorded.\n");
   }
 
-  if (use_memory_check) {
-    enable_memory_tools();
-  }
   exec.spin();
   rclcpp::shutdown();
   return EXIT_SUCCESS;
