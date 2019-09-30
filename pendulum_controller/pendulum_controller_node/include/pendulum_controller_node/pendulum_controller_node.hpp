@@ -36,6 +36,8 @@
 #include "pendulum_controller/pendulum_controller.hpp"
 
 #include "rclcpp/rclcpp.hpp"
+#include <rclcpp/strategies/message_pool_memory_strategy.hpp>
+#include <rclcpp/strategies/allocator_memory_strategy.hpp>
 #include "rclcpp/publisher.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "rclcpp_lifecycle/lifecycle_publisher.hpp"

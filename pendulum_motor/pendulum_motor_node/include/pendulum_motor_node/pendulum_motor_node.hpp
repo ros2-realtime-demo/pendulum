@@ -32,6 +32,8 @@
 #include "rcutils/logging_macros.h"
 
 #include "rclcpp/rclcpp.hpp"
+#include <rclcpp/strategies/message_pool_memory_strategy.hpp>
+#include <rclcpp/strategies/allocator_memory_strategy.hpp>
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "lifecycle_msgs/msg/transition_event.hpp"
 
