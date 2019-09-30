@@ -27,13 +27,40 @@ PendulumMotorNode::PendulumMotorNode(
   std::unique_ptr<PendulumMotor> motor,
   std::chrono::nanoseconds publish_period,
   const rclcpp::QoS & qos_profile,
+  const bool check_memory = false,
   const rclcpp::NodeOptions & options =
   rclcpp::NodeOptions().use_intra_process_comms(false))
 : rclcpp_lifecycle::LifecycleNode(node_name, options),
   publish_period_(publish_period),
   motor_(std::move(motor)),
-  qos_profile_(qos_profile)
-{}
+  qos_profile_(qos_profile),
+  check_memory_(check_memory)
+{
+  if (check_memory_) {
+  #ifdef PENDULUM_MOTOR_MEMORYTOOLS_ENABLED
+    osrf_testing_tools_cpp::memory_tools::initialize();
+    osrf_testing_tools_cpp::memory_tools::enable_monitoring();
+    if (!osrf_testing_tools_cpp::memory_tools::is_working()) {
+      throw std::runtime_error(
+              "Memory checking does not work properly. Please consult the documentation on how to "
+              "properly set it up.");
+    }
+    const auto on_unexpected_memory =
+      [](osrf_testing_tools_cpp::memory_tools::MemoryToolsService & service) {
+        // this will cause a backtrace to be printed for each unexpected memory operations
+        service.print_backtrace();
+      };
+    osrf_testing_tools_cpp::memory_tools::on_unexpected_calloc(on_unexpected_memory);
+    osrf_testing_tools_cpp::memory_tools::on_unexpected_free(on_unexpected_memory);
+    osrf_testing_tools_cpp::memory_tools::on_unexpected_malloc(on_unexpected_memory);
+    osrf_testing_tools_cpp::memory_tools::on_unexpected_realloc(on_unexpected_memory);
+
+  #else
+    throw std::runtime_error(
+            "OSRF memory tools is not installed. Memory check must be disabled.");
+  #endif
+  }
+}
 
 void PendulumMotorNode::on_command_received(
   const pendulum_msgs::msg::JointCommand::SharedPtr msg)
@@ -87,21 +114,40 @@ PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumMotorNode::on_activate(const rclcpp_lifecycle::State &)
 {
-
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
   sensor_pub_->on_activate();
   sensor_timer_ =
     this->create_wall_timer(publish_period_,
       std::bind(&PendulumMotorNode::sensor_timer_callback, this));
+
   show_new_pagefault_count("on_activate", ">=0", ">=0");
+  if (check_memory_) {
+  #ifdef PENDULUM_MOTOR_MEMORYTOOLS_ENABLED
+    osrf_testing_tools_cpp::memory_tools::expect_no_calloc_begin();
+    osrf_testing_tools_cpp::memory_tools::expect_no_free_begin();
+    osrf_testing_tools_cpp::memory_tools::expect_no_malloc_begin();
+    osrf_testing_tools_cpp::memory_tools::expect_no_realloc_begin();
+  #endif
+  }
+
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumMotorNode::on_deactivate(const rclcpp_lifecycle::State &)
 {
+  if (check_memory_) {
+  #ifdef PENDULUM_MOTOR_MEMORYTOOLS_ENABLED
+    osrf_testing_tools_cpp::memory_tools::expect_no_calloc_end();
+    osrf_testing_tools_cpp::memory_tools::expect_no_free_end();
+    osrf_testing_tools_cpp::memory_tools::expect_no_malloc_end();
+    osrf_testing_tools_cpp::memory_tools::expect_no_realloc_end();
+  #endif
+  }
+
   show_new_pagefault_count("on_deactivate", "0", "0");
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
+
   sensor_timer_->cancel();
   sensor_pub_->on_deactivate();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;

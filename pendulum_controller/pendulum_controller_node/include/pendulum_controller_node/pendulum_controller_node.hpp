@@ -23,6 +23,11 @@
 #include <memory>
 #include <string>
 
+#ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
+#include <osrf_testing_tools_cpp/memory_tools/memory_tools.hpp>
+#include <osrf_testing_tools_cpp/scope_exit.hpp>
+#endif
+
 #include "rcutils/logging_macros.h"
 
 #include "pendulum_msgs/msg/joint_command.hpp"
@@ -55,6 +60,7 @@ public:
     std::chrono::nanoseconds publish_period,
     const rclcpp::QoS & qos_profile,
     const rclcpp::QoS & setpoint_qos_profile,
+    const bool check_memory,
     const rclcpp::NodeOptions & options);
 
   void on_sensor_message(const pendulum_msgs::msg::JointState::SharedPtr msg);
@@ -109,6 +115,7 @@ private:
     rclcpp::KeepLast(10)).transient_local().reliable();
   int last_majflt_ = 0;
   int last_minflt_ = 0;
+  bool check_memory_ = false;
 };
 
 }  // namespace pendulum
