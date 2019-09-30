@@ -21,7 +21,12 @@
 
 int main(int argc, char * argv[])
 {
-  rclcpp::init(argc, argv);
+  // use a dummy period to initialize rttest
+  struct timespec dummy_period;
+  dummy_period.tv_sec = 0;
+  dummy_period.tv_nsec = 1000000;
+  rttest_init(1, dummy_period, SCHED_FIFO, 80, 0, NULL);
+  
   rclcpp::init(argc, argv);
   rclcpp::executors::SingleThreadedExecutor exec;
 
