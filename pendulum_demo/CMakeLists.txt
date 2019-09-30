@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5)
 
 project(pendulum_demo)
 
+set(OPTIONAL_AMENT_DEPENDENCES)
+set(OPTIONAL_LIBRARIES)
+
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 14)
@@ -24,11 +27,18 @@ find_package(pendulum_controller REQUIRED)
 find_package(pendulum_motor_node REQUIRED)
 find_package(pendulum_controller_node REQUIRED)
 
+find_package(osrf_testing_tools_cpp)
+if(${osrf_testing_tools_cpp_FOUND})
+    list(APPEND OPTIONAL_AMENT_DEPENDENCES "osrf_testing_tools_cpp")
+    list(APPEND OPTIONAL_LIBRARIES osrf_testing_tools_cpp::memory_tools)
+    add_definitions(-DPENDULUM_DEMO_MEMORYTOOLS_ENABLED)
+endif()
 
 include_directories(
         ${lifecycle_msgs_INCLUDE_DIRS}
         ${rclcpp_lifecycle_INCLUDE_DIRS}
-        ${rclcpp_INCLUDE_DIRS})
+        ${rclcpp_INCLUDE_DIRS}
+        ${osrf_testing_tools_cpp_INCLUDE_DIR})
 
 add_executable(pendulum_manual_composition
   "src/pendulum_manual_composition.cpp")
@@ -47,8 +57,10 @@ ament_target_dependencies(pendulum_manual_composition
         "rclcpp"
         "rttest"
         "rcutils"
-        "rclcpp_components")
+        "rclcpp_components"
+        ${OPTIONAL_AMENT_DEPENDENCES})
 
+target_link_libraries(pendulum_manual_composition ${OPTIONAL_LIBRARIES})
 
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported

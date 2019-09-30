@@ -16,6 +16,11 @@
 #include <memory>
 #include <utility>
 
+#ifdef PENDULUM_DEMO_MEMORYTOOLS_ENABLED
+#include <osrf_testing_tools_cpp/memory_tools/memory_tools.hpp>
+#include <osrf_testing_tools_cpp/scope_exit.hpp>
+#endif
+
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/cmdline_parser.h"
 
@@ -43,6 +48,7 @@ static const char * OPTION_PHYSICS_UPDATE_PERIOD = "--physics-update";
 static const char * OPTION_SENSOR_UPDATE_PERIOD = "--sensor-update";
 static const char * OPTION_MEMORY_CHECK = "--memory_check";
 
+static bool g_memory_tools_on;
 
 void print_usage()
 {
@@ -65,6 +71,24 @@ void print_usage()
     OPTION_MEMORY_CHECK);
 }
 
+/// Enables the memory tool checker.
+void enable_memory_tools()
+{
+  #ifdef PENDULUM_DEMO_MEMORYTOOLS_ENABLED
+  // Do not turn the memory tools on several times.
+  if (g_memory_tools_on) {
+    return;
+  }
+
+  osrf_testing_tools_cpp::memory_tools::expect_no_calloc_begin();
+  osrf_testing_tools_cpp::memory_tools::expect_no_free_begin();
+  osrf_testing_tools_cpp::memory_tools::expect_no_malloc_begin();
+  osrf_testing_tools_cpp::memory_tools::expect_no_realloc_begin();
+
+  g_memory_tools_on = true;
+  #endif
+}
+
 int main(int argc, char * argv[])
 {
   bool use_memory_check = false;
@@ -77,10 +101,11 @@ int main(int argc, char * argv[])
     return 0;
   }
 
-
   // Optional argument parsing
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_MEMORY_CHECK)) {
     use_memory_check = true;
+    enable_memory_tools();
+    std::cout << "Enable memory check\n";
   }
 
   // use a dummy period to initialize rttest

@@ -41,7 +41,7 @@ PendulumControllerNode::PendulumControllerNode(
   if (check_memory_) {
   #ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
     osrf_testing_tools_cpp::memory_tools::initialize();
-    osrf_testing_tools_cpp::memory_tools::enable_monitoring();
+    osrf_testing_tools_cpp::memory_tools::enable_monitoring_in_all_threads();
     if (!osrf_testing_tools_cpp::memory_tools::is_working()) {
       throw std::runtime_error(
               "Memory checking does not work properly. Please consult the documentation on how to "
@@ -63,6 +63,7 @@ PendulumControllerNode::PendulumControllerNode(
   #endif
   }
 }
+
 void PendulumControllerNode::on_sensor_message(
   const pendulum_msgs::msg::JointState::SharedPtr msg)
 {
