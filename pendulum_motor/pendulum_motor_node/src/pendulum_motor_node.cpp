@@ -69,19 +69,61 @@ PendulumMotorNode::PendulumMotorNode(
 void PendulumMotorNode::on_command_received(
   const pendulum_ex_msgs::msg::JointCommandEx::SharedPtr msg)
 {
+  motor_stats_message_.sensor_stats.msg_count++;
   motor_->update_command_data(*msg);
 }
 
 void PendulumMotorNode::sensor_timer_callback()
 {
-  // RCLCPP_INFO(this->get_logger(), "position: %f", command_message_.position);
   motor_->update_sensor_data(sensor_message_);
   sensor_pub_->publish(sensor_message_);
+  motor_stats_message_.command_stats.msg_count++;
+  motor_stats_message_.timer_stats.timer_count++;
+  timespec curtime;
+  clock_gettime(CLOCK_REALTIME, &curtime);
+  motor_stats_message_.timer_stats.stamp.sec = curtime.tv_sec;
+  motor_stats_message_.timer_stats.stamp.nanosec = curtime.tv_nsec;
+
+  // TODO(carlossvg): update other fields
+  // builtin_interfaces/Time stamp
+  // uint64 timer_count
+  // uint64 cur_latency
+  // float64 mean_latency
+  // uint64 min_latency
+  // uint64 max_latency
 }
 
 void PendulumMotorNode::update_motor_callback()
 {
   motor_->update();
+}
+
+const pendulum_ex_msgs::msg::MotorStats & PendulumMotorNode::get_motor_stats_message() const
+{
+  return motor_stats_message_;
+}
+
+// TODO(carlossvg): this function may be duplicated, move it to a tools package
+void PendulumMotorNode::update_sys_usage()
+{
+  const auto ret = getrusage(RUSAGE_SELF, &m_sys_usage);
+  if (ret != 0) {
+    // throw std::runtime_error("Could not get system resource usage.");
+    motor_stats_message_.rusage_stats.ru_maxrss = m_sys_usage.ru_maxrss;
+    motor_stats_message_.rusage_stats.ru_ixrss = m_sys_usage.ru_ixrss;
+    motor_stats_message_.rusage_stats.ru_idrss = m_sys_usage.ru_idrss;
+    motor_stats_message_.rusage_stats.ru_isrss = m_sys_usage.ru_isrss;
+    motor_stats_message_.rusage_stats.ru_minflt = m_sys_usage.ru_minflt;
+    motor_stats_message_.rusage_stats.ru_majflt = m_sys_usage.ru_majflt;
+    motor_stats_message_.rusage_stats.ru_nswap = m_sys_usage.ru_nswap;
+    motor_stats_message_.rusage_stats.ru_inblock = m_sys_usage.ru_inblock;
+    motor_stats_message_.rusage_stats.ru_oublock = m_sys_usage.ru_oublock;
+    motor_stats_message_.rusage_stats.ru_msgsnd = m_sys_usage.ru_msgsnd;
+    motor_stats_message_.rusage_stats.ru_msgrcv = m_sys_usage.ru_msgrcv;
+    motor_stats_message_.rusage_stats.ru_nsignals = m_sys_usage.ru_nsignals;
+    motor_stats_message_.rusage_stats.ru_nvcsw = m_sys_usage.ru_nvcsw;
+    motor_stats_message_.rusage_stats.ru_nivcsw = m_sys_usage.ru_nivcsw;
+  }
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -99,10 +141,7 @@ PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
   this->get_sensor_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
-      // RCUTILS_LOG_INFO_NAMED(get_name(),
-      //   "Offered deadline missed - total %d delta %d",
-      //   event.total_count, event.total_count_change);
-      sensor_missed_deadlines_count_++;
+      this->motor_stats_message_.sensor_stats.deadline_misses_count++;
     };
   sensor_pub_ = this->create_publisher<pendulum_ex_msgs::msg::JointStateEx>(
     "pendulum_sensor", qos_profile_, sensor_publisher_options_);
@@ -110,10 +149,7 @@ PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
   this->get_command_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
-      // RCUTILS_LOG_INFO_NAMED(get_name(),
-      //   "Requested deadline missed - total %d delta %d",
-      //   event.total_count, event.total_count_change);
-      command_missed_deadlines_count_++;
+      this->motor_stats_message_.command_stats.deadline_misses_count++;
     };
   command_sub_ = this->create_subscription<pendulum_ex_msgs::msg::JointCommandEx>(
     "pendulum_command", qos_profile_,

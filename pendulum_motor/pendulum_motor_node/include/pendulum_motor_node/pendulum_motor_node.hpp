@@ -70,6 +70,8 @@ public:
   /// Get the subscription's settings options.
   rclcpp::SubscriptionOptions & get_command_options() {return command_subscription_options_;}
   rclcpp::PublisherOptions & get_sensor_options() {return sensor_publisher_options_;}
+  const pendulum_ex_msgs::msg::MotorStats & get_motor_stats_message() const;
+  void update_sys_usage();
 
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_configure(const rclcpp_lifecycle::State &);
@@ -99,9 +101,13 @@ private:
   rclcpp::TimerBase::SharedPtr sensor_timer_;
   rclcpp::TimerBase::SharedPtr update_motor_timer_;
   std::chrono::nanoseconds publish_period_ = std::chrono::nanoseconds(1000000);
-  pendulum_ex_msgs::msg::JointStateEx sensor_message_;
+
   std::unique_ptr<PendulumMotor> motor_;
   rclcpp::QoS qos_profile_;
+  pendulum_ex_msgs::msg::MotorStats motor_stats_message_;
+  pendulum_ex_msgs::msg::JointStateEx sensor_message_;
+  pendulum_ex_msgs::msg::JointCommandEx command_message_;
+  rusage m_sys_usage;
   int last_majflt_ = 0;
   int last_minflt_ = 0;
   bool check_memory_ = false;
