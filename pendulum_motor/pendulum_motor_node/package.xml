@@ -10,13 +10,13 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <build_depend>lifecycle_msgs</build_depend>
-  <build_depend>pendulum_msgs</build_depend>
+  <build_depend>pendulum_ex_msgs</build_depend>
   <build_depend>pendulum_motor_driver</build_depend>
   <build_depend>rclcpp_lifecycle</build_depend>
   <build_depend>rttest</build_depend>
   <build_depend>osrf_testing_tools_cpp</build_depend>
 
-  <exec_depend>pendulum_msgs</exec_depend>
+  <exec_depend>pendulum_ex_msgs</exec_depend>
   <exec_depend>rclcpp_lifecycle</exec_depend>
   <exec_depend>lifecycle_msgs</exec_depend>
   <exec_depend>ros2run</exec_depend>

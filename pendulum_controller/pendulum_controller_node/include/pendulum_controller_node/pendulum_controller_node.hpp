@@ -18,7 +18,10 @@
 #include <sys/time.h>  // needed for getrusage
 #include <sys/resource.h>  // needed for getrusage
 
-#include <pendulum_msgs/msg/rttest_results.hpp>
+#include <pendulum_ex_msgs/msg/controller_stats.hpp>
+// #include <pendulum_ex_msgs/msg/rusage.hpp>
+// #include <pendulum_ex_msgs/msg/timer_stats.hpp>
+// #include <pendulum_ex_msgs/msg/topic_stats.hpp>
 #include <rclcpp/strategies/message_pool_memory_strategy.hpp>
 #include <rclcpp/strategies/allocator_memory_strategy.hpp>
 
@@ -31,8 +34,8 @@
 #endif
 
 #include "rcutils/logging_macros.h"
-#include "pendulum_msgs/msg/joint_command.hpp"
-#include "pendulum_msgs/msg/joint_state.hpp"
+#include "pendulum_ex_msgs/msg/joint_command_ex.hpp"
+#include "pendulum_ex_msgs/msg/joint_state_ex.hpp"
 #include "pendulum_controller_node/visibility_control.hpp"
 #include "pendulum_controller/pendulum_controller.hpp"
 
@@ -64,12 +67,12 @@ public:
     const bool check_memory,
     const rclcpp::NodeOptions & options);
 
-  void on_sensor_message(const pendulum_msgs::msg::JointState::SharedPtr msg);
+  void on_sensor_message(const pendulum_ex_msgs::msg::JointStateEx::SharedPtr msg);
   void on_pendulum_setpoint(
-    const pendulum_msgs::msg::JointCommand::SharedPtr msg);
+    const pendulum_ex_msgs::msg::JointCommandEx::SharedPtr msg);
   /// Retrieve the command calculated from the last sensor message.
   // \return Command message
-  const pendulum_msgs::msg::JointCommand & get_next_command_message() const;
+  const pendulum_ex_msgs::msg::JointCommandEx & get_next_command_message() const;
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_configure(const rclcpp_lifecycle::State &);
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -94,13 +97,13 @@ public:
 
 private:
   std::shared_ptr<rclcpp::Subscription<
-      pendulum_msgs::msg::JointState>> sub_sensor_;
+      pendulum_ex_msgs::msg::JointStateEx>> sub_sensor_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
-      pendulum_msgs::msg::JointCommand>> command_pub_;
+      pendulum_ex_msgs::msg::JointCommandEx>> command_pub_;
   std::shared_ptr<rclcpp::Subscription<
-      pendulum_msgs::msg::JointCommand>> setpoint_sub_;
+      pendulum_ex_msgs::msg::JointCommandEx>> setpoint_sub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
-      pendulum_msgs::msg::RttestResults>> logger_pub_;
+      pendulum_ex_msgs::msg::ControllerStats>> logger_pub_;
   std::shared_ptr<rclcpp::Subscription<
       lifecycle_msgs::msg::TransitionEvent>> sub_notification_;
 
@@ -108,7 +111,7 @@ private:
   rclcpp::SubscriptionOptions sensor_subscription_options_;
 
   rclcpp::TimerBase::SharedPtr timer_;
-  pendulum_msgs::msg::JointCommand command_message_;
+  pendulum_ex_msgs::msg::JointCommandEx command_message_;
   std::chrono::nanoseconds publish_period_ = std::chrono::nanoseconds(1000000);
   std::unique_ptr<PendulumController> controller_;
   rclcpp::QoS qos_profile_ = rclcpp::QoS(1);
@@ -117,6 +120,8 @@ private:
   int last_majflt_ = 0;
   int last_minflt_ = 0;
   bool check_memory_ = false;
+  uint64_t command_missed_deadlines_count_ = 0;
+  uint64_t sensor_missed_deadlines_count_ = 0;
 };
 
 }  // namespace pendulum

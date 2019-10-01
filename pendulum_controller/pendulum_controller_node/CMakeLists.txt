@@ -17,7 +17,7 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(pendulum_msgs REQUIRED)
+find_package(pendulum_ex_msgs REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -56,7 +56,7 @@ ament_export_libraries(pendulum_controller_node)
 ament_target_dependencies(pendulum_controller_node
         "rclcpp_lifecycle"
         "lifecycle_msgs"
-        "pendulum_msgs"
+        "pendulum_ex_msgs"
         "rclcpp"
         "pendulum_controller"
         "rclcpp_components"
@@ -72,7 +72,7 @@ ament_target_dependencies(test_pendulum_controller
         "rclcpp"
         "rclcpp_lifecycle"
         "lifecycle_msgs"
-        "pendulum_msgs"
+        "pendulum_ex_msgs"
         "pendulum_controller"
         "rttest"
         "rclcpp"

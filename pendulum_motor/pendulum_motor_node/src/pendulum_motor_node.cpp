@@ -67,7 +67,7 @@ PendulumMotorNode::PendulumMotorNode(
 }
 
 void PendulumMotorNode::on_command_received(
-  const pendulum_msgs::msg::JointCommand::SharedPtr msg)
+  const pendulum_ex_msgs::msg::JointCommandEx::SharedPtr msg)
 {
   motor_->update_command_data(*msg);
 }
@@ -94,26 +94,28 @@ PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
   // message pool is determined by the number of threads (the maximum number of concurrent accesses
   // to the subscription).
   auto command_msg_strategy =
-    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs::msg::JointCommand, 1>>();
+    std::make_shared<MessagePoolMemoryStrategy<pendulum_ex_msgs::msg::JointCommandEx, 1>>();
 
   this->get_sensor_options().event_callbacks.deadline_callback =
-    [this](rclcpp::QOSDeadlineOfferedInfo & event) -> void
+    [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
-      RCUTILS_LOG_INFO_NAMED(get_name(),
-        "Offered deadline missed - total %d delta %d",
-        event.total_count, event.total_count_change);
+      // RCUTILS_LOG_INFO_NAMED(get_name(),
+      //   "Offered deadline missed - total %d delta %d",
+      //   event.total_count, event.total_count_change);
+      sensor_missed_deadlines_count_++;
     };
-  sensor_pub_ = this->create_publisher<pendulum_msgs::msg::JointState>(
+  sensor_pub_ = this->create_publisher<pendulum_ex_msgs::msg::JointStateEx>(
     "pendulum_sensor", qos_profile_, sensor_publisher_options_);
 
   this->get_command_options().event_callbacks.deadline_callback =
-    [this](rclcpp::QOSDeadlineRequestedInfo & event) -> void
+    [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
-      RCUTILS_LOG_INFO_NAMED(get_name(),
-        "Requested deadline missed - total %d delta %d",
-        event.total_count, event.total_count_change);
+      // RCUTILS_LOG_INFO_NAMED(get_name(),
+      //   "Requested deadline missed - total %d delta %d",
+      //   event.total_count, event.total_count_change);
+      command_missed_deadlines_count_++;
     };
-  command_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
+  command_sub_ = this->create_subscription<pendulum_ex_msgs::msg::JointCommandEx>(
     "pendulum_command", qos_profile_,
     std::bind(&PendulumMotorNode::on_command_received,
     this, std::placeholders::_1),
@@ -158,6 +160,11 @@ PendulumMotorNode::on_deactivate(const rclcpp_lifecycle::State &)
   }
 
   show_new_pagefault_count("on_deactivate", "0", "0");
+  RCUTILS_LOG_INFO_NAMED(get_name(),
+    "Sensor requested deadline missed total:  %lu", sensor_missed_deadlines_count_);
+  RCUTILS_LOG_INFO_NAMED(get_name(),
+    "Command offered deadline missed total:  %lu", command_missed_deadlines_count_);
+
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
 
   sensor_timer_->cancel();

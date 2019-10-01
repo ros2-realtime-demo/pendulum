@@ -15,8 +15,8 @@
 #ifndef PENDULUM_MOTOR_DRIVER__PENDULUM_MOTOR_DRIVER_HPP_
 #define PENDULUM_MOTOR_DRIVER__PENDULUM_MOTOR_DRIVER_HPP_
 
-#include "pendulum_msgs/msg/joint_command.hpp"
-#include "pendulum_msgs/msg/joint_state.hpp"
+#include "pendulum_ex_msgs/msg/joint_command_ex.hpp"
+#include "pendulum_ex_msgs/msg/joint_state_ex.hpp"
 
 namespace pendulum
 {
@@ -24,8 +24,8 @@ namespace pendulum
 class PendulumMotor
 {
 public:
-  virtual void update_command_data(const pendulum_msgs::msg::JointCommand & msg) = 0;
-  virtual void update_sensor_data(pendulum_msgs::msg::JointState & msg) = 0;
+  virtual void update_command_data(const pendulum_ex_msgs::msg::JointCommandEx & msg) = 0;
+  virtual void update_sensor_data(pendulum_ex_msgs::msg::JointStateEx & msg) = 0;
   virtual void update() = 0;
 };
 

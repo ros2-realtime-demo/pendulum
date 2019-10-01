@@ -68,13 +68,13 @@ PendulumControllerNode::PendulumControllerNode(
 }
 
 void PendulumControllerNode::on_sensor_message(
-  const pendulum_msgs::msg::JointState::SharedPtr msg)
+  const pendulum_ex_msgs::msg::JointStateEx::SharedPtr msg)
 {
   controller_->update_sensor_data(*msg);
 }
 
 void PendulumControllerNode::on_pendulum_setpoint(
-  const pendulum_msgs::msg::JointCommand::SharedPtr msg)
+  const pendulum_ex_msgs::msg::JointCommandEx::SharedPtr msg)
 {
   controller_->update_setpoint_data(*msg);
 }
@@ -85,7 +85,7 @@ void PendulumControllerNode::control_timer_callback()
   command_pub_->publish(command_message_);
 }
 
-const pendulum_msgs::msg::JointCommand &
+const pendulum_ex_msgs::msg::JointCommandEx &
 PendulumControllerNode::get_next_command_message() const
 {
   return command_message_;
@@ -101,19 +101,20 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
   // message pool is determined by the number of threads (the maximum number of concurrent accesses
   // to the subscription).
   auto state_msg_strategy =
-    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs::msg::JointState, 1>>();
+    std::make_shared<MessagePoolMemoryStrategy<pendulum_ex_msgs::msg::JointStateEx, 1>>();
   auto setpoint_msg_strategy =
-    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs::msg::JointCommand, 1>>();
+    std::make_shared<MessagePoolMemoryStrategy<pendulum_ex_msgs::msg::JointCommandEx, 1>>();
 
   this->get_sensor_options().event_callbacks.deadline_callback =
-    [this](rclcpp::QOSDeadlineRequestedInfo & event) -> void
+    [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
-      RCUTILS_LOG_INFO_NAMED(get_name(),
-        "Requested deadline missed - total %d delta %d",
-        event.total_count, event.total_count_change);
+      // RCUTILS_LOG_INFO_NAMED(get_name(),
+      //   "Requested deadline missed - total %d delta %d",
+      //   event.total_count, event.total_count_change);
+      sensor_missed_deadlines_count_++;
     };
 
-  sub_sensor_ = this->create_subscription<pendulum_msgs::msg::JointState>(
+  sub_sensor_ = this->create_subscription<pendulum_ex_msgs::msg::JointStateEx>(
     "pendulum_sensor", qos_profile_,
     std::bind(&PendulumControllerNode::on_sensor_message,
     this, std::placeholders::_1),
@@ -121,19 +122,20 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
     state_msg_strategy);
 
   this->get_command_options().event_callbacks.deadline_callback =
-    [this](rclcpp::QOSDeadlineOfferedInfo & event) -> void
+    [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
-      RCUTILS_LOG_INFO_NAMED(get_name(),
-        "Offered deadline missed - total %d delta %d",
-        event.total_count, event.total_count_change);
+      // RCUTILS_LOG_INFO_NAMED(get_name(),
+      //   "Offered deadline missed - total %d delta %d",
+      //   event.total_count, event.total_count_change);
+      command_missed_deadlines_count_++;
     };
   // Initialize the publisher for the command message.
-  command_pub_ = this->create_publisher<pendulum_msgs::msg::JointCommand>(
+  command_pub_ = this->create_publisher<pendulum_ex_msgs::msg::JointCommandEx>(
     "pendulum_command",
     qos_profile_,
     command_publisher_options_);
 
-  setpoint_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
+  setpoint_sub_ = this->create_subscription<pendulum_ex_msgs::msg::JointCommandEx>(
     "pendulum_setpoint", setpoint_qos_profile_,
     std::bind(&PendulumControllerNode::on_pendulum_setpoint,
     this, std::placeholders::_1),
@@ -141,7 +143,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
     setpoint_msg_strategy);
 
   // Initialize the logger publisher.
-  logger_pub_ = this->create_publisher<pendulum_msgs::msg::RttestResults>(
+  logger_pub_ = this->create_publisher<pendulum_ex_msgs::msg::ControllerStats>(
     "pendulum_statistics", 1);
 
   return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
@@ -181,6 +183,12 @@ PendulumControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
     osrf_testing_tools_cpp::memory_tools::expect_no_realloc_end();
   #endif
   }
+
+  RCUTILS_LOG_INFO_NAMED(get_name(),
+    "Sensor requested deadline missed total:  %lu", sensor_missed_deadlines_count_);
+  RCUTILS_LOG_INFO_NAMED(get_name(),
+    "Command offered deadline missed total:  %lu", command_missed_deadlines_count_);
+
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
   timer_->cancel();
   command_pub_->on_deactivate();
