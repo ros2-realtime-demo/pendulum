@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <rclcpp/strategies/allocator_memory_strategy.hpp>
+
 #include <iostream>
 #include <memory>
 #include <utility>
@@ -19,6 +21,10 @@
 #ifdef PENDULUM_DEMO_MEMORYTOOLS_ENABLED
 #include <osrf_testing_tools_cpp/memory_tools/memory_tools.hpp>
 #include <osrf_testing_tools_cpp/scope_exit.hpp>
+#endif
+
+#ifdef PENDULUM_DEMO_TLSF_ENABLED
+#include <tlsf_cpp/tlsf.hpp>
 #endif
 
 #include "rclcpp/rclcpp.hpp"
@@ -30,6 +36,12 @@
 #include "pendulum_controller_node/pendulum_controller_node.hpp"
 #include "pendulum_controller/pendulum_controller.hpp"
 #include "pendulum_controller/pid_controller.hpp"
+
+#ifdef PENDULUM_DEMO_TLSF_ENABLED
+using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
+template<typename T = void>
+using TLSFAllocator = tlsf_heap_allocator<T>;
+#endif
 
 static const double DEFAULT_PID_K = 1.0;
 static const double DEFAULT_PID_I = 0.0;
@@ -46,7 +58,8 @@ static const size_t DEFAULT_SENSOR_UPDATE_PERIOD = 960000;
 static const char * OPTION_CONTROLLER_UPDATE_PERIOD = "--controller-update";
 static const char * OPTION_PHYSICS_UPDATE_PERIOD = "--physics-update";
 static const char * OPTION_SENSOR_UPDATE_PERIOD = "--sensor-update";
-static const char * OPTION_MEMORY_CHECK = "--memory_check";
+static const char * OPTION_MEMORY_CHECK = "--memory-check";
+static const char * OPTION_TLSF = "--use-tlsf";
 
 void print_usage()
 {
@@ -59,6 +72,7 @@ void print_usage()
     "[%s physics simulation update period] "
     "[%s motor sensor update period] "
     "[%s use OSRF memory check tool] "
+    "[%s use TLSF allocator] "
     "[-h]\n",
     OPTION_PID_K,
     OPTION_PID_I,
@@ -66,12 +80,14 @@ void print_usage()
     OPTION_CONTROLLER_UPDATE_PERIOD,
     OPTION_PHYSICS_UPDATE_PERIOD,
     OPTION_SENSOR_UPDATE_PERIOD,
-    OPTION_MEMORY_CHECK);
+    OPTION_MEMORY_CHECK,
+    OPTION_TLSF);
 }
 
 int main(int argc, char * argv[])
 {
   bool use_memory_check = false;
+  bool use_tlfs = false;
   // Force flush of the stdout buffer.
   setvbuf(stdout, NULL, _IONBF, BUFSIZ);
 
@@ -86,6 +102,9 @@ int main(int argc, char * argv[])
     use_memory_check = true;
     std::cout << "Enable memory check\n";
   }
+  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_TLSF)) {
+    use_tlfs = true;
+  }
 
   // use a dummy period to initialize rttest
   struct timespec dummy_period;
@@ -93,7 +112,20 @@ int main(int argc, char * argv[])
   dummy_period.tv_nsec = 1000000;
   rttest_init(1, dummy_period, SCHED_FIFO, 80, 0, NULL);
   rclcpp::init(argc, argv);
-  rclcpp::executors::SingleThreadedExecutor exec;
+
+  // Initialize the executor.
+  rclcpp::executor::ExecutorArgs exec_args;
+  #ifdef PENDULUM_DEMO_TLSF_ENABLED
+  // One of the arguments passed to the Executor is the memory strategy, which delegates the
+  // runtime-execution allocations to the TLSF allocator.
+  if (use_tlfs) {
+    std::cout << "Enable TLSF allocator\n";
+    rclcpp::memory_strategy::MemoryStrategy::SharedPtr memory_strategy =
+      std::make_shared<AllocatorMemoryStrategy<TLSFAllocator<void>>>();
+    exec_args.memory_strategy = memory_strategy;
+  }
+  #endif
+  rclcpp::executors::SingleThreadedExecutor exec(exec_args);
 
   std::chrono::milliseconds deadline_duration(10);
   rclcpp::QoS qos_deadline_profile(10);
@@ -117,7 +149,6 @@ int main(int argc, char * argv[])
 
   std::chrono::nanoseconds sensor_publish_period = std::chrono::nanoseconds(960000);
   std::chrono::nanoseconds physics_update_period = std::chrono::nanoseconds(1000000);
-
 
   std::unique_ptr<pendulum::PendulumMotor> motor =
     std::make_unique<pendulum::PendulumMotorSim>(physics_update_period);
