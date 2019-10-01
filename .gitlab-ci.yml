@@ -1,0 +1,19 @@
+stages:
+  - build
+
+variables:
+  WS_SRC: ./pendulum_ws/src
+  WS: ./pendulum_ws
+
+build_test_pendullum:
+  image: ros:dashing
+  stage: build
+  before_script:
+    - mkdir -p $WS_SRC
+    - mv * $WS_SRC && cd WS
+    - apt update
+    - "rosdep install -q -y --from-paths . --ignore-src \
+     --rosdistro ${ROS_DISTRO} --as-root=apt:false || true"
+  script:
+    - colcon build --merge-install
+    - colcon test --merge-install
