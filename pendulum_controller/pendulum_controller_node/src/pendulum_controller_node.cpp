@@ -209,11 +209,6 @@ PendulumControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
   #endif
   }
 
-  RCUTILS_LOG_INFO_NAMED(get_name(),
-    "Sensor requested deadline missed total:  %lu", sensor_missed_deadlines_count_);
-  RCUTILS_LOG_INFO_NAMED(get_name(),
-    "Command offered deadline missed total:  %lu", command_missed_deadlines_count_);
-
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
   timer_->cancel();
   command_pub_->on_deactivate();
