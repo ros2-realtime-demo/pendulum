@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <rclcpp/strategies/allocator_memory_strategy.hpp>
+#include <pendulum_ex_msgs/msg/pendulum_stats.hpp>
 
 #include <iostream>
 #include <memory>
@@ -30,7 +31,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/cmdline_parser.h"
 
-#include <pendulum_ex_msgs/msg/pendulum_stats.hpp>
+
 #include "pendulum_motor_node/pendulum_motor_node.hpp"
 #include "pendulum_motor_driver/pendulum_motor_driver.hpp"
 #include "pendulum_motor_driver/simple_pendulum_sim.hpp"
