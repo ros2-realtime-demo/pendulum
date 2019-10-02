@@ -107,12 +107,10 @@ private:
   pendulum_ex_msgs::msg::MotorStats motor_stats_message_;
   pendulum_ex_msgs::msg::JointStateEx sensor_message_;
   pendulum_ex_msgs::msg::JointCommandEx command_message_;
-  rusage m_sys_usage;
+  rusage sys_usage_;
   int last_majflt_ = 0;
   int last_minflt_ = 0;
   bool check_memory_ = false;
-  uint64_t command_missed_deadlines_count_ = 0;
-  uint64_t sensor_missed_deadlines_count_ = 0;
 };
 
 }  // namespace pendulum

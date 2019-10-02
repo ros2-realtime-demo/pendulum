@@ -30,6 +30,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/cmdline_parser.h"
 
+#include <pendulum_ex_msgs/msg/pendulum_stats.hpp>
 #include "pendulum_motor_node/pendulum_motor_node.hpp"
 #include "pendulum_motor_driver/pendulum_motor_driver.hpp"
 #include "pendulum_motor_driver/simple_pendulum_sim.hpp"
@@ -161,9 +162,32 @@ int main(int argc, char * argv[])
     rclcpp::NodeOptions().use_intra_process_comms(true));
   exec.add_node(motor_node->get_node_base_interface());
 
+  // Initialize the logger publisher.
+  auto node_stats = rclcpp::Node::make_shared("pendulum_statistics_node");
+  auto controller_stats_pub = node_stats->create_publisher<pendulum_ex_msgs::msg::ControllerStats>(
+    "controller_statistics", rclcpp::QoS(1));
+  auto motor_stats_pub = node_stats->create_publisher<pendulum_ex_msgs::msg::MotorStats>(
+    "motor_statistics", rclcpp::QoS(1));
+  std::chrono::nanoseconds logger_publisher_period(100000000);
+  // Create a lambda function that will fire regularly to publish the next results message.
+  auto logger_publish_callback =
+    [&controller_stats_pub, &motor_stats_pub, &motor_node, &controller_node]() {
+      pendulum_ex_msgs::msg::ControllerStats controller_stats_msg;
+      controller_node->update_sys_usage();
+      controller_stats_msg = controller_node->get_controller_stats_message();
+      controller_stats_pub->publish(controller_stats_msg);
+
+      pendulum_ex_msgs::msg::MotorStats motor_stats_msg;
+      motor_node->update_sys_usage();
+      motor_stats_msg = motor_node->get_motor_stats_message();
+      motor_stats_pub->publish(motor_stats_msg);
+    };
+  auto logger_publisher_timer = node_stats->create_wall_timer(
+    logger_publisher_period, logger_publish_callback);
+  exec.add_node(node_stats);
   // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
   // deterministic (real-time safe) algorithm, round robin.
-  if (rttest_set_sched_priority(98, SCHED_RR)) {
+  if (rttest_set_sched_priority(80, SCHED_RR)) {
     perror("Couldn't set scheduling priority and policy");
   }
 

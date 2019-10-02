@@ -70,12 +70,14 @@ PendulumControllerNode::PendulumControllerNode(
 void PendulumControllerNode::on_sensor_message(
   const pendulum_ex_msgs::msg::JointStateEx::SharedPtr msg)
 {
+  controller_stats_message_.sensor_stats.msg_count++;
   controller_->update_sensor_data(*msg);
 }
 
 void PendulumControllerNode::on_pendulum_setpoint(
   const pendulum_ex_msgs::msg::JointCommandEx::SharedPtr msg)
 {
+  controller_stats_message_.setpoint_stats.msg_count++;
   controller_->update_setpoint_data(*msg);
 }
 
@@ -83,13 +85,42 @@ void PendulumControllerNode::control_timer_callback()
 {
   controller_->update_command_data(command_message_);
   command_pub_->publish(command_message_);
+  controller_stats_message_.command_stats.msg_count++;
+  controller_stats_message_.timer_stats.timer_count++;
+  timespec curtime;
+  clock_gettime(CLOCK_REALTIME, &curtime);
+  controller_stats_message_.timer_stats.stamp.sec = curtime.tv_sec;
+  controller_stats_message_.timer_stats.stamp.nanosec = curtime.tv_nsec;
 }
 
-const pendulum_ex_msgs::msg::JointCommandEx &
-PendulumControllerNode::get_next_command_message() const
+const pendulum_ex_msgs::msg::ControllerStats &
+PendulumControllerNode::get_controller_stats_message() const
 {
-  return command_message_;
+  return controller_stats_message_;
 }
+
+// TODO(carlossvg): this function may be duplicated, move it to a tools package
+void PendulumControllerNode::update_sys_usage()
+{
+  const auto ret = getrusage(RUSAGE_SELF, &sys_usage_);
+  if (ret == 0) {
+    controller_stats_message_.rusage_stats.ru_maxrss = sys_usage_.ru_maxrss;
+    controller_stats_message_.rusage_stats.ru_ixrss = sys_usage_.ru_ixrss;
+    controller_stats_message_.rusage_stats.ru_idrss = sys_usage_.ru_idrss;
+    controller_stats_message_.rusage_stats.ru_isrss = sys_usage_.ru_isrss;
+    controller_stats_message_.rusage_stats.ru_minflt = sys_usage_.ru_minflt;
+    controller_stats_message_.rusage_stats.ru_majflt = sys_usage_.ru_majflt;
+    controller_stats_message_.rusage_stats.ru_nswap = sys_usage_.ru_nswap;
+    controller_stats_message_.rusage_stats.ru_inblock = sys_usage_.ru_inblock;
+    controller_stats_message_.rusage_stats.ru_oublock = sys_usage_.ru_oublock;
+    controller_stats_message_.rusage_stats.ru_msgsnd = sys_usage_.ru_msgsnd;
+    controller_stats_message_.rusage_stats.ru_msgrcv = sys_usage_.ru_msgrcv;
+    controller_stats_message_.rusage_stats.ru_nsignals = sys_usage_.ru_nsignals;
+    controller_stats_message_.rusage_stats.ru_nvcsw = sys_usage_.ru_nvcsw;
+    controller_stats_message_.rusage_stats.ru_nivcsw = sys_usage_.ru_nivcsw;
+  }
+}
+
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
@@ -108,10 +139,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
   this->get_sensor_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
-      // RCUTILS_LOG_INFO_NAMED(get_name(),
-      //   "Requested deadline missed - total %d delta %d",
-      //   event.total_count, event.total_count_change);
-      sensor_missed_deadlines_count_++;
+      controller_stats_message_.sensor_stats.deadline_misses_count++;
     };
 
   sub_sensor_ = this->create_subscription<pendulum_ex_msgs::msg::JointStateEx>(
@@ -124,10 +152,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
   this->get_command_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
-      // RCUTILS_LOG_INFO_NAMED(get_name(),
-      //   "Offered deadline missed - total %d delta %d",
-      //   event.total_count, event.total_count_change);
-      command_missed_deadlines_count_++;
+      controller_stats_message_.command_stats.deadline_misses_count++;
     };
   // Initialize the publisher for the command message.
   command_pub_ = this->create_publisher<pendulum_ex_msgs::msg::JointCommandEx>(

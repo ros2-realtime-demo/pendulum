@@ -98,7 +98,8 @@ void PendulumMotorNode::update_motor_callback()
   motor_->update();
 }
 
-const pendulum_ex_msgs::msg::MotorStats & PendulumMotorNode::get_motor_stats_message() const
+const pendulum_ex_msgs::msg::MotorStats &
+PendulumMotorNode::get_motor_stats_message() const
 {
   return motor_stats_message_;
 }
@@ -106,23 +107,22 @@ const pendulum_ex_msgs::msg::MotorStats & PendulumMotorNode::get_motor_stats_mes
 // TODO(carlossvg): this function may be duplicated, move it to a tools package
 void PendulumMotorNode::update_sys_usage()
 {
-  const auto ret = getrusage(RUSAGE_SELF, &m_sys_usage);
-  if (ret != 0) {
-    // throw std::runtime_error("Could not get system resource usage.");
-    motor_stats_message_.rusage_stats.ru_maxrss = m_sys_usage.ru_maxrss;
-    motor_stats_message_.rusage_stats.ru_ixrss = m_sys_usage.ru_ixrss;
-    motor_stats_message_.rusage_stats.ru_idrss = m_sys_usage.ru_idrss;
-    motor_stats_message_.rusage_stats.ru_isrss = m_sys_usage.ru_isrss;
-    motor_stats_message_.rusage_stats.ru_minflt = m_sys_usage.ru_minflt;
-    motor_stats_message_.rusage_stats.ru_majflt = m_sys_usage.ru_majflt;
-    motor_stats_message_.rusage_stats.ru_nswap = m_sys_usage.ru_nswap;
-    motor_stats_message_.rusage_stats.ru_inblock = m_sys_usage.ru_inblock;
-    motor_stats_message_.rusage_stats.ru_oublock = m_sys_usage.ru_oublock;
-    motor_stats_message_.rusage_stats.ru_msgsnd = m_sys_usage.ru_msgsnd;
-    motor_stats_message_.rusage_stats.ru_msgrcv = m_sys_usage.ru_msgrcv;
-    motor_stats_message_.rusage_stats.ru_nsignals = m_sys_usage.ru_nsignals;
-    motor_stats_message_.rusage_stats.ru_nvcsw = m_sys_usage.ru_nvcsw;
-    motor_stats_message_.rusage_stats.ru_nivcsw = m_sys_usage.ru_nivcsw;
+  const auto ret = getrusage(RUSAGE_SELF, &sys_usage_);
+  if (ret == 0) {
+    motor_stats_message_.rusage_stats.ru_maxrss = sys_usage_.ru_maxrss;
+    motor_stats_message_.rusage_stats.ru_ixrss = sys_usage_.ru_ixrss;
+    motor_stats_message_.rusage_stats.ru_idrss = sys_usage_.ru_idrss;
+    motor_stats_message_.rusage_stats.ru_isrss = sys_usage_.ru_isrss;
+    motor_stats_message_.rusage_stats.ru_minflt = sys_usage_.ru_minflt;
+    motor_stats_message_.rusage_stats.ru_majflt = sys_usage_.ru_majflt;
+    motor_stats_message_.rusage_stats.ru_nswap = sys_usage_.ru_nswap;
+    motor_stats_message_.rusage_stats.ru_inblock = sys_usage_.ru_inblock;
+    motor_stats_message_.rusage_stats.ru_oublock = sys_usage_.ru_oublock;
+    motor_stats_message_.rusage_stats.ru_msgsnd = sys_usage_.ru_msgsnd;
+    motor_stats_message_.rusage_stats.ru_msgrcv = sys_usage_.ru_msgrcv;
+    motor_stats_message_.rusage_stats.ru_nsignals = sys_usage_.ru_nsignals;
+    motor_stats_message_.rusage_stats.ru_nvcsw = sys_usage_.ru_nvcsw;
+    motor_stats_message_.rusage_stats.ru_nivcsw = sys_usage_.ru_nivcsw;
   }
 }
 

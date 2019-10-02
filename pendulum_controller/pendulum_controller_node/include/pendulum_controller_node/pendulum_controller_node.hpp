@@ -70,9 +70,7 @@ public:
   void on_sensor_message(const pendulum_ex_msgs::msg::JointStateEx::SharedPtr msg);
   void on_pendulum_setpoint(
     const pendulum_ex_msgs::msg::JointCommandEx::SharedPtr msg);
-  /// Retrieve the command calculated from the last sensor message.
-  // \return Command message
-  const pendulum_ex_msgs::msg::JointCommandEx & get_next_command_message() const;
+
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_configure(const rclcpp_lifecycle::State &);
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -89,7 +87,8 @@ public:
   /// Get the subscription's settings options.
   rclcpp::SubscriptionOptions & get_sensor_options() {return sensor_subscription_options_;}
   rclcpp::PublisherOptions & get_command_options() {return command_publisher_options_;}
-
+  const pendulum_ex_msgs::msg::ControllerStats & get_controller_stats_message() const;
+  void update_sys_usage();
   void show_new_pagefault_count(
     const char * logtext,
     const char * allowed_maj,
@@ -111,17 +110,18 @@ private:
   rclcpp::SubscriptionOptions sensor_subscription_options_;
 
   rclcpp::TimerBase::SharedPtr timer_;
-  pendulum_ex_msgs::msg::JointCommandEx command_message_;
   std::chrono::nanoseconds publish_period_ = std::chrono::nanoseconds(1000000);
   std::unique_ptr<PendulumController> controller_;
   rclcpp::QoS qos_profile_ = rclcpp::QoS(1);
   rclcpp::QoS setpoint_qos_profile_ = rclcpp::QoS(
     rclcpp::KeepLast(10)).transient_local().reliable();
+  pendulum_ex_msgs::msg::ControllerStats controller_stats_message_;
+  pendulum_ex_msgs::msg::JointStateEx sensor_message_;
+  pendulum_ex_msgs::msg::JointCommandEx command_message_;
+  rusage sys_usage_;
   int last_majflt_ = 0;
   int last_minflt_ = 0;
   bool check_memory_ = false;
-  uint64_t command_missed_deadlines_count_ = 0;
-  uint64_t sensor_missed_deadlines_count_ = 0;
 };
 
 }  // namespace pendulum
