@@ -62,20 +62,24 @@ static const char * OPTION_PHYSICS_UPDATE_PERIOD = "--physics-update";
 static const char * OPTION_SENSOR_UPDATE_PERIOD = "--sensor-update";
 static const char * OPTION_MEMORY_CHECK = "--memory-check";
 static const char * OPTION_TLSF = "--use-tlsf";
+static const char * OPTION_LOCK_MEMORY = "--lock-memory";
+static const char * OPTION_PUBLISH_STATISTICS = "--pub-stats";
 
 void print_usage()
 {
   printf("Usage for pendulum_test:\n");
-  printf("pendulum_test "
-    "[%s pid proportional gain] "
-    "[%s pid integral gain] "
-    "[%s pid derivative gain] "
-    "[%s controller update period] "
-    "[%s physics simulation update period] "
-    "[%s motor sensor update period] "
-    "[%s use OSRF memory check tool] "
-    "[%s use TLSF allocator] "
-    "[-h]\n",
+  printf("pendulum_test\n"
+    "\t[%s pid proportional gain]\n"
+    "\t[%s pid integral gain]\n"
+    "\t[%s pid derivative gain]\n"
+    "\t[%s controller update period]\n"
+    "\t[%s physics simulation update period]\n"
+    "\t[%s motor sensor update period]\n"
+    "\t[%s use OSRF memory check tool]\n"
+    "\t[%s lock memory]\n"
+    "\t[%s publish statistics]\n"
+    "\t[%s use TLSF allocator]\n"
+    "\t[-h]\n",
     OPTION_PID_K,
     OPTION_PID_I,
     OPTION_PID_D,
@@ -83,12 +87,16 @@ void print_usage()
     OPTION_PHYSICS_UPDATE_PERIOD,
     OPTION_SENSOR_UPDATE_PERIOD,
     OPTION_MEMORY_CHECK,
+    OPTION_LOCK_MEMORY,
+    OPTION_PUBLISH_STATISTICS,
     OPTION_TLSF);
 }
 
 int main(int argc, char * argv[])
 {
   bool use_memory_check = false;
+  bool lock_memory = false;
+  bool publish_statistics = false;
   bool use_tlfs = false;
   // Force flush of the stdout buffer.
   setvbuf(stdout, NULL, _IONBF, BUFSIZ);
@@ -103,6 +111,12 @@ int main(int argc, char * argv[])
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_MEMORY_CHECK)) {
     use_memory_check = true;
     std::cout << "Enable memory check\n";
+  }
+  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_LOCK_MEMORY)) {
+    lock_memory = true;
+  }
+  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PUBLISH_STATISTICS)) {
+    publish_statistics = true;
   }
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_TLSF)) {
     use_tlfs = true;
@@ -164,28 +178,33 @@ int main(int argc, char * argv[])
   exec.add_node(motor_node->get_node_base_interface());
 
   // Initialize the logger publisher.
-  auto node_stats = rclcpp::Node::make_shared("pendulum_statistics_node");
-  auto controller_stats_pub = node_stats->create_publisher<pendulum_ex_msgs::msg::ControllerStats>(
-    "controller_statistics", rclcpp::QoS(1));
-  auto motor_stats_pub = node_stats->create_publisher<pendulum_ex_msgs::msg::MotorStats>(
-    "motor_statistics", rclcpp::QoS(1));
-  std::chrono::nanoseconds logger_publisher_period(100000000);
-  // Create a lambda function that will fire regularly to publish the next results message.
-  auto logger_publish_callback =
-    [&controller_stats_pub, &motor_stats_pub, &motor_node, &controller_node]() {
-      pendulum_ex_msgs::msg::ControllerStats controller_stats_msg;
-      controller_node->update_sys_usage();
-      controller_stats_msg = controller_node->get_controller_stats_message();
-      controller_stats_pub->publish(controller_stats_msg);
+  //if (publish_statistics){
+    std::cout << "publish_statistics\n";
+    auto node_stats = rclcpp::Node::make_shared("pendulum_statistics_node");
+    auto controller_stats_pub =
+     node_stats->create_publisher<pendulum_ex_msgs::msg::ControllerStats>(
+      "controller_statistics", rclcpp::QoS(1));
+    auto motor_stats_pub = node_stats->create_publisher<pendulum_ex_msgs::msg::MotorStats>(
+      "motor_statistics", rclcpp::QoS(1));
+    std::chrono::nanoseconds logger_publisher_period(100000000);
+    // Create a lambda function that will fire regularly to publish the next results message.
+    auto logger_publish_callback =
+      [&controller_stats_pub, &motor_stats_pub, &motor_node, &controller_node]() {
+        pendulum_ex_msgs::msg::ControllerStats controller_stats_msg;
+        controller_node->update_sys_usage();
+        controller_stats_msg = controller_node->get_controller_stats_message();
+        controller_stats_pub->publish(controller_stats_msg);
 
-      pendulum_ex_msgs::msg::MotorStats motor_stats_msg;
-      motor_node->update_sys_usage();
-      motor_stats_msg = motor_node->get_motor_stats_message();
-      motor_stats_pub->publish(motor_stats_msg);
-    };
-  auto logger_publisher_timer = node_stats->create_wall_timer(
-    logger_publisher_period, logger_publish_callback);
-  exec.add_node(node_stats);
+        pendulum_ex_msgs::msg::MotorStats motor_stats_msg;
+        motor_node->update_sys_usage();
+        motor_stats_msg = motor_node->get_motor_stats_message();
+        motor_stats_pub->publish(motor_stats_msg);
+      };
+    auto logger_publisher_timer = node_stats->create_wall_timer(
+      logger_publisher_period, logger_publish_callback);
+    exec.add_node(node_stats);
+  //}
+
   // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
   // deterministic (real-time safe) algorithm, round robin.
   if (rttest_set_sched_priority(80, SCHED_RR)) {
@@ -199,9 +218,12 @@ int main(int argc, char * argv[])
   // Always do this as the last step of the initialization phase.
   // See README.md for instructions on setting permissions.
   // See rttest/rttest.cpp for more details.
-  if (rttest_lock_and_prefault_dynamic() != 0) {
-    fprintf(stderr, "Couldn't lock all cached virtual memory.\n");
-    fprintf(stderr, "Pagefaults from reading pages not yet mapped into RAM will be recorded.\n");
+  if (lock_memory) {
+    std::cout << "lock memory on\n";
+    if (rttest_lock_and_prefault_dynamic() != 0) {
+      fprintf(stderr, "Couldn't lock all cached virtual memory.\n");
+      fprintf(stderr, "Pagefaults from reading pages not yet mapped into RAM will be recorded.\n");
+    }
   }
 
   exec.spin();
