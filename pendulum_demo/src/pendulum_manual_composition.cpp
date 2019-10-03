@@ -178,11 +178,11 @@ int main(int argc, char * argv[])
   exec.add_node(motor_node->get_node_base_interface());
 
   // Initialize the logger publisher.
-  //if (publish_statistics){
+  if (publish_statistics) {
     std::cout << "publish_statistics\n";
     auto node_stats = rclcpp::Node::make_shared("pendulum_statistics_node");
     auto controller_stats_pub =
-     node_stats->create_publisher<pendulum_ex_msgs::msg::ControllerStats>(
+      node_stats->create_publisher<pendulum_ex_msgs::msg::ControllerStats>(
       "controller_statistics", rclcpp::QoS(1));
     auto motor_stats_pub = node_stats->create_publisher<pendulum_ex_msgs::msg::MotorStats>(
       "motor_statistics", rclcpp::QoS(1));
@@ -203,7 +203,7 @@ int main(int argc, char * argv[])
     auto logger_publisher_timer = node_stats->create_wall_timer(
       logger_publisher_period, logger_publish_callback);
     exec.add_node(node_stats);
-  //}
+  }
 
   // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
   // deterministic (real-time safe) algorithm, round robin.
