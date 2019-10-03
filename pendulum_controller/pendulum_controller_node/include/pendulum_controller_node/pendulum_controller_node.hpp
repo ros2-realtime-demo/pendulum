@@ -88,11 +88,7 @@ public:
   rclcpp::SubscriptionOptions & get_sensor_options() {return sensor_subscription_options_;}
   rclcpp::PublisherOptions & get_command_options() {return command_publisher_options_;}
   const pendulum_ex_msgs::msg::ControllerStats & get_controller_stats_message() const;
-  void update_sys_usage();
-  void show_new_pagefault_count(
-    const char * logtext,
-    const char * allowed_maj,
-    const char * allowed_min);
+  void update_sys_usage(bool update_active_page_faults = false);
 
 private:
   std::shared_ptr<rclcpp::Subscription<
@@ -119,8 +115,8 @@ private:
   pendulum_ex_msgs::msg::JointStateEx sensor_message_;
   pendulum_ex_msgs::msg::JointCommandEx command_message_;
   rusage sys_usage_;
-  int last_majflt_ = 0;
-  int last_minflt_ = 0;
+  uint64_t minor_page_faults_at_active_start_ = 0;
+  uint64_t major_page_faults_at_active_start_ = 0;
   bool check_memory_ = false;
 };
 
