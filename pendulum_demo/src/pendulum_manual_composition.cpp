@@ -178,30 +178,32 @@ int main(int argc, char * argv[])
   exec.add_node(motor_node->get_node_base_interface());
 
   // Initialize the logger publisher.
-  if (publish_statistics) {
-    std::cout << "publish_statistics\n";
-    auto node_stats = rclcpp::Node::make_shared("pendulum_statistics_node");
-    auto controller_stats_pub =
-      node_stats->create_publisher<pendulum_ex_msgs::msg::ControllerStats>(
-      "controller_statistics", rclcpp::QoS(1));
-    auto motor_stats_pub = node_stats->create_publisher<pendulum_ex_msgs::msg::MotorStats>(
-      "motor_statistics", rclcpp::QoS(1));
-    std::chrono::nanoseconds logger_publisher_period(100000000);
-    // Create a lambda function that will fire regularly to publish the next results message.
-    auto logger_publish_callback =
-      [&controller_stats_pub, &motor_stats_pub, &motor_node, &controller_node]() {
-        pendulum_ex_msgs::msg::ControllerStats controller_stats_msg;
-        controller_node->update_sys_usage();
-        controller_stats_msg = controller_node->get_controller_stats_message();
-        controller_stats_pub->publish(controller_stats_msg);
+  auto node_stats = rclcpp::Node::make_shared("pendulum_statistics_node");
+  auto controller_stats_pub =
+    node_stats->create_publisher<pendulum_ex_msgs::msg::ControllerStats>(
+    "controller_statistics", rclcpp::QoS(1));
+  auto motor_stats_pub = node_stats->create_publisher<pendulum_ex_msgs::msg::MotorStats>(
+    "motor_statistics", rclcpp::QoS(1));
+  std::chrono::nanoseconds logger_publisher_period(100000000);
+  // Create a lambda function that will fire regularly to publish the next results message.
+  auto logger_publish_callback =
+    [&controller_stats_pub, &motor_stats_pub, &motor_node, &controller_node]() {
+      pendulum_ex_msgs::msg::ControllerStats controller_stats_msg;
+      controller_node->update_sys_usage();
+      controller_stats_msg = controller_node->get_controller_stats_message();
+      controller_stats_pub->publish(controller_stats_msg);
 
-        pendulum_ex_msgs::msg::MotorStats motor_stats_msg;
-        motor_node->update_sys_usage();
-        motor_stats_msg = motor_node->get_motor_stats_message();
-        motor_stats_pub->publish(motor_stats_msg);
-      };
-    auto logger_publisher_timer = node_stats->create_wall_timer(
-      logger_publisher_period, logger_publish_callback);
+      pendulum_ex_msgs::msg::MotorStats motor_stats_msg;
+      motor_node->update_sys_usage();
+      motor_stats_msg = motor_node->get_motor_stats_message();
+      motor_stats_pub->publish(motor_stats_msg);
+    };
+  auto logger_publisher_timer = node_stats->create_wall_timer(
+    logger_publisher_period, logger_publish_callback);
+
+
+  if (publish_statistics) {
+    std::cout << "publish_statistics1\n";
     exec.add_node(node_stats);
   }
 

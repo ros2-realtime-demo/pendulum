@@ -25,6 +25,7 @@ namespace pendulum
 using rclcpp::strategies::message_pool_memory_strategy::MessagePoolMemoryStrategy;
 using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
 
+
 PendulumControllerNode::PendulumControllerNode(
   const std::string & node_name,
   std::unique_ptr<PendulumController> controller,

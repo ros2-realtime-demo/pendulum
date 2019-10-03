@@ -58,6 +58,7 @@ ament_target_dependencies(pendulum_motor_node
         "lifecycle_msgs"
         "pendulum_ex_msgs"
         "rclcpp"
+        "rttest"
         "pendulum_motor_driver"
         "rclcpp_components"
         ${OPTIONAL_AMENT_DEPENDENCES})
@@ -75,7 +76,6 @@ ament_target_dependencies(test_pendulum_motor
         "pendulum_ex_msgs"
         "pendulum_motor_driver"
         "rttest"
-        "rclcpp"
         "rclcpp_components"
         ${OPTIONAL_AMENT_DEPENDENCES})
 

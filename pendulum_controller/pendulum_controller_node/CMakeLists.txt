@@ -58,6 +58,7 @@ ament_target_dependencies(pendulum_controller_node
         "lifecycle_msgs"
         "pendulum_ex_msgs"
         "rclcpp"
+        "rttest"
         "pendulum_controller"
         "rclcpp_components"
         ${OPTIONAL_AMENT_DEPENDENCES})
