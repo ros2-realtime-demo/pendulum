@@ -17,13 +17,14 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(pendulum_msgs REQUIRED)
+find_package(pendulum_msgs_v2 REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(rttest REQUIRED)
 find_package(pendulum_motor_driver REQUIRED)
+find_package(pendulum_tools REQUIRED)
 
 find_package(osrf_testing_tools_cpp)
 if(${osrf_testing_tools_cpp_FOUND})
@@ -56,10 +57,12 @@ ament_export_libraries(pendulum_motor_node)
 ament_target_dependencies(pendulum_motor_node
         "rclcpp_lifecycle"
         "lifecycle_msgs"
-        "pendulum_msgs"
+        "pendulum_msgs_v2"
         "rclcpp"
+        "rttest"
         "pendulum_motor_driver"
         "rclcpp_components"
+        "pendulum_tools"
         ${OPTIONAL_AMENT_DEPENDENCES})
 rclcpp_components_register_nodes(pendulum_motor_node "pendulum::MotorNode")
 target_link_libraries(pendulum_motor_node ${OPTIONAL_LIBRARIES})
@@ -72,11 +75,11 @@ ament_target_dependencies(test_pendulum_motor
         "rclcpp"
         "rclcpp_lifecycle"
         "lifecycle_msgs"
-        "pendulum_msgs"
+        "pendulum_msgs_v2"
         "pendulum_motor_driver"
         "rttest"
-        "rclcpp"
         "rclcpp_components"
+        "pendulum_tools"
         ${OPTIONAL_AMENT_DEPENDENCES})
 
 target_link_libraries(test_pendulum_motor

@@ -39,7 +39,8 @@ PendulumControllerNode::PendulumControllerNode(
   controller_(std::move(controller)),
   qos_profile_(qos_profile),
   setpoint_qos_profile_(setpoint_qos_profile),
-  check_memory_(check_memory)
+  check_memory_(check_memory),
+  timer_jitter_(publish_period)
 {
   if (check_memory_) {
   #ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
@@ -68,14 +69,16 @@ PendulumControllerNode::PendulumControllerNode(
 }
 
 void PendulumControllerNode::on_sensor_message(
-  const pendulum_msgs::msg::JointState::SharedPtr msg)
+  const pendulum_msgs_v2::msg::PendulumState::SharedPtr msg)
 {
+  controller_stats_message_.sensor_stats.msg_count++;
   controller_->update_sensor_data(*msg);
 }
 
 void PendulumControllerNode::on_pendulum_setpoint(
-  const pendulum_msgs::msg::JointCommand::SharedPtr msg)
+  const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg)
 {
+  controller_stats_message_.setpoint_stats.msg_count++;
   controller_->update_setpoint_data(*msg);
 }
 
@@ -83,12 +86,46 @@ void PendulumControllerNode::control_timer_callback()
 {
   controller_->update_command_data(command_message_);
   command_pub_->publish(command_message_);
+  controller_stats_message_.command_stats.msg_count++;
+  controller_stats_message_.timer_stats.timer_count++;
+  timespec curtime;
+  clock_gettime(CLOCK_REALTIME, &curtime);
+  controller_stats_message_.timer_stats.stamp.sec = curtime.tv_sec;
+  controller_stats_message_.timer_stats.stamp.nanosec = curtime.tv_nsec;
+  timer_jitter_.update();
+  controller_stats_message_.timer_stats.jitter_mean_nsec = timer_jitter_.get_mean();
+  controller_stats_message_.timer_stats.jitter_min_nsec = timer_jitter_.get_min();
+  controller_stats_message_.timer_stats.jitter_max_nsec = timer_jitter_.get_max();
+  controller_stats_message_.timer_stats.jitter_standard_dev_nsec = timer_jitter_.get_std();
 }
 
-const pendulum_msgs::msg::JointCommand &
-PendulumControllerNode::get_next_command_message() const
+const pendulum_msgs_v2::msg::ControllerStats &
+PendulumControllerNode::get_controller_stats_message() const
 {
-  return command_message_;
+  return controller_stats_message_;
+}
+
+// TODO(carlossvg): this function may be duplicated, move it to a tools package
+void PendulumControllerNode::update_sys_usage(bool update_active_page_faults)
+{
+  const auto ret = getrusage(RUSAGE_SELF, &sys_usage_);
+  if (ret == 0) {
+    controller_stats_message_.rusage_stats.max_resident_set_size = sys_usage_.ru_maxrss;
+    controller_stats_message_.rusage_stats.total_minor_pagefaults = sys_usage_.ru_minflt;
+    controller_stats_message_.rusage_stats.total_major_pagefaults = sys_usage_.ru_majflt;
+    controller_stats_message_.rusage_stats.voluntary_context_switches = sys_usage_.ru_nvcsw;
+    controller_stats_message_.rusage_stats.involuntary_context_switches = sys_usage_.ru_nivcsw;
+    if (update_active_page_faults) {
+      minor_page_faults_at_active_start_ = sys_usage_.ru_minflt;
+      major_page_faults_at_active_start_ = sys_usage_.ru_majflt;
+    }
+    if (this->get_current_state().label() == "active") {
+      controller_stats_message_.rusage_stats.minor_pagefaults_active_node =
+        sys_usage_.ru_minflt - minor_page_faults_at_active_start_;
+      controller_stats_message_.rusage_stats.major_pagefaults_active_node =
+        sys_usage_.ru_majflt - major_page_faults_at_active_start_;
+    }
+  }
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -101,19 +138,17 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
   // message pool is determined by the number of threads (the maximum number of concurrent accesses
   // to the subscription).
   auto state_msg_strategy =
-    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs::msg::JointState, 1>>();
+    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumState, 1>>();
   auto setpoint_msg_strategy =
-    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs::msg::JointCommand, 1>>();
+    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
 
   this->get_sensor_options().event_callbacks.deadline_callback =
-    [this](rclcpp::QOSDeadlineRequestedInfo & event) -> void
+    [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
-      RCUTILS_LOG_INFO_NAMED(get_name(),
-        "Requested deadline missed - total %d delta %d",
-        event.total_count, event.total_count_change);
+      controller_stats_message_.sensor_stats.deadline_misses_count++;
     };
 
-  sub_sensor_ = this->create_subscription<pendulum_msgs::msg::JointState>(
+  sub_sensor_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumState>(
     "pendulum_sensor", qos_profile_,
     std::bind(&PendulumControllerNode::on_sensor_message,
     this, std::placeholders::_1),
@@ -121,27 +156,30 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
     state_msg_strategy);
 
   this->get_command_options().event_callbacks.deadline_callback =
-    [this](rclcpp::QOSDeadlineOfferedInfo & event) -> void
+    [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
-      RCUTILS_LOG_INFO_NAMED(get_name(),
-        "Offered deadline missed - total %d delta %d",
-        event.total_count, event.total_count_change);
+      controller_stats_message_.command_stats.deadline_misses_count++;
     };
   // Initialize the publisher for the command message.
-  command_pub_ = this->create_publisher<pendulum_msgs::msg::JointCommand>(
+  command_pub_ = this->create_publisher<pendulum_msgs_v2::msg::PendulumCommand>(
     "pendulum_command",
     qos_profile_,
     command_publisher_options_);
 
-  setpoint_sub_ = this->create_subscription<pendulum_msgs::msg::JointCommand>(
+  setpoint_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
     "pendulum_setpoint", setpoint_qos_profile_,
     std::bind(&PendulumControllerNode::on_pendulum_setpoint,
     this, std::placeholders::_1),
     rclcpp::SubscriptionOptions(),
     setpoint_msg_strategy);
 
+  timer_ =
+    this->create_wall_timer(publish_period_,
+      std::bind(&PendulumControllerNode::control_timer_callback, this));
+  timer_->cancel();
+
   // Initialize the logger publisher.
-  logger_pub_ = this->create_publisher<pendulum_msgs::msg::RttestResults>(
+  logger_pub_ = this->create_publisher<pendulum_msgs_v2::msg::ControllerStats>(
     "pendulum_statistics", 1);
 
   return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
@@ -153,9 +191,7 @@ PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
   command_pub_->on_activate();
   logger_pub_->on_activate();
-  timer_ =
-    this->create_wall_timer(publish_period_,
-      std::bind(&PendulumControllerNode::control_timer_callback, this));
+  timer_->reset();
 
   if (check_memory_) {
   #ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
@@ -165,14 +201,15 @@ PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
     osrf_testing_tools_cpp::memory_tools::expect_no_realloc_begin();
   #endif
   }
-  show_new_pagefault_count("on_activate", ">=0", ">=0");
+
+  update_sys_usage(true);
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
 {
-  show_new_pagefault_count("on_deactivate", "0", "0");
+  update_sys_usage(false);
   if (check_memory_) {
   #ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
     osrf_testing_tools_cpp::memory_tools::expect_no_calloc_end();
@@ -181,6 +218,7 @@ PendulumControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
     osrf_testing_tools_cpp::memory_tools::expect_no_realloc_end();
   #endif
   }
+
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
   timer_->cancel();
   command_pub_->on_deactivate();
@@ -211,24 +249,6 @@ PendulumControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
   setpoint_sub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }  // namespace pendulum
-
-void PendulumControllerNode::show_new_pagefault_count(
-  const char * logtext,
-  const char * allowed_maj,
-  const char * allowed_min)
-{
-  struct rusage usage;
-
-  getrusage(RUSAGE_SELF, &usage);
-
-  RCUTILS_LOG_INFO_NAMED(get_name(),
-    "%-30.30s: Pagefaults, Major:%ld (Allowed %s), "
-    "Minor:%ld (Allowed %s)", logtext,
-    usage.ru_majflt - last_majflt_, allowed_maj,
-    usage.ru_minflt - last_minflt_, allowed_min);
-  last_majflt_ = usage.ru_majflt;
-  last_minflt_ = usage.ru_minflt;
-}
 
 }  // namespace pendulum
 

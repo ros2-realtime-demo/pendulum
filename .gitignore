@@ -1,6 +1,11 @@
-
-# Created by https://www.gitignore.io/api/git,c++,clion,linux
-# Edit at https://www.gitignore.io/?templates=git,c++,clion,linux
+## Build and Install Folders
+/build
+/install
+/log
+/build_isolated
+/install_isolated
+/devel
+/*cmake-build*
 
 ### C++ ###
 # Prerequisites
@@ -35,6 +40,23 @@
 *.exe
 *.out
 *.app
+
+## Coverage and Doxygen Artifacts
+lcov/
+.cov/
+html/
+latex/
+.coverage*
+.msg.md
+/docs/_build
+
+## XCode Artifacts
+.DS_Store
+xcuserdata/
+
+## MSVC Artifacts
+.vscode/
+.vs/
 
 ### CLion ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
@@ -147,8 +169,22 @@ fabric.properties
 # .nfs files are created when an open file is removed but is still being accessed
 .nfs*
 
-### Clang ###
-.clang_complete
+## Clang Complete Artifacts (used by Atom)
+/.clang_complete
+/tags
 
+## Valgrind and Callgrind
+vgcore.*
+*.log
+*.out*
 
-# End of https://www.gitignore.io/api/git,c++,clion,linux
+## Miscellaneous
+*.cmd
+*.tmp
+*.user
+*.db
+*.opendb
+*.swp
+*.swo
+*.gch
+*.patch
