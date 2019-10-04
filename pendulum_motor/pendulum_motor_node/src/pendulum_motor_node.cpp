@@ -37,7 +37,8 @@ PendulumMotorNode::PendulumMotorNode(
   publish_period_(publish_period),
   motor_(std::move(motor)),
   qos_profile_(qos_profile),
-  check_memory_(check_memory)
+  check_memory_(check_memory),
+  timer_jitter_(publish_period)
 {
   if (check_memory_) {
   #ifdef PENDULUM_MOTOR_MEMORYTOOLS_ENABLED
@@ -83,13 +84,11 @@ void PendulumMotorNode::sensor_timer_callback()
   motor_stats_message_.timer_stats.stamp.sec = curtime.tv_sec;
   motor_stats_message_.timer_stats.stamp.nanosec = curtime.tv_nsec;
 
-  // TODO(carlossvg): update other fields
-  // builtin_interfaces/Time stamp
-  // uint64 timer_count
-  // uint64 cur_latency
-  // float64 mean_latency
-  // uint64 min_latency
-  // uint64 max_latency
+  timer_jitter_.update();
+  motor_stats_message_.timer_stats.jitter_mean_nsec = timer_jitter_.get_mean();
+  motor_stats_message_.timer_stats.jitter_min_nsec = timer_jitter_.get_min();
+  motor_stats_message_.timer_stats.jitter_max_nsec = timer_jitter_.get_max();
+  motor_stats_message_.timer_stats.jitter_standard_dev_nsec = timer_jitter_.get_std();
 }
 
 void PendulumMotorNode::update_motor_callback()

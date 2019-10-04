@@ -24,6 +24,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(rttest REQUIRED)
 find_package(pendulum_motor_driver REQUIRED)
+find_package(pendulum_tools REQUIRED)
 
 find_package(osrf_testing_tools_cpp)
 if(${osrf_testing_tools_cpp_FOUND})
@@ -61,6 +62,7 @@ ament_target_dependencies(pendulum_motor_node
         "rttest"
         "pendulum_motor_driver"
         "rclcpp_components"
+        "pendulum_tools"
         ${OPTIONAL_AMENT_DEPENDENCES})
 rclcpp_components_register_nodes(pendulum_motor_node "pendulum::MotorNode")
 target_link_libraries(pendulum_motor_node ${OPTIONAL_LIBRARIES})
@@ -77,6 +79,7 @@ ament_target_dependencies(test_pendulum_motor
         "pendulum_motor_driver"
         "rttest"
         "rclcpp_components"
+        "pendulum_tools"
         ${OPTIONAL_AMENT_DEPENDENCES})
 
 target_link_libraries(test_pendulum_motor

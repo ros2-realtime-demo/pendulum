@@ -25,7 +25,6 @@ namespace pendulum
 using rclcpp::strategies::message_pool_memory_strategy::MessagePoolMemoryStrategy;
 using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
 
-
 PendulumControllerNode::PendulumControllerNode(
   const std::string & node_name,
   std::unique_ptr<PendulumController> controller,
@@ -40,7 +39,8 @@ PendulumControllerNode::PendulumControllerNode(
   controller_(std::move(controller)),
   qos_profile_(qos_profile),
   setpoint_qos_profile_(setpoint_qos_profile),
-  check_memory_(check_memory)
+  check_memory_(check_memory),
+  timer_jitter_(publish_period)
 {
   if (check_memory_) {
   #ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
@@ -92,6 +92,11 @@ void PendulumControllerNode::control_timer_callback()
   clock_gettime(CLOCK_REALTIME, &curtime);
   controller_stats_message_.timer_stats.stamp.sec = curtime.tv_sec;
   controller_stats_message_.timer_stats.stamp.nanosec = curtime.tv_nsec;
+  timer_jitter_.update();
+  controller_stats_message_.timer_stats.jitter_mean_nsec = timer_jitter_.get_mean();
+  controller_stats_message_.timer_stats.jitter_min_nsec = timer_jitter_.get_min();
+  controller_stats_message_.timer_stats.jitter_max_nsec = timer_jitter_.get_max();
+  controller_stats_message_.timer_stats.jitter_standard_dev_nsec = timer_jitter_.get_std();
 }
 
 const pendulum_ex_msgs::msg::ControllerStats &

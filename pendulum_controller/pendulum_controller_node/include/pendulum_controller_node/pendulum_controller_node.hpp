@@ -27,6 +27,7 @@
 
 #include <memory>
 #include <string>
+#include <climits>
 
 #ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
 #include <osrf_testing_tools_cpp/memory_tools/memory_tools.hpp>
@@ -38,6 +39,7 @@
 #include "pendulum_ex_msgs/msg/joint_state_ex.hpp"
 #include "pendulum_controller_node/visibility_control.hpp"
 #include "pendulum_controller/pendulum_controller.hpp"
+#include "pendulum_tools/timing_analyzer.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/publisher.hpp"
@@ -118,6 +120,7 @@ private:
   uint64_t minor_page_faults_at_active_start_ = 0;
   uint64_t major_page_faults_at_active_start_ = 0;
   bool check_memory_ = false;
+  TimingAnalyzer timer_jitter_{std::literals::chrono_literals::0ns};
 };
 
 }  // namespace pendulum

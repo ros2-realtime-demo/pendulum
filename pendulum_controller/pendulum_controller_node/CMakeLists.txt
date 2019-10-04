@@ -24,6 +24,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(rttest REQUIRED)
 find_package(pendulum_controller REQUIRED)
+find_package(pendulum_tools REQUIRED)
 
 find_package(osrf_testing_tools_cpp)
 if(${osrf_testing_tools_cpp_FOUND})
@@ -61,6 +62,7 @@ ament_target_dependencies(pendulum_controller_node
         "rttest"
         "pendulum_controller"
         "rclcpp_components"
+        "pendulum_tools"
         ${OPTIONAL_AMENT_DEPENDENCES})
 rclcpp_components_register_nodes(pendulum_controller_node "pendulum::Controller")
 target_link_libraries(pendulum_controller_node ${OPTIONAL_LIBRARIES})
@@ -78,6 +80,7 @@ ament_target_dependencies(test_pendulum_controller
         "rttest"
         "rclcpp"
         "rclcpp_components"
+        "pendulum_tools"
         ${OPTIONAL_AMENT_DEPENDENCES})
 
 target_link_libraries(test_pendulum_controller

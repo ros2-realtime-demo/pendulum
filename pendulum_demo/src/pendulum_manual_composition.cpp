@@ -143,7 +143,7 @@ int main(int argc, char * argv[])
   #endif
   rclcpp::executors::SingleThreadedExecutor exec(exec_args);
 
-  std::chrono::milliseconds deadline_duration(10);
+  std::chrono::milliseconds deadline_duration(2);
   rclcpp::QoS qos_deadline_profile(10);
   qos_deadline_profile.deadline(deadline_duration);
 
