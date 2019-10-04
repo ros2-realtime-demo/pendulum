@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include <rclcpp/strategies/allocator_memory_strategy.hpp>
-#include <pendulum_ex_msgs/msg/pendulum_stats.hpp>
+#include <pendulum_msgs_v2/msg/pendulum_stats.hpp>
 
 #include <iostream>
 #include <memory>
@@ -180,20 +180,20 @@ int main(int argc, char * argv[])
   // Initialize the logger publisher.
   auto node_stats = rclcpp::Node::make_shared("pendulum_statistics_node");
   auto controller_stats_pub =
-    node_stats->create_publisher<pendulum_ex_msgs::msg::ControllerStats>(
+    node_stats->create_publisher<pendulum_msgs_v2::msg::ControllerStats>(
     "controller_statistics", rclcpp::QoS(1));
-  auto motor_stats_pub = node_stats->create_publisher<pendulum_ex_msgs::msg::MotorStats>(
+  auto motor_stats_pub = node_stats->create_publisher<pendulum_msgs_v2::msg::MotorStats>(
     "motor_statistics", rclcpp::QoS(1));
   std::chrono::nanoseconds logger_publisher_period(100000000);
   // Create a lambda function that will fire regularly to publish the next results message.
   auto logger_publish_callback =
     [&controller_stats_pub, &motor_stats_pub, &motor_node, &controller_node]() {
-      pendulum_ex_msgs::msg::ControllerStats controller_stats_msg;
+      pendulum_msgs_v2::msg::ControllerStats controller_stats_msg;
       controller_node->update_sys_usage();
       controller_stats_msg = controller_node->get_controller_stats_message();
       controller_stats_pub->publish(controller_stats_msg);
 
-      pendulum_ex_msgs::msg::MotorStats motor_stats_msg;
+      pendulum_msgs_v2::msg::MotorStats motor_stats_msg;
       motor_node->update_sys_usage();
       motor_stats_msg = motor_node->get_motor_stats_message();
       motor_stats_pub->publish(motor_stats_msg);

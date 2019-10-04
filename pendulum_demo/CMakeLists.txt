@@ -21,7 +21,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(rttest)
 find_package(rcutils)
-find_package(pendulum_ex_msgs REQUIRED)
+find_package(pendulum_msgs_v2 REQUIRED)
 find_package(pendulum_motor_driver REQUIRED)
 find_package(pendulum_controller REQUIRED)
 find_package(pendulum_motor_node REQUIRED)
@@ -42,7 +42,7 @@ endif()
 
 include_directories(
         ${lifecycle_msgs_INCLUDE_DIRS}
-        ${pendulum_ex_msgs_INCLUDE_DIRS}
+        ${pendulum_msgs_v2_INCLUDE_DIRS}
         ${rclcpp_lifecycle_INCLUDE_DIRS}
         ${rclcpp_INCLUDE_DIRS}
         ${osrf_testing_tools_cpp_INCLUDE_DIR}
@@ -60,7 +60,7 @@ ament_target_dependencies(pendulum_manual_composition
         "rcutils"
         "rttest"
         "lifecycle_msgs"
-        "pendulum_ex_msgs"
+        "pendulum_msgs_v2"
         "pendulum_motor_driver"
         "pendulum_controller"
         "pendulum_motor_node"

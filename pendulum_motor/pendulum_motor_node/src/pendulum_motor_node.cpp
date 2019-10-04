@@ -67,7 +67,7 @@ PendulumMotorNode::PendulumMotorNode(
 }
 
 void PendulumMotorNode::on_command_received(
-  const pendulum_ex_msgs::msg::JointCommandEx::SharedPtr msg)
+  const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg)
 {
   motor_stats_message_.sensor_stats.msg_count++;
   motor_->update_command_data(*msg);
@@ -96,7 +96,7 @@ void PendulumMotorNode::update_motor_callback()
   motor_->update();
 }
 
-const pendulum_ex_msgs::msg::MotorStats &
+const pendulum_msgs_v2::msg::MotorStats &
 PendulumMotorNode::get_motor_stats_message() const
 {
   return motor_stats_message_;
@@ -135,14 +135,14 @@ PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
   // message pool is determined by the number of threads (the maximum number of concurrent accesses
   // to the subscription).
   auto command_msg_strategy =
-    std::make_shared<MessagePoolMemoryStrategy<pendulum_ex_msgs::msg::JointCommandEx, 1>>();
+    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
 
   this->get_sensor_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
       this->motor_stats_message_.sensor_stats.deadline_misses_count++;
     };
-  sensor_pub_ = this->create_publisher<pendulum_ex_msgs::msg::JointStateEx>(
+  sensor_pub_ = this->create_publisher<pendulum_msgs_v2::msg::PendulumState>(
     "pendulum_sensor", qos_profile_, sensor_publisher_options_);
 
   this->get_command_options().event_callbacks.deadline_callback =
@@ -150,7 +150,7 @@ PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
     {
       this->motor_stats_message_.command_stats.deadline_misses_count++;
     };
-  command_sub_ = this->create_subscription<pendulum_ex_msgs::msg::JointCommandEx>(
+  command_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
     "pendulum_command", qos_profile_,
     std::bind(&PendulumMotorNode::on_command_received,
     this, std::placeholders::_1),

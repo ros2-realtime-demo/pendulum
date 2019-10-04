@@ -69,14 +69,14 @@ PendulumControllerNode::PendulumControllerNode(
 }
 
 void PendulumControllerNode::on_sensor_message(
-  const pendulum_ex_msgs::msg::JointStateEx::SharedPtr msg)
+  const pendulum_msgs_v2::msg::PendulumState::SharedPtr msg)
 {
   controller_stats_message_.sensor_stats.msg_count++;
   controller_->update_sensor_data(*msg);
 }
 
 void PendulumControllerNode::on_pendulum_setpoint(
-  const pendulum_ex_msgs::msg::JointCommandEx::SharedPtr msg)
+  const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg)
 {
   controller_stats_message_.setpoint_stats.msg_count++;
   controller_->update_setpoint_data(*msg);
@@ -99,7 +99,7 @@ void PendulumControllerNode::control_timer_callback()
   controller_stats_message_.timer_stats.jitter_standard_dev_nsec = timer_jitter_.get_std();
 }
 
-const pendulum_ex_msgs::msg::ControllerStats &
+const pendulum_msgs_v2::msg::ControllerStats &
 PendulumControllerNode::get_controller_stats_message() const
 {
   return controller_stats_message_;
@@ -138,9 +138,9 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
   // message pool is determined by the number of threads (the maximum number of concurrent accesses
   // to the subscription).
   auto state_msg_strategy =
-    std::make_shared<MessagePoolMemoryStrategy<pendulum_ex_msgs::msg::JointStateEx, 1>>();
+    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumState, 1>>();
   auto setpoint_msg_strategy =
-    std::make_shared<MessagePoolMemoryStrategy<pendulum_ex_msgs::msg::JointCommandEx, 1>>();
+    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
 
   this->get_sensor_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
@@ -148,7 +148,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
       controller_stats_message_.sensor_stats.deadline_misses_count++;
     };
 
-  sub_sensor_ = this->create_subscription<pendulum_ex_msgs::msg::JointStateEx>(
+  sub_sensor_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumState>(
     "pendulum_sensor", qos_profile_,
     std::bind(&PendulumControllerNode::on_sensor_message,
     this, std::placeholders::_1),
@@ -161,12 +161,12 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
       controller_stats_message_.command_stats.deadline_misses_count++;
     };
   // Initialize the publisher for the command message.
-  command_pub_ = this->create_publisher<pendulum_ex_msgs::msg::JointCommandEx>(
+  command_pub_ = this->create_publisher<pendulum_msgs_v2::msg::PendulumCommand>(
     "pendulum_command",
     qos_profile_,
     command_publisher_options_);
 
-  setpoint_sub_ = this->create_subscription<pendulum_ex_msgs::msg::JointCommandEx>(
+  setpoint_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
     "pendulum_setpoint", setpoint_qos_profile_,
     std::bind(&PendulumControllerNode::on_pendulum_setpoint,
     this, std::placeholders::_1),
@@ -179,7 +179,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
   timer_->cancel();
 
   // Initialize the logger publisher.
-  logger_pub_ = this->create_publisher<pendulum_ex_msgs::msg::ControllerStats>(
+  logger_pub_ = this->create_publisher<pendulum_msgs_v2::msg::ControllerStats>(
     "pendulum_statistics", 1);
 
   return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;

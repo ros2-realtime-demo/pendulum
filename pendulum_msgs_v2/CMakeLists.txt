@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(pendulum_ex_msgs)
+project(pendulum_msgs_v2)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -16,8 +16,8 @@ find_package(builtin_interfaces REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(pendulum_msgs
-  "msg/JointCommandEx.msg"
-  "msg/JointStateEx.msg"
+  "msg/PendulumCommand.msg"
+  "msg/PendulumState.msg"
   "msg/Rusage.msg"
   "msg/TimerStats.msg"
   "msg/TopicStats.msg"

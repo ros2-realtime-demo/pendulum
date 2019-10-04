@@ -15,8 +15,8 @@
 #ifndef PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
 #define PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
 
-#include "pendulum_ex_msgs/msg/joint_command_ex.hpp"
-#include "pendulum_ex_msgs/msg/joint_state_ex.hpp"
+#include "pendulum_msgs_v2/msg/pendulum_command.hpp"
+#include "pendulum_msgs_v2/msg/pendulum_state.hpp"
 
 namespace pendulum
 {
@@ -24,9 +24,9 @@ namespace pendulum
 class PendulumController
 {
 public:
-  virtual void update_setpoint_data(const pendulum_ex_msgs::msg::JointCommandEx & msg) = 0;
-  virtual void update_sensor_data(const pendulum_ex_msgs::msg::JointStateEx & msg) = 0;
-  virtual void update_command_data(pendulum_ex_msgs::msg::JointCommandEx & msg) = 0;
+  virtual void update_setpoint_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) = 0;
+  virtual void update_sensor_data(const pendulum_msgs_v2::msg::PendulumState & msg) = 0;
+  virtual void update_command_data(pendulum_msgs_v2::msg::PendulumCommand & msg) = 0;
   virtual void update() = 0;
 };
 

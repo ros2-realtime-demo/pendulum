@@ -18,10 +18,10 @@
 #include <sys/time.h>  // needed for getrusage
 #include <sys/resource.h>  // needed for getrusage
 
-#include <pendulum_ex_msgs/msg/controller_stats.hpp>
-// #include <pendulum_ex_msgs/msg/rusage.hpp>
-// #include <pendulum_ex_msgs/msg/timer_stats.hpp>
-// #include <pendulum_ex_msgs/msg/topic_stats.hpp>
+#include <pendulum_msgs_v2/msg/controller_stats.hpp>
+// #include <pendulum_msgs_v2/msg/rusage.hpp>
+// #include <pendulum_msgs_v2/msg/timer_stats.hpp>
+// #include <pendulum_msgs_v2/msg/topic_stats.hpp>
 #include <rclcpp/strategies/message_pool_memory_strategy.hpp>
 #include <rclcpp/strategies/allocator_memory_strategy.hpp>
 
@@ -35,8 +35,8 @@
 #endif
 
 #include "rcutils/logging_macros.h"
-#include "pendulum_ex_msgs/msg/joint_command_ex.hpp"
-#include "pendulum_ex_msgs/msg/joint_state_ex.hpp"
+#include "pendulum_msgs_v2/msg/pendulum_command.hpp"
+#include "pendulum_msgs_v2/msg/pendulum_state.hpp"
 #include "pendulum_controller_node/visibility_control.hpp"
 #include "pendulum_controller/pendulum_controller.hpp"
 #include "pendulum_tools/timing_analyzer.hpp"
@@ -69,9 +69,9 @@ public:
     const bool check_memory,
     const rclcpp::NodeOptions & options);
 
-  void on_sensor_message(const pendulum_ex_msgs::msg::JointStateEx::SharedPtr msg);
+  void on_sensor_message(const pendulum_msgs_v2::msg::PendulumState::SharedPtr msg);
   void on_pendulum_setpoint(
-    const pendulum_ex_msgs::msg::JointCommandEx::SharedPtr msg);
+    const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg);
 
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_configure(const rclcpp_lifecycle::State &);
@@ -89,18 +89,18 @@ public:
   /// Get the subscription's settings options.
   rclcpp::SubscriptionOptions & get_sensor_options() {return sensor_subscription_options_;}
   rclcpp::PublisherOptions & get_command_options() {return command_publisher_options_;}
-  const pendulum_ex_msgs::msg::ControllerStats & get_controller_stats_message() const;
+  const pendulum_msgs_v2::msg::ControllerStats & get_controller_stats_message() const;
   void update_sys_usage(bool update_active_page_faults = false);
 
 private:
   std::shared_ptr<rclcpp::Subscription<
-      pendulum_ex_msgs::msg::JointStateEx>> sub_sensor_;
+      pendulum_msgs_v2::msg::PendulumState>> sub_sensor_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
-      pendulum_ex_msgs::msg::JointCommandEx>> command_pub_;
+      pendulum_msgs_v2::msg::PendulumCommand>> command_pub_;
   std::shared_ptr<rclcpp::Subscription<
-      pendulum_ex_msgs::msg::JointCommandEx>> setpoint_sub_;
+      pendulum_msgs_v2::msg::PendulumCommand>> setpoint_sub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
-      pendulum_ex_msgs::msg::ControllerStats>> logger_pub_;
+      pendulum_msgs_v2::msg::ControllerStats>> logger_pub_;
   std::shared_ptr<rclcpp::Subscription<
       lifecycle_msgs::msg::TransitionEvent>> sub_notification_;
 
@@ -113,9 +113,9 @@ private:
   rclcpp::QoS qos_profile_ = rclcpp::QoS(1);
   rclcpp::QoS setpoint_qos_profile_ = rclcpp::QoS(
     rclcpp::KeepLast(10)).transient_local().reliable();
-  pendulum_ex_msgs::msg::ControllerStats controller_stats_message_;
-  pendulum_ex_msgs::msg::JointStateEx sensor_message_;
-  pendulum_ex_msgs::msg::JointCommandEx command_message_;
+  pendulum_msgs_v2::msg::ControllerStats controller_stats_message_;
+  pendulum_msgs_v2::msg::PendulumState sensor_message_;
+  pendulum_msgs_v2::msg::PendulumCommand command_message_;
   rusage sys_usage_;
   uint64_t minor_page_faults_at_active_start_ = 0;
   uint64_t major_page_faults_at_active_start_ = 0;

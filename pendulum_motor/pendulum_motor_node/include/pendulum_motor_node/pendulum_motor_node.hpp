@@ -18,7 +18,7 @@
 #include <sys/time.h>  // needed for getrusage
 #include <sys/resource.h>  // needed for getrusage
 
-#include <pendulum_ex_msgs/msg/motor_stats.hpp>
+#include <pendulum_msgs_v2/msg/motor_stats.hpp>
 #include <rclcpp/strategies/message_pool_memory_strategy.hpp>
 #include <rclcpp/strategies/allocator_memory_strategy.hpp>
 
@@ -37,8 +37,8 @@
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "lifecycle_msgs/msg/transition_event.hpp"
 
-#include "pendulum_ex_msgs/msg/joint_command_ex.hpp"
-#include "pendulum_ex_msgs/msg/joint_state_ex.hpp"
+#include "pendulum_msgs_v2/msg/pendulum_command.hpp"
+#include "pendulum_msgs_v2/msg/pendulum_state.hpp"
 
 #include "pendulum_tools/timing_analyzer.hpp"
 #include "pendulum_motor_driver/pendulum_motor_driver.hpp"
@@ -62,14 +62,14 @@ public:
     const rclcpp::QoS & qos_profile,
     const bool check_memory,
     const rclcpp::NodeOptions & options);
-  void on_command_received(const pendulum_ex_msgs::msg::JointCommandEx::SharedPtr msg);
+  void on_command_received(const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg);
   void sensor_timer_callback();
   void update_motor_callback();
 
   /// Get the subscription's settings options.
   rclcpp::SubscriptionOptions & get_command_options() {return command_subscription_options_;}
   rclcpp::PublisherOptions & get_sensor_options() {return sensor_publisher_options_;}
-  const pendulum_ex_msgs::msg::MotorStats & get_motor_stats_message() const;
+  const pendulum_msgs_v2::msg::MotorStats & get_motor_stats_message() const;
   void update_sys_usage(bool update_active_page_faults = false);
 
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -85,9 +85,9 @@ public:
 
 private:
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
-      pendulum_ex_msgs::msg::JointStateEx>> sensor_pub_;
+      pendulum_msgs_v2::msg::PendulumState>> sensor_pub_;
   std::shared_ptr<rclcpp::Subscription<
-      pendulum_ex_msgs::msg::JointCommandEx>> command_sub_;
+      pendulum_msgs_v2::msg::PendulumCommand>> command_sub_;
 
   rclcpp::SubscriptionOptions command_subscription_options_;
   rclcpp::PublisherOptions sensor_publisher_options_;
@@ -98,9 +98,9 @@ private:
 
   std::unique_ptr<PendulumMotor> motor_;
   rclcpp::QoS qos_profile_;
-  pendulum_ex_msgs::msg::MotorStats motor_stats_message_;
-  pendulum_ex_msgs::msg::JointStateEx sensor_message_;
-  pendulum_ex_msgs::msg::JointCommandEx command_message_;
+  pendulum_msgs_v2::msg::MotorStats motor_stats_message_;
+  pendulum_msgs_v2::msg::PendulumState sensor_message_;
+  pendulum_msgs_v2::msg::PendulumCommand command_message_;
   rusage sys_usage_;
   uint64_t minor_page_faults_at_active_start_ = 0;
   uint64_t major_page_faults_at_active_start_ = 0;

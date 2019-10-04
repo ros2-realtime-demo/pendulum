@@ -52,17 +52,17 @@ public:
       throw std::runtime_error("Invalid dt_ calculated in PendulumController constructor");
     }
   }
-  void update_setpoint_data(const pendulum_ex_msgs::msg::JointCommandEx & msg) override
+  void update_setpoint_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) override
   {
     setpoint_position_ = msg.position;
   }
 
-  void update_sensor_data(const pendulum_ex_msgs::msg::JointStateEx & msg) override
+  void update_sensor_data(const pendulum_msgs_v2::msg::PendulumState & msg) override
   {
     sensor_position_ = msg.position;
   }
 
-  void update_command_data(pendulum_ex_msgs::msg::JointCommandEx & msg) override
+  void update_command_data(pendulum_msgs_v2::msg::PendulumCommand & msg) override
   {
     this->update();
     msg.position = pid_.command;

@@ -1,7 +1,7 @@
 builtin_interfaces/Time stamp
 
-JointCommandEx command
-JointStateEx state
+PendulumCommand command
+PendulumState state
 
 ControllerStats controller_stats
 MotorStats motor_stats
