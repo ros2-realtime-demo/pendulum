@@ -105,7 +105,7 @@ private:
   uint64_t minor_page_faults_at_active_start_ = 0;
   uint64_t major_page_faults_at_active_start_ = 0;
   bool check_memory_ = false;
-  TimingAnalyzer timer_jitter_{std::literals::chrono_literals::0ns};
+  TimingAnalyzer timer_jitter_{std::chrono::nanoseconds(0)};
 };
 
 }  // namespace pendulum
