@@ -15,5 +15,7 @@ build_test_pendullum:
     - "rosdep install -q -y --from-paths . --ignore-src \
      --rosdistro ${ROS_DISTRO} --as-root=apt:false || true"
   script:
-    - colcon build --merge-install
+    - colcon build --merge-install --cmake-args -DCMAKE_CXX_FLAGS="-fprofile-arcs -ftest-coverage"
     - colcon test --merge-install
+    - colcon test-result
+  coverage: /\s*lines.*:\s(\d+\.\d+\%\s\(\d+\sof\s\d+.*\))/
