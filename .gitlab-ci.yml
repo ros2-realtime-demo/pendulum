@@ -14,8 +14,12 @@ build_test_pendullum:
     - apt update
     - "rosdep install -q -y --from-paths . --ignore-src \
      --rosdistro ${ROS_DISTRO} --as-root=apt:false || true"
+    - pip3 install colcon-lcov-result
   script:
-    - colcon build --merge-install --cmake-args -DCMAKE_CXX_FLAGS="-fprofile-arcs -ftest-coverage"
+    - "colcon build --merge-install --cmake-args \
+	-DCMAKE_CXX_FLAGS='-fprofile-arcs -ftest-coverage' \
+	-DCMAKE_C_FLAGS='-fprofile-arcs -ftest-coverage'"
+    - colcon lcov-result --initial
     - colcon test --merge-install
-    - colcon test-result
+    - colcon lcov-result
   coverage: /\s*lines.*:\s(\d+\.\d+\%\s\(\d+\sof\s\d+.*\))/
