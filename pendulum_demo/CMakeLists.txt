@@ -69,6 +69,45 @@ ament_target_dependencies(pendulum_manual_composition
 
 target_link_libraries(pendulum_manual_composition ${OPTIONAL_LIBRARIES})
 
+add_executable(pendulum_controller_standalone
+  "src/pendulum_controller_standalone.cpp")
+
+ament_export_include_directories(include)
+
+ament_target_dependencies(pendulum_controller_standalone
+        "rclcpp"
+        "rclcpp_lifecycle"
+        "rclcpp_components"
+        "rcutils"
+        "rttest"
+        "lifecycle_msgs"
+        "pendulum_msgs_v2"
+        "pendulum_controller"
+        "pendulum_controller_node"
+        ${OPTIONAL_AMENT_DEPENDENCES})
+
+target_link_libraries(pendulum_controller_standalone ${OPTIONAL_LIBRARIES})
+
+add_executable(pendulum_motor_standalone
+  "src/pendulum_motor_standalone.cpp")
+
+ament_export_include_directories(include)
+
+ament_target_dependencies(pendulum_motor_standalone
+        "rclcpp"
+        "rclcpp_lifecycle"
+        "rclcpp_components"
+        "rcutils"
+        "rttest"
+        "lifecycle_msgs"
+        "pendulum_msgs_v2"
+        "pendulum_motor_driver"
+        "pendulum_motor_node"
+        ${OPTIONAL_AMENT_DEPENDENCES})
+
+target_link_libraries(pendulum_motor_standalone ${OPTIONAL_LIBRARIES})
+
+
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported
 if(NOT WIN32)
@@ -78,6 +117,8 @@ endif()
 
 install(TARGETS
         pendulum_manual_composition
+        pendulum_controller_standalone
+        pendulum_motor_standalone
         DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)

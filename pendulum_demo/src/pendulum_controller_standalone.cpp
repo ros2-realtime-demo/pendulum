@@ -32,9 +32,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/cmdline_parser.h"
 
-#include "pendulum_motor_node/pendulum_motor_node.hpp"
-#include "pendulum_motor_driver/pendulum_motor_driver.hpp"
-#include "pendulum_motor_driver/simple_pendulum_sim.hpp"
 #include "pendulum_controller_node/pendulum_controller_node.hpp"
 #include "pendulum_controller/pendulum_controller.hpp"
 #include "pendulum_controller/pid_controller.hpp"
@@ -67,12 +64,6 @@ static const char * OPTION_PID_I = "--pid-i";
 static const char * OPTION_PID_D = "--pid-d";
 static const char * OPTION_CONTROLLER_UPDATE_PERIOD = "--controller-period";
 
-static const size_t DEFAULT_PHYSICS_UPDATE_PERIOD_NS = 10000000;
-static const size_t DEFAULT_SENSOR_UPDATE_PERIOD_NS = 960000;
-
-static const char * OPTION_SENSOR_UPDATE_PERIOD = "--sensor-period";
-static const char * OPTION_PHYSICS_UPDATE_PERIOD = "--physics-period";
-
 void print_usage()
 {
   printf("Usage for pendulum_test:\n");
@@ -81,8 +72,6 @@ void print_usage()
     "\t[%s pid integral gain]\n"
     "\t[%s pid derivative gain]\n"
     "\t[%s controller update period (ns)]\n"
-    "\t[%s physics simulation update period (ns)]\n"
-    "\t[%s motor sensor update period (ns)]\n"
     "\t[%s deadline QoS period (ms)]\n"
     "\t[%s use OSRF memory check tool]\n"
     "\t[%s lock memory]\n"
@@ -95,8 +84,6 @@ void print_usage()
     OPTION_PID_I,
     OPTION_PID_D,
     OPTION_CONTROLLER_UPDATE_PERIOD,
-    OPTION_PHYSICS_UPDATE_PERIOD,
-    OPTION_SENSOR_UPDATE_PERIOD,
     OPTION_DEADLINE_PERIOD,
     OPTION_MEMORY_CHECK,
     OPTION_LOCK_MEMORY,
@@ -120,10 +107,6 @@ int main(int argc, char * argv[])
   // controller options
   pendulum::PIDProperties pid = {DEFAULT_PID_P, DEFAULT_PID_I, DEFAULT_PID_D};
   std::chrono::nanoseconds controller_update_period(DEFAULT_CONTROLLER_UPDATE_PERIOD_NS);
-
-  // motor options
-  std::chrono::nanoseconds sensor_publish_period(DEFAULT_SENSOR_UPDATE_PERIOD_NS);
-  std::chrono::nanoseconds physics_update_period(DEFAULT_PHYSICS_UPDATE_PERIOD_NS);
 
   // Force flush of the stdout buffer.
   setvbuf(stdout, NULL, _IONBF, BUFSIZ);
@@ -171,14 +154,6 @@ int main(int argc, char * argv[])
     controller_update_period = std::chrono::nanoseconds(
       std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_CONTROLLER_UPDATE_PERIOD)));
   }
-  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_SENSOR_UPDATE_PERIOD)) {
-    sensor_publish_period = std::chrono::nanoseconds(
-      std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_SENSOR_UPDATE_PERIOD)));
-  }
-  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PHYSICS_UPDATE_PERIOD)) {
-    physics_update_period = std::chrono::nanoseconds(
-      std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_PHYSICS_UPDATE_PERIOD)));
-  }
 
   // use a dummy period to initialize rttest
   struct timespec dummy_period;
@@ -220,40 +195,19 @@ int main(int argc, char * argv[])
     rclcpp::NodeOptions().use_intra_process_comms(true));
   exec.add_node(controller_node->get_node_base_interface());
 
-  // Create pendulum motor simulation
-  std::unique_ptr<pendulum::PendulumMotor> motor =
-    std::make_unique<pendulum::PendulumMotorSim>(physics_update_period);
-
-  // Create pendulum controller node
-  auto motor_node = std::make_shared<pendulum::PendulumMotorNode>(
-    "pendulum_motor_node",
-    std::move(motor),
-    sensor_publish_period,
-    qos_deadline_profile,
-    use_memory_check,
-    rclcpp::NodeOptions().use_intra_process_comms(true));
-  exec.add_node(motor_node->get_node_base_interface());
-
   // Initialize the logger publisher.
-  auto node_stats = rclcpp::Node::make_shared("pendulum_statistics_node");
+  auto node_stats = rclcpp::Node::make_shared("controller_statistics_node");
   auto controller_stats_pub =
     node_stats->create_publisher<pendulum_msgs_v2::msg::ControllerStats>(
     "controller_statistics", rclcpp::QoS(1));
-  auto motor_stats_pub = node_stats->create_publisher<pendulum_msgs_v2::msg::MotorStats>(
-    "motor_statistics", rclcpp::QoS(1));
 
   // Create a lambda function that will fire regularly to publish the next results message.
   auto logger_publish_callback =
-    [&controller_stats_pub, &controller_node, &motor_stats_pub, &motor_node]() {
+    [&controller_stats_pub, &controller_node]() {
       pendulum_msgs_v2::msg::ControllerStats controller_stats_msg;
       controller_node->update_sys_usage();
       controller_stats_msg = controller_node->get_controller_stats_message();
       controller_stats_pub->publish(controller_stats_msg);
-
-      pendulum_msgs_v2::msg::MotorStats motor_stats_msg;
-      motor_node->update_sys_usage();
-      motor_stats_msg = motor_node->get_motor_stats_message();
-      motor_stats_pub->publish(motor_stats_msg);
     };
   auto logger_publisher_timer = node_stats->create_wall_timer(
     logger_publisher_period, logger_publish_callback);
