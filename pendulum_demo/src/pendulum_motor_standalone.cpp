@@ -16,26 +16,25 @@
 #include <memory>
 #include <utility>
 
-#include "pendulum_motor_driver/simple_pendulum_sim.hpp"
 #include "pendulum_motor_node/pendulum_motor_node.hpp"
+#include "pendulum_motor_driver/pendulum_motor_driver.hpp"
+#include "pendulum_motor_driver/simple_pendulum_sim.hpp"
+
+using namespace std::chrono_literals;
 
 int main(int argc, char * argv[])
 {
-  // use a dummy period to initialize rttest
-  struct timespec dummy_period;
-  dummy_period.tv_sec = 0;
-  dummy_period.tv_nsec = 1000000;
-  rttest_init(1, dummy_period, SCHED_FIFO, 80, 0, NULL);
-
+  bool use_memory_check = false;
+  
   rclcpp::init(argc, argv);
   rclcpp::executors::SingleThreadedExecutor exec;
 
-  std::chrono::nanoseconds sensor_publish_period = std::chrono::nanoseconds(960000);
-  std::chrono::nanoseconds physics_update_period = std::chrono::nanoseconds(1000000);
-  std::chrono::milliseconds deadline_duration(10);
+  std::chrono::milliseconds deadline_duration(2);
   rclcpp::QoS qos_deadline_profile(10);
   qos_deadline_profile.deadline(deadline_duration);
 
+  std::chrono::nanoseconds sensor_publish_period = 960000ns;
+  std::chrono::nanoseconds physics_update_period = 1000000ns;
   std::unique_ptr<pendulum::PendulumMotor> motor =
     std::make_unique<pendulum::PendulumMotorSim>(physics_update_period);
   auto motor_node = std::make_shared<pendulum::PendulumMotorNode>(
@@ -43,9 +42,8 @@ int main(int argc, char * argv[])
     std::move(motor),
     sensor_publish_period,
     qos_deadline_profile,
-    false,
+    use_memory_check,
     rclcpp::NodeOptions().use_intra_process_comms(true));
-
   exec.add_node(motor_node->get_node_base_interface());
 
   // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a

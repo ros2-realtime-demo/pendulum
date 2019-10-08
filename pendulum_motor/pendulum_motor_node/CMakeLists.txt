@@ -67,25 +67,6 @@ ament_target_dependencies(pendulum_motor_node
 rclcpp_components_register_nodes(pendulum_motor_node "pendulum::MotorNode")
 target_link_libraries(pendulum_motor_node ${OPTIONAL_LIBRARIES})
 
-add_executable(test_pendulum_motor
-        test/test_pendulum_motor.cpp
-        src/pendulum_motor_node.cpp)
-
-ament_target_dependencies(test_pendulum_motor
-        "rclcpp"
-        "rclcpp_lifecycle"
-        "lifecycle_msgs"
-        "pendulum_msgs_v2"
-        "pendulum_motor_driver"
-        "rttest"
-        "rclcpp_components"
-        "pendulum_tools"
-        ${OPTIONAL_AMENT_DEPENDENCES})
-
-target_link_libraries(test_pendulum_motor
-        pendulum_motor_node
-        ${OPTIONAL_LIBRARIES})
-
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported
 if(NOT WIN32)
@@ -103,10 +84,6 @@ install(TARGETS
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)
-
-install(TARGETS
-        test_pendulum_motor
-        DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)

@@ -31,7 +31,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/cmdline_parser.h"
 
-
 #include "pendulum_motor_node/pendulum_motor_node.hpp"
 #include "pendulum_motor_driver/pendulum_motor_driver.hpp"
 #include "pendulum_motor_driver/simple_pendulum_sim.hpp"
