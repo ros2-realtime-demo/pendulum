@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pendulum_teleop/pendulum_manager.hpp"
 #include <memory>
+#include <string>
+#include "rcutils/cmdline_parser.h"
+#include "pendulum_teleop/pendulum_manager.hpp"
 
 void print_menu()
 {
@@ -31,6 +33,19 @@ void print_menu()
 
 int main(int argc, char ** argv)
 {
+  std::string manager_node_name = "pendulum_manager";
+  std::string controller_node_name = "pendulum_controller_node";
+  std::string motor_node_name = "pendulum_motor_node";
+
+  if (rcutils_cli_option_exist(argv, argv + argc, "--manager-name")) {
+    manager_node_name = rcutils_cli_get_option(argv, argv + argc, "--manager-name");
+  }
+  if (rcutils_cli_option_exist(argv, argv + argc, "controller-name")) {
+    controller_node_name = rcutils_cli_get_option(argv, argv + argc, "--controller-name");
+  }
+  if (rcutils_cli_option_exist(argv, argv + argc, "--motor-name")) {
+    motor_node_name = rcutils_cli_get_option(argv, argv + argc, "--motor-name");
+  }
   // force flush of the stdout buffer.
   // this ensures a correct sync of all prints
   // even when executed simultaneously within the launch file.
@@ -40,9 +55,9 @@ int main(int argc, char ** argv)
   rclcpp::executors::SingleThreadedExecutor exe;
 
   auto pendulum_manager = std::make_shared<pendulum::PendulumManager>(
-    "pendulum_manager",
-    "pendulum_controller_node",
-    "pendulum_motor_node");
+    manager_node_name,
+    controller_node_name,
+    motor_node_name);
   exe.add_node(pendulum_manager);
 
   std::shared_future<void> activate_pendulum = std::async(std::launch::async,
@@ -80,7 +95,7 @@ int main(int argc, char ** argv)
         std::cout << "Invalid input" << std::endl;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  } while (rclcpp::ok() && choice != 0 );
+  } while (rclcpp::ok() && choice != 0);
 
   rclcpp::shutdown();
 
