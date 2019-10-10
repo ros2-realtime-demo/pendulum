@@ -186,7 +186,7 @@ int main(int argc, char * argv[])
 
   // Create pendulum controller node
   auto controller_node = std::make_shared<pendulum::PendulumControllerNode>(
-    "pendulum_controller",
+    "pendulum_controller_node",
     std::move(pid_controller),
     controller_update_period,
     qos_deadline_profile,
