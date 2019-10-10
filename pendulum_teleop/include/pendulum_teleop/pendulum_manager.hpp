@@ -46,11 +46,12 @@ public:
   void activate_controller() {controller_client_->activate();}
   void deactivate_controller() {controller_client_->deactivate();}
   void cleanup_controller() {controller_client_->cleanup();}
+  void shutdown_controller() {controller_client_->shutdown();}
   void configure_motor() {motor_client_->configure();}
   void activate_motor() {motor_client_->activate();}
   void deactivate_motor() {motor_client_->deactivate();}
   void cleanup_motor() {motor_client_->cleanup();}
-
+  void shutdown_motor() {motor_client_->shutdown();}
 private:
   std::shared_ptr<pendulum::LifecycleServiceClient> controller_client_;
   std::shared_ptr<pendulum::LifecycleServiceClient> motor_client_;

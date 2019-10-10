@@ -17,11 +17,15 @@
 
 void print_menu()
 {
-  std::cout << "MENU" << std::endl;
+  std::cout << std::endl;
+  std::cout << "Menu" << std::endl;
+  std::cout << "-----------------------" << std::endl;
+  std::cout << "0: Exit " << std::endl;
   std::cout << "1: Configure pendulum " << std::endl;
   std::cout << "2: Activate pendulum " << std::endl;
   std::cout << "3: Deactivate pendulum " << std::endl;
   std::cout << "4: Cleanup pendulum " << std::endl;
+  std::cout << "5: Shutdown pendulum " << std::endl;
   std::cout << "Enter your choice : ";
 }
 
@@ -49,6 +53,9 @@ int main(int argc, char ** argv)
     print_menu();
     std::cin >> choice;
     switch (choice) {
+      case 0:
+        std::cout << "Exit" << std::endl;
+        break;
       case 1:
         pendulum_manager->configure_controller();
         pendulum_manager->configure_motor();
@@ -65,10 +72,15 @@ int main(int argc, char ** argv)
         pendulum_manager->cleanup_controller();
         pendulum_manager->cleanup_motor();
         break;
+      case 5:
+        pendulum_manager->shutdown_controller();
+        pendulum_manager->shutdown_motor();
+        break;
       default:
         std::cout << "Invalid input" << std::endl;
     }
-  } while (rclcpp::ok());
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  } while (rclcpp::ok() && choice != 0 );
 
   rclcpp::shutdown();
 
