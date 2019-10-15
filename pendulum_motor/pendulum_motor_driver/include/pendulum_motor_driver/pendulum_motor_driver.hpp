@@ -27,6 +27,9 @@ public:
   virtual void update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) = 0;
   virtual void update_sensor_data(pendulum_msgs_v2::msg::PendulumState & msg) = 0;
   virtual void update() = 0;
+  virtual bool init() = 0;
+  virtual bool start() = 0;
+  virtual bool stop() = 0;
 };
 
 }  // namespace pendulum

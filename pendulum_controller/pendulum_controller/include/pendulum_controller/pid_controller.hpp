@@ -54,18 +54,18 @@ public:
   }
   void update_setpoint_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) override
   {
-    setpoint_position_ = msg.position;
+    // setpoint_position_ = msg.position;
   }
 
   void update_sensor_data(const pendulum_msgs_v2::msg::PendulumState & msg) override
   {
-    sensor_position_ = msg.position;
+    // sensor_position_ = msg.position;
   }
 
   void update_command_data(pendulum_msgs_v2::msg::PendulumCommand & msg) override
   {
-    this->update();
-    msg.position = pid_.command;
+    // this->update();
+    // msg.position = pid_.command;
   }
 
   void update() override

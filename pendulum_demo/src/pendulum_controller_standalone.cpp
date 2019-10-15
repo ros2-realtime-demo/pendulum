@@ -34,7 +34,7 @@
 
 #include "pendulum_controller_node/pendulum_controller_node.hpp"
 #include "pendulum_controller/pendulum_controller.hpp"
-#include "pendulum_controller/pid_controller.hpp"
+#include "pendulum_controller/full_state_feedback_controller.hpp"
 
 #ifdef PENDULUM_DEMO_TLSF_ENABLED
 using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
@@ -54,23 +54,13 @@ static const char * OPTION_PUBLISH_STATISTICS = "--pub-stats";
 static const char * OPTION_DEADLINE_PERIOD = "--deadline";
 static const char * OPTION_STATISTICS_PERIOD = "--stats-period";
 
-static const double DEFAULT_PID_P = 1.0;
-static const double DEFAULT_PID_I = 0.0;
-static const double DEFAULT_PID_D = 0.0;
 static const size_t DEFAULT_CONTROLLER_UPDATE_PERIOD_NS = 970000;
-
-static const char * OPTION_PID_P = "--pid-p";
-static const char * OPTION_PID_I = "--pid-i";
-static const char * OPTION_PID_D = "--pid-d";
 static const char * OPTION_CONTROLLER_UPDATE_PERIOD = "--controller-period";
 
 void print_usage()
 {
   printf("Usage for pendulum_test:\n");
   printf("pendulum_test\n"
-    "\t[%s pid proportional gain]\n"
-    "\t[%s pid integral gain]\n"
-    "\t[%s pid derivative gain]\n"
     "\t[%s controller update period (ns)]\n"
     "\t[%s deadline QoS period (ms)]\n"
     "\t[%s use OSRF memory check tool]\n"
@@ -80,9 +70,6 @@ void print_usage()
     "\t[%s publish statistics (enable)]\n"
     "\t[%s use TLSF allocator]\n"
     "\t[-h]\n",
-    OPTION_PID_P,
-    OPTION_PID_I,
-    OPTION_PID_D,
     OPTION_CONTROLLER_UPDATE_PERIOD,
     OPTION_DEADLINE_PERIOD,
     OPTION_MEMORY_CHECK,
@@ -105,7 +92,6 @@ int main(int argc, char * argv[])
   std::chrono::milliseconds logger_publisher_period(DEFAULT_STATISTICS_PERIOD_MS);
 
   // controller options
-  pendulum::PIDProperties pid = {DEFAULT_PID_P, DEFAULT_PID_I, DEFAULT_PID_D};
   std::chrono::nanoseconds controller_update_period(DEFAULT_CONTROLLER_UPDATE_PERIOD_NS);
 
   // Force flush of the stdout buffer.
@@ -141,15 +127,6 @@ int main(int argc, char * argv[])
     logger_publisher_period = std::chrono::milliseconds(
       std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_STATISTICS_PERIOD)));
   }
-  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PID_P)) {
-    pid.p = std::stod(rcutils_cli_get_option(argv, argv + argc, OPTION_PID_P));
-  }
-  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PID_I)) {
-    pid.i = std::stod(rcutils_cli_get_option(argv, argv + argc, OPTION_PID_I));
-  }
-  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PID_D)) {
-    pid.d = std::stod(rcutils_cli_get_option(argv, argv + argc, OPTION_PID_D));
-  }
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_CONTROLLER_UPDATE_PERIOD)) {
     controller_update_period = std::chrono::nanoseconds(
       std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_CONTROLLER_UPDATE_PERIOD)));
@@ -180,14 +157,15 @@ int main(int argc, char * argv[])
   rclcpp::QoS qos_deadline_profile(10);
   qos_deadline_profile.deadline(deadline_duration);
 
-  // Create PID controller
-  std::unique_ptr<pendulum::PendulumController> pid_controller =
-    std::make_unique<pendulum::PIDController>(controller_update_period, pid);
+  // Create a controller
+  std::vector<double> feedback_matrix = {0.0, 0.0, 0.0, 0.0};
+  std::unique_ptr<pendulum::PendulumController> controller = std::make_unique<
+    pendulum::FullStateFeedbackController>(controller_update_period, feedback_matrix);
 
   // Create pendulum controller node
   auto controller_node = std::make_shared<pendulum::PendulumControllerNode>(
     "pendulum_controller_node",
-    std::move(pid_controller),
+    std::move(controller),
     controller_update_period,
     qos_deadline_profile,
     rclcpp::QoS(1),
