@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef RUNGEKUTTA__RUNGE_KUTTA_HPP_
-#define RUNGEKUTTA__RUNGE_KUTTA_HPP_
+#ifndef PENDULUM_SIMULATION__RUNGE_KUTTA_HPP_
+#define PENDULUM_SIMULATION__RUNGE_KUTTA_HPP_
 
 #include <vector>
 #include <stdexcept>
@@ -90,4 +90,4 @@ private:
 
 }  // namespace pendulum
 
-#endif  // RUNGEKUTTA__RUNGE_KUTTA_HPP_
+#endif  // PENDULUM_SIMULATION__RUNGE_KUTTA_HPP_

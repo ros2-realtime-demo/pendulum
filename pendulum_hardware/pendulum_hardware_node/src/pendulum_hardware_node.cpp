@@ -27,7 +27,7 @@ using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrat
 
 PendulumHardwareNode::PendulumHardwareNode(
   const std::string & node_name,
-  std::unique_ptr<PendulumMotor> motor,
+  std::unique_ptr<PendulumHardwareInterface> motor,
   std::chrono::nanoseconds publish_period,
   const rclcpp::QoS & qos_profile,
   const bool check_memory = false,

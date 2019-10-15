@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_MOTOR_DRIVER__PENDULUM_SIMULATION_HPP_
-#define PENDULUM_MOTOR_DRIVER__PENDULUM_SIMULATION_HPP_
+#ifndef PENDULUM_SIMULATION__PENDULUM_SIMULATION_HPP_
+#define PENDULUM_SIMULATION__PENDULUM_SIMULATION_HPP_
 #include <cmath>
 #include <chrono>
 #include <vector>
@@ -22,7 +22,7 @@
 #include "rttest/rttest.h"
 #include "rttest/utils.h"
 
-#include "pendulum_hardware_node/pendulum_motor_driver.hpp"
+#include "pendulum_hardware_node/pendulum_hardware_interface.hpp"
 #include "pendulum_simulation/runge_kutta.hpp"
 
 #ifndef GRAVITY
@@ -45,10 +45,10 @@ struct PendulumState
   double pole_velocity = 0.0;
 };
 
-class PendulumMotorSim : public PendulumMotor
+class PendulumSimulation : public PendulumHardwareInterface
 {
 public:
-  explicit PendulumMotorSim(std::chrono::nanoseconds physics_update_period);
+  explicit PendulumSimulation(std::chrono::nanoseconds physics_update_period);
 
   bool init() override;
   void start() override;
@@ -93,4 +93,4 @@ private:
 };
 
 }  // namespace pendulum
-#endif  // PENDULUM_MOTOR_DRIVER__PENDULUM_SIMULATION_HPP_
+#endif  // PENDULUM_SIMULATION__PENDULUM_SIMULATION_HPP_

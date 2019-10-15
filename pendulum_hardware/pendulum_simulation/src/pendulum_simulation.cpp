@@ -17,7 +17,7 @@
 namespace pendulum
 {
 
-PendulumMotorSim::PendulumMotorSim(std::chrono::nanoseconds physics_update_period)
+PendulumSimulation::PendulumSimulation(std::chrono::nanoseconds physics_update_period)
   : physics_update_period_(physics_update_period), done_(false),
     ode_solver_(4), X_{0.0, 0.0, PI, 0.0},
     rand_gen_(rd()), noise_gen_(std::uniform_real_distribution<double>(-0.01, 0.01))
@@ -52,7 +52,7 @@ PendulumMotorSim::PendulumMotorSim(std::chrono::nanoseconds physics_update_perio
   };
 }
 
-bool PendulumMotorSim::init()
+bool PendulumSimulation::init()
 {
   done_ = false;
 
@@ -63,12 +63,12 @@ bool PendulumMotorSim::init()
   pthread_attr_setschedparam(&thread_attr_, &thread_param);
   pthread_attr_setschedpolicy(&thread_attr_, SCHED_FIFO);
   pthread_create(&physics_update_thread_, &thread_attr_,
-    &pendulum::PendulumMotorSim::physics_update_wrapper, this);
+    &pendulum::PendulumSimulation::physics_update_wrapper, this);
 
   return true;
 }
 
-void PendulumMotorSim::start()
+void PendulumSimulation::start()
 {
   // reset status, use a function!
   X_[0] = 0.0;
@@ -80,22 +80,22 @@ void PendulumMotorSim::start()
   is_active_ = true;
 }
 
-void PendulumMotorSim::stop()
+void PendulumSimulation::stop()
 {
   is_active_ = false;
 }
 
-void PendulumMotorSim::shutdown()
+void PendulumSimulation::shutdown()
 {
   done_ = true;
 }
 
-void PendulumMotorSim::update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)
+void PendulumSimulation::update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)
 {
   controller_force_ = msg.cart_force;
 }
 
-void PendulumMotorSim::update_sensor_data(pendulum_msgs_v2::msg::PendulumState & msg)
+void PendulumSimulation::update_sensor_data(pendulum_msgs_v2::msg::PendulumState & msg)
 {
   msg.cart_position = state_.cart_position;
   msg.cart_velocity = state_.cart_velocity;
@@ -103,7 +103,7 @@ void PendulumMotorSim::update_sensor_data(pendulum_msgs_v2::msg::PendulumState &
   msg.pole_velocity = state_.pole_velocity;
 }
 
-void PendulumMotorSim::update()
+void PendulumSimulation::update()
 {
   double cart_force = disturbance_force_ + controller_force_;
   ode_solver_.step(derivative_function_, X_, dt_, cart_force);
@@ -114,16 +114,16 @@ void PendulumMotorSim::update()
   state_.pole_velocity = X_[3];
 }
 
-void * PendulumMotorSim::physics_update_wrapper(void * args)
+void * PendulumSimulation::physics_update_wrapper(void * args)
 {
-  PendulumMotorSim * motor = static_cast<PendulumMotorSim *>(args);
-  if (!motor) {
+  PendulumSimulation * sim = static_cast<PendulumSimulation *>(args);
+  if (!sim) {
     return NULL;
   }
-  return motor->physics_update();
+  return sim->physics_update();
 }
 // Set kinematic and dynamic properties of the pendulum based on state inputs
-void * PendulumMotorSim::physics_update()
+void * PendulumSimulation::physics_update()
 {
   rttest_lock_and_prefault_dynamic();
 

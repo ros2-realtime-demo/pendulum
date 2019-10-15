@@ -33,7 +33,7 @@
 #include "rcutils/cmdline_parser.h"
 
 #include "pendulum_hardware_node/pendulum_hardware_node.hpp"
-#include "pendulum_hardware_node/pendulum_motor_driver.hpp"
+#include "pendulum_hardware_node/pendulum_hardware_interface.hpp"
 #include "pendulum_simulation/pendulum_simulation.hpp"
 #include "pendulum_controller_node/pendulum_controller_node.hpp"
 #include "pendulum_controller_node/pendulum_controller.hpp"
@@ -198,9 +198,9 @@ int main(int argc, char * argv[])
     rclcpp::NodeOptions().use_intra_process_comms(true));
   exec.add_node(controller_node->get_node_base_interface());
 
-  // Create pendulum motor simulation
-  std::unique_ptr<pendulum::PendulumMotor> motor =
-    std::make_unique<pendulum::PendulumMotorSim>(physics_update_period);
+  // Create pendulum hardware simulation
+  std::unique_ptr<pendulum::PendulumHardwareInterface> motor =
+    std::make_unique<pendulum::PendulumSimulation>(physics_update_period);
 
   // Create pendulum controller node
   auto motor_node = std::make_shared<pendulum::PendulumHardwareNode>(

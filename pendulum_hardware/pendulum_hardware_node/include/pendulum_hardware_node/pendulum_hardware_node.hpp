@@ -41,7 +41,7 @@
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
 
 #include "pendulum_tools/timing_analyzer.hpp"
-#include "pendulum_hardware_node/pendulum_motor_driver.hpp"
+#include "pendulum_hardware_node/pendulum_hardware_interface.hpp"
 #include "pendulum_hardware_node/visibility_control.hpp"
 
 namespace pendulum
@@ -52,12 +52,12 @@ class PendulumHardwareNode : public rclcpp_lifecycle::LifecycleNode
 public:
   COMPOSITION_PUBLIC
   explicit PendulumHardwareNode(const rclcpp::NodeOptions & options)
-  : rclcpp_lifecycle::LifecycleNode("PendulumMotor", options),
+  : rclcpp_lifecycle::LifecycleNode("PendulumHardware", options),
     qos_profile_(rclcpp::QoS(1))
   {}
   COMPOSITION_PUBLIC PendulumHardwareNode(
     const std::string & node_name,
-    std::unique_ptr<PendulumMotor> motor,
+    std::unique_ptr<PendulumHardwareInterface> motor,
     std::chrono::nanoseconds publish_period,
     const rclcpp::QoS & qos_profile,
     const bool check_memory,
@@ -96,7 +96,7 @@ private:
   rclcpp::TimerBase::SharedPtr update_motor_timer_;
   std::chrono::nanoseconds publish_period_ = std::chrono::nanoseconds(1000000);
 
-  std::unique_ptr<PendulumMotor> motor_;
+  std::unique_ptr<PendulumHardwareInterface> motor_;
   rclcpp::QoS qos_profile_;
   pendulum_msgs_v2::msg::MotorStats motor_stats_message_;
   pendulum_msgs_v2::msg::PendulumState sensor_message_;
