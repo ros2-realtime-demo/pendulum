@@ -10,7 +10,6 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <build_depend>pendulum_msgs_v2</build_depend>
-  <build_depend>pendulum_controller</build_depend>
   <build_depend>rclcpp_lifecycle</build_depend>
   <build_depend>lifecycle_msgs</build_depend>
   <build_depend>rttest</build_depend>
@@ -18,7 +17,6 @@
   <build_depend>pendulum_tools</build_depend>
 
   <exec_depend>pendulum_msgs_v2</exec_depend>
-  <exec_depend>pendulum_controller</exec_depend>
   <exec_depend>rclcpp_lifecycle</exec_depend>
   <exec_depend>lifecycle_msgs</exec_depend>
   <exec_depend>ros2run</exec_depend>
