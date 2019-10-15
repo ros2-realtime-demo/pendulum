@@ -32,8 +32,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/cmdline_parser.h"
 
-#include "pendulum_motor_node/pendulum_motor_node.hpp"
-#include "pendulum_motor_node/pendulum_motor_driver.hpp"
+#include "pendulum_hardware_node/pendulum_hardware_node.hpp"
+#include "pendulum_hardware_node/pendulum_motor_driver.hpp"
 #include "pendulum_simulation/pendulum_simulation.hpp"
 
 #ifdef PENDULUM_DEMO_TLSF_ENABLED
@@ -174,8 +174,8 @@ int main(int argc, char * argv[])
     std::make_unique<pendulum::PendulumMotorSim>(physics_update_period);
 
   // Create pendulum controller node
-  auto motor_node = std::make_shared<pendulum::PendulumMotorNode>(
-    "pendulum_motor_node",
+  auto motor_node = std::make_shared<pendulum::PendulumHardwareNode>(
+    "pendulum_hardware_node",
     std::move(motor),
     sensor_publish_period,
     qos_deadline_profile,

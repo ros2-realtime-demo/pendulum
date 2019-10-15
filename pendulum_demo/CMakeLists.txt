@@ -24,7 +24,7 @@ find_package(rcutils)
 find_package(pendulum_msgs_v2 REQUIRED)
 find_package(pendulum_simulation REQUIRED)
 find_package(pendulum_controllers REQUIRED)
-find_package(pendulum_motor_node REQUIRED)
+find_package(pendulum_hardware_node REQUIRED)
 find_package(pendulum_controller_node REQUIRED)
 
 find_package(osrf_testing_tools_cpp)
@@ -63,7 +63,7 @@ ament_target_dependencies(pendulum_manual_composition
         "pendulum_msgs_v2"
         "pendulum_simulation"
         "pendulum_controllers"
-        "pendulum_motor_node"
+        "pendulum_hardware_node"
         "pendulum_controller_node"
         ${OPTIONAL_AMENT_DEPENDENCES})
 
@@ -102,7 +102,7 @@ ament_target_dependencies(pendulum_motor_standalone
         "lifecycle_msgs"
         "pendulum_msgs_v2"
         "pendulum_simulation"
-        "pendulum_motor_node"
+        "pendulum_hardware_node"
         ${OPTIONAL_AMENT_DEPENDENCES})
 
 target_link_libraries(pendulum_motor_standalone ${OPTIONAL_LIBRARIES})

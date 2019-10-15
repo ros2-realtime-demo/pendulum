@@ -22,7 +22,7 @@
 #include "rttest/rttest.h"
 #include "rttest/utils.h"
 
-#include "pendulum_motor_node/pendulum_motor_driver.hpp"
+#include "pendulum_hardware_node/pendulum_motor_driver.hpp"
 #include "pendulum_simulation/runge_kutta.hpp"
 
 #ifndef GRAVITY
@@ -41,7 +41,7 @@ struct PendulumState
 {
   double cart_position = 0.0;
   double cart_velocity = 0.0;
-  double pole_angle = PI;  // UP
+  double pole_angle = PI;  // UPvirtual
   double pole_velocity = 0.0;
 };
 

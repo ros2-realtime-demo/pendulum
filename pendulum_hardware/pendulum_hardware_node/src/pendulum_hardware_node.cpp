@@ -16,7 +16,7 @@
 #include <memory>
 #include <utility>
 
-#include "pendulum_motor_node/pendulum_motor_node.hpp"
+#include "pendulum_hardware_node/pendulum_hardware_node.hpp"
 #include "rttest/utils.h"
 
 namespace pendulum
@@ -25,7 +25,7 @@ namespace pendulum
 using rclcpp::strategies::message_pool_memory_strategy::MessagePoolMemoryStrategy;
 using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
 
-PendulumMotorNode::PendulumMotorNode(
+PendulumHardwareNode::PendulumHardwareNode(
   const std::string & node_name,
   std::unique_ptr<PendulumMotor> motor,
   std::chrono::nanoseconds publish_period,
@@ -66,14 +66,14 @@ PendulumMotorNode::PendulumMotorNode(
   }
 }
 
-void PendulumMotorNode::on_command_received(
+void PendulumHardwareNode::on_command_received(
   const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg)
 {
   motor_stats_message_.sensor_stats.msg_count++;
   motor_->update_command_data(*msg);
 }
 
-void PendulumMotorNode::sensor_timer_callback()
+void PendulumHardwareNode::sensor_timer_callback()
 {
   motor_->update_sensor_data(sensor_message_);
   sensor_pub_->publish(sensor_message_);
@@ -91,19 +91,19 @@ void PendulumMotorNode::sensor_timer_callback()
   motor_stats_message_.timer_stats.jitter_standard_dev_nsec = timer_jitter_.get_std();
 }
 
-void PendulumMotorNode::update_motor_callback()
+void PendulumHardwareNode::update_motor_callback()
 {
   motor_->update();
 }
 
 const pendulum_msgs_v2::msg::MotorStats &
-PendulumMotorNode::get_motor_stats_message() const
+PendulumHardwareNode::get_motor_stats_message() const
 {
   return motor_stats_message_;
 }
 
 // TODO(carlossvg): this function may be duplicated, move it to a tools package
-void PendulumMotorNode::update_sys_usage(bool update_active_page_faults)
+void PendulumHardwareNode::update_sys_usage(bool update_active_page_faults)
 {
   const auto ret = getrusage(RUSAGE_SELF, &sys_usage_);
   if (ret == 0) {
@@ -126,7 +126,7 @@ void PendulumMotorNode::update_sys_usage(bool update_active_page_faults)
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
+PendulumHardwareNode::on_configure(const rclcpp_lifecycle::State &)
 {
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_configure() is called.");
 
@@ -152,14 +152,14 @@ PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
     };
   command_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
     "pendulum_command", qos_profile_,
-    std::bind(&PendulumMotorNode::on_command_received,
+    std::bind(&PendulumHardwareNode::on_command_received,
     this, std::placeholders::_1),
     command_subscription_options_,
     command_msg_strategy);
 
   sensor_timer_ =
     this->create_wall_timer(publish_period_,
-      std::bind(&PendulumMotorNode::sensor_timer_callback, this));
+      std::bind(&PendulumHardwareNode::sensor_timer_callback, this));
   // cancel immediately to prevent triggering it in this state
   sensor_timer_->cancel();
 
@@ -169,7 +169,7 @@ PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-PendulumMotorNode::on_activate(const rclcpp_lifecycle::State &)
+PendulumHardwareNode::on_activate(const rclcpp_lifecycle::State &)
 {
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
   sensor_pub_->on_activate();
@@ -191,7 +191,7 @@ PendulumMotorNode::on_activate(const rclcpp_lifecycle::State &)
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-PendulumMotorNode::on_deactivate(const rclcpp_lifecycle::State &)
+PendulumHardwareNode::on_deactivate(const rclcpp_lifecycle::State &)
 {
   if (check_memory_) {
   #ifdef PENDULUM_MOTOR_MEMORYTOOLS_ENABLED
@@ -213,7 +213,7 @@ PendulumMotorNode::on_deactivate(const rclcpp_lifecycle::State &)
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-PendulumMotorNode::on_cleanup(const rclcpp_lifecycle::State &)
+PendulumHardwareNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
   motor_->shutdown();
   sensor_timer_.reset();
@@ -224,7 +224,7 @@ PendulumMotorNode::on_cleanup(const rclcpp_lifecycle::State &)
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-PendulumMotorNode::on_shutdown(const rclcpp_lifecycle::State &)
+PendulumHardwareNode::on_shutdown(const rclcpp_lifecycle::State &)
 {
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_shutdown() is called.");
   sensor_timer_.reset();
@@ -242,4 +242,4 @@ PendulumMotorNode::on_shutdown(const rclcpp_lifecycle::State &)
 // This acts as a sort of entry point,
 // allowing the component to be discoverable when its library
 // is being loaded into a running process.
-RCLCPP_COMPONENTS_REGISTER_NODE(pendulum::PendulumMotorNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(pendulum::PendulumHardwareNode)

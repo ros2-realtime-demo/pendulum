@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
-#define PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
+#ifndef PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_HPP_
+#define PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_HPP_
 
 #include "pendulum_msgs_v2/msg/pendulum_command.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
@@ -33,4 +33,4 @@ public:
 
 }  // namespace pendulum
 
-#endif  // PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
+#endif  // PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_HPP_

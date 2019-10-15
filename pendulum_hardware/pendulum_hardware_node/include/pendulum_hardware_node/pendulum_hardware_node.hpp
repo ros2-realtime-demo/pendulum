@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_MOTOR_NODE__PENDULUM_MOTOR_NODE_HPP_
-#define PENDULUM_MOTOR_NODE__PENDULUM_MOTOR_NODE_HPP_
+#ifndef PENDULUM_HARDWARE_NODE__PENDULUM_HARDWARE_NODE_HPP_
+#define PENDULUM_HARDWARE_NODE__PENDULUM_HARDWARE_NODE_HPP_
 
 #include <sys/time.h>  // needed for getrusage
 #include <sys/resource.h>  // needed for getrusage
@@ -41,21 +41,21 @@
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
 
 #include "pendulum_tools/timing_analyzer.hpp"
-#include "pendulum_motor_node/pendulum_motor_driver.hpp"
-#include "pendulum_motor_node/visibility_control.hpp"
+#include "pendulum_hardware_node/pendulum_motor_driver.hpp"
+#include "pendulum_hardware_node/visibility_control.hpp"
 
 namespace pendulum
 {
 
-class PendulumMotorNode : public rclcpp_lifecycle::LifecycleNode
+class PendulumHardwareNode : public rclcpp_lifecycle::LifecycleNode
 {
 public:
   COMPOSITION_PUBLIC
-  explicit PendulumMotorNode(const rclcpp::NodeOptions & options)
+  explicit PendulumHardwareNode(const rclcpp::NodeOptions & options)
   : rclcpp_lifecycle::LifecycleNode("PendulumMotor", options),
     qos_profile_(rclcpp::QoS(1))
   {}
-  COMPOSITION_PUBLIC PendulumMotorNode(
+  COMPOSITION_PUBLIC PendulumHardwareNode(
     const std::string & node_name,
     std::unique_ptr<PendulumMotor> motor,
     std::chrono::nanoseconds publish_period,
@@ -110,4 +110,4 @@ private:
 
 }  // namespace pendulum
 
-#endif  // PENDULUM_MOTOR_NODE__PENDULUM_MOTOR_NODE_HPP_
+#endif  // PENDULUM_HARDWARE_NODE__PENDULUM_HARDWARE_NODE_HPP_
