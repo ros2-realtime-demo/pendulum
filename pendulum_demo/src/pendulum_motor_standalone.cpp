@@ -33,8 +33,8 @@
 #include "rcutils/cmdline_parser.h"
 
 #include "pendulum_motor_node/pendulum_motor_node.hpp"
-#include "pendulum_motor_driver/pendulum_motor_driver.hpp"
-#include "pendulum_motor_driver/pendulum_simulation.hpp"
+#include "pendulum_motor_node/pendulum_motor_driver.hpp"
+#include "pendulum_simulation/pendulum_simulation.hpp"
 
 #ifdef PENDULUM_DEMO_TLSF_ENABLED
 using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;

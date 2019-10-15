@@ -41,7 +41,7 @@
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
 
 #include "pendulum_tools/timing_analyzer.hpp"
-#include "pendulum_motor_driver/pendulum_motor_driver.hpp"
+#include "pendulum_motor_node/pendulum_motor_driver.hpp"
 #include "pendulum_motor_node/visibility_control.hpp"
 
 namespace pendulum

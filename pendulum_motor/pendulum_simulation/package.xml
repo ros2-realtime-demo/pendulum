@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
-  <name>pendulum_motor_driver</name>
+  <name>pendulum_simulation</name>
   <version>0.0.1</version>
   <description>Implements a class to communicate with a real or simulated motor</description>
   <maintainer email="carlos.svic@gmail.com">Carlos San Vicente</maintainer>
@@ -10,17 +10,15 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <build_depend>pendulum_msgs_v2</build_depend>
-  <build_depend>rttest</build_depend>
+  <build_depend>pendulum_motor_node</build_depend>
 
   <exec_depend>pendulum_msgs_v2</exec_depend>
-  <exec_depend>ros2run</exec_depend>
-  <exec_depend>rttest</exec_depend>
+  <exec_depend>pendulum_motor_node</exec_depend>
 
   <test_depend>ament_cmake_gmock</test_depend>
   <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
-
 
   <export>
     <build_type>ament_cmake</build_type>

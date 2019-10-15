@@ -1,44 +1,45 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(pendulum_motor_driver)
+project(pendulum_simulation)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 14)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    add_compile_options(-Wall -Wextra -Wpedantic)
+  add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(pendulum_msgs_v2 REQUIRED)
-find_package(rclcpp_lifecycle REQUIRED)
-find_package(lifecycle_msgs REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(rclcpp_components REQUIRED)
-find_package(rttest)
+find_package(pendulum_motor_node REQUIRED)
 
-include_directories(include)
+include_directories(
+  include
+  ${pendulum_msgs_v2_INCLUDE_DIRS})
 
-add_library(pendulum_motor_driver INTERFACE)
+add_library(pendulum_simulation SHARED
+src/pendulum_simulation.cpp)
 
-target_include_directories(pendulum_motor_driver
-  INTERFACE
+target_include_directories(pendulum_simulation
+  PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
-#ament_export_interfaces(export_pendulum_motor_driver )
 ament_export_include_directories(include)
-#ament_export_libraries(pendulum_motor_driver HAS_LIBRARY_TARGET)
+ament_export_libraries(pendulum_simulation)
+
+ament_target_dependencies(pendulum_simulation
+        "pendulum_motor_node"
+        "pendulum_msgs_v2")
 
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported
 if(NOT WIN32)
-    ament_environment_hooks(
-            "${ament_cmake_package_templates_ENVIRONMENT_HOOK_LIBRARY_PATH}")
+  ament_environment_hooks(
+          "${ament_cmake_package_templates_ENVIRONMENT_HOOK_LIBRARY_PATH}")
 endif()
-
 
 install(
   DIRECTORY include/
@@ -46,7 +47,7 @@ install(
 )
 
 install(TARGETS
-        pendulum_motor_driver
+        pendulum_simulation
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)

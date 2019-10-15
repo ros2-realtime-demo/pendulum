@@ -22,7 +22,7 @@ find_package(rclcpp_components REQUIRED)
 find_package(rttest)
 find_package(rcutils)
 find_package(pendulum_msgs_v2 REQUIRED)
-find_package(pendulum_motor_driver REQUIRED)
+find_package(pendulum_simulation REQUIRED)
 find_package(pendulum_controllers REQUIRED)
 find_package(pendulum_motor_node REQUIRED)
 find_package(pendulum_controller_node REQUIRED)
@@ -61,7 +61,7 @@ ament_target_dependencies(pendulum_manual_composition
         "rttest"
         "lifecycle_msgs"
         "pendulum_msgs_v2"
-        "pendulum_motor_driver"
+        "pendulum_simulation"
         "pendulum_controllers"
         "pendulum_motor_node"
         "pendulum_controller_node"
@@ -101,7 +101,7 @@ ament_target_dependencies(pendulum_motor_standalone
         "rttest"
         "lifecycle_msgs"
         "pendulum_msgs_v2"
-        "pendulum_motor_driver"
+        "pendulum_simulation"
         "pendulum_motor_node"
         ${OPTIONAL_AMENT_DEPENDENCES})
 

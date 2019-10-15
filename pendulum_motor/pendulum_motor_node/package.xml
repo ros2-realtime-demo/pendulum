@@ -11,7 +11,6 @@
 
   <build_depend>lifecycle_msgs</build_depend>
   <build_depend>pendulum_msgs_v2</build_depend>
-  <build_depend>pendulum_motor_driver</build_depend>
   <build_depend>rclcpp_lifecycle</build_depend>
   <build_depend>rttest</build_depend>
   <build_depend>osrf_testing_tools_cpp</build_depend>

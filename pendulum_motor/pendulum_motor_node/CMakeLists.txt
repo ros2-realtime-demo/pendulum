@@ -23,7 +23,6 @@ find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(rttest REQUIRED)
-find_package(pendulum_motor_driver REQUIRED)
 find_package(pendulum_tools REQUIRED)
 
 find_package(osrf_testing_tools_cpp)
@@ -60,7 +59,6 @@ ament_target_dependencies(pendulum_motor_node
         "pendulum_msgs_v2"
         "rclcpp"
         "rttest"
-        "pendulum_motor_driver"
         "rclcpp_components"
         "pendulum_tools"
         ${OPTIONAL_AMENT_DEPENDENCES})
