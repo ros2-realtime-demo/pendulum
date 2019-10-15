@@ -61,6 +61,18 @@ namespace pendulum
 
     }
 
+    void reset() override
+    {
+      state_[0] = 0.0;
+      state_[1] = 0.0;
+      state_[2] = PI;
+      state_[3] = 0.0;
+      reference_[0] = 0.0;
+      reference_[1] = 0.0;
+      reference_[2] = PI;
+      reference_[3] = 0.0;
+    }
+
  private:
   double calculate(const std::vector<double> & state,
     const std::vector<double> & reference) const
@@ -82,7 +94,6 @@ namespace pendulum
  private:
     std::chrono::nanoseconds publish_period_;
     std::vector<double> feedback_matrix_;
-    double setpoint_cart_position_;
     std::vector<double> state_;
     std::vector<double> reference_;
   };

@@ -28,8 +28,9 @@ public:
   virtual void update_sensor_data(pendulum_msgs_v2::msg::PendulumState & msg) = 0;
   virtual void update() = 0;
   virtual bool init() = 0;
-  virtual bool start() = 0;
-  virtual bool stop() = 0;
+  virtual void start() = 0;
+  virtual void stop() = 0;
+  virtual void shutdown() = 0;
 };
 
 }  // namespace pendulum

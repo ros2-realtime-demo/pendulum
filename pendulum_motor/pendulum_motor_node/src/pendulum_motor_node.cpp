@@ -163,6 +163,8 @@ PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
   // cancel immediately to prevent triggering it in this state
   sensor_timer_->cancel();
 
+  motor_->init();
+
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -183,6 +185,8 @@ PendulumMotorNode::on_activate(const rclcpp_lifecycle::State &)
   #endif
   }
 
+  motor_->start();
+
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -198,6 +202,8 @@ PendulumMotorNode::on_deactivate(const rclcpp_lifecycle::State &)
   #endif
   }
 
+  motor_->stop();
+
   update_sys_usage(false);
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
 
@@ -209,6 +215,7 @@ PendulumMotorNode::on_deactivate(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumMotorNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
+  motor_->shutdown();
   sensor_timer_.reset();
   update_motor_timer_.reset();
   command_sub_.reset();

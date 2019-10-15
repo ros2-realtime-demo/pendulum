@@ -50,10 +50,9 @@ class PendulumMotorSim : public PendulumMotor
 public:
   explicit PendulumMotorSim(std::chrono::nanoseconds physics_update_period)
   : physics_update_period_(physics_update_period), done_(false),
-    integrator_(4), X_{0.0, 0.0, PI, 0.0},
+    ode_solver_(4), X_{0.0, 0.0, PI, 0.0},
     rand_gen_(rd()), noise_gen_(std::uniform_real_distribution<double>(-0.01, 0.01))
   {
-
     // Calculate the controller timestep (for discrete differentiation/integration).
     dt_ = physics_update_period_.count() / (1000.0 * 1000.0 * 1000.0);
     if (std::isnan(dt_) || dt_ == 0) {
@@ -61,50 +60,7 @@ public:
     }
     long_to_timespec(physics_update_period_.count(), &physics_update_timespec_);
 
-    // Initialize a separate high-priority thread to run the physics update loop.
-    pthread_attr_init(&thread_attr_);
-    sched_param thread_param;
-    thread_param.sched_priority = 90;
-    pthread_attr_setschedparam(&thread_attr_, &thread_param);
-    pthread_attr_setschedpolicy(&thread_attr_, SCHED_FIFO);
-    pthread_create(&physics_update_thread_, &thread_attr_,
-      &pendulum::PendulumMotorSim::physics_update_wrapper, this);
-  }
-
-  virtual void update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)
-  {
-    controller_force_ = msg.cart_force;
-  }
-
-  virtual void update_sensor_data(pendulum_msgs_v2::msg::PendulumState & msg)
-  {
-    msg.cart_position = state_.cart_position;
-    msg.cart_velocity = state_.cart_velocity;
-    msg.pole_angle = state_.pole_angle;
-    msg.pole_velocity = state_.pole_velocity;
-  }
-
-  virtual void update()
-  {
-  }
-
-  virtual bool init() {}
-  virtual bool start() {}
-  virtual bool stop() {}
-
-private:
-  static void * physics_update_wrapper(void * args)
-  {
-    PendulumMotorSim * motor = static_cast<PendulumMotorSim *>(args);
-    if (!motor) {
-      return NULL;
-    }
-    return motor->physics_update();
-  }
-  // Set kinematic and dynamic properties of the pendulum based on state inputs
-  void * physics_update()
-  {
-    auto derivative_function = [this](const std::vector<double> &y,
+    derivative_function_ = [this](const std::vector<double> &y,
        double u, size_t i) -> double {
       if (i == 0) {
         return y[1];
@@ -125,17 +81,88 @@ private:
           throw std::invalid_argument("received wrong index");
       }
     };
+  }
 
+  virtual bool init()
+  {
+    done_ = false;
+
+    // Initialize a separate high-priority thread to run the physics update loop.
+    pthread_attr_init(&thread_attr_);
+    sched_param thread_param;
+    thread_param.sched_priority = 90;
+    pthread_attr_setschedparam(&thread_attr_, &thread_param);
+    pthread_attr_setschedpolicy(&thread_attr_, SCHED_FIFO);
+    pthread_create(&physics_update_thread_, &thread_attr_,
+      &pendulum::PendulumMotorSim::physics_update_wrapper, this);
+
+    return true;
+  }
+
+  virtual void start()
+  {
+    // reset status, use a function!
+    X_[0] = 0.0;
+    X_[1] = 0.0;
+    X_[2] = PI;
+    X_[3] = 0.0;
+    controller_force_ = 0.0;
+    disturbance_force_ = 0.0;
+    is_active_ = true;
+  }
+
+  virtual void stop()
+  {
+    is_active_ = false;
+  }
+
+  virtual void shutdown()
+  {
+    done_ = true;
+  }
+
+  virtual void update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)
+  {
+    controller_force_ = msg.cart_force;
+  }
+
+  virtual void update_sensor_data(pendulum_msgs_v2::msg::PendulumState & msg)
+  {
+    msg.cart_position = state_.cart_position;
+    msg.cart_velocity = state_.cart_velocity;
+    msg.pole_angle = state_.pole_angle;
+    msg.pole_velocity = state_.pole_velocity;
+  }
+
+  virtual void update()
+  {
+    double cart_force = disturbance_force_ + controller_force_;
+    ode_solver_.step(derivative_function_, X_, dt_, cart_force);
+
+    state_.cart_position = X_[0];
+    state_.cart_velocity = X_[1];
+    state_.pole_angle = X_[2];
+    state_.pole_velocity = X_[3];
+  }
+
+private:
+  static void * physics_update_wrapper(void * args)
+  {
+    PendulumMotorSim * motor = static_cast<PendulumMotorSim *>(args);
+    if (!motor) {
+      return NULL;
+    }
+    return motor->physics_update();
+  }
+  // Set kinematic and dynamic properties of the pendulum based on state inputs
+  void * physics_update()
+  {
     rttest_lock_and_prefault_dynamic();
 
     while (!done_) {
-      double cart_force = disturbance_force_ + controller_force_;
-      integrator_.step(derivative_function, X_, dt_, cart_force);
-
-      state_.cart_position = X_[0];
-      state_.cart_velocity = X_[1];
-      state_.pole_angle = X_[2];
-      state_.pole_velocity = X_[3];
+      if (is_active_) {
+        update();
+      }
       // high resolution sleep
       clock_nanosleep(CLOCK_MONOTONIC, 0, &physics_update_timespec_, NULL);
     }
@@ -152,11 +179,11 @@ private:
   pthread_attr_t thread_attr_;
   timespec physics_update_timespec_;
 
-  RungeKutta integrator_;
+  RungeKutta ode_solver_;
+  std::vector<double> X_;  // state vector for ODE solver
   double controller_force_ = 0.0;
   double disturbance_force_ = 0.0;
-  std::vector<double> X_;
-
+  
   double m = 1.0;
   double M = 5.0;
   double L = 2.0;
@@ -166,6 +193,9 @@ private:
   std::random_device rd;
   std::mt19937 rand_gen_;
   std::uniform_real_distribution<double> noise_gen_;
+
+  derivativeF derivative_function_;
+  bool is_active_ = false;
 };
 
 }  // namespace pendulum

@@ -193,6 +193,7 @@ PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
   logger_pub_->on_activate();
   timer_->reset();
 
+  controller_->reset();
   if (check_memory_) {
   #ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
     osrf_testing_tools_cpp::memory_tools::expect_no_calloc_begin();
