@@ -36,8 +36,8 @@
 #include "pendulum_motor_driver/pendulum_motor_driver.hpp"
 #include "pendulum_motor_driver/pendulum_simulation.hpp"
 #include "pendulum_controller_node/pendulum_controller_node.hpp"
-#include "pendulum_controller/pendulum_controller.hpp"
-#include "pendulum_controller/full_state_feedback_controller.hpp"
+#include "pendulum_controller_node/pendulum_controller.hpp"
+#include "pendulum_controllers/full_state_feedback_controller.hpp"
 
 #ifdef PENDULUM_DEMO_TLSF_ENABLED
 using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;

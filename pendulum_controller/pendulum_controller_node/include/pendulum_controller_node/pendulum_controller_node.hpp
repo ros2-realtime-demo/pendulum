@@ -38,7 +38,7 @@
 #include "pendulum_msgs_v2/msg/pendulum_command.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
 #include "pendulum_controller_node/visibility_control.hpp"
-#include "pendulum_controller/pendulum_controller.hpp"
+#include "pendulum_controller_node/pendulum_controller.hpp"
 #include "pendulum_tools/timing_analyzer.hpp"
 
 #include "rclcpp/rclcpp.hpp"
