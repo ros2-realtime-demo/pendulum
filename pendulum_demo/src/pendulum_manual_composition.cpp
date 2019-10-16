@@ -229,10 +229,10 @@ int main(int argc, char * argv[])
       controller_stats_msg = controller_node->get_controller_stats_message();
       controller_stats_pub->publish(controller_stats_msg);
 
-      pendulum_msgs_v2::msg::PendulumStats motor_stats_msg;
+      pendulum_msgs_v2::msg::PendulumStats pendulum_stats_msg;
       pendulum_driver->update_sys_usage();
-      motor_stats_msg = pendulum_driver->get_motor_stats_message();
-      driver_stats_pub->publish(motor_stats_msg);
+      pendulum_stats_msg = pendulum_driver->get_stats_message();
+      driver_stats_pub->publish(pendulum_stats_msg);
     };
   auto logger_publisher_timer = node_stats->create_wall_timer(
     logger_publisher_period, logger_publish_callback);

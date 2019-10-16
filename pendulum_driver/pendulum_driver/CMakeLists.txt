@@ -29,7 +29,7 @@ find_package(osrf_testing_tools_cpp)
 if(${osrf_testing_tools_cpp_FOUND})
     list(APPEND OPTIONAL_AMENT_DEPENDENCES "osrf_testing_tools_cpp")
     list(APPEND OPTIONAL_LIBRARIES osrf_testing_tools_cpp::memory_tools)
-    add_definitions(-DPENDULUM_MOTOR_MEMORYTOOLS_ENABLED)
+    add_definitions(-DPENDULUM_DRIVER_MEMORYTOOLS_ENABLED)
 endif()
 
 include_directories(

@@ -180,7 +180,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
 
   // Initialize the logger publisher.
   logger_pub_ = this->create_publisher<pendulum_msgs_v2::msg::ControllerStats>(
-    "pendulum_statistics", 1);
+    "controller_statistics", 1);
 
   return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }

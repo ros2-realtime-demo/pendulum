@@ -191,10 +191,10 @@ int main(int argc, char * argv[])
   // Create a lambda function that will fire regularly to publish the next results message.
   auto logger_publish_callback =
     [&driver_stats_pub, &pendulum_driver]() {
-      pendulum_msgs_v2::msg::PendulumStats motor_stats_msg;
+      pendulum_msgs_v2::msg::PendulumStats pendulum_stats_msg;
       pendulum_driver->update_sys_usage();
-      motor_stats_msg = pendulum_driver->get_motor_stats_message();
-      driver_stats_pub->publish(motor_stats_msg);
+      pendulum_stats_msg = pendulum_driver->get_stats_message();
+      driver_stats_pub->publish(pendulum_stats_msg);
     };
   auto logger_publisher_timer = driver_stats->create_wall_timer(
     logger_publisher_period, logger_publish_callback);

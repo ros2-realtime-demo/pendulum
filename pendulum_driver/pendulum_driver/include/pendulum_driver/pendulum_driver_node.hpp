@@ -25,7 +25,7 @@
 #include <memory>
 #include <string>
 
-#ifdef PENDULUM_MOTOR_MEMORYTOOLS_ENABLED
+#ifdef PENDULUM_DRIVER_MEMORYTOOLS_ENABLED
 #include <osrf_testing_tools_cpp/memory_tools/memory_tools.hpp>
 #include <osrf_testing_tools_cpp/scope_exit.hpp>
 #endif
@@ -64,12 +64,12 @@ public:
     const rclcpp::NodeOptions & options);
   void on_command_received(const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg);
   void sensor_timer_callback();
-  void update_motor_callback();
+  void update_driver_callback();
 
   /// Get the subscription's settings options.
   rclcpp::SubscriptionOptions & get_command_options() {return command_subscription_options_;}
   rclcpp::PublisherOptions & get_sensor_options() {return sensor_publisher_options_;}
-  const pendulum_msgs_v2::msg::PendulumStats & get_motor_stats_message() const;
+  const pendulum_msgs_v2::msg::PendulumStats & get_stats_message() const;
   void update_sys_usage(bool update_active_page_faults = false);
 
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -93,12 +93,12 @@ private:
   rclcpp::PublisherOptions sensor_publisher_options_;
 
   rclcpp::TimerBase::SharedPtr sensor_timer_;
-  rclcpp::TimerBase::SharedPtr update_motor_timer_;
+  rclcpp::TimerBase::SharedPtr update_driver_timer_;
   std::chrono::nanoseconds publish_period_ = std::chrono::nanoseconds(1000000);
 
   std::unique_ptr<PendulumDriverInterface> driver_interface_;
   rclcpp::QoS qos_profile_;
-  pendulum_msgs_v2::msg::PendulumStats motor_stats_message_;
+  pendulum_msgs_v2::msg::PendulumStats pendulum_stats_message_;
   pendulum_msgs_v2::msg::PendulumState sensor_message_;
   pendulum_msgs_v2::msg::PendulumCommand command_message_;
   rusage sys_usage_;
