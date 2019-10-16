@@ -9,7 +9,7 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <build_depend>pendulum_hardware_node</build_depend>
+  <build_depend>pendulum_driver</build_depend>
   <build_depend>pendulum_simulation</build_depend>
   <build_depend>pendulum_controllers</build_depend>
   <build_depend>pendulum_controller_node</build_depend>
@@ -22,7 +22,7 @@
 
   <exec_depend>rttest</exec_depend>
   <exec_depend>pendulum_msgs_v2</exec_depend>
-  <exec_depend>pendulum_hardware_node</exec_depend>
+  <exec_depend>pendulum_driver</exec_depend>
   <exec_depend>pendulum_simulation</exec_depend>
   <exec_depend>pendulum_controllers</exec_depend>
   <exec_depend>pendulum_controller_node</exec_depend>

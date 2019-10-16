@@ -22,7 +22,7 @@
 #include "rttest/rttest.h"
 #include "rttest/utils.h"
 
-#include "pendulum_hardware_node/pendulum_hardware_interface.hpp"
+#include "pendulum_driver/pendulum_driver_interface.hpp"
 #include "pendulum_simulation/runge_kutta.hpp"
 
 #ifndef GRAVITY
@@ -45,7 +45,7 @@ struct PendulumState
   double pole_velocity = 0.0;
 };
 
-class PendulumSimulation : public PendulumHardwareInterface
+class PendulumSimulation : public PendulumDriverInterface
 {
 public:
   explicit PendulumSimulation(std::chrono::nanoseconds physics_update_period);

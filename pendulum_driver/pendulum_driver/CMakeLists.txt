@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(pendulum_hardware_node)
+project(pendulum_driver)
 
 set(OPTIONAL_AMENT_DEPENDENCES)
 set(OPTIONAL_LIBRARIES)
@@ -39,21 +39,21 @@ include_directories(
   ${rclcpp_INCLUDE_DIRS}
   ${osrf_testing_tools_cpp_INCLUDE_DIR})
 
-add_library(pendulum_hardware_node SHARED
-        src/pendulum_hardware_node.cpp)
+add_library(pendulum_driver SHARED
+src/pendulum_driver_node.cpp)
 
-target_include_directories(pendulum_hardware_node
+target_include_directories(pendulum_driver
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
-target_compile_definitions(pendulum_hardware_node
+target_compile_definitions(pendulum_driver
         PRIVATE "COMPOSITION_BUILDING_DLL")
 
 ament_export_include_directories(include)
-ament_export_libraries(pendulum_hardware_node)
+ament_export_libraries(pendulum_driver)
 
-ament_target_dependencies(pendulum_hardware_node
+ament_target_dependencies(pendulum_driver
         "rclcpp_lifecycle"
         "lifecycle_msgs"
         "pendulum_msgs_v2"
@@ -62,8 +62,8 @@ ament_target_dependencies(pendulum_hardware_node
         "rclcpp_components"
         "pendulum_tools"
         ${OPTIONAL_AMENT_DEPENDENCES})
-rclcpp_components_register_nodes(pendulum_hardware_node "pendulum::MotorNode")
-target_link_libraries(pendulum_hardware_node ${OPTIONAL_LIBRARIES})
+rclcpp_components_register_nodes(pendulum_driver "pendulum::PendulumDriverNode")
+target_link_libraries(pendulum_driver ${OPTIONAL_LIBRARIES})
 
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported
@@ -78,7 +78,7 @@ install(
 )
 
 install(TARGETS
-        pendulum_hardware_node
+        pendulum_driver
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)

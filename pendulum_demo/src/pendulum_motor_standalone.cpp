@@ -32,8 +32,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/cmdline_parser.h"
 
-#include "pendulum_hardware_node/pendulum_hardware_node.hpp"
-#include "pendulum_hardware_node/pendulum_hardware_interface.hpp"
+#include "pendulum_driver/pendulum_driver_node.hpp"
+#include "pendulum_driver/pendulum_driver_interface.hpp"
 #include "pendulum_simulation/pendulum_simulation.hpp"
 
 #ifdef PENDULUM_DEMO_TLSF_ENABLED
@@ -65,7 +65,7 @@ void print_usage()
   printf("Usage for pendulum_test:\n");
   printf("pendulum_test\n"
     "\t[%s physics simulation update period (ns)]\n"
-    "\t[%s motor sensor update period (ns)]\n"
+    "\t[%s pendulum sensor update period (ns)]\n"
     "\t[%s deadline QoS period (ms)]\n"
     "\t[%s use OSRF memory check tool]\n"
     "\t[%s lock memory]\n"
@@ -96,7 +96,7 @@ int main(int argc, char * argv[])
   std::chrono::nanoseconds deadline_duration(DEFAULT_DEADLINE_PERIOD_NS);
   std::chrono::milliseconds logger_publisher_period(DEFAULT_STATISTICS_PERIOD_MS);
 
-  // motor options
+  // driver options
   std::chrono::nanoseconds sensor_publish_period(DEFAULT_SENSOR_UPDATE_PERIOD_NS);
   std::chrono::nanoseconds physics_update_period(DEFAULT_PHYSICS_UPDATE_PERIOD_NS);
 
@@ -169,38 +169,38 @@ int main(int argc, char * argv[])
   rclcpp::QoS qos_deadline_profile(10);
   qos_deadline_profile.deadline(deadline_duration);
 
-  // Create pendulum motor simulation
-  std::unique_ptr<pendulum::PendulumHardwareInterface> motor =
+  // Create pendulum simulation
+  std::unique_ptr<pendulum::PendulumDriverInterface> sim =
     std::make_unique<pendulum::PendulumSimulation>(physics_update_period);
 
-  // Create pendulum controller node
-  auto motor_node = std::make_shared<pendulum::PendulumHardwareNode>(
-    "pendulum_hardware_node",
-    std::move(motor),
+  // Create pendulum driver node
+  auto pendulum_driver = std::make_shared<pendulum::PendulumDriverNode>(
+    "pendulum_driver",
+    std::move(sim),
     sensor_publish_period,
     qos_deadline_profile,
     use_memory_check,
     rclcpp::NodeOptions().use_intra_process_comms(true));
-  exec.add_node(motor_node->get_node_base_interface());
+  exec.add_node(pendulum_driver->get_node_base_interface());
 
   // Initialize the logger publisher.
-  auto node_stats = rclcpp::Node::make_shared("motor_statistics_node");
-  auto motor_stats_pub = node_stats->create_publisher<pendulum_msgs_v2::msg::MotorStats>(
-    "motor_statistics", rclcpp::QoS(1));
+  auto driver_stats = rclcpp::Node::make_shared("driver_statistics_node");
+  auto driver_stats_pub = driver_stats->create_publisher<pendulum_msgs_v2::msg::MotorStats>(
+    "driver_statistics", rclcpp::QoS(1));
 
   // Create a lambda function that will fire regularly to publish the next results message.
   auto logger_publish_callback =
-    [&motor_stats_pub, &motor_node]() {
+    [&driver_stats_pub, &pendulum_driver]() {
       pendulum_msgs_v2::msg::MotorStats motor_stats_msg;
-      motor_node->update_sys_usage();
-      motor_stats_msg = motor_node->get_motor_stats_message();
-      motor_stats_pub->publish(motor_stats_msg);
+      pendulum_driver->update_sys_usage();
+      motor_stats_msg = pendulum_driver->get_motor_stats_message();
+      driver_stats_pub->publish(motor_stats_msg);
     };
-  auto logger_publisher_timer = node_stats->create_wall_timer(
+  auto logger_publisher_timer = driver_stats->create_wall_timer(
     logger_publisher_period, logger_publish_callback);
 
   if (publish_statistics) {
-    exec.add_node(node_stats);
+    exec.add_node(driver_stats);
   }
 
   // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a

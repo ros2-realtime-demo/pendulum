@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_HARDWARE_NODE__PENDULUM_HARDWARE_NODE_HPP_
-#define PENDULUM_HARDWARE_NODE__PENDULUM_HARDWARE_NODE_HPP_
+#ifndef PENDULUM_DRIVER__PENDULUM_DRIVER_NODE_HPP_
+#define PENDULUM_DRIVER__PENDULUM_DRIVER_NODE_HPP_
 
 #include <sys/time.h>  // needed for getrusage
 #include <sys/resource.h>  // needed for getrusage
@@ -41,23 +41,23 @@
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
 
 #include "pendulum_tools/timing_analyzer.hpp"
-#include "pendulum_hardware_node/pendulum_hardware_interface.hpp"
-#include "pendulum_hardware_node/visibility_control.hpp"
+#include "pendulum_driver/pendulum_driver_interface.hpp"
+#include "pendulum_driver/visibility_control.hpp"
 
 namespace pendulum
 {
 
-class PendulumHardwareNode : public rclcpp_lifecycle::LifecycleNode
+class PendulumDriverNode : public rclcpp_lifecycle::LifecycleNode
 {
 public:
   COMPOSITION_PUBLIC
-  explicit PendulumHardwareNode(const rclcpp::NodeOptions & options)
-  : rclcpp_lifecycle::LifecycleNode("PendulumHardware", options),
+  explicit PendulumDriverNode(const rclcpp::NodeOptions & options)
+  : rclcpp_lifecycle::LifecycleNode("PendulumDriver", options),
     qos_profile_(rclcpp::QoS(1))
   {}
-  COMPOSITION_PUBLIC PendulumHardwareNode(
+  COMPOSITION_PUBLIC PendulumDriverNode(
     const std::string & node_name,
-    std::unique_ptr<PendulumHardwareInterface> motor,
+    std::unique_ptr<PendulumDriverInterface> driver_interface,
     std::chrono::nanoseconds publish_period,
     const rclcpp::QoS & qos_profile,
     const bool check_memory,
@@ -96,7 +96,7 @@ private:
   rclcpp::TimerBase::SharedPtr update_motor_timer_;
   std::chrono::nanoseconds publish_period_ = std::chrono::nanoseconds(1000000);
 
-  std::unique_ptr<PendulumHardwareInterface> motor_;
+  std::unique_ptr<PendulumDriverInterface> driver_interface_;
   rclcpp::QoS qos_profile_;
   pendulum_msgs_v2::msg::MotorStats motor_stats_message_;
   pendulum_msgs_v2::msg::PendulumState sensor_message_;
@@ -110,4 +110,4 @@ private:
 
 }  // namespace pendulum
 
-#endif  // PENDULUM_HARDWARE_NODE__PENDULUM_HARDWARE_NODE_HPP_
+#endif  // PENDULUM_DRIVER__PENDULUM_DRIVER_NODE_HPP_

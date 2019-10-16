@@ -13,7 +13,7 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(pendulum_msgs_v2 REQUIRED)
-find_package(pendulum_hardware_node REQUIRED)
+find_package(pendulum_driver REQUIRED)
 
 include_directories(
   include
@@ -31,7 +31,7 @@ ament_export_include_directories(include)
 ament_export_libraries(pendulum_simulation)
 
 ament_target_dependencies(pendulum_simulation
-        "pendulum_hardware_node"
+        "pendulum_driver"
         "pendulum_msgs_v2")
 
 # since the package installs libraries without exporting them

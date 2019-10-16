@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_HARDWARE_NODE__PENDULUM_HARDWARE_INTERFACE_HPP_
-#define PENDULUM_HARDWARE_NODE__PENDULUM_HARDWARE_INTERFACE_HPP_
+#ifndef PENDULUM_DRIVER__PENDULUM_DRIVER_INTERFACE_HPP_
+#define PENDULUM_DRIVER__PENDULUM_DRIVER_INTERFACE_HPP_
 
 #include "pendulum_msgs_v2/msg/pendulum_command.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
@@ -21,7 +21,7 @@
 namespace pendulum
 {
 
-class PendulumHardwareInterface
+class PendulumDriverInterface
 {
 public:
   virtual void update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) = 0;
@@ -35,4 +35,4 @@ public:
 
 }  // namespace pendulum
 
-#endif  // PENDULUM_HARDWARE_NODE__PENDULUM_HARDWARE_INTERFACE_HPP_
+#endif  // PENDULUM_DRIVER__PENDULUM_DRIVER_INTERFACE_HPP_
