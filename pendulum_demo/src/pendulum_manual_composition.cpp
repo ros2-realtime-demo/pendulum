@@ -17,6 +17,7 @@
 #include <pendulum_msgs_v2/msg/controller_stats.hpp>
 #include <rttest/rttest.h>
 
+#include <vector>
 #include <iostream>
 #include <memory>
 #include <utility>

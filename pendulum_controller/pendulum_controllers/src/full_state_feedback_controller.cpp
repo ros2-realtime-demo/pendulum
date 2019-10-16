@@ -13,14 +13,16 @@
 // limitations under the License.
 
 #include "pendulum_controllers/full_state_feedback_controller.hpp"
+#include <vector>
 
 namespace pendulum
 {
 
-FullStateFeedbackController::FullStateFeedbackController(std::chrono::nanoseconds period,
+FullStateFeedbackController::FullStateFeedbackController(
+  std::chrono::nanoseconds period,
   const std::vector<double> & feedback_matrix)
 : publish_period_(period), feedback_matrix_(feedback_matrix),
-  state_{0.0, 0.0, PI, 0.0}, reference_{0.0, 0.0, PI, 0.0} { }
+  state_{0.0, 0.0, PI, 0.0}, reference_{0.0, 0.0, PI, 0.0} {}
 
 void FullStateFeedbackController::update_setpoint_data(
   const pendulum_msgs_v2::msg::PendulumCommand & msg)
@@ -60,18 +62,20 @@ void FullStateFeedbackController::reset()
   reference_[3] = 0.0;
 }
 
-double FullStateFeedbackController::calculate(const std::vector<double> & state,
-const std::vector<double> & reference) const
+double FullStateFeedbackController::calculate(
+  const std::vector<double> & state,
+  const std::vector<double> & reference) const
 {
   double controller_output = 0.0;
   size_t dim = state.size();
   if ( (dim != reference.size()) &&
-       (dim != feedback_matrix_.size()) ) {
+    (dim != feedback_matrix_.size()) )
+  {
     throw std::invalid_argument("wrong state size vector");
   }
 
   for (size_t i = 0; i < dim; i++) {
-    controller_output += -feedback_matrix_[i]*(state[i]-reference[i]);
+    controller_output += -feedback_matrix_[i] * (state[i] - reference[i]);
   }
 
   return controller_output;

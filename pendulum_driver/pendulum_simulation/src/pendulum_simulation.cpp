@@ -13,14 +13,15 @@
 // limitations under the License.
 
 #include "pendulum_simulation/pendulum_simulation.hpp"
+#include <vector>
 
 namespace pendulum
 {
 
 PendulumSimulation::PendulumSimulation(std::chrono::nanoseconds physics_update_period)
-  : physics_update_period_(physics_update_period), done_(false),
-    ode_solver_(4), X_{0.0, 0.0, PI, 0.0},
-    rand_gen_(rd()), noise_gen_(std::uniform_real_distribution<double>(-0.01, 0.01))
+: physics_update_period_(physics_update_period), done_(false),
+  ode_solver_(4), X_{0.0, 0.0, PI, 0.0},
+  rand_gen_(rd()), noise_gen_(std::uniform_real_distribution<double>(-0.01, 0.01))
 {
   // Calculate the controller timestep (for discrete differentiation/integration).
   dt_ = physics_update_period_.count() / (1000.0 * 1000.0 * 1000.0);
@@ -29,27 +30,30 @@ PendulumSimulation::PendulumSimulation(std::chrono::nanoseconds physics_update_p
   }
   long_to_timespec(physics_update_period_.count(), &physics_update_timespec_);
 
-  derivative_function_ = [this](const std::vector<double> &y,
-     double u, size_t i) -> double {
-    if (i == 0) {
-      return y[1];
-    } else if (i == 1) {
-      double Sy = sin(y[2]);
-      double Cy = cos(y[2]);
-      double D = m*L*L*(M+m*(1-Cy*Cy));
-      return (1/D)*(-m*m*L*L*g*Cy*Sy + m*L*L*(m*L*y[3]*y[3]*Sy - d*y[1])) + m*L*L*(1/D)*u;
-    } else if (i == 2) {
-      return y[3];
-    } else if (i == 3) {
-      double Sy = sin(y[2]);
-      double Cy = cos(y[2]);
-      double D = m*L*L*(M+m*(1-Cy*Cy));
-      return (1/D)*((m+M)*m*g*L*Sy - m*L*Cy*(m*L*y[3]*y[3]*Sy
-         - d*y[1])) - m*L*Cy*(1/D)*u +noise_gen_(rand_gen_);
-    } else {
+  derivative_function_ = [this](const std::vector<double> & y,
+      double u, size_t i) -> double {
+      if (i == 0) {
+        return y[1];
+      } else if (i == 1) {
+        double Sy = sin(y[2]);
+        double Cy = cos(y[2]);
+        double D = m * L * L * (M + m * (1 - Cy * Cy));
+        return (1 / D) *
+               (-m * m * L * L * g * Cy * Sy + m * L * L * (m * L * y[3] * y[3] * Sy - d * y[1])) +
+               m *
+               L * L * (1 / D) * u;
+      } else if (i == 2) {
+        return y[3];
+      } else if (i == 3) {
+        double Sy = sin(y[2]);
+        double Cy = cos(y[2]);
+        double D = m * L * L * (M + m * (1 - Cy * Cy));
+        return (1 / D) * ((m + M) * m * g * L * Sy - m * L * Cy * (m * L * y[3] * y[3] * Sy -
+               d * y[1])) - m * L * Cy * (1 / D) * u + noise_gen_(rand_gen_);
+      } else {
         throw std::invalid_argument("received wrong index");
-    }
-  };
+      }
+    };
 }
 
 bool PendulumSimulation::init()

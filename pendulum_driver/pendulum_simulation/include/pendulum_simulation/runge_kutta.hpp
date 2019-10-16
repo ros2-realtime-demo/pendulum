@@ -22,7 +22,7 @@
 namespace pendulum
 {
 
-using derivativeF = std::function<double(const std::vector<double> &, double, size_t)>;
+using derivativeF = std::function<double (const std::vector<double> &, double, size_t)>;
 
 class RungeKutta
 {
@@ -39,7 +39,7 @@ public:
 
   // Time step using 4th-orderRunge Kutta and trapezoidal rule
   // See: https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods
-  void step(derivativeF df, std::vector<double> &y, double h, double u)
+  void step(derivativeF df, std::vector<double> & y, double h, double u)
   {
     if (y.size() != n) {
       throw std::invalid_argument("wrong state size vector");
@@ -48,37 +48,37 @@ public:
     size_t i = 0;
 
     // stage 1
-    for (i=0; i< n; i++) {
+    for (i = 0; i < n; i++) {
       k1[i] = df(y, u, i);
     }
 
     // stage 2
-    for (i=0; i< n; i++) {
-      state[i] = y[i]+h*0.5*k1[i];
+    for (i = 0; i < n; i++) {
+      state[i] = y[i] + h * 0.5 * k1[i];
     }
-    for (i=0; i< n; i++) {
+    for (i = 0; i < n; i++) {
       k2[i] = df(state, u, i);
     }
 
     // stage 3
-    for (i=0; i< n; i++) {
-      state[i] = y[i]+h*(0.5*k2[i]);
+    for (i = 0; i < n; i++) {
+      state[i] = y[i] + h * (0.5 * k2[i]);
     }
-    for (i=0; i< n; i++) {
+    for (i = 0; i < n; i++) {
       k3[i] = df(state, u, i);
     }
 
     // stage 4
-    for (i=0; i< n; i++) {
-      state[i] = y[i]+h*(1.0*k3[i]);
+    for (i = 0; i < n; i++) {
+      state[i] = y[i] + h * (1.0 * k3[i]);
     }
-    for (i=0; i< n; i++) {
+    for (i = 0; i < n; i++) {
       k4[i] = df(state, u, i);
     }
 
     // update next step
-    for (i=0; i< n; i++) {
-      y[i] = y[i] + (h/6.0) * (k1[i]+ 2*k2[i] + 2*k3[i] + k4[i]);
+    for (i = 0; i < n; i++) {
+      y[i] = y[i] + (h / 6.0) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
     }
   }
 
