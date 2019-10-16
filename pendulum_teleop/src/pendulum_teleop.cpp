@@ -35,7 +35,7 @@ int main(int argc, char ** argv)
 {
   std::string manager_node_name = "pendulum_manager";
   std::string controller_node_name = "pendulum_controller_node";
-  std::string motor_node_name = "pendulum_motor_node";
+  std::string motor_node_name = "pendulum_hardware_node";
 
   if (rcutils_cli_option_exist(argv, argv + argc, "--manager-name")) {
     manager_node_name = rcutils_cli_get_option(argv, argv + argc, "--manager-name");
