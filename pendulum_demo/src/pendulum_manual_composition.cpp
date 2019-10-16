@@ -14,6 +14,7 @@
 
 #include <rclcpp/strategies/allocator_memory_strategy.hpp>
 #include <pendulum_msgs_v2/msg/pendulum_stats.hpp>
+#include <pendulum_msgs_v2/msg/controller_stats.hpp>
 #include <rttest/rttest.h>
 
 #include <iostream>
@@ -217,7 +218,7 @@ int main(int argc, char * argv[])
   auto controller_stats_pub =
     node_stats->create_publisher<pendulum_msgs_v2::msg::ControllerStats>(
     "controller_statistics", rclcpp::QoS(1));
-  auto driver_stats_pub = node_stats->create_publisher<pendulum_msgs_v2::msg::MotorStats>(
+  auto driver_stats_pub = node_stats->create_publisher<pendulum_msgs_v2::msg::PendulumStats>(
     "driver_statistics", rclcpp::QoS(1));
 
   // Create a lambda function that will fire regularly to publish the next results message.
@@ -228,7 +229,7 @@ int main(int argc, char * argv[])
       controller_stats_msg = controller_node->get_controller_stats_message();
       controller_stats_pub->publish(controller_stats_msg);
 
-      pendulum_msgs_v2::msg::MotorStats motor_stats_msg;
+      pendulum_msgs_v2::msg::PendulumStats motor_stats_msg;
       pendulum_driver->update_sys_usage();
       motor_stats_msg = pendulum_driver->get_motor_stats_message();
       driver_stats_pub->publish(motor_stats_msg);

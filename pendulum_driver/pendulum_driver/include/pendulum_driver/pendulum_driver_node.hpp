@@ -18,7 +18,7 @@
 #include <sys/time.h>  // needed for getrusage
 #include <sys/resource.h>  // needed for getrusage
 
-#include <pendulum_msgs_v2/msg/motor_stats.hpp>
+#include <pendulum_msgs_v2/msg/pendulum_stats.hpp>
 #include <rclcpp/strategies/message_pool_memory_strategy.hpp>
 #include <rclcpp/strategies/allocator_memory_strategy.hpp>
 
@@ -69,7 +69,7 @@ public:
   /// Get the subscription's settings options.
   rclcpp::SubscriptionOptions & get_command_options() {return command_subscription_options_;}
   rclcpp::PublisherOptions & get_sensor_options() {return sensor_publisher_options_;}
-  const pendulum_msgs_v2::msg::MotorStats & get_motor_stats_message() const;
+  const pendulum_msgs_v2::msg::PendulumStats & get_motor_stats_message() const;
   void update_sys_usage(bool update_active_page_faults = false);
 
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -98,7 +98,7 @@ private:
 
   std::unique_ptr<PendulumDriverInterface> driver_interface_;
   rclcpp::QoS qos_profile_;
-  pendulum_msgs_v2::msg::MotorStats motor_stats_message_;
+  pendulum_msgs_v2::msg::PendulumStats motor_stats_message_;
   pendulum_msgs_v2::msg::PendulumState sensor_message_;
   pendulum_msgs_v2::msg::PendulumCommand command_message_;
   rusage sys_usage_;

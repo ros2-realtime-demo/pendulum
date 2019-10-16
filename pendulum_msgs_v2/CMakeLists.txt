@@ -22,7 +22,6 @@ rosidl_generate_interfaces(pendulum_msgs
   "msg/TimerStats.msg"
   "msg/TopicStats.msg"
   "msg/ControllerStats.msg"
-  "msg/MotorStats.msg"
   "msg/PendulumStats.msg"
   DEPENDENCIES builtin_interfaces
 )

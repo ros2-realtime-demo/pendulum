@@ -88,12 +88,12 @@ ament_target_dependencies(pendulum_controller_standalone
 
 target_link_libraries(pendulum_controller_standalone ${OPTIONAL_LIBRARIES})
 
-add_executable(pendulum_motor_standalone
-  "src/pendulum_motor_standalone.cpp")
+add_executable(pendulum_driver_standalone
+  "src/pendulum_driver_standalone.cpp")
 
 ament_export_include_directories(include)
 
-ament_target_dependencies(pendulum_motor_standalone
+ament_target_dependencies(pendulum_driver_standalone
         "rclcpp"
         "rclcpp_lifecycle"
         "rclcpp_components"
@@ -105,7 +105,7 @@ ament_target_dependencies(pendulum_motor_standalone
         "pendulum_driver"
         ${OPTIONAL_AMENT_DEPENDENCES})
 
-target_link_libraries(pendulum_motor_standalone ${OPTIONAL_LIBRARIES})
+target_link_libraries(pendulum_driver_standalone ${OPTIONAL_LIBRARIES})
 
 
 # since the package installs libraries without exporting them
@@ -118,7 +118,7 @@ endif()
 install(TARGETS
         pendulum_manual_composition
         pendulum_controller_standalone
-        pendulum_motor_standalone
+        pendulum_driver_standalone
         DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)

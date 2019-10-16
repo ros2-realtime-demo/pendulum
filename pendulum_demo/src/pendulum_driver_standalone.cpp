@@ -185,13 +185,13 @@ int main(int argc, char * argv[])
 
   // Initialize the logger publisher.
   auto driver_stats = rclcpp::Node::make_shared("driver_statistics_node");
-  auto driver_stats_pub = driver_stats->create_publisher<pendulum_msgs_v2::msg::MotorStats>(
+  auto driver_stats_pub = driver_stats->create_publisher<pendulum_msgs_v2::msg::PendulumStats>(
     "driver_statistics", rclcpp::QoS(1));
 
   // Create a lambda function that will fire regularly to publish the next results message.
   auto logger_publish_callback =
     [&driver_stats_pub, &pendulum_driver]() {
-      pendulum_msgs_v2::msg::MotorStats motor_stats_msg;
+      pendulum_msgs_v2::msg::PendulumStats motor_stats_msg;
       pendulum_driver->update_sys_usage();
       motor_stats_msg = pendulum_driver->get_motor_stats_message();
       driver_stats_pub->publish(motor_stats_msg);

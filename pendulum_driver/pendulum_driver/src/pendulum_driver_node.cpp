@@ -96,7 +96,7 @@ void PendulumDriverNode::update_motor_callback()
   driver_interface_->update();
 }
 
-const pendulum_msgs_v2::msg::MotorStats &
+const pendulum_msgs_v2::msg::PendulumStats &
 PendulumDriverNode::get_motor_stats_message() const
 {
   return motor_stats_message_;

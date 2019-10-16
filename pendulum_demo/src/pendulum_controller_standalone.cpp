@@ -174,7 +174,7 @@ int main(int argc, char * argv[])
   exec.add_node(controller_node->get_node_base_interface());
 
   // Initialize the logger publisher.
-  auto node_stats = rclcpp::Node::make_shared("controller_statistics_node");
+  auto node_stats = rclcpp::Node::make_shared("controller_statistics");
   auto controller_stats_pub =
     node_stats->create_publisher<pendulum_msgs_v2::msg::ControllerStats>(
     "controller_statistics", rclcpp::QoS(1));
