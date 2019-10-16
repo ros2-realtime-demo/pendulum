@@ -63,6 +63,7 @@ public:
     const bool check_memory,
     const rclcpp::NodeOptions & options);
   void on_command_received(const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg);
+  void on_disturbance_received(const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg);
   void sensor_timer_callback();
   void update_driver_callback();
 
@@ -88,10 +89,13 @@ private:
       pendulum_msgs_v2::msg::PendulumState>> sensor_pub_;
   std::shared_ptr<rclcpp::Subscription<
       pendulum_msgs_v2::msg::PendulumCommand>> command_sub_;
+  std::shared_ptr<rclcpp::Subscription<
+      pendulum_msgs_v2::msg::PendulumCommand>> disturbance_sub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
       pendulum_msgs_v2::msg::PendulumStats>> logger_pub_;
 
   rclcpp::SubscriptionOptions command_subscription_options_;
+  rclcpp::SubscriptionOptions disturbance_subscription_options_;
   rclcpp::PublisherOptions sensor_publisher_options_;
 
   rclcpp::TimerBase::SharedPtr sensor_timer_;
@@ -101,8 +105,9 @@ private:
   std::unique_ptr<PendulumDriverInterface> driver_interface_;
   rclcpp::QoS qos_profile_;
   pendulum_msgs_v2::msg::PendulumStats pendulum_stats_message_;
-  pendulum_msgs_v2::msg::PendulumState sensor_message_;
+  pendulum_msgs_v2::msg::PendulumState state_message_;
   pendulum_msgs_v2::msg::PendulumCommand command_message_;
+  pendulum_msgs_v2::msg::PendulumCommand disturbance_message_;
   rusage sys_usage_;
   uint64_t minor_page_faults_at_active_start_ = 0;
   uint64_t major_page_faults_at_active_start_ = 0;

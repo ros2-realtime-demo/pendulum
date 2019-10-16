@@ -55,6 +55,7 @@ public:
   void stop() override;
   void shutdown() override;
   void update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) override;
+  void update_disturbance_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) override;
   void update_sensor_data(pendulum_msgs_v2::msg::PendulumState & msg) override;
   void update() override;
 

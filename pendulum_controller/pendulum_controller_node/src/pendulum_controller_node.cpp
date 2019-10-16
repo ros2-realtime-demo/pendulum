@@ -149,7 +149,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
     };
 
   sub_sensor_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumState>(
-    "pendulum_sensor", qos_profile_,
+    "pendulum_state", qos_profile_,
     std::bind(&PendulumControllerNode::on_sensor_message,
     this, std::placeholders::_1),
     sensor_subscription_options_,

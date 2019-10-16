@@ -95,6 +95,11 @@ void PendulumSimulation::update_command_data(const pendulum_msgs_v2::msg::Pendul
   controller_force_ = msg.cart_force;
 }
 
+void PendulumSimulation::update_disturbance_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)
+{
+  disturbance_force_ = msg.cart_force;
+}
+
 void PendulumSimulation::update_sensor_data(pendulum_msgs_v2::msg::PendulumState & msg)
 {
   msg.cart_position = state_.cart_position;

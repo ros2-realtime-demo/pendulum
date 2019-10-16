@@ -114,7 +114,7 @@ private:
   rclcpp::QoS setpoint_qos_profile_ = rclcpp::QoS(
     rclcpp::KeepLast(10)).transient_local().reliable();
   pendulum_msgs_v2::msg::ControllerStats controller_stats_message_;
-  pendulum_msgs_v2::msg::PendulumState sensor_message_;
+  pendulum_msgs_v2::msg::PendulumState state_message_;
   pendulum_msgs_v2::msg::PendulumCommand command_message_;
   rusage sys_usage_;
   uint64_t minor_page_faults_at_active_start_ = 0;

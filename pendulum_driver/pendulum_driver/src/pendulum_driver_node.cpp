@@ -73,10 +73,17 @@ void PendulumDriverNode::on_command_received(
   driver_interface_->update_command_data(*msg);
 }
 
+void PendulumDriverNode::on_disturbance_received(
+  const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg)
+{
+  driver_interface_->update_disturbance_data(*msg);
+}
+
+
 void PendulumDriverNode::sensor_timer_callback()
 {
-  driver_interface_->update_sensor_data(sensor_message_);
-  sensor_pub_->publish(sensor_message_);
+  driver_interface_->update_sensor_data(state_message_);
+  sensor_pub_->publish(state_message_);
   pendulum_stats_message_.command_stats.msg_count++;
   pendulum_stats_message_.timer_stats.timer_count++;
   timespec curtime;
@@ -143,7 +150,7 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
       this->pendulum_stats_message_.sensor_stats.deadline_misses_count++;
     };
   sensor_pub_ = this->create_publisher<pendulum_msgs_v2::msg::PendulumState>(
-    "pendulum_sensor", qos_profile_, sensor_publisher_options_);
+    "pendulum_state", qos_profile_, sensor_publisher_options_);
 
   this->get_command_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
@@ -156,6 +163,16 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
     this, std::placeholders::_1),
     command_subscription_options_,
     command_msg_strategy);
+
+  auto disturbance_msg_strategy =
+    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
+
+  disturbance_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
+    "pendulum_disturbance", qos_profile_,
+    std::bind(&PendulumDriverNode::on_disturbance_received,
+    this, std::placeholders::_1),
+    rclcpp::SubscriptionOptions(),
+    disturbance_msg_strategy);
 
   sensor_timer_ =
     this->create_wall_timer(publish_period_,
@@ -225,6 +242,7 @@ PendulumDriverNode::on_cleanup(const rclcpp_lifecycle::State &)
   sensor_timer_.reset();
   update_driver_timer_.reset();
   command_sub_.reset();
+  disturbance_sub_.reset();
   sensor_pub_.reset();
   logger_pub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
@@ -237,6 +255,7 @@ PendulumDriverNode::on_shutdown(const rclcpp_lifecycle::State &)
   sensor_timer_.reset();
   update_driver_timer_.reset();
   command_sub_.reset();
+  disturbance_sub_.reset();
   sensor_pub_.reset();
   logger_pub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
