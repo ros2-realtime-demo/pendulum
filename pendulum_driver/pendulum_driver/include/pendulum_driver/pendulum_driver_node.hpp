@@ -88,6 +88,8 @@ private:
       pendulum_msgs_v2::msg::PendulumState>> sensor_pub_;
   std::shared_ptr<rclcpp::Subscription<
       pendulum_msgs_v2::msg::PendulumCommand>> command_sub_;
+  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
+      pendulum_msgs_v2::msg::PendulumStats>> logger_pub_;
 
   rclcpp::SubscriptionOptions command_subscription_options_;
   rclcpp::PublisherOptions sensor_publisher_options_;

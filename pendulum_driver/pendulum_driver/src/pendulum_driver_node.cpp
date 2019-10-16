@@ -163,6 +163,10 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
   // cancel immediately to prevent triggering it in this state
   sensor_timer_->cancel();
 
+  // Initialize the logger publisher.
+  logger_pub_ = this->create_publisher<pendulum_msgs_v2::msg::PendulumStats>(
+    "driver_statistics", 1);
+
   driver_interface_->init();
 
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
@@ -174,6 +178,7 @@ PendulumDriverNode::on_activate(const rclcpp_lifecycle::State &)
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
   sensor_pub_->on_activate();
   sensor_timer_->reset();
+  logger_pub_->on_activate();
 
   update_sys_usage(true);
   if (check_memory_) {
@@ -209,6 +214,7 @@ PendulumDriverNode::on_deactivate(const rclcpp_lifecycle::State &)
 
   sensor_timer_->cancel();
   sensor_pub_->on_deactivate();
+  logger_pub_->on_deactivate();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -220,6 +226,7 @@ PendulumDriverNode::on_cleanup(const rclcpp_lifecycle::State &)
   update_driver_timer_.reset();
   command_sub_.reset();
   sensor_pub_.reset();
+  logger_pub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -231,6 +238,7 @@ PendulumDriverNode::on_shutdown(const rclcpp_lifecycle::State &)
   update_driver_timer_.reset();
   command_sub_.reset();
   sensor_pub_.reset();
+  logger_pub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
