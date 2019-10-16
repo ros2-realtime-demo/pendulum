@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(pendulum_controller)
+project(pendulum_controllers)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -13,26 +13,26 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(pendulum_msgs_v2 REQUIRED)
-find_package(rclcpp_lifecycle REQUIRED)
-find_package(lifecycle_msgs REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(rclcpp_components REQUIRED)
-find_package(rttest REQUIRED)
+find_package(pendulum_controller_node REQUIRED)
 
 include_directories(
   include
-  ${lifecycle_msgs_INCLUDE_DIRS}
-  ${rclcpp_lifecycle_INCLUDE_DIRS}
-  ${rclcpp_INCLUDE_DIRS})
+  ${pendulum_msgs_v2_INCLUDE_DIRS})
 
-add_library(pendulum_controller INTERFACE)
+add_library(pendulum_controllers SHARED
+  src/full_state_feedback_controller.cpp)
 
-target_include_directories(pendulum_controller
-  INTERFACE
+target_include_directories(pendulum_controllers
+  PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
 ament_export_include_directories(include)
+ament_export_libraries(pendulum_controllers)
+
+ament_target_dependencies(pendulum_controllers
+        "pendulum_controller_node"
+        "pendulum_msgs_v2")
 
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported
@@ -47,7 +47,7 @@ install(
 )
 
 install(TARGETS
-        pendulum_controller
+        pendulum_controllers
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)

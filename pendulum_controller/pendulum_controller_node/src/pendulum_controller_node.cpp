@@ -149,7 +149,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
     };
 
   sub_sensor_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumState>(
-    "pendulum_sensor", qos_profile_,
+    "pendulum_state", qos_profile_,
     std::bind(&PendulumControllerNode::on_sensor_message,
     this, std::placeholders::_1),
     sensor_subscription_options_,
@@ -180,7 +180,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
 
   // Initialize the logger publisher.
   logger_pub_ = this->create_publisher<pendulum_msgs_v2::msg::ControllerStats>(
-    "pendulum_statistics", 1);
+    "controller_statistics", 1);
 
   return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
@@ -193,6 +193,7 @@ PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
   logger_pub_->on_activate();
   timer_->reset();
 
+  controller_->reset();
   if (check_memory_) {
   #ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
     osrf_testing_tools_cpp::memory_tools::expect_no_calloc_begin();

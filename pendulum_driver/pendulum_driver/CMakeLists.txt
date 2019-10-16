@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(pendulum_motor_node)
+project(pendulum_driver)
 
 set(OPTIONAL_AMENT_DEPENDENCES)
 set(OPTIONAL_LIBRARIES)
@@ -23,14 +23,13 @@ find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(rttest REQUIRED)
-find_package(pendulum_motor_driver REQUIRED)
 find_package(pendulum_tools REQUIRED)
 
 find_package(osrf_testing_tools_cpp)
 if(${osrf_testing_tools_cpp_FOUND})
     list(APPEND OPTIONAL_AMENT_DEPENDENCES "osrf_testing_tools_cpp")
     list(APPEND OPTIONAL_LIBRARIES osrf_testing_tools_cpp::memory_tools)
-    add_definitions(-DPENDULUM_MOTOR_MEMORYTOOLS_ENABLED)
+    add_definitions(-DPENDULUM_DRIVER_MEMORYTOOLS_ENABLED)
 endif()
 
 include_directories(
@@ -40,32 +39,31 @@ include_directories(
   ${rclcpp_INCLUDE_DIRS}
   ${osrf_testing_tools_cpp_INCLUDE_DIR})
 
-add_library(pendulum_motor_node SHARED
-        src/pendulum_motor_node.cpp)
+add_library(pendulum_driver SHARED
+src/pendulum_driver_node.cpp)
 
-target_include_directories(pendulum_motor_node
+target_include_directories(pendulum_driver
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
-target_compile_definitions(pendulum_motor_node
+target_compile_definitions(pendulum_driver
         PRIVATE "COMPOSITION_BUILDING_DLL")
 
 ament_export_include_directories(include)
-ament_export_libraries(pendulum_motor_node)
+ament_export_libraries(pendulum_driver)
 
-ament_target_dependencies(pendulum_motor_node
+ament_target_dependencies(pendulum_driver
         "rclcpp_lifecycle"
         "lifecycle_msgs"
         "pendulum_msgs_v2"
         "rclcpp"
         "rttest"
-        "pendulum_motor_driver"
         "rclcpp_components"
         "pendulum_tools"
         ${OPTIONAL_AMENT_DEPENDENCES})
-rclcpp_components_register_nodes(pendulum_motor_node "pendulum::MotorNode")
-target_link_libraries(pendulum_motor_node ${OPTIONAL_LIBRARIES})
+rclcpp_components_register_nodes(pendulum_driver "pendulum::PendulumDriverNode")
+target_link_libraries(pendulum_driver ${OPTIONAL_LIBRARIES})
 
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported
@@ -80,7 +78,7 @@ install(
 )
 
 install(TARGETS
-        pendulum_motor_node
+        pendulum_driver
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)

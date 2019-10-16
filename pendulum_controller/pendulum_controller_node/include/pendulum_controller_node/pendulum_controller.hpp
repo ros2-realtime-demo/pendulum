@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_MOTOR_DRIVER__PENDULUM_MOTOR_DRIVER_HPP_
-#define PENDULUM_MOTOR_DRIVER__PENDULUM_MOTOR_DRIVER_HPP_
+#ifndef PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_HPP_
+#define PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_HPP_
 
 #include "pendulum_msgs_v2/msg/pendulum_command.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
@@ -21,14 +21,16 @@
 namespace pendulum
 {
 
-class PendulumMotor
+class PendulumController
 {
 public:
-  virtual void update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) = 0;
-  virtual void update_sensor_data(pendulum_msgs_v2::msg::PendulumState & msg) = 0;
+  virtual void update_setpoint_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) = 0;
+  virtual void update_sensor_data(const pendulum_msgs_v2::msg::PendulumState & msg) = 0;
+  virtual void update_command_data(pendulum_msgs_v2::msg::PendulumCommand & msg) = 0;
   virtual void update() = 0;
+  virtual void reset() = 0;
 };
 
 }  // namespace pendulum
 
-#endif  // PENDULUM_MOTOR_DRIVER__PENDULUM_MOTOR_DRIVER_HPP_
+#endif  // PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_HPP_

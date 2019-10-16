@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
-#define PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
+#ifndef PENDULUM_DRIVER__PENDULUM_DRIVER_INTERFACE_HPP_
+#define PENDULUM_DRIVER__PENDULUM_DRIVER_INTERFACE_HPP_
 
 #include "pendulum_msgs_v2/msg/pendulum_command.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
@@ -21,15 +21,19 @@
 namespace pendulum
 {
 
-class PendulumController
+class PendulumDriverInterface
 {
 public:
-  virtual void update_setpoint_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) = 0;
-  virtual void update_sensor_data(const pendulum_msgs_v2::msg::PendulumState & msg) = 0;
-  virtual void update_command_data(pendulum_msgs_v2::msg::PendulumCommand & msg) = 0;
+  virtual void update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) = 0;
+  virtual void update_disturbance_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) = 0;
+  virtual void update_sensor_data(pendulum_msgs_v2::msg::PendulumState & msg) = 0;
   virtual void update() = 0;
+  virtual bool init() = 0;
+  virtual void start() = 0;
+  virtual void stop() = 0;
+  virtual void shutdown() = 0;
 };
 
 }  // namespace pendulum
 
-#endif  // PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
+#endif  // PENDULUM_DRIVER__PENDULUM_DRIVER_INTERFACE_HPP_

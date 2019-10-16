@@ -20,6 +20,6 @@ build_test_pendullum:
 	-DCMAKE_CXX_FLAGS='-fprofile-arcs -ftest-coverage' \
 	-DCMAKE_C_FLAGS='-fprofile-arcs -ftest-coverage'"
     - colcon lcov-result --initial
-    - colcon test --merge-install
+    - colcon test --merge-install --return-code-on-test-failure
     - colcon lcov-result --filter "test"
   coverage: /\s*lines.*:\s(\d+\.\d+\%\s\(\d+\sof\s\d+.*\))/

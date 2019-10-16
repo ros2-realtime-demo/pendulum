@@ -16,7 +16,7 @@
 #include <memory>
 #include <utility>
 
-#include "pendulum_motor_node/pendulum_motor_node.hpp"
+#include "pendulum_driver/pendulum_driver_node.hpp"
 #include "rttest/utils.h"
 
 namespace pendulum
@@ -25,9 +25,9 @@ namespace pendulum
 using rclcpp::strategies::message_pool_memory_strategy::MessagePoolMemoryStrategy;
 using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
 
-PendulumMotorNode::PendulumMotorNode(
+PendulumDriverNode::PendulumDriverNode(
   const std::string & node_name,
-  std::unique_ptr<PendulumMotor> motor,
+  std::unique_ptr<PendulumDriverInterface> driver_interface,
   std::chrono::nanoseconds publish_period,
   const rclcpp::QoS & qos_profile,
   const bool check_memory = false,
@@ -35,13 +35,13 @@ PendulumMotorNode::PendulumMotorNode(
   rclcpp::NodeOptions().use_intra_process_comms(false))
 : rclcpp_lifecycle::LifecycleNode(node_name, options),
   publish_period_(publish_period),
-  motor_(std::move(motor)),
+  driver_interface_(std::move(driver_interface)),
   qos_profile_(qos_profile),
   check_memory_(check_memory),
   timer_jitter_(publish_period)
 {
   if (check_memory_) {
-  #ifdef PENDULUM_MOTOR_MEMORYTOOLS_ENABLED
+  #ifdef PENDULUM_DRIVER_MEMORYTOOLS_ENABLED
     osrf_testing_tools_cpp::memory_tools::initialize();
     osrf_testing_tools_cpp::memory_tools::enable_monitoring();
     if (!osrf_testing_tools_cpp::memory_tools::is_working()) {
@@ -66,67 +66,74 @@ PendulumMotorNode::PendulumMotorNode(
   }
 }
 
-void PendulumMotorNode::on_command_received(
+void PendulumDriverNode::on_command_received(
   const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg)
 {
-  motor_stats_message_.sensor_stats.msg_count++;
-  motor_->update_command_data(*msg);
+  pendulum_stats_message_.sensor_stats.msg_count++;
+  driver_interface_->update_command_data(*msg);
 }
 
-void PendulumMotorNode::sensor_timer_callback()
+void PendulumDriverNode::on_disturbance_received(
+  const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg)
 {
-  motor_->update_sensor_data(sensor_message_);
-  sensor_pub_->publish(sensor_message_);
-  motor_stats_message_.command_stats.msg_count++;
-  motor_stats_message_.timer_stats.timer_count++;
+  driver_interface_->update_disturbance_data(*msg);
+}
+
+
+void PendulumDriverNode::sensor_timer_callback()
+{
+  driver_interface_->update_sensor_data(state_message_);
+  sensor_pub_->publish(state_message_);
+  pendulum_stats_message_.command_stats.msg_count++;
+  pendulum_stats_message_.timer_stats.timer_count++;
   timespec curtime;
   clock_gettime(CLOCK_REALTIME, &curtime);
-  motor_stats_message_.timer_stats.stamp.sec = curtime.tv_sec;
-  motor_stats_message_.timer_stats.stamp.nanosec = curtime.tv_nsec;
+  pendulum_stats_message_.timer_stats.stamp.sec = curtime.tv_sec;
+  pendulum_stats_message_.timer_stats.stamp.nanosec = curtime.tv_nsec;
 
   timer_jitter_.update();
-  motor_stats_message_.timer_stats.jitter_mean_nsec = timer_jitter_.get_mean();
-  motor_stats_message_.timer_stats.jitter_min_nsec = timer_jitter_.get_min();
-  motor_stats_message_.timer_stats.jitter_max_nsec = timer_jitter_.get_max();
-  motor_stats_message_.timer_stats.jitter_standard_dev_nsec = timer_jitter_.get_std();
+  pendulum_stats_message_.timer_stats.jitter_mean_nsec = timer_jitter_.get_mean();
+  pendulum_stats_message_.timer_stats.jitter_min_nsec = timer_jitter_.get_min();
+  pendulum_stats_message_.timer_stats.jitter_max_nsec = timer_jitter_.get_max();
+  pendulum_stats_message_.timer_stats.jitter_standard_dev_nsec = timer_jitter_.get_std();
 }
 
-void PendulumMotorNode::update_motor_callback()
+void PendulumDriverNode::update_driver_callback()
 {
-  motor_->update();
+  driver_interface_->update();
 }
 
-const pendulum_msgs_v2::msg::MotorStats &
-PendulumMotorNode::get_motor_stats_message() const
+const pendulum_msgs_v2::msg::PendulumStats &
+PendulumDriverNode::get_stats_message() const
 {
-  return motor_stats_message_;
+  return pendulum_stats_message_;
 }
 
 // TODO(carlossvg): this function may be duplicated, move it to a tools package
-void PendulumMotorNode::update_sys_usage(bool update_active_page_faults)
+void PendulumDriverNode::update_sys_usage(bool update_active_page_faults)
 {
   const auto ret = getrusage(RUSAGE_SELF, &sys_usage_);
   if (ret == 0) {
-    motor_stats_message_.rusage_stats.max_resident_set_size = sys_usage_.ru_maxrss;
-    motor_stats_message_.rusage_stats.total_minor_pagefaults = sys_usage_.ru_minflt;
-    motor_stats_message_.rusage_stats.total_major_pagefaults = sys_usage_.ru_majflt;
-    motor_stats_message_.rusage_stats.voluntary_context_switches = sys_usage_.ru_nvcsw;
-    motor_stats_message_.rusage_stats.involuntary_context_switches = sys_usage_.ru_nivcsw;
+    pendulum_stats_message_.rusage_stats.max_resident_set_size = sys_usage_.ru_maxrss;
+    pendulum_stats_message_.rusage_stats.total_minor_pagefaults = sys_usage_.ru_minflt;
+    pendulum_stats_message_.rusage_stats.total_major_pagefaults = sys_usage_.ru_majflt;
+    pendulum_stats_message_.rusage_stats.voluntary_context_switches = sys_usage_.ru_nvcsw;
+    pendulum_stats_message_.rusage_stats.involuntary_context_switches = sys_usage_.ru_nivcsw;
     if (update_active_page_faults) {
       minor_page_faults_at_active_start_ = sys_usage_.ru_minflt;
       major_page_faults_at_active_start_ = sys_usage_.ru_majflt;
     }
     if (this->get_current_state().label() == "active") {
-      motor_stats_message_.rusage_stats.minor_pagefaults_active_node =
+      pendulum_stats_message_.rusage_stats.minor_pagefaults_active_node =
         sys_usage_.ru_minflt - minor_page_faults_at_active_start_;
-      motor_stats_message_.rusage_stats.major_pagefaults_active_node =
+      pendulum_stats_message_.rusage_stats.major_pagefaults_active_node =
         sys_usage_.ru_majflt - major_page_faults_at_active_start_;
     }
   }
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
+PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
 {
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_configure() is called.");
 
@@ -140,42 +147,59 @@ PendulumMotorNode::on_configure(const rclcpp_lifecycle::State &)
   this->get_sensor_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
-      this->motor_stats_message_.sensor_stats.deadline_misses_count++;
+      this->pendulum_stats_message_.sensor_stats.deadline_misses_count++;
     };
   sensor_pub_ = this->create_publisher<pendulum_msgs_v2::msg::PendulumState>(
-    "pendulum_sensor", qos_profile_, sensor_publisher_options_);
+    "pendulum_state", qos_profile_, sensor_publisher_options_);
 
   this->get_command_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
-      this->motor_stats_message_.command_stats.deadline_misses_count++;
+      this->pendulum_stats_message_.command_stats.deadline_misses_count++;
     };
   command_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
     "pendulum_command", qos_profile_,
-    std::bind(&PendulumMotorNode::on_command_received,
+    std::bind(&PendulumDriverNode::on_command_received,
     this, std::placeholders::_1),
     command_subscription_options_,
     command_msg_strategy);
 
+  auto disturbance_msg_strategy =
+    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
+
+  disturbance_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
+    "pendulum_disturbance", qos_profile_,
+    std::bind(&PendulumDriverNode::on_disturbance_received,
+    this, std::placeholders::_1),
+    rclcpp::SubscriptionOptions(),
+    disturbance_msg_strategy);
+
   sensor_timer_ =
     this->create_wall_timer(publish_period_,
-      std::bind(&PendulumMotorNode::sensor_timer_callback, this));
+      std::bind(&PendulumDriverNode::sensor_timer_callback, this));
   // cancel immediately to prevent triggering it in this state
   sensor_timer_->cancel();
+
+  // Initialize the logger publisher.
+  logger_pub_ = this->create_publisher<pendulum_msgs_v2::msg::PendulumStats>(
+    "driver_statistics", 1);
+
+  driver_interface_->init();
 
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-PendulumMotorNode::on_activate(const rclcpp_lifecycle::State &)
+PendulumDriverNode::on_activate(const rclcpp_lifecycle::State &)
 {
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
   sensor_pub_->on_activate();
   sensor_timer_->reset();
+  logger_pub_->on_activate();
 
   update_sys_usage(true);
   if (check_memory_) {
-  #ifdef PENDULUM_MOTOR_MEMORYTOOLS_ENABLED
+  #ifdef PENDULUM_DRIVER_MEMORYTOOLS_ENABLED
     osrf_testing_tools_cpp::memory_tools::expect_no_calloc_begin();
     osrf_testing_tools_cpp::memory_tools::expect_no_free_begin();
     osrf_testing_tools_cpp::memory_tools::expect_no_malloc_begin();
@@ -183,14 +207,16 @@ PendulumMotorNode::on_activate(const rclcpp_lifecycle::State &)
   #endif
   }
 
+  driver_interface_->start();
+
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-PendulumMotorNode::on_deactivate(const rclcpp_lifecycle::State &)
+PendulumDriverNode::on_deactivate(const rclcpp_lifecycle::State &)
 {
   if (check_memory_) {
-  #ifdef PENDULUM_MOTOR_MEMORYTOOLS_ENABLED
+  #ifdef PENDULUM_DRIVER_MEMORYTOOLS_ENABLED
     osrf_testing_tools_cpp::memory_tools::expect_no_calloc_end();
     osrf_testing_tools_cpp::memory_tools::expect_no_free_end();
     osrf_testing_tools_cpp::memory_tools::expect_no_malloc_end();
@@ -198,32 +224,40 @@ PendulumMotorNode::on_deactivate(const rclcpp_lifecycle::State &)
   #endif
   }
 
+  driver_interface_->stop();
+
   update_sys_usage(false);
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
 
   sensor_timer_->cancel();
   sensor_pub_->on_deactivate();
+  logger_pub_->on_deactivate();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-PendulumMotorNode::on_cleanup(const rclcpp_lifecycle::State &)
+PendulumDriverNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
+  driver_interface_->shutdown();
   sensor_timer_.reset();
-  update_motor_timer_.reset();
+  update_driver_timer_.reset();
   command_sub_.reset();
+  disturbance_sub_.reset();
   sensor_pub_.reset();
+  logger_pub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-PendulumMotorNode::on_shutdown(const rclcpp_lifecycle::State &)
+PendulumDriverNode::on_shutdown(const rclcpp_lifecycle::State &)
 {
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_shutdown() is called.");
   sensor_timer_.reset();
-  update_motor_timer_.reset();
+  update_driver_timer_.reset();
   command_sub_.reset();
+  disturbance_sub_.reset();
   sensor_pub_.reset();
+  logger_pub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -235,4 +269,4 @@ PendulumMotorNode::on_shutdown(const rclcpp_lifecycle::State &)
 // This acts as a sort of entry point,
 // allowing the component to be discoverable when its library
 // is being loaded into a running process.
-RCLCPP_COMPONENTS_REGISTER_NODE(pendulum::PendulumMotorNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(pendulum::PendulumDriverNode)

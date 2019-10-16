@@ -1,28 +1,19 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
-  <name>pendulum_motor_node</name>
+  <name>pendulum_simulation</name>
   <version>0.0.1</version>
-  <description>Implementation of the ROS 2 interface for the pendulum motor</description>
+  <description>Implements a class to communicate with a real or simulated motor</description>
   <maintainer email="carlos.svic@gmail.com">Carlos San Vicente</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <build_depend>lifecycle_msgs</build_depend>
   <build_depend>pendulum_msgs_v2</build_depend>
-  <build_depend>pendulum_motor_driver</build_depend>
-  <build_depend>rclcpp_lifecycle</build_depend>
-  <build_depend>rttest</build_depend>
-  <build_depend>osrf_testing_tools_cpp</build_depend>
-  <build_depend>pendulum_tools</build_depend>
+  <build_depend>pendulum_driver</build_depend>
 
-  <exec_depend>rttest</exec_depend>
   <exec_depend>pendulum_msgs_v2</exec_depend>
-  <exec_depend>rclcpp_lifecycle</exec_depend>
-  <exec_depend>lifecycle_msgs</exec_depend>
-  <exec_depend>ros2run</exec_depend>
-  <exec_depend>pendulum_tools</exec_depend>
+  <exec_depend>pendulum_driver</exec_depend>
 
   <test_depend>ament_cmake_gmock</test_depend>
   <test_depend>ament_cmake_gtest</test_depend>

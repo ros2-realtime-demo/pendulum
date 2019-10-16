@@ -22,9 +22,9 @@ find_package(rclcpp_components REQUIRED)
 find_package(rttest)
 find_package(rcutils)
 find_package(pendulum_msgs_v2 REQUIRED)
-find_package(pendulum_motor_driver REQUIRED)
-find_package(pendulum_controller REQUIRED)
-find_package(pendulum_motor_node REQUIRED)
+find_package(pendulum_simulation REQUIRED)
+find_package(pendulum_controllers REQUIRED)
+find_package(pendulum_driver REQUIRED)
 find_package(pendulum_controller_node REQUIRED)
 
 find_package(osrf_testing_tools_cpp)
@@ -61,9 +61,9 @@ ament_target_dependencies(pendulum_manual_composition
         "rttest"
         "lifecycle_msgs"
         "pendulum_msgs_v2"
-        "pendulum_motor_driver"
-        "pendulum_controller"
-        "pendulum_motor_node"
+        "pendulum_simulation"
+        "pendulum_controllers"
+        "pendulum_driver"
         "pendulum_controller_node"
         ${OPTIONAL_AMENT_DEPENDENCES})
 
@@ -82,18 +82,18 @@ ament_target_dependencies(pendulum_controller_standalone
         "rttest"
         "lifecycle_msgs"
         "pendulum_msgs_v2"
-        "pendulum_controller"
+        "pendulum_controllers"
         "pendulum_controller_node"
         ${OPTIONAL_AMENT_DEPENDENCES})
 
 target_link_libraries(pendulum_controller_standalone ${OPTIONAL_LIBRARIES})
 
-add_executable(pendulum_motor_standalone
-  "src/pendulum_motor_standalone.cpp")
+add_executable(pendulum_driver_standalone
+  "src/pendulum_driver_standalone.cpp")
 
 ament_export_include_directories(include)
 
-ament_target_dependencies(pendulum_motor_standalone
+ament_target_dependencies(pendulum_driver_standalone
         "rclcpp"
         "rclcpp_lifecycle"
         "rclcpp_components"
@@ -101,11 +101,11 @@ ament_target_dependencies(pendulum_motor_standalone
         "rttest"
         "lifecycle_msgs"
         "pendulum_msgs_v2"
-        "pendulum_motor_driver"
-        "pendulum_motor_node"
+        "pendulum_simulation"
+        "pendulum_driver"
         ${OPTIONAL_AMENT_DEPENDENCES})
 
-target_link_libraries(pendulum_motor_standalone ${OPTIONAL_LIBRARIES})
+target_link_libraries(pendulum_driver_standalone ${OPTIONAL_LIBRARIES})
 
 
 # since the package installs libraries without exporting them
@@ -118,7 +118,7 @@ endif()
 install(TARGETS
         pendulum_manual_composition
         pendulum_controller_standalone
-        pendulum_motor_standalone
+        pendulum_driver_standalone
         DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
