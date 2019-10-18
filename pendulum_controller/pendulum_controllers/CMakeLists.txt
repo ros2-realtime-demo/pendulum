@@ -14,6 +14,8 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(pendulum_msgs_v2 REQUIRED)
 find_package(pendulum_controller_node REQUIRED)
+find_package(sensor_msgs REQUIRED)
+
 
 include_directories(
   include
@@ -32,7 +34,8 @@ ament_export_libraries(pendulum_controllers)
 
 ament_target_dependencies(pendulum_controllers
         "pendulum_controller_node"
-        "pendulum_msgs_v2")
+        "pendulum_msgs_v2"
+        "sensor_msgs")
 
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported

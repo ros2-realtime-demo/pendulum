@@ -37,7 +37,7 @@ public:
     const std::vector<double> & feedback_matrix);
 
   void update_setpoint_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) override;
-  void update_sensor_data(const pendulum_msgs_v2::msg::PendulumState & msg) override;
+  void update_sensor_data(const sensor_msgs::msg::JointState & msg) override;
   void update_command_data(pendulum_msgs_v2::msg::PendulumCommand & msg) override;
   void update() override;
   void reset() override;

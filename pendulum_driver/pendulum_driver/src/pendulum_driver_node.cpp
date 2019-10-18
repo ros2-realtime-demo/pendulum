@@ -40,6 +40,17 @@ PendulumDriverNode::PendulumDriverNode(
   check_memory_(check_memory),
   timer_jitter_(publish_period)
 {
+  // Initiliaze joint message
+  state_message_.name.push_back("cart_base_joint");
+  state_message_.position.push_back(0.0);
+  state_message_.velocity.push_back(0.0);
+  state_message_.effort.push_back(0.0);
+
+  state_message_.name.push_back("pole_joint");
+  state_message_.position.push_back(0.0);
+  state_message_.velocity.push_back(0.0);
+  state_message_.effort.push_back(0.0);
+
   if (check_memory_) {
   #ifdef PENDULUM_DRIVER_MEMORYTOOLS_ENABLED
     osrf_testing_tools_cpp::memory_tools::initialize();
@@ -149,8 +160,8 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
     {
       this->pendulum_stats_message_.sensor_stats.deadline_misses_count++;
     };
-  sensor_pub_ = this->create_publisher<pendulum_msgs_v2::msg::PendulumState>(
-    "pendulum_state", qos_profile_, sensor_publisher_options_);
+  sensor_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
+    "joint_states", qos_profile_, sensor_publisher_options_);
 
   this->get_command_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
@@ -168,7 +179,7 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
     std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
 
   disturbance_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
-    "pendulum_disturbance", qos_profile_,
+    "pendulum_disturbance", rclcpp::QoS(1),
     std::bind(&PendulumDriverNode::on_disturbance_received,
     this, std::placeholders::_1),
     rclcpp::SubscriptionOptions(),

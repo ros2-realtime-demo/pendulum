@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<robot name="inverted_pendulum">
+
+  <material name="blue">
+    <color rgba="0 0 0.8 1"/>
+  </material>
+  <material name="black">
+    <color rgba="0 0 0 1"/>
+  </material>
+  <material name="white">
+    <color rgba="1 1 1 1"/>
+  </material>
+  <material name="red">
+    <color rgba="0.8 0 0 1"/>
+  </material>
+
+  <link name="world"/>
+  <link name="base_link">
+  </link>
+
+  <joint name="base_link_joint" type="fixed">
+    <origin xyz="0 0 0.2" rpy="0 0 0"/>
+    <parent link="world"/>
+    <child link="base_link"/>
+  </joint>
+
+  <link name="cart">
+    <visual>
+      <geometry>
+        <box size="0.4 0.4 1.0"/>
+      </geometry>
+      <origin rpy="0 1.57075 0" xyz="0 0 0"/>
+      <material name="red"/>
+    </visual>
+  </link>
+
+  <joint name="cart_base_joint" type="prismatic">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="cart"/>
+    <limit effort="1000.0" lower="-20.0" upper="20.0" velocity="1.0"/>
+  </joint>
+
+  <link name="bearing">
+    <visual>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+      <origin rpy="1.57075 0 0" xyz="0 0 0"/>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <joint name="bearing_joint" type="fixed">
+    <origin xyz="0 0 0.2" rpy="0 0 0"/>
+    <parent link="cart"/>
+    <child link="bearing"/>
+  </joint>
+
+  <link name="pole">
+    <visual>
+      <geometry>
+        <cylinder length="1.5" radius="0.01"/>
+      </geometry>
+      <material name="black"/>
+      <origin rpy="0 0 -1.57075" xyz="0.0 0 -0.75"/>
+    </visual>
+  </link>
+
+  <joint name="pole_joint" type="revolute">
+    <origin xyz="0 0 0.1" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <parent link="cart"/>
+    <child link="pole"/>
+    <limit effort="1000.0" lower="-1.57075" upper="1.57075" velocity="1.0"/>
+  </joint>
+
+  <link name="pole_mass">
+    <visual>
+      <geometry>
+        <sphere radius="0.075"/>
+      </geometry>
+      <material name="blue"/>
+      <origin rpy="0 0 0" xyz="0.0 0 0.0"/>
+    </visual>
+  </link>
+
+  <joint name="pole_mass_joint" type="fixed">
+    <origin xyz="0 0 -1.5" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <parent link="pole"/>
+    <child link="pole_mass"/>
+  </joint>
+
+  <link name="wheel_l_front_link">
+    <visual>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="0.05"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <link name="wheel_r_front_link">
+    <visual>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="0.05"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <link name="wheel_l_back_link">
+    <visual>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="0.05"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <link name="wheel_r_back_link">
+    <visual>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="0.05"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <joint name="wheel_l_back_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.35 -0.2 -0.2"/>
+    <parent link="cart"/>
+    <child link="wheel_l_back_link"/>
+  </joint>
+
+  <joint name="wheel_r_back_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.35 0.2 -0.2"/>
+    <parent link="cart"/>
+    <child link="wheel_r_back_link"/>
+  </joint>
+
+  <joint name="wheel_l_front_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.35 -0.2 -0.2"/>
+    <parent link="cart"/>
+    <child link="wheel_l_front_link"/>
+  </joint>
+
+  <joint name="wheel_r_front_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.35 0.2 -0.2"/>
+    <parent link="cart"/>
+    <child link="wheel_r_front_link"/>
+  </joint>
+
+</robot>

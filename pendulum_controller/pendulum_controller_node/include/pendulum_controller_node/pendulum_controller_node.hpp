@@ -37,6 +37,7 @@
 #include "rcutils/logging_macros.h"
 #include "pendulum_msgs_v2/msg/pendulum_command.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
+#include "sensor_msgs/msg/joint_state.hpp"
 #include "pendulum_controller_node/visibility_control.hpp"
 #include "pendulum_controller_node/pendulum_controller.hpp"
 #include "pendulum_tools/timing_analyzer.hpp"
@@ -69,7 +70,7 @@ public:
     const bool check_memory,
     const rclcpp::NodeOptions & options);
 
-  void on_sensor_message(const pendulum_msgs_v2::msg::PendulumState::SharedPtr msg);
+  void on_sensor_message(const sensor_msgs::msg::JointState::SharedPtr msg);
   void on_pendulum_setpoint(
     const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg);
 
@@ -94,7 +95,7 @@ public:
 
 private:
   std::shared_ptr<rclcpp::Subscription<
-      pendulum_msgs_v2::msg::PendulumState>> sub_sensor_;
+      sensor_msgs::msg::JointState>> sub_sensor_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
       pendulum_msgs_v2::msg::PendulumCommand>> command_pub_;
   std::shared_ptr<rclcpp::Subscription<
@@ -114,7 +115,7 @@ private:
   rclcpp::QoS setpoint_qos_profile_ = rclcpp::QoS(
     rclcpp::KeepLast(10)).transient_local().reliable();
   pendulum_msgs_v2::msg::ControllerStats controller_stats_message_;
-  pendulum_msgs_v2::msg::PendulumState state_message_;
+  sensor_msgs::msg::JointState state_message_;
   pendulum_msgs_v2::msg::PendulumCommand command_message_;
   rusage sys_usage_;
   uint64_t minor_page_faults_at_active_start_ = 0;
