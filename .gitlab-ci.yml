@@ -13,7 +13,7 @@ build_test_pendullum:
     - mv * $WS_SRC && cd WS
     - apt update && apt install -y lcov
     - "rosdep install -q -y --from-paths . --ignore-src \
-     --rosdistro ${ROS_DISTRO} --as-root=apt:false || true"
+     --rosdistro ${ROS_DISTRO} --skip-keys 'pendulum_sensors' --as-root=apt:false || true"
     - pip3 install colcon-lcov-result
   script:
     - "colcon build --merge-install --cmake-args \
