@@ -43,6 +43,7 @@ struct PendulumState
   double cart_velocity = 0.0;
   double pole_angle = PI;  // UPvirtual
   double pole_velocity = 0.0;
+  double cart_force = 0.0;
 };
 
 class PendulumSimulation : public PendulumDriverInterface
@@ -56,7 +57,7 @@ public:
   void shutdown() override;
   void update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) override;
   void update_disturbance_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) override;
-  void update_sensor_data(pendulum_msgs_v2::msg::PendulumState & msg) override;
+  void update_sensor_data(sensor_msgs::msg::JointState & msg) override;
   void update() override;
 
 private:

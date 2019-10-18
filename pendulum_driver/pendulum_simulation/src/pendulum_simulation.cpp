@@ -21,7 +21,7 @@ namespace pendulum
 PendulumSimulation::PendulumSimulation(std::chrono::nanoseconds physics_update_period)
 : physics_update_period_(physics_update_period), done_(false),
   ode_solver_(4), X_{0.0, 0.0, PI, 0.0},
-  rand_gen_(rd()), noise_gen_(std::uniform_real_distribution<double>(-0.01, 0.01))
+  rand_gen_(rd()), noise_gen_(std::uniform_real_distribution<double>(-1.0, 1.0))
 {
   // Calculate the controller timestep (for discrete differentiation/integration).
   dt_ = physics_update_period_.count() / (1000.0 * 1000.0 * 1000.0);
@@ -104,12 +104,14 @@ void PendulumSimulation::update_disturbance_data(const pendulum_msgs_v2::msg::Pe
   disturbance_force_ = msg.cart_force;
 }
 
-void PendulumSimulation::update_sensor_data(pendulum_msgs_v2::msg::PendulumState & msg)
+void PendulumSimulation::update_sensor_data(sensor_msgs::msg::JointState & msg)
 {
-  msg.cart_position = state_.cart_position;
-  msg.cart_velocity = state_.cart_velocity;
-  msg.pole_angle = state_.pole_angle;
-  msg.pole_velocity = state_.pole_velocity;
+  // check size
+  msg.position[0] = state_.cart_position;
+  msg.velocity[0] = state_.cart_velocity;
+  msg.effort[0] = state_.cart_force;
+  msg.position[1] = state_.pole_angle;
+  msg.velocity[1] = state_.pole_velocity;
 }
 
 void PendulumSimulation::update()
@@ -119,6 +121,7 @@ void PendulumSimulation::update()
 
   state_.cart_position = X_[0];
   state_.cart_velocity = X_[1];
+  state_.cart_force = cart_force;
   state_.pole_angle = X_[2];
   state_.pole_velocity = X_[3];
 }

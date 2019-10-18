@@ -24,6 +24,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(rttest REQUIRED)
 find_package(pendulum_tools REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 find_package(osrf_testing_tools_cpp)
 if(${osrf_testing_tools_cpp_FOUND})
@@ -61,6 +62,7 @@ ament_target_dependencies(pendulum_driver
         "rttest"
         "rclcpp_components"
         "pendulum_tools"
+        "sensor_msgs"
         ${OPTIONAL_AMENT_DEPENDENCES})
 rclcpp_components_register_nodes(pendulum_driver "pendulum::PendulumDriverNode")
 target_link_libraries(pendulum_driver ${OPTIONAL_LIBRARIES})

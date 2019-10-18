@@ -39,6 +39,7 @@
 
 #include "pendulum_msgs_v2/msg/pendulum_command.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
+#include "sensor_msgs/msg/joint_state.hpp"
 
 #include "pendulum_tools/timing_analyzer.hpp"
 #include "pendulum_driver/pendulum_driver_interface.hpp"
@@ -86,7 +87,7 @@ public:
 
 private:
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
-      pendulum_msgs_v2::msg::PendulumState>> sensor_pub_;
+      sensor_msgs::msg::JointState>> sensor_pub_;
   std::shared_ptr<rclcpp::Subscription<
       pendulum_msgs_v2::msg::PendulumCommand>> command_sub_;
   std::shared_ptr<rclcpp::Subscription<
@@ -105,7 +106,7 @@ private:
   std::unique_ptr<PendulumDriverInterface> driver_interface_;
   rclcpp::QoS qos_profile_;
   pendulum_msgs_v2::msg::PendulumStats pendulum_stats_message_;
-  pendulum_msgs_v2::msg::PendulumState state_message_;
+  sensor_msgs::msg::JointState state_message_;
   pendulum_msgs_v2::msg::PendulumCommand command_message_;
   pendulum_msgs_v2::msg::PendulumCommand disturbance_message_;
   rusage sys_usage_;

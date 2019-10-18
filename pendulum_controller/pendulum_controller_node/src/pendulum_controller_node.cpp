@@ -69,7 +69,7 @@ PendulumControllerNode::PendulumControllerNode(
 }
 
 void PendulumControllerNode::on_sensor_message(
-  const pendulum_msgs_v2::msg::PendulumState::SharedPtr msg)
+  const sensor_msgs::msg::JointState::SharedPtr msg)
 {
   controller_stats_message_.sensor_stats.msg_count++;
   controller_->update_sensor_data(*msg);
@@ -137,8 +137,9 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
   // Typically, one MessagePoolMemoryStrategy is used per subscription type, and the size of the
   // message pool is determined by the number of threads (the maximum number of concurrent accesses
   // to the subscription).
-  auto state_msg_strategy =
-    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumState, 1>>();
+  // Commented because sensor_msgs::msg::JointState is not a fix size msg type
+  // auto state_msg_strategy =
+  //   std::make_shared<MessagePoolMemoryStrategy<sensor_msgs::msg::JointState, 1>>();
   auto setpoint_msg_strategy =
     std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
 
@@ -148,12 +149,11 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
       controller_stats_message_.sensor_stats.deadline_misses_count++;
     };
 
-  sub_sensor_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumState>(
-    "pendulum_state", qos_profile_,
+  sub_sensor_ = this->create_subscription<sensor_msgs::msg::JointState>(
+    "joint_states", qos_profile_,
     std::bind(&PendulumControllerNode::on_sensor_message,
     this, std::placeholders::_1),
-    sensor_subscription_options_,
-    state_msg_strategy);
+    sensor_subscription_options_);
 
   this->get_command_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineOfferedInfo &) -> void

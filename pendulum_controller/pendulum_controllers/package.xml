@@ -10,10 +10,12 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <build_depend>pendulum_msgs_v2</build_depend>
+  <build_depend>sensor_msgs</build_depend>
   <build_depend>pendulum_controller_node</build_depend>
 
   <exec_depend>pendulum_msgs_v2</exec_depend>
   <exec_depend>pendulum_controller_node</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
 
   <test_depend>ament_cmake_gmock</test_depend>
   <test_depend>ament_cmake_gtest</test_depend>

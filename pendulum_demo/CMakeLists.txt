@@ -26,6 +26,7 @@ find_package(pendulum_simulation REQUIRED)
 find_package(pendulum_controllers REQUIRED)
 find_package(pendulum_driver REQUIRED)
 find_package(pendulum_controller_node REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 find_package(osrf_testing_tools_cpp)
 if(${osrf_testing_tools_cpp_FOUND})
@@ -65,6 +66,7 @@ ament_target_dependencies(pendulum_manual_composition
         "pendulum_controllers"
         "pendulum_driver"
         "pendulum_controller_node"
+        "sensor_msgs"
         ${OPTIONAL_AMENT_DEPENDENCES})
 
 target_link_libraries(pendulum_manual_composition ${OPTIONAL_LIBRARIES})
@@ -84,6 +86,7 @@ ament_target_dependencies(pendulum_controller_standalone
         "pendulum_msgs_v2"
         "pendulum_controllers"
         "pendulum_controller_node"
+        "sensor_msgs"
         ${OPTIONAL_AMENT_DEPENDENCES})
 
 target_link_libraries(pendulum_controller_standalone ${OPTIONAL_LIBRARIES})
@@ -103,6 +106,7 @@ ament_target_dependencies(pendulum_driver_standalone
         "pendulum_msgs_v2"
         "pendulum_simulation"
         "pendulum_driver"
+        "sensor_msgs"
         ${OPTIONAL_AMENT_DEPENDENCES})
 
 target_link_libraries(pendulum_driver_standalone ${OPTIONAL_LIBRARIES})

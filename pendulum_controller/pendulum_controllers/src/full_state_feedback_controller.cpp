@@ -32,12 +32,12 @@ void FullStateFeedbackController::update_setpoint_data(
 }
 
 void FullStateFeedbackController::update_sensor_data(
-  const pendulum_msgs_v2::msg::PendulumState & msg)
+  const sensor_msgs::msg::JointState & msg)
 {
-  state_[0] = msg.cart_position;
-  state_[1] = msg.cart_velocity;
-  state_[2] = msg.pole_angle;
-  state_[3] = msg.pole_velocity;
+  state_[0] = msg.position[0];
+  state_[1] = msg.velocity[0];
+  state_[2] = msg.position[1];
+  state_[3] = msg.velocity[1];
 }
 
 void FullStateFeedbackController::update_command_data(
