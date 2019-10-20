@@ -13,6 +13,7 @@
   <build_depend>pendulum_simulation</build_depend>
   <build_depend>pendulum_controllers</build_depend>
   <build_depend>pendulum_controller_node</build_depend>
+  <build_depend>pendulum_tools</build_depend>
   <build_depend>rttest</build_depend>
   <build_depend>pendulum_msgs_v2</build_depend>
   <build_depend>rclcpp_lifecycle</build_depend>

@@ -21,6 +21,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(rttest)
 find_package(rcutils)
+find_package(pendulum_tools REQUIRED)
 find_package(pendulum_msgs_v2 REQUIRED)
 find_package(pendulum_simulation REQUIRED)
 find_package(pendulum_controllers REQUIRED)
@@ -47,7 +48,8 @@ include_directories(
         ${rclcpp_lifecycle_INCLUDE_DIRS}
         ${rclcpp_INCLUDE_DIRS}
         ${osrf_testing_tools_cpp_INCLUDE_DIR}
-        ${tlsf_cpp_INCLUDE_DIR})
+        ${tlsf_cpp_INCLUDE_DIR}
+        ${pendulum_tools_INCLUDE_DIR})
 
 add_executable(pendulum_manual_composition
   "src/pendulum_manual_composition.cpp")
@@ -67,6 +69,7 @@ ament_target_dependencies(pendulum_manual_composition
         "pendulum_driver"
         "pendulum_controller_node"
         "sensor_msgs"
+        "pendulum_tools"
         ${OPTIONAL_AMENT_DEPENDENCES})
 
 target_link_libraries(pendulum_manual_composition ${OPTIONAL_LIBRARIES})
@@ -87,6 +90,7 @@ ament_target_dependencies(pendulum_controller_standalone
         "pendulum_controllers"
         "pendulum_controller_node"
         "sensor_msgs"
+        "pendulum_tools"
         ${OPTIONAL_AMENT_DEPENDENCES})
 
 target_link_libraries(pendulum_controller_standalone ${OPTIONAL_LIBRARIES})
@@ -107,6 +111,7 @@ ament_target_dependencies(pendulum_driver_standalone
         "pendulum_simulation"
         "pendulum_driver"
         "sensor_msgs"
+        "pendulum_tools"
         ${OPTIONAL_AMENT_DEPENDENCES})
 
 target_link_libraries(pendulum_driver_standalone ${OPTIONAL_LIBRARIES})
