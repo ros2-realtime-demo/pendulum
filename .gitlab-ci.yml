@@ -34,4 +34,4 @@ build_test_symlink:
         - "rosdep install -q -y --from-paths . --ignore-src \
          --rosdistro ${ROS_DISTRO} --as-root=apt:false || true"
     script:
-        - colcon build --symlink-installtall
+        - colcon build --symlink-install
