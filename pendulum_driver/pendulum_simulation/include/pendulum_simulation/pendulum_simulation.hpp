@@ -112,6 +112,8 @@ private:
   double g = -9.8;
   double d = 20.0;
 
+  double max_cart_force_ = 1000;
+
   std::random_device rd;
   std::mt19937 rand_gen_;
   std::uniform_real_distribution<double> noise_gen_;
