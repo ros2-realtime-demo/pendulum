@@ -93,7 +93,7 @@ void PendulumDriverNode::on_disturbance_received(
 
 void PendulumDriverNode::sensor_timer_callback()
 {
-  driver_interface_->update_sensor_data(state_message_);
+  driver_interface_->update_status_data(state_message_);
   sensor_pub_->publish(state_message_);
   pendulum_stats_message_.command_stats.msg_count++;
   pendulum_stats_message_.timer_stats.timer_count++;

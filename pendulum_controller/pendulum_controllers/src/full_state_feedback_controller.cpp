@@ -19,19 +19,18 @@ namespace pendulum
 {
 
 FullStateFeedbackController::FullStateFeedbackController(
-  std::chrono::nanoseconds period,
   const std::vector<double> & feedback_matrix)
-: publish_period_(period), feedback_matrix_(feedback_matrix),
+: feedback_matrix_(feedback_matrix),
   state_{0.0, 0.0, PI, 0.0}, reference_{0.0, 0.0, PI, 0.0} {}
 
 void FullStateFeedbackController::update_setpoint_data(
   const pendulum_msgs_v2::msg::PendulumCommand & msg)
 {
+  // We only allow to set the cart position for the moment
   reference_[1] = msg.cart_position;
-  // reference_[2] = msg.cart_velocity;
 }
 
-void FullStateFeedbackController::update_sensor_data(
+void FullStateFeedbackController::update_status_data(
   const sensor_msgs::msg::JointState & msg)
 {
   state_[0] = msg.position[0];
@@ -46,12 +45,9 @@ void FullStateFeedbackController::update_command_data(
   msg.cart_force = calculate(state_, reference_);
 }
 
-void FullStateFeedbackController::update()
-{
-}
-
 void FullStateFeedbackController::reset()
 {
+  // We reset the controller status tu an up pendulum position by default
   state_[0] = 0.0;
   state_[1] = 0.0;
   state_[2] = PI;
