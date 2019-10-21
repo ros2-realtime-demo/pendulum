@@ -96,7 +96,13 @@ void PendulumSimulation::shutdown()
 
 void PendulumSimulation::update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)
 {
-  controller_force_ = msg.cart_force;
+  if (msg.cart_force > max_cart_force_) {
+    controller_force_ = max_cart_force_;
+  } else if (msg.cart_force < -max_cart_force_) {
+    controller_force_ = -max_cart_force_;
+  } else {
+    controller_force_ = msg.cart_force;
+  }
 }
 
 void PendulumSimulation::update_disturbance_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)
