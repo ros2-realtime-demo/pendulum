@@ -91,7 +91,7 @@ void PendulumDriverNode::on_disturbance_received(
 }
 
 
-void PendulumDriverNode::sensor_timer_callback()
+void PendulumDriverNode::state_timer_callback()
 {
   driver_interface_->update_status_data(state_message_);
   sensor_pub_->publish(state_message_);
@@ -155,7 +155,7 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
   auto command_msg_strategy =
     std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
 
-  this->get_sensor_options().event_callbacks.deadline_callback =
+  this->get_state_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
       this->pendulum_stats_message_.sensor_stats.deadline_misses_count++;
@@ -187,7 +187,7 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
 
   sensor_timer_ =
     this->create_wall_timer(publish_period_,
-      std::bind(&PendulumDriverNode::sensor_timer_callback, this));
+      std::bind(&PendulumDriverNode::state_timer_callback, this));
   // cancel immediately to prevent triggering it in this state
   sensor_timer_->cancel();
 

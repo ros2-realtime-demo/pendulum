@@ -30,7 +30,7 @@
 
 namespace pendulum
 {
-/// \brief This class implements a <a href="https://en.wikipedia.org/wiki/Full_state_feedback">
+/// \class This class implements a <a href="https://en.wikipedia.org/wiki/Full_state_feedback">
 ///        Full State Feedback controller (FSF)</a>
 ///
 ///  The FSF uses the full inernal state of the system to control the system in a closed loop.

@@ -64,11 +64,11 @@ public:
   : rclcpp_lifecycle::LifecycleNode("pendulum_controller", options)
   {}
 
-  /// \brief Main constructor
+  /// \brief Main constructor with parameters
   /// \param[in] node_name Name of the node for rclcpp internals
   /// \param[in] controller Pointer to the controller implementation
   /// \param[in] publish_period Period for the controller command publishing
-  /// \param[in] qos_profile QoS profile for comamnd and sensor topics
+  /// \param[in] qos_profile QoS profile for comamnd and status topics
   /// \param[in] setpoint_qos_profile QoS profile for the setpoint topic
   /// \param[in] check_memory Flag to enable memory allocation checking
   /// \param[in] options Node options for rclcpp internals
@@ -84,7 +84,7 @@ public:
 
   /// \brief Get the sensor subscription's settings options.
   /// \return  subscription's settings options
-  rclcpp::SubscriptionOptions & get_sensor_options() {return sensor_subscription_options_;}
+  rclcpp::SubscriptionOptions & get_state_options() {return sensor_subscription_options_;}
 
   /// \brief Get the command publisher's settings options.
   /// \return  publisher's settings options

@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// \file
+/// \brief This file provides a ROS 2 interface to implement the inverted pendulum driver.
+
 #ifndef PENDULUM_DRIVER__PENDULUM_DRIVER_NODE_HPP_
 #define PENDULUM_DRIVER__PENDULUM_DRIVER_NODE_HPP_
 
@@ -47,15 +50,27 @@
 
 namespace pendulum
 {
-
+/// \class This class implements a node containing a the a simulated inverted pendulum or
+///        the drivers for a real one.
 class PendulumDriverNode : public rclcpp_lifecycle::LifecycleNode
 {
 public:
+  /// \brief Default constructor, needed for node composition
+  /// \param[in] options Node options for rclcpp internals
   COMPOSITION_PUBLIC
   explicit PendulumDriverNode(const rclcpp::NodeOptions & options)
-  : rclcpp_lifecycle::LifecycleNode("PendulumDriver", options),
+  : rclcpp_lifecycle::LifecycleNode("pendulum_driver", options),
     qos_profile_(rclcpp::QoS(1))
   {}
+
+  /// \brief Main constructor with parameters
+  /// \param[in] node_name Name of the node for rclcpp internals
+  /// \param[in] driver_interface Pointer to the driver implementation
+  /// \param[in] publish_period Period for the driver node status publishing
+  /// \param[in] qos_profile QoS profile for comamnd and status topics
+  /// \param[in] check_memory Flag to enable memory allocation checking
+  /// \param[in] options Node options for rclcpp internals
+  /// \throw std::runtime_error If memory checking is enabled but not working or not installed.
   COMPOSITION_PUBLIC PendulumDriverNode(
     const std::string & node_name,
     std::unique_ptr<PendulumDriverInterface> driver_interface,
@@ -63,25 +78,60 @@ public:
     const rclcpp::QoS & qos_profile,
     const bool check_memory,
     const rclcpp::NodeOptions & options);
-  void on_command_received(const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg);
-  void on_disturbance_received(const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg);
-  void sensor_timer_callback();
-  void update_driver_callback();
 
-  /// Get the subscription's settings options.
+  /// \brief Get the command subscription's settings options.
+  /// \return  subscription's settings options
   rclcpp::SubscriptionOptions & get_command_options() {return command_subscription_options_;}
-  rclcpp::PublisherOptions & get_sensor_options() {return sensor_publisher_options_;}
+
+  /// \brief Get the state publisher's settings options.
+  /// \return  publisher's settings options
+  rclcpp::PublisherOptions & get_state_options() {return sensor_publisher_options_;}
+
+  /// \brief Get the driver statistics message.
+  /// \return  last driver statistics message
   const pendulum_msgs_v2::msg::PendulumStats & get_stats_message() const;
+
+  /// \brief Update system usage statistics
+  /// \param[in] update_active_page_faults update paga faults only in active state
   void update_sys_usage(bool update_active_page_faults = false);
 
+private:
+  /// \brief pendulum command topic message callback
+  /// \param[in] msg pendulum command message
+  void on_command_received(const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg);
+
+  /// \brief pendulum disturbance topic message callback
+  /// \param[in] msg pendulum disturbance message
+  void on_disturbance_received(const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg);
+
+  /// \brief pendulum state publish timer callback
+  void state_timer_callback();
+
+  /// \brief pendulum internal status update timer callback
+  void update_driver_callback();
+
+  /// \brief Transition callback for state configuring
+  /// \param[in] lifecycle node state
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_configure(const rclcpp_lifecycle::State &);
+
+  /// \brief Transition callback for state activating
+  /// \param[in] lifecycle node state
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_activate(const rclcpp_lifecycle::State &);
+
+  /// \brief Transition callback for state deactivating
+  /// \param[in] lifecycle node state
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_deactivate(const rclcpp_lifecycle::State &);
+
+  /// \brief Transition callback for state cleaningup
+  /// \param[in] lifecycle node state
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_cleanup(const rclcpp_lifecycle::State &);
+
+  /// \brief Transition callback for state shutting down
+  /// \param[in] lifecycle node state
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_shutdown(const rclcpp_lifecycle::State & state);
 

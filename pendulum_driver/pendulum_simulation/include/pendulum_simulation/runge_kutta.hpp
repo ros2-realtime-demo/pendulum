@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// \file
+/// \brief This file provides an implementation for a Runge-Kutta method to solve
+///        ordinary differential equations (ODE)
+
 #ifndef PENDULUM_SIMULATION__RUNGE_KUTTA_HPP_
 #define PENDULUM_SIMULATION__RUNGE_KUTTA_HPP_
 
@@ -24,6 +28,10 @@ namespace pendulum
 
 using derivativeF = std::function<double (const std::vector<double> &, double, size_t)>;
 
+/// \class This class implements a classic 4th order
+/// <a href="https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods"> Runge Kutta method</a>
+///
+/// This method is based on the trapezoidal rule and it just allocates memory at initialization.
 class RungeKutta
 {
 public:
@@ -37,10 +45,15 @@ public:
     state.resize(dimension);
   }
 
-  // Time step using 4th-orderRunge Kutta and trapezoidal rule
-  // See: https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods
+  /// \brief Time step using 4th-orderRunge Kutta and trapezoidal rule
+  /// \param[in] df Derivative function pointing to the ODE equations to solve
+  /// \param[in,out] y Status vector with the previous status at input and next state at output.
+  /// \param[in] h Time step.
+  /// \param[in] u Single input in the equations.
+  /// \throw std::invalid_argument If the state vector doesn't has wrong dimensions.
   void step(derivativeF df, std::vector<double> & y, double h, double u)
   {
+    // TODO(carlosvg) generalize this function for multiple inputs
     if (y.size() != n) {
       throw std::invalid_argument("wrong state size vector");
     }

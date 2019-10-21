@@ -143,7 +143,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
   auto setpoint_msg_strategy =
     std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
 
-  this->get_sensor_options().event_callbacks.deadline_callback =
+  this->get_state_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
       controller_stats_message_.sensor_stats.deadline_misses_count++;
