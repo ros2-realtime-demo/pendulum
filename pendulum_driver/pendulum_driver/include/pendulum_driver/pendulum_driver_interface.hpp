@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// \file
+/// \brief This file provides the inverted pendulum driver or simulation interface.
 #ifndef PENDULUM_DRIVER__PENDULUM_DRIVER_INTERFACE_HPP_
 #define PENDULUM_DRIVER__PENDULUM_DRIVER_INTERFACE_HPP_
 
@@ -21,20 +23,37 @@
 
 namespace pendulum
 {
-
+/// \class This class creates the interface between the driver node and the driver implementation.
 class PendulumDriverInterface
 {
 public:
+  /// \brief Updates the command data coming from the controller.
+  /// \param[in] msg Command data message.
   virtual void update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) = 0;
+
+  /// \brief Updates the disturbance force data.
+  /// \param[in] msg Disturbance data message.
   virtual void update_disturbance_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) = 0;
-  virtual void update_sensor_data(sensor_msgs::msg::JointState & msg) = 0;
+
+  /// \brief Updates the status data from the driver implementation.
+  /// \param[in,out] msg Status data message.
+  virtual void update_status_data(sensor_msgs::msg::JointState & msg) = 0;
+
+  /// \brief Updates the internal state of the driver implementation if necessary.
   virtual void update() = 0;
+
+  /// \brief Initliaze the internal state of the driver implementation.
   virtual bool init() = 0;
+
+  /// \brief Starts communication with the inverted pendulum or the simulation.
   virtual void start() = 0;
+
+  /// \brief Stops communication with the inverted pendulum or the simulation.
   virtual void stop() = 0;
+
+  /// \brief Shuts down communication with the inverted pendulum or the simulation.
   virtual void shutdown() = 0;
 };
-
 }  // namespace pendulum
 
 #endif  // PENDULUM_DRIVER__PENDULUM_DRIVER_INTERFACE_HPP_

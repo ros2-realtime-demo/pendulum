@@ -72,7 +72,7 @@ void PendulumControllerNode::on_sensor_message(
   const sensor_msgs::msg::JointState::SharedPtr msg)
 {
   controller_stats_message_.sensor_stats.msg_count++;
-  controller_->update_sensor_data(*msg);
+  controller_->update_status_data(*msg);
 }
 
 void PendulumControllerNode::on_pendulum_setpoint(
@@ -143,13 +143,13 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
   auto setpoint_msg_strategy =
     std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
 
-  this->get_sensor_options().event_callbacks.deadline_callback =
+  this->get_state_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
       controller_stats_message_.sensor_stats.deadline_misses_count++;
     };
 
-  sub_sensor_ = this->create_subscription<sensor_msgs::msg::JointState>(
+  state_sub_ = this->create_subscription<sensor_msgs::msg::JointState>(
     "joint_states", qos_profile_,
     std::bind(&PendulumControllerNode::on_sensor_message,
     this, std::placeholders::_1),
@@ -234,7 +234,7 @@ PendulumControllerNode::on_cleanup(const rclcpp_lifecycle::State &)
   timer_.reset();
   command_pub_.reset();
   logger_pub_.reset();
-  sub_sensor_.reset();
+  state_sub_.reset();
   setpoint_sub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
@@ -246,13 +246,11 @@ PendulumControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
   timer_.reset();
   command_pub_.reset();
   logger_pub_.reset();
-  sub_sensor_.reset();
+  state_sub_.reset();
   setpoint_sub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
 }  // namespace pendulum
-
-}  // namespace pendulum
-
 
 #include "rclcpp_components/register_node_macro.hpp"
 

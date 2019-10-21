@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// \file
+/// \brief This file provides an implementation for a simulation of the inverted pendulum.
+
 #ifndef PENDULUM_SIMULATION__PENDULUM_SIMULATION_HPP_
 #define PENDULUM_SIMULATION__PENDULUM_SIMULATION_HPP_
+
 #include <cmath>
 #include <chrono>
 #include <vector>
@@ -41,28 +45,50 @@ struct PendulumState
 {
   double cart_position = 0.0;
   double cart_velocity = 0.0;
-  double pole_angle = PI;  // UPvirtual
+  double pole_angle = PI;  // Up position
   double pole_velocity = 0.0;
   double cart_force = 0.0;
 };
 
+/// \class This class implements a simulation for the inverted pendulum on a cart.
+///
+///  The simulation is based on the equations used in the
+/// <a href="https://www.youtube.com/watch?v=qjhAAQexzLg"> control bootcamp series</a>
 class PendulumSimulation : public PendulumDriverInterface
 {
 public:
   explicit PendulumSimulation(std::chrono::nanoseconds physics_update_period);
 
-  bool init() override;
-  void start() override;
-  void stop() override;
-  void shutdown() override;
-  void update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) override;
-  void update_disturbance_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) override;
-  void update_sensor_data(sensor_msgs::msg::JointState & msg) override;
-  void update() override;
+  /// \brief Updates the command data coming from the controller.
+  /// \param[in] msg Command data message.
+  virtual void update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg);
+
+  /// \brief Updates the disturbance force data.
+  /// \param[in] msg Disturbance data message.
+  virtual void update_disturbance_data(const pendulum_msgs_v2::msg::PendulumCommand & msg);
+
+  /// \brief Updates the status data from the driver implementation.
+  /// \param[in,out] msg Status data message.
+  virtual void update_status_data(sensor_msgs::msg::JointState & msg);
+
+  /// \brief Updates the internal state of the driver implementation if necessary.
+  virtual void update();
+
+  /// \brief Initliaze the internal state of the driver implementation.
+  virtual bool init();
+
+  /// \brief Starts communication with the inverted pendulum or the simulation.
+  virtual void start();
+
+  /// \brief Stops communication with the inverted pendulum or the simulation.
+  virtual void stop();
+
+  /// \brief Shuts down communication with the inverted pendulum or the simulation.
+  virtual void shutdown();
 
 private:
   static void * physics_update_wrapper(void * args);
-  // Set kinematic and dynamic properties of the pendulum based on state inputs
+  /// \brief Set kinematic and dynamic properties of the pendulum based on state inputs
   void * physics_update();
 
 private:

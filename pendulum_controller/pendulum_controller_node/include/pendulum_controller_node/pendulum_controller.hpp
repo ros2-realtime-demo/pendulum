@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// \file
+/// \brief This file provides the inverted pendulum controller implementation interface.
+
 #ifndef PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_HPP_
 #define PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_HPP_
 
@@ -22,13 +25,24 @@
 namespace pendulum
 {
 
+/// \class This class creates the interface between the controller node and the controller
+///        implementation.
 class PendulumController
 {
 public:
+  /// \brief Updates the setpoint data when a setpoint message arrives.
+  /// \param[in] msg Setpoint data message.
   virtual void update_setpoint_data(const pendulum_msgs_v2::msg::PendulumCommand & msg) = 0;
-  virtual void update_sensor_data(const sensor_msgs::msg::JointState & msg) = 0;
+
+  /// \brief Updates the sensor data when a status message arrives.
+  /// \param[in] msg Setpoint data message.
+  virtual void update_status_data(const sensor_msgs::msg::JointState & msg) = 0;
+
+  /// \brief Updates the command data from the controller before publishing.
+  /// \param[in,out] msg Command data message.
   virtual void update_command_data(pendulum_msgs_v2::msg::PendulumCommand & msg) = 0;
-  virtual void update() = 0;
+
+  /// \brief Resets the controller internal status and set variables to tehir default values.
   virtual void reset() = 0;
 };
 

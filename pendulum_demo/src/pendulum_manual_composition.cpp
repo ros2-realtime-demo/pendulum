@@ -187,7 +187,7 @@ int main(int argc, char * argv[])
   // Create a controller
   std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
   std::unique_ptr<pendulum::PendulumController> controller = std::make_unique<
-    pendulum::FullStateFeedbackController>(controller_update_period, feedback_matrix);
+    pendulum::FullStateFeedbackController>(feedback_matrix);
 
   // Create pendulum controller node
   auto controller_node = std::make_shared<pendulum::PendulumControllerNode>(

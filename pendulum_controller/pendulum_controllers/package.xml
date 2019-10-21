@@ -3,7 +3,7 @@
 <package format="2">
   <name>pendulum_controllers</name>
   <version>0.0.1</version>
-  <description>Implementation of the ROS 2 interface for the pendulum motor</description>
+  <description>Implementation of the pendulum controller</description>
   <maintainer email="carlos.svic@gmail.com">Carlos San Vicente</maintainer>
   <license>Apache License 2.0</license>
 

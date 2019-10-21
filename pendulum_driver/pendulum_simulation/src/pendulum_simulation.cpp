@@ -104,7 +104,7 @@ void PendulumSimulation::update_disturbance_data(const pendulum_msgs_v2::msg::Pe
   disturbance_force_ = msg.cart_force;
 }
 
-void PendulumSimulation::update_sensor_data(sensor_msgs::msg::JointState & msg)
+void PendulumSimulation::update_status_data(sensor_msgs::msg::JointState & msg)
 {
   // check size
   msg.position[0] = state_.cart_position;

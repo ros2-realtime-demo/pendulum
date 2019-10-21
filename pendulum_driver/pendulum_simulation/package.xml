@@ -3,7 +3,7 @@
 <package format="2">
   <name>pendulum_simulation</name>
   <version>0.0.1</version>
-  <description>Implements a class to communicate with a real or simulated motor</description>
+  <description>Implements a class to simulate an inverted pendulum on a cart</description>
   <maintainer email="carlos.svic@gmail.com">Carlos San Vicente</maintainer>
   <license>Apache License 2.0</license>
 
