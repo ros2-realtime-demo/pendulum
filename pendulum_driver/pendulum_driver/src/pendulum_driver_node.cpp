@@ -103,10 +103,10 @@ void PendulumDriverNode::state_timer_callback()
   pendulum_stats_message_.timer_stats.stamp.nanosec = curtime.tv_nsec;
 
   timer_jitter_.update();
-  pendulum_stats_message_.timer_stats.jitter_mean_nsec = timer_jitter_.get_mean();
-  pendulum_stats_message_.timer_stats.jitter_min_nsec = timer_jitter_.get_min();
-  pendulum_stats_message_.timer_stats.jitter_max_nsec = timer_jitter_.get_max();
-  pendulum_stats_message_.timer_stats.jitter_standard_dev_nsec = timer_jitter_.get_std();
+  pendulum_stats_message_.timer_stats.jitter_mean_nsec = timer_jitter_.mean();
+  pendulum_stats_message_.timer_stats.jitter_min_nsec = timer_jitter_.min();
+  pendulum_stats_message_.timer_stats.jitter_max_nsec = timer_jitter_.max();
+  pendulum_stats_message_.timer_stats.jitter_standard_dev_nsec = timer_jitter_.variance();
 }
 
 void PendulumDriverNode::update_driver_callback()

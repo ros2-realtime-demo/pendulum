@@ -93,10 +93,10 @@ void PendulumControllerNode::control_timer_callback()
   controller_stats_message_.timer_stats.stamp.sec = curtime.tv_sec;
   controller_stats_message_.timer_stats.stamp.nanosec = curtime.tv_nsec;
   timer_jitter_.update();
-  controller_stats_message_.timer_stats.jitter_mean_nsec = timer_jitter_.get_mean();
-  controller_stats_message_.timer_stats.jitter_min_nsec = timer_jitter_.get_min();
-  controller_stats_message_.timer_stats.jitter_max_nsec = timer_jitter_.get_max();
-  controller_stats_message_.timer_stats.jitter_standard_dev_nsec = timer_jitter_.get_std();
+  controller_stats_message_.timer_stats.jitter_mean_nsec = timer_jitter_.mean();
+  controller_stats_message_.timer_stats.jitter_min_nsec = timer_jitter_.min();
+  controller_stats_message_.timer_stats.jitter_max_nsec = timer_jitter_.max();
+  controller_stats_message_.timer_stats.jitter_standard_dev_nsec = timer_jitter_.variance();
 }
 
 const pendulum_msgs_v2::msg::ControllerStats &

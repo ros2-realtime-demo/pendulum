@@ -40,7 +40,7 @@
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "pendulum_controller_node/visibility_control.hpp"
 #include "pendulum_controller_node/pendulum_controller.hpp"
-#include "pendulum_tools/timing_analyzer.hpp"
+#include "pendulum_tools/jitter_tracker.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/publisher.hpp"
@@ -164,7 +164,7 @@ private:
   uint64_t minor_page_faults_at_active_start_ = 0;
   uint64_t major_page_faults_at_active_start_ = 0;
   bool check_memory_ = false;
-  TimingAnalyzer timer_jitter_{std::chrono::nanoseconds(0)};
+  JitterTracker timer_jitter_{std::chrono::nanoseconds(0)};
 };
 }  // namespace pendulum
 

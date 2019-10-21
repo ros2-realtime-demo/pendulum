@@ -19,7 +19,7 @@ find_package(ament_cmake REQUIRED)
 include_directories(include)
 
 add_library(pendulum_tools SHARED
-  src/timing_analyzer.cpp)
+src/jitter_tracker.cpp)
 
 target_include_directories(pendulum_tools
   PUBLIC
