@@ -51,12 +51,12 @@ include_directories(
         ${tlsf_cpp_INCLUDE_DIR}
         ${pendulum_tools_INCLUDE_DIR})
 
-add_executable(pendulum_manual_composition
-  "src/pendulum_manual_composition.cpp")
+add_executable(pendulum_demo
+  "src/pendulum_demo.cpp")
 
 ament_export_include_directories(include)
 
-ament_target_dependencies(pendulum_manual_composition
+ament_target_dependencies(pendulum_demo
         "rclcpp"
         "rclcpp_lifecycle"
         "rclcpp_components"
@@ -72,7 +72,7 @@ ament_target_dependencies(pendulum_manual_composition
         "pendulum_tools"
         ${OPTIONAL_AMENT_DEPENDENCES})
 
-target_link_libraries(pendulum_manual_composition ${OPTIONAL_LIBRARIES})
+target_link_libraries(pendulum_demo ${OPTIONAL_LIBRARIES})
 
 add_executable(pendulum_controller_standalone
   "src/pendulum_controller_standalone.cpp")
@@ -125,7 +125,7 @@ if(NOT WIN32)
 endif()
 
 install(TARGETS
-        pendulum_manual_composition
+        pendulum_demo
         pendulum_controller_standalone
         pendulum_driver_standalone
         DESTINATION lib/${PROJECT_NAME})

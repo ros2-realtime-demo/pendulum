@@ -5,7 +5,7 @@
 Launch the demo without locking memory:
 
 ```
-ros2 run pendulum_demo pendulum_manual_composition --lock-memory --pub-stats
+ros2 run pendulum_demo pendulum_demo --lock-memory --pub-stats
 ```
 
 In other terminal show the statistics of the controller:
@@ -28,7 +28,7 @@ You should see how the page number of page faults for active node increases.
 Now launch again the demo locking the memory:
 
 ```
-ros2 run pendulum_demo pendulum_manual_composition --lock-memory --pub-stats
+ros2 run pendulum_demo pendulum_demo --lock-memory --pub-stats
 ```
 
 You should see that the number of minor page faults is zero or 1-3 and it doesn't increase.

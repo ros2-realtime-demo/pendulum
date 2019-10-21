@@ -70,4 +70,4 @@ As a first step we are going to create a functional prototype that implements th
 * `PendulumMotor`: Abstract class used by `PendulumMotorNode` to call the specific motor base implementation.
 * `PendulumMotorSim`: Simple motor base physics simulation from `PendulumMotor`.
 * `TestPendulumMotor`: Class used to test `PendulumMotorNode`.
-* `pendulum_manual_composition`: Program that creates and executor, adds a `PendulumControllerNode` and a `PendulumMotorNode` nodes with a `PIDController` and a `PendulumMotorSim` instances and spins all the nodes.
+* `pendulum_demo`: Program that creates and executor, adds a `PendulumControllerNode` and a `PendulumMotorNode` nodes with a `PIDController` and a `PendulumMotorSim` instances and spins all the nodes.
