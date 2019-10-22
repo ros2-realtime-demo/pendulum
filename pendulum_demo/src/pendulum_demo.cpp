@@ -227,34 +227,6 @@ int main(int argc, char * argv[])
 
   exec.add_node(pendulum_driver->get_node_base_interface());
 
-  // // Initialize the logger publisher.
-  // auto node_stats = rclcpp::Node::make_shared("pendulum_statistics");
-  // auto controller_stats_pub =
-  //   node_stats->create_publisher<pendulum_msgs_v2::msg::ControllerStats>(
-  //   "controller_statistics", rclcpp::QoS(1));
-  // auto driver_stats_pub = node_stats->create_publisher<pendulum_msgs_v2::msg::PendulumStats>(
-  //   "driver_statistics", rclcpp::QoS(1));
-  //
-  // // Create a lambda function that will fire regularly to publish the next results message.
-  // auto logger_publish_callback =
-  //   [&controller_stats_pub, &controller_node, &driver_stats_pub, &pendulum_driver]() {
-  //     pendulum_msgs_v2::msg::ControllerStats controller_stats_msg;
-  //     controller_node->update_sys_usage();
-  //     controller_stats_msg = controller_node->get_controller_stats_message();
-  //     controller_stats_pub->publish(controller_stats_msg);
-  //
-  //     pendulum_msgs_v2::msg::PendulumStats pendulum_stats_msg;
-  //     pendulum_driver->update_sys_usage();
-  //     pendulum_stats_msg = pendulum_driver->get_stats_message();
-  //     driver_stats_pub->publish(pendulum_stats_msg);
-  //   };
-  // auto logger_publisher_timer = node_stats->create_wall_timer(
-  //   logger_publisher_period, logger_publish_callback);
-  //
-  // if (publish_statistics) {
-  //   exec.add_node(node_stats);
-  // }
-
   // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
   // deterministic (real-time safe) algorithm, round robin.
   if (process_priority > 0 && process_priority < 99) {
