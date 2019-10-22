@@ -18,7 +18,7 @@
 #include <sys/time.h>  // needed for getrusage
 #include <sys/resource.h>  // needed for getrusage
 
-#include <pendulum_msgs_v2/msg/pendulum_stats.hpp>
+#include <pendulum_msgs_v2/msg/rusage.hpp>
 
 namespace pendulum
 {
@@ -60,16 +60,16 @@ public:
     }
   }
 
-  void update_message(pendulum_msgs_v2::msg::PendulumStats & msg)
+  void update_message(pendulum_msgs_v2::msg::Rusage & msg)
   {
-    msg.rusage_stats.max_resident_set_size = sys_usage_.ru_maxrss;
-    msg.rusage_stats.total_minor_pagefaults = sys_usage_.ru_minflt;
-    msg.rusage_stats.total_major_pagefaults = sys_usage_.ru_majflt;
-    msg.rusage_stats.voluntary_context_switches = sys_usage_.ru_nvcsw;
-    msg.rusage_stats.involuntary_context_switches = sys_usage_.ru_nivcsw;
-    msg.rusage_stats.minor_pagefaults_active_node =
+    msg.max_resident_set_size = sys_usage_.ru_maxrss;
+    msg.total_minor_pagefaults = sys_usage_.ru_minflt;
+    msg.total_major_pagefaults = sys_usage_.ru_majflt;
+    msg.voluntary_context_switches = sys_usage_.ru_nvcsw;
+    msg.involuntary_context_switches = sys_usage_.ru_nivcsw;
+    msg.minor_pagefaults_active_node =
       minor_pagefaults_in_active_node_;
-    msg.rusage_stats.major_pagefaults_active_node =
+    msg.major_pagefaults_active_node =
       major_pagefaults_in_active_node_;
   }
 

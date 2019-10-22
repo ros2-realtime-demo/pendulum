@@ -49,7 +49,7 @@ using TLSFAllocator = tlsf_heap_allocator<T>;
 
 static const size_t DEFAULT_DEADLINE_PERIOD_NS = 2000000;
 static const int DEFAULT_PRIORITY = 0;
-static const size_t DEFAULT_STATISTICS_PERIOD_MS = 1000;
+static const size_t DEFAULT_STATISTICS_PERIOD_MS = 100;
 
 static const char * OPTION_MEMORY_CHECK = "--memory-check";
 static const char * OPTION_TLSF = "--use-tlsf";
@@ -190,13 +190,20 @@ int main(int argc, char * argv[])
     pendulum::FullStateFeedbackController>(feedback_matrix);
 
   // Create pendulum controller node
+  pendulum::PendulumControllerOptions controller_options;
+  controller_options.node_name = "pendulum_controller";
+  controller_options.command_publish_period = sensor_publish_period;
+  controller_options.status_qos_profile = qos_deadline_profile;
+  controller_options.command_qos_profile = qos_deadline_profile;
+  controller_options.setpoint_qos_profile = rclcpp::QoS(
+    rclcpp::KeepLast(10)).transient_local().reliable();
+  controller_options.enable_check_memory = use_memory_check;
+  controller_options.enable_statistics = publish_statistics;
+  controller_options.statistics_publish_period = logger_publisher_period;
+
   auto controller_node = std::make_shared<pendulum::PendulumControllerNode>(
-    "pendulum_controller",
     std::move(controller),
-    controller_update_period,
-    qos_deadline_profile,
-    rclcpp::QoS(1),
-    use_memory_check,
+    controller_options,
     rclcpp::NodeOptions().use_intra_process_comms(true));
   exec.add_node(controller_node->get_node_base_interface());
 

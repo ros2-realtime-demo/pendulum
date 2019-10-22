@@ -55,10 +55,10 @@ namespace pendulum
 struct PendulumDriverOptions
 {
   std::string node_name = "pendulum_driver";
-  std::chrono::nanoseconds status_publish_period = std::chrono::nanoseconds(1E6);
-  rclcpp::QoS status_qos_profile = rclcpp::QoS(1);
+  std::chrono::nanoseconds status_publish_period = std::chrono::nanoseconds(0);
+  rclcpp::QoS status_qos_profile = rclcpp::QoS(10);
   bool enable_statistics = false;
-  std::chrono::nanoseconds statistics_publish_period = std::chrono::nanoseconds(1E9);
+  std::chrono::nanoseconds statistics_publish_period = std::chrono::nanoseconds(0);
   bool enable_check_memory = false;
 };
 
@@ -75,11 +75,8 @@ public:
   {}
 
   /// \brief Main constructor with parameters
-  /// \param[in] node_name Name of the node for rclcpp internals
   /// \param[in] driver_interface Pointer to the driver implementation
-  /// \param[in] publish_period Period for the driver node status publishing
-  /// \param[in] status_qos_profile QoS profile for comamnd and status topics
-  /// \param[in] enable_check_memory Flag to enable memory allocation checking
+  /// \param[in] driver_options Options to configure the object
   /// \param[in] options Node options for rclcpp internals
   /// \throw std::runtime_error If memory checking is enabled but not working or not installed.
   COMPOSITION_PUBLIC PendulumDriverNode(

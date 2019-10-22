@@ -169,12 +169,12 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
     statistics_timer_ =
       this->create_wall_timer(driver_options_.statistics_publish_period, [this] {
         if (resource_usage_.update(this->get_current_state().label() == "active")) {
-          resource_usage_.update_message(statistics_message_);
+          resource_usage_.update_message(statistics_message_.rusage_stats);
           statistics_pub_->publish(statistics_message_);
         }
       });
     // cancel immediately to prevent triggering it in this state
-    status_timer_->cancel();
+    statistics_timer_->cancel();
   }
 
   driver_interface_->init();
@@ -188,8 +188,11 @@ PendulumDriverNode::on_activate(const rclcpp_lifecycle::State &)
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
   sensor_pub_->on_activate();
   status_timer_->reset();
-  statistics_timer_->reset();
-  statistics_pub_->on_activate();
+
+  if (driver_options_.enable_statistics) {
+    statistics_pub_.reset();
+    statistics_timer_.reset();
+  }
 
   resource_usage_.on_activate();
   if (driver_options_.enable_check_memory) {
@@ -224,9 +227,12 @@ PendulumDriverNode::on_deactivate(const rclcpp_lifecycle::State &)
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
 
   status_timer_->cancel();
-  statistics_timer_->cancel();
   sensor_pub_->on_deactivate();
-  statistics_pub_->on_deactivate();
+
+  if (driver_options_.enable_statistics) {
+    statistics_timer_->cancel();
+    statistics_pub_->on_deactivate();
+  }
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -235,12 +241,15 @@ PendulumDriverNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
   driver_interface_->shutdown();
   status_timer_.reset();
-  statistics_timer_.reset();
   update_driver_timer_.reset();
   command_sub_.reset();
   disturbance_sub_.reset();
   sensor_pub_.reset();
-  statistics_pub_.reset();
+
+  if (driver_options_.enable_statistics) {
+    statistics_timer_.reset();
+    statistics_pub_.reset();
+  }
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -249,12 +258,15 @@ PendulumDriverNode::on_shutdown(const rclcpp_lifecycle::State &)
 {
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_shutdown() is called.");
   status_timer_.reset();
-  statistics_timer_.reset();
   update_driver_timer_.reset();
   command_sub_.reset();
   disturbance_sub_.reset();
   sensor_pub_.reset();
-  statistics_pub_.reset();
+
+  if (driver_options_.enable_statistics) {
+    statistics_timer_.reset();
+    statistics_pub_.reset();
+  }
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 

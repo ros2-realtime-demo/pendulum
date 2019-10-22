@@ -45,7 +45,7 @@ using TLSFAllocator = tlsf_heap_allocator<T>;
 
 static const size_t DEFAULT_DEADLINE_PERIOD_NS = 2000000;
 static const int DEFAULT_PRIORITY = 0;
-static const size_t DEFAULT_STATISTICS_PERIOD_MS = 1000;
+static const size_t DEFAULT_STATISTICS_PERIOD_MS = 100;
 
 static const char * OPTION_MEMORY_CHECK = "--memory-check";
 static const char * OPTION_TLSF = "--use-tlsf";
@@ -164,36 +164,43 @@ int main(int argc, char * argv[])
     pendulum::FullStateFeedbackController>(feedback_matrix);
 
   // Create pendulum controller node
+  pendulum::PendulumControllerOptions controller_options;
+  controller_options.node_name = "pendulum_controller";
+  controller_options.command_publish_period = controller_update_period;
+  controller_options.status_qos_profile = qos_deadline_profile;
+  controller_options.command_qos_profile = qos_deadline_profile;
+  controller_options.setpoint_qos_profile = rclcpp::QoS(
+    rclcpp::KeepLast(10)).transient_local().reliable();
+  controller_options.enable_check_memory = use_memory_check;
+  controller_options.enable_statistics = publish_statistics;
+  controller_options.statistics_publish_period = logger_publisher_period;
+
   auto controller_node = std::make_shared<pendulum::PendulumControllerNode>(
-    "pendulum_controller",
     std::move(controller),
-    controller_update_period,
-    qos_deadline_profile,
-    rclcpp::QoS(1),
-    use_memory_check,
+    controller_options,
     rclcpp::NodeOptions().use_intra_process_comms(true));
   exec.add_node(controller_node->get_node_base_interface());
 
-  // Initialize the logger publisher.
-  auto node_stats = rclcpp::Node::make_shared("controller_statistics");
-  auto controller_stats_pub =
-    node_stats->create_publisher<pendulum_msgs_v2::msg::ControllerStats>(
-    "controller_statistics", rclcpp::QoS(1));
-
-  // Create a lambda function that will fire regularly to publish the next results message.
-  auto logger_publish_callback =
-    [&controller_stats_pub, &controller_node]() {
-      pendulum_msgs_v2::msg::ControllerStats controller_stats_msg;
-      controller_node->update_sys_usage();
-      controller_stats_msg = controller_node->get_controller_stats_message();
-      controller_stats_pub->publish(controller_stats_msg);
-    };
-  auto logger_publisher_timer = node_stats->create_wall_timer(
-    logger_publisher_period, logger_publish_callback);
-
-  if (publish_statistics) {
-    exec.add_node(node_stats);
-  }
+  // // Initialize the logger publisher.
+  // auto node_stats = rclcpp::Node::make_shared("controller_statistics");
+  // auto controller_stats_pub =
+  //   node_stats->create_publisher<pendulum_msgs_v2::msg::ControllerStats>(
+  //   "controller_statistics", rclcpp::QoS(1));
+  //
+  // // Create a lambda function that will fire regularly to publish the next results message.
+  // auto logger_publish_callback =
+  //   [&controller_stats_pub, &controller_node]() {
+  //     pendulum_msgs_v2::msg::ControllerStats controller_stats_msg;
+  //     controller_node->update_sys_usage();
+  //     controller_stats_msg = controller_node->get_controller_stats_message();
+  //     controller_stats_pub->publish(controller_stats_msg);
+  //   };
+  // auto logger_publisher_timer = node_stats->create_wall_timer(
+  //   logger_publisher_period, logger_publish_callback);
+  //
+  // if (publish_statistics) {
+  //   exec.add_node(node_stats);
+  // }
 
   // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
   // deterministic (real-time safe) algorithm, round robin.
