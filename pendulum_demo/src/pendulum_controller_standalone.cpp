@@ -14,8 +14,6 @@
 
 #include <rclcpp/strategies/allocator_memory_strategy.hpp>
 #include <pendulum_msgs_v2/msg/pendulum_stats.hpp>
-#include "pendulum_tools/memory_lock.hpp"
-#include "pendulum_tools/rt_thread.hpp"
 
 #include <vector>
 #include <iostream>
@@ -37,6 +35,8 @@
 #include "pendulum_controller_node/pendulum_controller_node.hpp"
 #include "pendulum_controller_node/pendulum_controller.hpp"
 #include "pendulum_controllers/full_state_feedback_controller.hpp"
+#include "pendulum_tools/memory_lock.hpp"
+#include "pendulum_tools/rt_thread.hpp"
 
 #ifdef PENDULUM_DEMO_TLSF_ENABLED
 using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;

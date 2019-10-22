@@ -29,11 +29,11 @@ PendulumDriverNode::PendulumDriverNode(
   PendulumDriverOptions driver_options,
   const rclcpp::NodeOptions & options =
   rclcpp::NodeOptions().use_intra_process_comms(false))
-  : rclcpp_lifecycle::LifecycleNode(driver_options.node_name, options),
-    driver_interface_(std::move(driver_interface)),
-    driver_options_(driver_options),
-    timer_jitter_(driver_options.status_publish_period)
-  {
+: rclcpp_lifecycle::LifecycleNode(driver_options.node_name, options),
+  driver_interface_(std::move(driver_interface)),
+  driver_options_(driver_options),
+  timer_jitter_(driver_options.status_publish_period)
+{
   // Initiliaze joint message
   state_message_.name.push_back("cart_base_joint");
   state_message_.position.push_back(0.0);
@@ -167,11 +167,11 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
       "driver_statistics", 1);
     statistics_timer_ =
       this->create_wall_timer(driver_options_.statistics_publish_period, [this] {
-        if (resource_usage_.update(this->get_current_state().label() == "active")) {
-          resource_usage_.update_message(statistics_message_.rusage_stats);
-          statistics_pub_->publish(statistics_message_);
-        }
-      });
+          if (resource_usage_.update(this->get_current_state().label() == "active")) {
+            resource_usage_.update_message(statistics_message_.rusage_stats);
+            statistics_pub_->publish(statistics_message_);
+          }
+        });
     // cancel immediately to prevent triggering it in this state
     statistics_timer_->cancel();
   }

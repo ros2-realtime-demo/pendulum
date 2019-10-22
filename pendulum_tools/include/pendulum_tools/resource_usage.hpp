@@ -27,7 +27,8 @@ class ResourceUsage
 {
 public:
   ResourceUsage() = default;
-  explicit ResourceUsage(int who) : who_(who)
+  explicit ResourceUsage(int who)
+  : who_(who)
   {}
 
   bool on_activate()

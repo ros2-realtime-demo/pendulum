@@ -153,11 +153,11 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
       "controller_statistics", 1);
     statistics_timer_ =
       this->create_wall_timer(controller_options_.statistics_publish_period, [this] {
-        if (resource_usage_.update(this->get_current_state().label() == "active")) {
-          resource_usage_.update_message(statistics_message_.rusage_stats);
-          statistics_pub_->publish(statistics_message_);
-        }
-      });
+          if (resource_usage_.update(this->get_current_state().label() == "active")) {
+            resource_usage_.update_message(statistics_message_.rusage_stats);
+            statistics_pub_->publish(statistics_message_);
+          }
+        });
     // cancel immediately to prevent triggering it in this state
     statistics_timer_->cancel();
   }

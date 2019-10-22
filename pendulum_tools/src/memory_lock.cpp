@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "pendulum_tools/memory_lock.hpp"
+#include <vector>
 
 namespace pendulum
 {

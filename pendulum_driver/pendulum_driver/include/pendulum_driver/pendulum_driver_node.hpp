@@ -62,8 +62,8 @@ struct PendulumDriverOptions
   bool enable_check_memory = false;
 };
 
-/// \class This class implements a nodstd::unique_ptr<PendulumDriverInterface> driver_interface_;e containing a the a simulated inverted pendulum or
-///        the drivers for a real one.
+/// \class This class implements a node containing a the a simulated inverted pendulum or
+/// the drivers for a real one.
 class PendulumDriverNode : public rclcpp_lifecycle::LifecycleNode
 {
 public:
