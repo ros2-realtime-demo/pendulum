@@ -175,12 +175,17 @@ int main(int argc, char * argv[])
     std::make_unique<pendulum::PendulumSimulation>(physics_update_period);
 
   // Create pendulum driver node
+  pendulum::PendulumDriverOptions driver_options;
+  driver_options.node_name = "pendulum_driver";
+  driver_options.status_publish_period = sensor_publish_period;
+  driver_options.status_qos_profile = qos_deadline_profile;
+  driver_options.enable_statistics = publish_statistics;
+  driver_options.statistics_publish_period = logger_publisher_period;
+  driver_options.enable_check_memory = use_memory_check;
+
   auto pendulum_driver = std::make_shared<pendulum::PendulumDriverNode>(
-    "pendulum_driver",
     std::move(sim),
-    sensor_publish_period,
-    qos_deadline_profile,
-    use_memory_check,
+    driver_options,
     rclcpp::NodeOptions().use_intra_process_comms(true));
   exec.add_node(pendulum_driver->get_node_base_interface());
 
@@ -189,16 +194,16 @@ int main(int argc, char * argv[])
   auto driver_stats_pub = driver_stats->create_publisher<pendulum_msgs_v2::msg::PendulumStats>(
     "driver_statistics", rclcpp::QoS(1));
 
-  // Create a lambda function that will fire regularly to publish the next results message.
-  auto logger_publish_callback =
-    [&driver_stats_pub, &pendulum_driver]() {
-      pendulum_msgs_v2::msg::PendulumStats pendulum_stats_msg;
-      pendulum_driver->update_sys_usage();
-      pendulum_stats_msg = pendulum_driver->get_stats_message();
-      driver_stats_pub->publish(pendulum_stats_msg);
-    };
-  auto logger_publisher_timer = driver_stats->create_wall_timer(
-    logger_publisher_period, logger_publish_callback);
+  // // Create a lambda function that will fire regularly to publish the next results message.
+  // auto logger_publish_callback =
+  //   [&driver_stats_pub, &pendulum_driver]() {
+  //     pendulum_msgs_v2::msg::PendulumStats pendulum_stats_msg;
+  //     pendulum_driver->update_sys_usage();
+  //     pendulum_stats_msg = pendulum_driver->get_stats_message();
+  //     driver_stats_pub->publish(pendulum_stats_msg);
+  //   };
+  // auto logger_publisher_timer = driver_stats->create_wall_timer(
+  //   logger_publisher_period, logger_publish_callback);
 
   if (publish_statistics) {
     exec.add_node(driver_stats);

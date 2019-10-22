@@ -179,7 +179,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
   timer_->cancel();
 
   // Initialize the logger publisher.
-  logger_pub_ = this->create_publisher<pendulum_msgs_v2::msg::ControllerStats>(
+  statistics_pub_ = this->create_publisher<pendulum_msgs_v2::msg::ControllerStats>(
     "controller_statistics", 1);
 
   return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
@@ -190,7 +190,7 @@ PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
 {
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
   command_pub_->on_activate();
-  logger_pub_->on_activate();
+  statistics_pub_->on_activate();
   timer_->reset();
 
   controller_->reset();
@@ -223,7 +223,7 @@ PendulumControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
   timer_->cancel();
   command_pub_->on_deactivate();
-  logger_pub_->on_deactivate();
+  statistics_pub_->on_deactivate();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -233,7 +233,7 @@ PendulumControllerNode::on_cleanup(const rclcpp_lifecycle::State &)
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_cleanup() is called.");
   timer_.reset();
   command_pub_.reset();
-  logger_pub_.reset();
+  statistics_pub_.reset();
   state_sub_.reset();
   setpoint_sub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
@@ -245,7 +245,7 @@ PendulumControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_shutdown() is called.");
   timer_.reset();
   command_pub_.reset();
-  logger_pub_.reset();
+  statistics_pub_.reset();
   state_sub_.reset();
   setpoint_sub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
