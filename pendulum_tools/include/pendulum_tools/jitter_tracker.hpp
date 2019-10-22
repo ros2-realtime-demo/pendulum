@@ -30,8 +30,9 @@ public:
   explicit JitterTracker(std::chrono::nanoseconds period)
   : period_(period.count())
   {}
-  double period() { return period_; }
+  double period() {return period_;}
   void update();
+
 private:
   std::chrono::system_clock::time_point previous_;
   double period_;
