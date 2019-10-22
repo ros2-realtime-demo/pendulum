@@ -20,7 +20,9 @@ find_package(pendulum_msgs_v2 REQUIRED)
 include_directories(include)
 
 add_library(pendulum_tools SHARED
-src/jitter_tracker.cpp)
+src/jitter_tracker.cpp
+src/memory_lock.cpp
+src/rt_thread.cpp)
 
 target_include_directories(pendulum_tools
   PUBLIC

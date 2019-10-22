@@ -23,9 +23,6 @@
 #include <vector>
 #include <random>
 
-#include "rttest/rttest.h"
-#include "rttest/utils.h"
-
 #include "pendulum_driver/pendulum_driver_interface.hpp"
 #include "pendulum_simulation/runge_kutta.hpp"
 

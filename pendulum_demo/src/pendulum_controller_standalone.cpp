@@ -14,7 +14,8 @@
 
 #include <rclcpp/strategies/allocator_memory_strategy.hpp>
 #include <pendulum_msgs_v2/msg/pendulum_stats.hpp>
-#include <rttest/rttest.h>
+#include "pendulum_tools/memory_lock.hpp"
+#include "pendulum_tools/rt_thread.hpp"
 
 #include <vector>
 #include <iostream>
@@ -133,11 +134,6 @@ int main(int argc, char * argv[])
       std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_CONTROLLER_UPDATE_PERIOD)));
   }
 
-  // use a dummy period to initialize rttest
-  struct timespec dummy_period;
-  dummy_period.tv_sec = 0;
-  dummy_period.tv_nsec = 1000000;
-  rttest_init(1, dummy_period, SCHED_FIFO, 80, 0, NULL);
   rclcpp::init(argc, argv);
 
   // Initialize the executor.
@@ -184,7 +180,7 @@ int main(int argc, char * argv[])
   // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
   // deterministic (real-time safe) algorithm, round robin.
   if (process_priority > 0 && process_priority < 99) {
-    if (rttest_set_sched_priority(process_priority, SCHED_FIFO)) {
+    if (pendulum::set_this_thread_priority(process_priority, SCHED_FIFO)) {
       perror("Couldn't set scheduling priority and policy");
     }
   }
@@ -198,7 +194,7 @@ int main(int argc, char * argv[])
   // See rttest/rttest.cpp for more details.
   if (lock_memory) {
     std::cout << "lock memory on\n";
-    if (rttest_lock_and_prefault_dynamic() != 0) {
+    if (pendulum::lock_and_prefault_dynamic() != 0) {
       fprintf(stderr, "Couldn't lock all cached virtual memory.\n");
       fprintf(stderr, "Pagefaults from reading pages not yet mapped into RAM will be recorded.\n");
     }

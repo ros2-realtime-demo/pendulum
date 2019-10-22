@@ -19,7 +19,6 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
-find_package(rttest)
 find_package(rcutils)
 find_package(pendulum_tools REQUIRED)
 find_package(pendulum_msgs_v2 REQUIRED)
@@ -61,7 +60,6 @@ ament_target_dependencies(pendulum_demo
         "rclcpp_lifecycle"
         "rclcpp_components"
         "rcutils"
-        "rttest"
         "lifecycle_msgs"
         "pendulum_msgs_v2"
         "pendulum_simulation"
@@ -84,7 +82,6 @@ ament_target_dependencies(pendulum_controller_standalone
         "rclcpp_lifecycle"
         "rclcpp_components"
         "rcutils"
-        "rttest"
         "lifecycle_msgs"
         "pendulum_msgs_v2"
         "pendulum_controllers"
@@ -105,7 +102,6 @@ ament_target_dependencies(pendulum_driver_standalone
         "rclcpp_lifecycle"
         "rclcpp_components"
         "rcutils"
-        "rttest"
         "lifecycle_msgs"
         "pendulum_msgs_v2"
         "pendulum_simulation"

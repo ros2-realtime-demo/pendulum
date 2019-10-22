@@ -16,7 +16,6 @@
 #include <memory>
 #include <utility>
 
-#include "rttest/utils.h"
 #include "pendulum_controller_node/pendulum_controller_node.hpp"
 
 namespace pendulum

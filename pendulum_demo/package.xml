@@ -14,7 +14,6 @@
   <build_depend>pendulum_controllers</build_depend>
   <build_depend>pendulum_controller_node</build_depend>
   <build_depend>pendulum_tools</build_depend>
-  <build_depend>rttest</build_depend>
   <build_depend>pendulum_msgs_v2</build_depend>
   <build_depend>rclcpp_lifecycle</build_depend>
   <build_depend>rcutils</build_depend>
@@ -22,7 +21,7 @@
   <build_depend>tlsf_cpp</build_depend>
   <build_depend>sensor_msgs</build_depend>
 
-  <exec_depend>rttest</exec_depend>
+  <exec_depend>pendulum_tools</exec_depend>
   <exec_depend>pendulum_msgs_v2</exec_depend>
   <exec_depend>pendulum_driver</exec_depend>
   <exec_depend>pendulum_simulation</exec_depend>

@@ -19,7 +19,6 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
-find_package(rttest REQUIRED)
 
 include_directories(
   include
@@ -39,7 +38,6 @@ ament_target_dependencies(pendulum_teleop
         "rclcpp_lifecycle"
         "rclcpp_components"
         "rcutils"
-        "rttest"
         "lifecycle_msgs"
         "pendulum_msgs_v2")
 
