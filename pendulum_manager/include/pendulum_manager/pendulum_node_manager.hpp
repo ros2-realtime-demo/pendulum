@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_MANAGER__PENDULUM_MANAGER_HPP_
-#define PENDULUM_MANAGER__PENDULUM_MANAGER_HPP_
+#ifndef PENDULUM_MANAGER__PENDULUM_NODE_MANAGER_HPP_
+#define PENDULUM_MANAGER__PENDULUM_NODE_MANAGER_HPP_
 
 #include <chrono>
 #include <memory>
@@ -61,4 +61,4 @@ private:
 
 }  // namespace pendulum
 
-#endif  // pendulum_manager__PENDULUM_MANAGER_HPP_
+#endif  // PENDULUM_MANAGER__PENDULUM_NODE_MANAGER_HPP_
