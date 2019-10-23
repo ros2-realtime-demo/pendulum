@@ -90,10 +90,6 @@ public:
   /// \return  last driver statistics message
   const pendulum_msgs_v2::msg::PendulumStats & get_stats_message() const;
 
-  // /// \brief Update system usage statistics
-  // /// \param[in] update_active_page_faults update paga faults only in active state
-  // void update_sys_usage(bool update_active_page_faults = false);
-
 private:
   /// \brief pendulum command topic message callback
   /// \param[in] msg pendulum command message
@@ -138,12 +134,12 @@ private:
   std::unique_ptr<PendulumDriverInterface> driver_interface_;
   PendulumDriverOptions driver_options_;
 
-  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
-      sensor_msgs::msg::JointState>> status_pub_;
   std::shared_ptr<rclcpp::Subscription<
       pendulum_msgs_v2::msg::PendulumCommand>> command_sub_;
   std::shared_ptr<rclcpp::Subscription<
       pendulum_msgs_v2::msg::PendulumCommand>> disturbance_sub_;
+  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
+      sensor_msgs::msg::JointState>> state_pub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
       pendulum_msgs_v2::msg::PendulumStats>> statistics_pub_;
 
@@ -155,15 +151,14 @@ private:
   rclcpp::TimerBase::SharedPtr statistics_timer_;
   rclcpp::TimerBase::SharedPtr update_driver_timer_;
 
-  pendulum_msgs_v2::msg::PendulumStats statistics_message_;
   sensor_msgs::msg::JointState state_message_;
+  pendulum_msgs_v2::msg::PendulumStats statistics_message_;
   pendulum_msgs_v2::msg::PendulumCommand command_message_;
   pendulum_msgs_v2::msg::PendulumCommand disturbance_message_;
 
   JitterTracker timer_jitter_{std::chrono::nanoseconds(0)};
   ResourceUsage resource_usage_;
 };
-
 }  // namespace pendulum
 
 #endif  // PENDULUM_DRIVER__PENDULUM_DRIVER_NODE_HPP_

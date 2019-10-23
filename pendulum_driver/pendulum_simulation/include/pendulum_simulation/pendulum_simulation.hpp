@@ -27,10 +27,6 @@
 #include "pendulum_driver/pendulum_driver_interface.hpp"
 #include "pendulum_simulation/runge_kutta.hpp"
 
-#ifndef GRAVITY
-#define GRAVITY 9.80665
-#endif
-
 #ifndef PI
 #define PI 3.14159265359
 #endif

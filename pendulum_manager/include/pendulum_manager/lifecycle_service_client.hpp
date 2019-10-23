@@ -20,13 +20,11 @@
 #include <string>
 #include <thread>
 
+#include "rclcpp/rclcpp.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
 #include "lifecycle_msgs/msg/transition.hpp"
 #include "lifecycle_msgs/srv/change_state.hpp"
 #include "lifecycle_msgs/srv/get_state.hpp"
-
-#include "rclcpp/rclcpp.hpp"
-
 #include "rcutils/logging_macros.h"
 
 namespace pendulum

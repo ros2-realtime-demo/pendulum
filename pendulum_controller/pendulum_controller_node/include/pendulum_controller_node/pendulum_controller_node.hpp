@@ -82,6 +82,7 @@ public:
     std::unique_ptr<PendulumController> controller,
     PendulumControllerOptions controller_options,
     const rclcpp::NodeOptions & options);
+
   /// \brief Get the sensor subscription's settings options.
   /// \return  subscription's settings options
   rclcpp::SubscriptionOptions & get_state_options() {return sensor_subscription_options_;}
@@ -142,7 +143,6 @@ private:
       pendulum_msgs_v2::msg::PendulumCommand>> setpoint_sub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
       pendulum_msgs_v2::msg::PendulumCommand>> command_pub_;
-
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
       pendulum_msgs_v2::msg::ControllerStats>> statistics_pub_;
 
@@ -152,8 +152,8 @@ private:
   rclcpp::TimerBase::SharedPtr command_timer_;
   rclcpp::TimerBase::SharedPtr statistics_timer_;
 
-  pendulum_msgs_v2::msg::ControllerStats statistics_message_;
   sensor_msgs::msg::JointState state_message_;
+  pendulum_msgs_v2::msg::ControllerStats statistics_message_;
   pendulum_msgs_v2::msg::PendulumCommand command_message_;
 
   JitterTracker timer_jitter_{std::chrono::nanoseconds(0)};
