@@ -137,7 +137,6 @@ private:
 
   // pointer to the derivative motion functions (ODE)
   derivativeF derivative_function_;
-
   std::mutex mutex_;
 };
 
