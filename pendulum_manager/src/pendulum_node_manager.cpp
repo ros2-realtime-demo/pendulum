@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pendulum_teleop/pendulum_manager.hpp"
+#include "pendulum_manager/pendulum_node_manager.hpp"
 #include <memory>
 #include <string>
 
 namespace pendulum
 {
 
-PendulumManager::PendulumManager(
+PendulumNodeManager::PendulumNodeManager(
   const std::string & node_name,
   const std::string & controller_node_name,
   const std::string & motor_node_name)

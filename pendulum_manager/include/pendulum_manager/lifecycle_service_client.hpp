@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_TELEOP__LIFECYCLE_SERVICE_CLIENT_HPP_
-#define PENDULUM_TELEOP__LIFECYCLE_SERVICE_CLIENT_HPP_
+#ifndef PENDULUM_MANAGER__LIFECYCLE_SERVICE_CLIENT_HPP_
+#define PENDULUM_MANAGER__LIFECYCLE_SERVICE_CLIENT_HPP_
 
 #include <chrono>
 #include <memory>
@@ -83,4 +83,4 @@ private:
 
 }  // namespace pendulum
 
-#endif  // PENDULUM_TELEOP__LIFECYCLE_SERVICE_CLIENT_HPP_
+#endif  // PENDULUM_MANAGER__LIFECYCLE_SERVICE_CLIENT_HPP_

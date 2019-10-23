@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pendulum_teleop/lifecycle_service_client.hpp"
+#include "pendulum_manager/lifecycle_service_client.hpp"
 #include <memory>
 
 namespace pendulum

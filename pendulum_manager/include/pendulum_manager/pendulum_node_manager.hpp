@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_TELEOP__PENDULUM_MANAGER_HPP_
-#define PENDULUM_TELEOP__PENDULUM_MANAGER_HPP_
+#ifndef PENDULUM_MANAGER__PENDULUM_NODE_MANAGER_HPP_
+#define PENDULUM_MANAGER__PENDULUM_NODE_MANAGER_HPP_
 
 #include <chrono>
 #include <memory>
@@ -29,15 +29,15 @@
 
 #include "rcutils/logging_macros.h"
 
-#include "pendulum_teleop/lifecycle_service_client.hpp"
+#include "pendulum_manager/lifecycle_service_client.hpp"
 
 namespace pendulum
 {
 
-class PendulumManager : public rclcpp::Node
+class PendulumNodeManager : public rclcpp::Node
 {
 public:
-  PendulumManager(
+  PendulumNodeManager(
     const std::string & node_name,
     const std::string & controller_node_name,
     const std::string & motor_node_name);
@@ -61,4 +61,4 @@ private:
 
 }  // namespace pendulum
 
-#endif  // PENDULUM_TELEOP__PENDULUM_MANAGER_HPP_
+#endif  // PENDULUM_MANAGER__PENDULUM_NODE_MANAGER_HPP_
