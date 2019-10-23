@@ -56,12 +56,18 @@ static const char * OPTION_MEMORY_CHECK = "--memory-check";
 static const char * OPTION_TLSF = "--use-tlsf";
 static const char * OPTION_LOCK_MEMORY = "--lock-memory";
 static const char * OPTION_PRIORITY = "--priority";
+static const char * OPTION_CPU_AFFINITY = "--cpu-affinity";
 static const char * OPTION_PUBLISH_STATISTICS = "--pub-stats";
 static const char * OPTION_DEADLINE_PERIOD = "--deadline";
 static const char * OPTION_STATISTICS_PERIOD = "--stats-period";
 
 static const size_t DEFAULT_CONTROLLER_UPDATE_PERIOD_NS = 970000;
 static const char * OPTION_CONTROLLER_UPDATE_PERIOD = "--controller-period";
+
+static const char * OPTION_CONTROLLER_K1 = "--K1";
+static const char * OPTION_CONTROLLER_K2 = "--K2";
+static const char * OPTION_CONTROLLER_K3 = "--K3";
+static const char * OPTION_CONTROLLER_K4 = "--K4";
 
 static const size_t DEFAULT_PHYSICS_UPDATE_PERIOD_NS = 10000000;
 static const size_t DEFAULT_SENSOR_UPDATE_PERIOD_NS = 960000;
@@ -80,9 +86,14 @@ void print_usage()
     "\t[%s use OSRF memory check tool]\n"
     "\t[%s lock memory]\n"
     "\t[%s set process real-time priority]\n"
+    "\t[%s set process cpu affinity]\n"
     "\t[%s statistics publisher period (ms)]\n"
     "\t[%s publish statistics (enable)]\n"
     "\t[%s use TLSF allocator]\n"
+    "\t[%s set feedback matrix K1]\n"
+    "\t[%s set feedback matrix K2]\n"
+    "\t[%s set feedback matrix K3]\n"
+    "\t[%s set feedback matrix K4]\n"
     "\t[-h]\n",
     OPTION_CONTROLLER_UPDATE_PERIOD,
     OPTION_PHYSICS_UPDATE_PERIOD,
@@ -91,9 +102,14 @@ void print_usage()
     OPTION_MEMORY_CHECK,
     OPTION_LOCK_MEMORY,
     OPTION_PRIORITY,
+    OPTION_CPU_AFFINITY,
     OPTION_STATISTICS_PERIOD,
     OPTION_PUBLISH_STATISTICS,
-    OPTION_TLSF);
+    OPTION_TLSF,
+    OPTION_CONTROLLER_K1,
+    OPTION_CONTROLLER_K2,
+    OPTION_CONTROLLER_K3,
+    OPTION_CONTROLLER_K4);
 }
 
 int main(int argc, char * argv[])
@@ -104,11 +120,13 @@ int main(int argc, char * argv[])
   bool publish_statistics = false;
   bool use_tlfs = false;
   int process_priority = DEFAULT_PRIORITY;
+  uint32_t cpu_affinity = 0;
   std::chrono::nanoseconds deadline_duration(DEFAULT_DEADLINE_PERIOD_NS);
   std::chrono::milliseconds logger_publisher_period(DEFAULT_STATISTICS_PERIOD_MS);
 
   // controller options
   std::chrono::nanoseconds controller_update_period(DEFAULT_CONTROLLER_UPDATE_PERIOD_NS);
+  std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
 
   // driver options
   std::chrono::nanoseconds sensor_publish_period(DEFAULT_SENSOR_UPDATE_PERIOD_NS);
@@ -139,6 +157,9 @@ int main(int argc, char * argv[])
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PRIORITY)) {
     process_priority = std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_PRIORITY));
   }
+  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_CPU_AFFINITY)) {
+    cpu_affinity = std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_CPU_AFFINITY));
+  }
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_DEADLINE_PERIOD)) {
     deadline_duration = std::chrono::nanoseconds(
       std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_DEADLINE_PERIOD)));
@@ -150,6 +171,22 @@ int main(int argc, char * argv[])
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_CONTROLLER_UPDATE_PERIOD)) {
     controller_update_period = std::chrono::nanoseconds(
       std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_CONTROLLER_UPDATE_PERIOD)));
+  }
+  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_CONTROLLER_K1)) {
+    feedback_matrix[0] =
+      std::stof(rcutils_cli_get_option(argv, argv + argc, OPTION_CONTROLLER_K1));
+  }
+  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_CONTROLLER_K2)) {
+    feedback_matrix[1] =
+      std::stof(rcutils_cli_get_option(argv, argv + argc, OPTION_CONTROLLER_K2));
+  }
+  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_CONTROLLER_K3)) {
+    feedback_matrix[2] =
+      std::stof(rcutils_cli_get_option(argv, argv + argc, OPTION_CONTROLLER_K3));
+  }
+  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_CONTROLLER_K4)) {
+    feedback_matrix[3] =
+      std::stof(rcutils_cli_get_option(argv, argv + argc, OPTION_CONTROLLER_K4));
   }
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_SENSOR_UPDATE_PERIOD)) {
     sensor_publish_period = std::chrono::nanoseconds(
@@ -181,7 +218,6 @@ int main(int argc, char * argv[])
   qos_deadline_profile.deadline(deadline_duration);
 
   // Create a controller
-  std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
   std::unique_ptr<pendulum::PendulumController> controller = std::make_unique<
     pendulum::FullStateFeedbackController>(feedback_matrix);
 
@@ -230,7 +266,11 @@ int main(int argc, char * argv[])
       perror("Couldn't set scheduling priority and policy");
     }
   }
-
+  if (cpu_affinity > 0U) {
+    if (pendulum::set_this_thread_cpu_affinity(cpu_affinity)) {
+      perror("Couldn't set cpu affinity");
+    }
+  }
   // Lock the currently cached virtual memory into RAM, as well as any future memory allocations,
   // and do our best to prefault the locked memory to prevent future pagefaults.
   // Will return with a non-zero error code if something went wrong (insufficient resources or
