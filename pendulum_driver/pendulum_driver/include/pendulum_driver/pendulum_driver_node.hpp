@@ -18,13 +18,6 @@
 #ifndef PENDULUM_DRIVER__PENDULUM_DRIVER_NODE_HPP_
 #define PENDULUM_DRIVER__PENDULUM_DRIVER_NODE_HPP_
 
-#include <sys/time.h>  // needed for getrusage
-#include <sys/resource.h>  // needed for getrusage
-
-#include <pendulum_msgs_v2/msg/pendulum_stats.hpp>
-#include <rclcpp/strategies/message_pool_memory_strategy.hpp>
-#include <rclcpp/strategies/allocator_memory_strategy.hpp>
-
 #include <memory>
 #include <string>
 
@@ -33,21 +26,21 @@
 #include <osrf_testing_tools_cpp/scope_exit.hpp>
 #endif
 
-#include "rcutils/logging_macros.h"
-
 #include "rclcpp/rclcpp.hpp"
-
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "lifecycle_msgs/msg/transition_event.hpp"
+#include "rclcpp/strategies/message_pool_memory_strategy.hpp"
+#include "rclcpp/strategies/allocator_memory_strategy.hpp"
+#include "rcutils/logging_macros.h"
+#include "sensor_msgs/msg/joint_state.hpp"
 
 #include "pendulum_msgs_v2/msg/pendulum_command.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
-#include "sensor_msgs/msg/joint_state.hpp"
-
-#include "pendulum_tools/resource_usage.hpp"
-#include "pendulum_tools/jitter_tracker.hpp"
+#include "pendulum_msgs_v2/msg/pendulum_stats.hpp"
 #include "pendulum_driver/pendulum_driver_interface.hpp"
 #include "pendulum_driver/visibility_control.hpp"
+#include "pendulum_tools/resource_usage.hpp"
+#include "pendulum_tools/jitter_tracker.hpp"
 
 namespace pendulum
 {

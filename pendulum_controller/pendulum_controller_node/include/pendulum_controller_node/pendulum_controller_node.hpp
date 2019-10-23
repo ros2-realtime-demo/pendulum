@@ -18,38 +18,33 @@
 #ifndef PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_NODE_HPP_
 #define PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_NODE_HPP_
 
-#include <sys/time.h>  // needed for getrusage
-#include <sys/resource.h>  // needed for getrusage
-
-#include <pendulum_msgs_v2/msg/controller_stats.hpp>
-#include <rclcpp/strategies/message_pool_memory_strategy.hpp>
-#include <rclcpp/strategies/allocator_memory_strategy.hpp>
-
-#include <memory>
 #include <string>
 #include <climits>
+#include <memory>
 
 #ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
 #include <osrf_testing_tools_cpp/memory_tools/memory_tools.hpp>
 #include <osrf_testing_tools_cpp/scope_exit.hpp>
 #endif
 
-#include "rcutils/logging_macros.h"
-#include "pendulum_msgs_v2/msg/pendulum_command.hpp"
-#include "pendulum_msgs_v2/msg/pendulum_state.hpp"
-#include "sensor_msgs/msg/joint_state.hpp"
-#include "pendulum_controller_node/visibility_control.hpp"
-#include "pendulum_controller_node/pendulum_controller.hpp"
-#include "pendulum_tools/jitter_tracker.hpp"
-#include "pendulum_tools/resource_usage.hpp"
-
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/publisher.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "rclcpp_lifecycle/lifecycle_publisher.hpp"
-
+#include "rclcpp/strategies/message_pool_memory_strategy.hpp"
+#include "rclcpp/strategies/allocator_memory_strategy.hpp"
 #include "lifecycle_msgs/msg/transition_event.hpp"
 #include "lifecycle_msgs/msg/transition.hpp"
+#include "rcutils/logging_macros.h"
+#include "sensor_msgs/msg/joint_state.hpp"
+
+#include "pendulum_msgs_v2/msg/pendulum_command.hpp"
+#include "pendulum_msgs_v2/msg/pendulum_state.hpp"
+#include "pendulum_msgs_v2/msg/controller_stats.hpp"
+#include "pendulum_controller_node/visibility_control.hpp"
+#include "pendulum_controller_node/pendulum_controller.hpp"
+#include "pendulum_tools/jitter_tracker.hpp"
+#include "pendulum_tools/resource_usage.hpp"
 
 namespace pendulum
 {
@@ -143,10 +138,11 @@ private:
 
   std::shared_ptr<rclcpp::Subscription<
       sensor_msgs::msg::JointState>> state_sub_;
-  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
-      pendulum_msgs_v2::msg::PendulumCommand>> command_pub_;
   std::shared_ptr<rclcpp::Subscription<
       pendulum_msgs_v2::msg::PendulumCommand>> setpoint_sub_;
+  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
+      pendulum_msgs_v2::msg::PendulumCommand>> command_pub_;
+
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
       pendulum_msgs_v2::msg::ControllerStats>> statistics_pub_;
 
