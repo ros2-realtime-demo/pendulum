@@ -26,8 +26,9 @@ FullStateFeedbackController::FullStateFeedbackController(
 void FullStateFeedbackController::update_setpoint_data(
   const pendulum_msgs_v2::msg::PendulumCommand & msg)
 {
-  // We only allow to set the cart position for the moment
-  reference_[1] = msg.cart_position;
+  // We only allow to set the cart position and velocity for the moment
+  reference_[0] = msg.cart_position;
+  reference_[1] = msg.cart_velocity;
 }
 
 void FullStateFeedbackController::update_status_data(

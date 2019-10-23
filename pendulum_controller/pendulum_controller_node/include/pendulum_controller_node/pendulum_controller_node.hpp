@@ -91,10 +91,6 @@ public:
   /// \return  publisher's settings options
   rclcpp::PublisherOptions & get_command_options() {return command_publisher_options_;}
 
-  /// \brief Get the controller statistics message.
-  /// \return  last controller statistics message
-  const pendulum_msgs_v2::msg::ControllerStats & get_controller_stats_message() const;
-
 private:
   /// \brief pendulum state topic message callback
   /// \param[in] msg pendulum state message

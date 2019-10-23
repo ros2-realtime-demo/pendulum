@@ -33,6 +33,8 @@ PendulumSimulation::PendulumSimulation(std::chrono::nanoseconds physics_update_p
   physics_update_timespec_.tv_sec = secs;
   physics_update_timespec_.tv_nsec = nsecs;
 
+  // we use non-linear equations for the simulation
+  // linearized equations couls be used if there are issues for real-time execution
   derivative_function_ = [this](const std::vector<double> & y,
       double u, size_t i) -> double {
       if (i == 0) {

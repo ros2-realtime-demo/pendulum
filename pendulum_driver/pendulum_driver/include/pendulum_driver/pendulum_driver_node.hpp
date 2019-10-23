@@ -77,7 +77,6 @@ public:
     PendulumDriverOptions driver_options,
     const rclcpp::NodeOptions & options);
 
-
   /// \brief Get the command subscription's settings options.
   /// \return  subscription's settings options
   rclcpp::SubscriptionOptions & get_command_options() {return command_subscription_options_;}
@@ -85,10 +84,6 @@ public:
   /// \brief Get the state publisher's settings options.
   /// \return  publisher's settings options
   rclcpp::PublisherOptions & get_state_options() {return sensor_publisher_options_;}
-
-  /// \brief Get the driver statistics message.
-  /// \return  last driver statistics message
-  const pendulum_msgs_v2::msg::PendulumStats & get_stats_message() const;
 
 private:
   /// \brief pendulum command topic message callback
@@ -147,7 +142,7 @@ private:
   rclcpp::SubscriptionOptions disturbance_subscription_options_;
   rclcpp::PublisherOptions sensor_publisher_options_;
 
-  rclcpp::TimerBase::SharedPtr status_timer_;
+  rclcpp::TimerBase::SharedPtr state_timer_;
   rclcpp::TimerBase::SharedPtr statistics_timer_;
   rclcpp::TimerBase::SharedPtr update_driver_timer_;
 
