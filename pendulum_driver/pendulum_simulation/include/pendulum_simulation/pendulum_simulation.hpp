@@ -22,6 +22,7 @@
 #include <chrono>
 #include <vector>
 #include <random>
+#include <mutex>
 
 #include "pendulum_driver/pendulum_driver_interface.hpp"
 #include "pendulum_simulation/runge_kutta.hpp"
@@ -117,6 +118,8 @@ private:
 
   derivativeF derivative_function_;
   bool is_active_ = false;
+
+  std::mutex mutex_;
 };
 
 }  // namespace pendulum

@@ -99,6 +99,7 @@ void PendulumSimulation::shutdown()
 
 void PendulumSimulation::update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)
 {
+  std::lock_guard<std::mutex> lock(mutex_);
   if (msg.cart_force > max_cart_force_) {
     controller_force_ = max_cart_force_;
   } else if (msg.cart_force < -max_cart_force_) {
@@ -110,12 +111,13 @@ void PendulumSimulation::update_command_data(const pendulum_msgs_v2::msg::Pendul
 
 void PendulumSimulation::update_disturbance_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)
 {
+  std::lock_guard<std::mutex> lock(mutex_);
   disturbance_force_ = msg.cart_force;
 }
 
 void PendulumSimulation::update_status_data(sensor_msgs::msg::JointState & msg)
 {
-  // check size
+  std::lock_guard<std::mutex> lock(mutex_);
   msg.position[0] = state_.cart_position;
   msg.velocity[0] = state_.cart_velocity;
   msg.effort[0] = state_.cart_force;
@@ -125,6 +127,7 @@ void PendulumSimulation::update_status_data(sensor_msgs::msg::JointState & msg)
 
 void PendulumSimulation::update()
 {
+  std::lock_guard<std::mutex> lock(mutex_);
   double cart_force = disturbance_force_ + controller_force_;
   ode_solver_.step(derivative_function_, X_, dt_, cart_force);
 
