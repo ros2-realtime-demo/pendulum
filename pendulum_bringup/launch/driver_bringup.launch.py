@@ -26,6 +26,6 @@ def generate_launch_description():
     return LaunchDescription([
         Node(package='robot_state_publisher', node_executable='robot_state_publisher',
              output='screen', arguments=[urdf]),
-        Node(package='pendulum_demo', node_executable='pendulum_demo',
+        Node(package='pendulum_demo', node_executable='pendulum_driver_standalone',
              output='screen'),
     ])

@@ -12,20 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    # TODO(wjwwood): Use a substitution to find share directory once this is implemented in launch
-    urdf = os.path.join(get_package_share_directory('pendulum_description'),
-                        'urdf', 'pendulum.urdf')
     return LaunchDescription([
-        Node(package='robot_state_publisher', node_executable='robot_state_publisher',
-             output='screen', arguments=[urdf]),
-        Node(package='pendulum_demo', node_executable='pendulum_demo',
+        Node(package='pendulum_demo', node_executable='pendulum_controller_standalone',
              output='screen'),
     ])
