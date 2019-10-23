@@ -6,7 +6,7 @@
 
 ### Project description
 
-The aim of this project is show the real-time capabilities using ROS2 framework. This project is based on the [previous](https://index.ros.org/doc/ros2/Tutorials/Real-Time-Programming/) work made by the Open Robotics. The project uses this packages as a base.
+The aim of this project is show the real-time capabilities using ROS2 framework. This project is based on the [previous](https://index.ros.org/doc/ros2/Tutorials/Real-Time-Programming/) work made by the Open Robotics. The project uses these packages as a base.
 
 #### Project architecture
 
@@ -116,8 +116,8 @@ In order to get the project ready, first you need to install [ROS2](https://inde
 
 ```bash
 source /opt/ros/dashing/setup.bash
-mkdir -p ~/pendulu_ws/src
-cd ~/pendulu_ws/src
+mkdir -p ~/pendulum_ws/src
+cd ~/pendulum_ws/src
 git clone https://gitlab.com/LanderU/pendulum/ # Change me with valid github URL @LanderU
 cd ~/pendulum_ws
 sudo rosdep init
@@ -135,8 +135,8 @@ fill me!
 #### How to contribute
 
 Make a fork using github, and make your changes. This project uses the same guidelines as all the officials ROS2 packages, make sure that your code is compliant with cppcheck, uncrustify...
-After this, submit a PR and we will review as son as possible.
+After this, submit a PR and we will review as soon as possible.
 
 #### Issues and feature request
 
-Please, use the templates and make sure that you labeled properly, also, consider to open a PR using the template to fix the issue or to implement a feature.
+Please, use the templates and make sure that you labeled them properly. Also, consider to open a PR using the template to fix the issue or to implement a feature.
