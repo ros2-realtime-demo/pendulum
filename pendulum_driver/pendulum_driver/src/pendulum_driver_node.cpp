@@ -86,10 +86,6 @@ void PendulumDriverNode::on_disturbance_received(
 
 void PendulumDriverNode::state_timer_callback()
 {
-  driver_interface_->update_status_data(state_message_);
-  sensor_pub_->publish(state_message_);
-  statistics_message_.command_stats.msg_count++;
-  statistics_message_.timer_stats.timer_count++;
   timespec curtime;
   clock_gettime(CLOCK_REALTIME, &curtime);
   statistics_message_.timer_stats.stamp.sec = curtime.tv_sec;
@@ -100,6 +96,11 @@ void PendulumDriverNode::state_timer_callback()
   statistics_message_.timer_stats.jitter_min_nsec = timer_jitter_.min();
   statistics_message_.timer_stats.jitter_max_nsec = timer_jitter_.max();
   statistics_message_.timer_stats.jitter_standard_dev_nsec = std::sqrt(timer_jitter_.variance());
+  statistics_message_.command_stats.msg_count++;
+  statistics_message_.timer_stats.timer_count++;
+
+  driver_interface_->update_status_data(state_message_);
+  sensor_pub_->publish(state_message_);
 }
 
 void PendulumDriverNode::update_driver_callback()

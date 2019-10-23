@@ -76,10 +76,6 @@ void PendulumControllerNode::on_pendulum_setpoint(
 
 void PendulumControllerNode::control_timer_callback()
 {
-  controller_->update_command_data(command_message_);
-  command_pub_->publish(command_message_);
-  statistics_message_.command_stats.msg_count++;
-  statistics_message_.timer_stats.timer_count++;
   timespec curtime;
   clock_gettime(CLOCK_REALTIME, &curtime);
   statistics_message_.timer_stats.stamp.sec = curtime.tv_sec;
@@ -89,6 +85,11 @@ void PendulumControllerNode::control_timer_callback()
   statistics_message_.timer_stats.jitter_min_nsec = timer_jitter_.min();
   statistics_message_.timer_stats.jitter_max_nsec = timer_jitter_.max();
   statistics_message_.timer_stats.jitter_standard_dev_nsec = std::sqrt(timer_jitter_.variance());
+  statistics_message_.command_stats.msg_count++;
+  statistics_message_.timer_stats.timer_count++;
+
+  controller_->update_command_data(command_message_);
+  command_pub_->publish(command_message_);
 }
 
 const pendulum_msgs_v2::msg::ControllerStats &
