@@ -239,6 +239,7 @@ PendulumDriverNode::on_deactivate(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
+  RCUTILS_LOG_INFO_NAMED(get_name(), "on_cleanup() is called.");
   driver_interface_->shutdown();
   status_timer_.reset();
   update_driver_timer_.reset();
