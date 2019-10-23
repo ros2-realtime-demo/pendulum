@@ -34,6 +34,8 @@ PendulumControllerNode::PendulumControllerNode(
   controller_options_(controller_options),
   timer_jitter_(controller_options.command_publish_period)
 {
+  // if OSRF memory tools package is found and we have enable memory checking
+  // we enable hooks for malloc and similar that will report for any call to these functions
   if (controller_options_.enable_check_memory) {
   #ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
     osrf_testing_tools_cpp::memory_tools::initialize();
@@ -92,12 +94,6 @@ void PendulumControllerNode::control_timer_callback()
   command_pub_->publish(command_message_);
 }
 
-const pendulum_msgs_v2::msg::ControllerStats &
-PendulumControllerNode::get_controller_stats_message() const
-{
-  return statistics_message_;
-}
-
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
 {
@@ -130,6 +126,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
     {
       statistics_message_.command_stats.deadline_misses_count++;
     };
+
   // Initialize the publisher for the command message.
   command_pub_ = this->create_publisher<pendulum_msgs_v2::msg::PendulumCommand>(
     "pendulum_command",
@@ -146,6 +143,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
   command_timer_ =
     this->create_wall_timer(controller_options_.command_publish_period,
       std::bind(&PendulumControllerNode::control_timer_callback, this));
+  // cancel immediately to prevent triggering it in this state
   command_timer_->cancel();
 
   if (controller_options_.enable_statistics) {
@@ -178,9 +176,11 @@ PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
     statistics_pub_->on_activate();
   }
 
+  // we need to save resource usage before active state to know the page faults during
+  // real-time execution
   resource_usage_.on_activate();
 
-  controller_->reset();
+  // enable memory checking for active state
   if (controller_options_.enable_check_memory) {
   #ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
     osrf_testing_tools_cpp::memory_tools::expect_no_calloc_begin();
@@ -189,6 +189,9 @@ PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
     osrf_testing_tools_cpp::memory_tools::expect_no_realloc_begin();
   #endif
   }
+
+  // reset internal state of the controller for a clean start
+  controller_->reset();
 
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
@@ -206,15 +209,14 @@ PendulumControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
   }
 
   resource_usage_.on_deactivate();
-
-  RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
   command_timer_->cancel();
   command_pub_->on_deactivate();
-
   if (controller_options_.enable_statistics) {
     statistics_timer_->cancel();
     statistics_pub_->on_deactivate();
   }
+
+  RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
 
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }

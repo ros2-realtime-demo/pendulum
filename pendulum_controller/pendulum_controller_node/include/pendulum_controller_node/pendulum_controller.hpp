@@ -18,13 +18,12 @@
 #ifndef PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_HPP_
 #define PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_HPP_
 
+#include "sensor_msgs/msg/joint_state.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_command.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
-#include "sensor_msgs/msg/joint_state.hpp"
 
 namespace pendulum
 {
-
 /// \class This class creates the interface between the controller node and the controller
 ///        implementation.
 class PendulumController
@@ -45,7 +44,6 @@ public:
   /// \brief Resets the controller internal status and set variables to tehir default values.
   virtual void reset() = 0;
 };
-
 }  // namespace pendulum
 
 #endif  // PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_HPP_

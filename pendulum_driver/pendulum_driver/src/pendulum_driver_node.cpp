@@ -45,6 +45,8 @@ PendulumDriverNode::PendulumDriverNode(
   state_message_.velocity.push_back(0.0);
   state_message_.effort.push_back(0.0);
 
+  // if osrf_testing_tools package is found and we have enable memory checking
+  // we enable hooks for malloc and similar that will report for any call to these functions
   if (driver_options_.enable_check_memory) {
   #ifdef PENDULUM_DRIVER_MEMORYTOOLS_ENABLED
     osrf_testing_tools_cpp::memory_tools::initialize();
@@ -100,18 +102,12 @@ void PendulumDriverNode::state_timer_callback()
   statistics_message_.timer_stats.timer_count++;
 
   driver_interface_->update_status_data(state_message_);
-  status_pub_->publish(state_message_);
+  state_pub_->publish(state_message_);
 }
 
 void PendulumDriverNode::update_driver_callback()
 {
   driver_interface_->update();
-}
-
-const pendulum_msgs_v2::msg::PendulumStats &
-PendulumDriverNode::get_stats_message() const
-{
-  return statistics_message_;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -131,7 +127,7 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
     {
       this->statistics_message_.sensor_stats.deadline_misses_count++;
     };
-  status_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
+  state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
     "joint_states", driver_options_.status_qos_profile, sensor_publisher_options_);
 
   this->get_command_options().event_callbacks.deadline_callback =
@@ -156,11 +152,11 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
     rclcpp::SubscriptionOptions(),
     disturbance_msg_strategy);
 
-  status_timer_ =
+  state_timer_ =
     this->create_wall_timer(driver_options_.status_publish_period,
       std::bind(&PendulumDriverNode::state_timer_callback, this));
   // cancel immediately to prevent triggering it in this state
-  status_timer_->cancel();
+  state_timer_->cancel();
 
   if (driver_options_.enable_statistics) {
     // Initialize the statistics publisher.
@@ -186,15 +182,19 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_activate(const rclcpp_lifecycle::State &)
 {
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
-  status_pub_->on_activate();
-  status_timer_->reset();
+  state_pub_->on_activate();
+  state_timer_->reset();
 
   if (driver_options_.enable_statistics) {
     statistics_timer_->reset();
     statistics_pub_->on_activate();
   }
 
+  // we need to save resource usage before active state to know the page faults during
+  // real-time execution
   resource_usage_.on_activate();
+
+  // enable memory checking for active state
   if (driver_options_.enable_check_memory) {
   #ifdef PENDULUM_DRIVER_MEMORYTOOLS_ENABLED
     osrf_testing_tools_cpp::memory_tools::expect_no_calloc_begin();
@@ -204,6 +204,7 @@ PendulumDriverNode::on_activate(const rclcpp_lifecycle::State &)
   #endif
   }
 
+  // reset internal state of the driver for a clean start
   driver_interface_->start();
 
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
@@ -212,6 +213,8 @@ PendulumDriverNode::on_activate(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_deactivate(const rclcpp_lifecycle::State &)
 {
+  driver_interface_->stop();
+
   if (driver_options_.enable_check_memory) {
   #ifdef PENDULUM_DRIVER_MEMORYTOOLS_ENABLED
     osrf_testing_tools_cpp::memory_tools::expect_no_calloc_end();
@@ -221,18 +224,16 @@ PendulumDriverNode::on_deactivate(const rclcpp_lifecycle::State &)
   #endif
   }
 
-  driver_interface_->stop();
-
   resource_usage_.on_deactivate();
-  RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
-
-  status_timer_->cancel();
-  status_pub_->on_deactivate();
-
+  state_timer_->cancel();
+  state_pub_->on_deactivate();
   if (driver_options_.enable_statistics) {
     statistics_timer_->cancel();
     statistics_pub_->on_deactivate();
   }
+
+  RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
+
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -241,11 +242,10 @@ PendulumDriverNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_cleanup() is called.");
   driver_interface_->shutdown();
-  status_timer_.reset();
-  update_driver_timer_.reset();
+  state_timer_.reset();
+  state_pub_.reset();
   command_sub_.reset();
   disturbance_sub_.reset();
-  status_pub_.reset();
 
   if (driver_options_.enable_statistics) {
     statistics_timer_.reset();
@@ -258,11 +258,10 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_shutdown(const rclcpp_lifecycle::State &)
 {
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_shutdown() is called.");
-  status_timer_.reset();
-  update_driver_timer_.reset();
+  state_timer_.reset();
+  state_pub_.reset();
   command_sub_.reset();
   disturbance_sub_.reset();
-  status_pub_.reset();
 
   if (driver_options_.enable_statistics) {
     statistics_timer_.reset();

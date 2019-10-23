@@ -18,38 +18,33 @@
 #ifndef PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_NODE_HPP_
 #define PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_NODE_HPP_
 
-#include <sys/time.h>  // needed for getrusage
-#include <sys/resource.h>  // needed for getrusage
-
-#include <pendulum_msgs_v2/msg/controller_stats.hpp>
-#include <rclcpp/strategies/message_pool_memory_strategy.hpp>
-#include <rclcpp/strategies/allocator_memory_strategy.hpp>
-
-#include <memory>
 #include <string>
 #include <climits>
+#include <memory>
 
 #ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
 #include <osrf_testing_tools_cpp/memory_tools/memory_tools.hpp>
 #include <osrf_testing_tools_cpp/scope_exit.hpp>
 #endif
 
-#include "rcutils/logging_macros.h"
-#include "pendulum_msgs_v2/msg/pendulum_command.hpp"
-#include "pendulum_msgs_v2/msg/pendulum_state.hpp"
-#include "sensor_msgs/msg/joint_state.hpp"
-#include "pendulum_controller_node/visibility_control.hpp"
-#include "pendulum_controller_node/pendulum_controller.hpp"
-#include "pendulum_tools/jitter_tracker.hpp"
-#include "pendulum_tools/resource_usage.hpp"
-
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/publisher.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "rclcpp_lifecycle/lifecycle_publisher.hpp"
-
+#include "rclcpp/strategies/message_pool_memory_strategy.hpp"
+#include "rclcpp/strategies/allocator_memory_strategy.hpp"
 #include "lifecycle_msgs/msg/transition_event.hpp"
 #include "lifecycle_msgs/msg/transition.hpp"
+#include "rcutils/logging_macros.h"
+#include "sensor_msgs/msg/joint_state.hpp"
+
+#include "pendulum_msgs_v2/msg/pendulum_command.hpp"
+#include "pendulum_msgs_v2/msg/pendulum_state.hpp"
+#include "pendulum_msgs_v2/msg/controller_stats.hpp"
+#include "pendulum_controller_node/visibility_control.hpp"
+#include "pendulum_controller_node/pendulum_controller.hpp"
+#include "pendulum_tools/jitter_tracker.hpp"
+#include "pendulum_tools/resource_usage.hpp"
 
 namespace pendulum
 {
@@ -87,6 +82,7 @@ public:
     std::unique_ptr<PendulumController> controller,
     PendulumControllerOptions controller_options,
     const rclcpp::NodeOptions & options);
+
   /// \brief Get the sensor subscription's settings options.
   /// \return  subscription's settings options
   rclcpp::SubscriptionOptions & get_state_options() {return sensor_subscription_options_;}
@@ -94,10 +90,6 @@ public:
   /// \brief Get the command publisher's settings options.
   /// \return  publisher's settings options
   rclcpp::PublisherOptions & get_command_options() {return command_publisher_options_;}
-
-  /// \brief Get the controller statistics message.
-  /// \return  last controller statistics message
-  const pendulum_msgs_v2::msg::ControllerStats & get_controller_stats_message() const;
 
 private:
   /// \brief pendulum state topic message callback
@@ -143,10 +135,10 @@ private:
 
   std::shared_ptr<rclcpp::Subscription<
       sensor_msgs::msg::JointState>> state_sub_;
-  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
-      pendulum_msgs_v2::msg::PendulumCommand>> command_pub_;
   std::shared_ptr<rclcpp::Subscription<
       pendulum_msgs_v2::msg::PendulumCommand>> setpoint_sub_;
+  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
+      pendulum_msgs_v2::msg::PendulumCommand>> command_pub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
       pendulum_msgs_v2::msg::ControllerStats>> statistics_pub_;
 
@@ -156,8 +148,8 @@ private:
   rclcpp::TimerBase::SharedPtr command_timer_;
   rclcpp::TimerBase::SharedPtr statistics_timer_;
 
-  pendulum_msgs_v2::msg::ControllerStats statistics_message_;
   sensor_msgs::msg::JointState state_message_;
+  pendulum_msgs_v2::msg::ControllerStats statistics_message_;
   pendulum_msgs_v2::msg::PendulumCommand command_message_;
 
   JitterTracker timer_jitter_{std::chrono::nanoseconds(0)};
