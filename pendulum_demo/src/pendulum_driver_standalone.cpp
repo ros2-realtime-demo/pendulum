@@ -52,6 +52,7 @@ static const char * OPTION_MEMORY_CHECK = "--memory-check";
 static const char * OPTION_TLSF = "--use-tlsf";
 static const char * OPTION_LOCK_MEMORY = "--lock-memory";
 static const char * OPTION_PRIORITY = "--priority";
+static const char * OPTION_CPU_AFFINITY = "--cpu-affinity";
 static const char * OPTION_PUBLISH_STATISTICS = "--pub-stats";
 static const char * OPTION_DEADLINE_PERIOD = "--deadline";
 static const char * OPTION_STATISTICS_PERIOD = "--stats-period";
@@ -72,6 +73,7 @@ void print_usage()
     "\t[%s use OSRF memory check tool]\n"
     "\t[%s lock memory]\n"
     "\t[%s set process real-time priority]\n"
+    "\t[%s set process cpu affinity]\n"
     "\t[%s statistics publisher period (ms)]\n"
     "\t[%s publish statistics (enable)]\n"
     "\t[%s use TLSF allocator]\n"
@@ -82,6 +84,7 @@ void print_usage()
     OPTION_MEMORY_CHECK,
     OPTION_LOCK_MEMORY,
     OPTION_PRIORITY,
+    OPTION_CPU_AFFINITY,
     OPTION_STATISTICS_PERIOD,
     OPTION_PUBLISH_STATISTICS,
     OPTION_TLSF);
@@ -95,6 +98,7 @@ int main(int argc, char * argv[])
   bool publish_statistics = false;
   bool use_tlfs = false;
   int process_priority = DEFAULT_PRIORITY;
+  uint32_t cpu_affinity = 0;
   std::chrono::nanoseconds deadline_duration(DEFAULT_DEADLINE_PERIOD_NS);
   std::chrono::milliseconds logger_publisher_period(DEFAULT_STATISTICS_PERIOD_MS);
 
@@ -126,6 +130,9 @@ int main(int argc, char * argv[])
   }
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PRIORITY)) {
     process_priority = std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_PRIORITY));
+  }
+  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_CPU_AFFINITY)) {
+    cpu_affinity = std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_CPU_AFFINITY));
   }
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_DEADLINE_PERIOD)) {
     deadline_duration = std::chrono::nanoseconds(
@@ -185,10 +192,15 @@ int main(int argc, char * argv[])
   exec.add_node(pendulum_driver->get_node_base_interface());
 
   // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
-  // deterministic (real-time safe) algorithm, round robin.
+  // deterministic (real-time safe) algorithm, fifo.
   if (process_priority > 0 && process_priority < 99) {
     if (pendulum::set_this_thread_priority(process_priority, SCHED_FIFO)) {
       perror("Couldn't set scheduling priority and policy");
+    }
+  }
+  if (cpu_affinity > 0U) {
+    if (pendulum::set_this_thread_cpu_affinity(cpu_affinity)) {
+      perror("Couldn't set cpu affinity");
     }
   }
 
@@ -196,11 +208,8 @@ int main(int argc, char * argv[])
   // and do our best to prefault the locked memory to prevent future pagefaults.
   // Will return with a non-zero error code if something went wrong (insufficient resources or
   // permissions).
-  // Always do this as the last step of the initialization phase.
-  // See README.md for instructions on setting permissions.
-  // See rttest/rttest.cpp for more details.
   if (lock_memory) {
-    std::cout << "lock memory on\n";
+    std::cout << "Enable lock memory\n";
     if (pendulum::lock_and_prefault_dynamic() != 0) {
       fprintf(stderr, "Couldn't lock all cached virtual memory.\n");
       fprintf(stderr, "Pagefaults from reading pages not yet mapped into RAM will be recorded.\n");
