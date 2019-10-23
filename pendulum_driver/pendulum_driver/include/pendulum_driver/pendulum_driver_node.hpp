@@ -146,7 +146,7 @@ private:
   PendulumDriverOptions driver_options_;
 
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
-      sensor_msgs::msg::JointState>> sensor_pub_;
+      sensor_msgs::msg::JointState>> status_pub_;
   std::shared_ptr<rclcpp::Subscription<
       pendulum_msgs_v2::msg::PendulumCommand>> command_sub_;
   std::shared_ptr<rclcpp::Subscription<

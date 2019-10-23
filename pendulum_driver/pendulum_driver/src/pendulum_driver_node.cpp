@@ -100,7 +100,7 @@ void PendulumDriverNode::state_timer_callback()
   statistics_message_.timer_stats.timer_count++;
 
   driver_interface_->update_status_data(state_message_);
-  sensor_pub_->publish(state_message_);
+  status_pub_->publish(state_message_);
 }
 
 void PendulumDriverNode::update_driver_callback()
@@ -131,7 +131,7 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
     {
       this->statistics_message_.sensor_stats.deadline_misses_count++;
     };
-  sensor_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
+  status_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
     "joint_states", driver_options_.status_qos_profile, sensor_publisher_options_);
 
   this->get_command_options().event_callbacks.deadline_callback =
@@ -186,12 +186,12 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_activate(const rclcpp_lifecycle::State &)
 {
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
-  sensor_pub_->on_activate();
+  status_pub_->on_activate();
   status_timer_->reset();
 
   if (driver_options_.enable_statistics) {
-    statistics_pub_->on_activate();
     statistics_timer_.reset();
+    statistics_pub_->on_activate();
   }
 
   resource_usage_.on_activate();
@@ -227,7 +227,7 @@ PendulumDriverNode::on_deactivate(const rclcpp_lifecycle::State &)
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
 
   status_timer_->cancel();
-  sensor_pub_->on_deactivate();
+  status_pub_->on_deactivate();
 
   if (driver_options_.enable_statistics) {
     statistics_timer_->cancel();
@@ -244,7 +244,7 @@ PendulumDriverNode::on_cleanup(const rclcpp_lifecycle::State &)
   update_driver_timer_.reset();
   command_sub_.reset();
   disturbance_sub_.reset();
-  sensor_pub_.reset();
+  status_pub_.reset();
 
   if (driver_options_.enable_statistics) {
     statistics_timer_.reset();
@@ -261,7 +261,7 @@ PendulumDriverNode::on_shutdown(const rclcpp_lifecycle::State &)
   update_driver_timer_.reset();
   command_sub_.reset();
   disturbance_sub_.reset();
-  sensor_pub_.reset();
+  status_pub_.reset();
 
   if (driver_options_.enable_statistics) {
     statistics_timer_.reset();
