@@ -192,7 +192,7 @@ int main(int argc, char * argv[])
   exec.add_node(pendulum_driver->get_node_base_interface());
 
   // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
-  // deterministic (real-time safe) algorithm, round robin.
+  // deterministic (real-time safe) algorithm, fifo.
   if (process_priority > 0 && process_priority < 99) {
     if (pendulum::set_this_thread_priority(process_priority, SCHED_FIFO)) {
       perror("Couldn't set scheduling priority and policy");
@@ -208,11 +208,8 @@ int main(int argc, char * argv[])
   // and do our best to prefault the locked memory to prevent future pagefaults.
   // Will return with a non-zero error code if something went wrong (insufficient resources or
   // permissions).
-  // Always do this as the last step of the initialization phase.
-  // See README.md for instructions on setting permissions.
-  // See rttest/rttest.cpp for more details.
   if (lock_memory) {
-    std::cout << "lock memory on\n";
+    std::cout << "Enable lock memory\n";
     if (pendulum::lock_and_prefault_dynamic() != 0) {
       fprintf(stderr, "Couldn't lock all cached virtual memory.\n");
       fprintf(stderr, "Pagefaults from reading pages not yet mapped into RAM will be recorded.\n");

@@ -205,7 +205,7 @@ int main(int argc, char * argv[])
   // One of the arguments passed to the Executor is the memory strategy, which delegates the
   // runtime-execution allocations to the TLSF allocator.
   if (use_tlfs) {
-    std::cout << "Enable TLSF allocator\n";
+    std::cout << "TLSF allocator: enabled\n";
     rclcpp::memory_strategy::MemoryStrategy::SharedPtr memory_strategy =
       std::make_shared<AllocatorMemoryStrategy<TLSFAllocator<void>>>();
     exec_args.memory_strategy = memory_strategy;
@@ -260,7 +260,7 @@ int main(int argc, char * argv[])
   exec.add_node(pendulum_driver->get_node_base_interface());
 
   // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
-  // deterministic (real-time safe) algorithm, round robin.
+  // deterministic (real-time safe) algorithm, fifo.
   if (process_priority > 0 && process_priority < 99) {
     if (pendulum::set_this_thread_priority(process_priority, SCHED_FIFO)) {
       perror("Couldn't set scheduling priority and policy");
@@ -279,7 +279,7 @@ int main(int argc, char * argv[])
   // See README.md for instructions on setting permissions.
   // See rttest/rttest.cpp for more details.
   if (lock_memory) {
-    std::cout << "lock memory on\n";
+    std::cout << "Enable lock memory\n";
     if (pendulum::lock_and_prefault_dynamic() != 0) {
       fprintf(stderr, "Couldn't lock all cached virtual memory.\n");
       fprintf(stderr, "Pagefaults from reading pages not yet mapped into RAM will be recorded.\n");
