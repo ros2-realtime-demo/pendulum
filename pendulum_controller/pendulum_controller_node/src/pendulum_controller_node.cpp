@@ -88,7 +88,7 @@ void PendulumControllerNode::control_timer_callback()
   statistics_message_.timer_stats.jitter_mean_nsec = timer_jitter_.mean();
   statistics_message_.timer_stats.jitter_min_nsec = timer_jitter_.min();
   statistics_message_.timer_stats.jitter_max_nsec = timer_jitter_.max();
-  statistics_message_.timer_stats.jitter_standard_dev_nsec = timer_jitter_.variance();
+  statistics_message_.timer_stats.jitter_standard_dev_nsec = std::sqrt(timer_jitter_.variance());
 }
 
 const pendulum_msgs_v2::msg::ControllerStats &
