@@ -149,8 +149,6 @@ private:
       pendulum_msgs_v2::msg::PendulumCommand>> setpoint_sub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
       pendulum_msgs_v2::msg::ControllerStats>> statistics_pub_;
-  std::shared_ptr<rclcpp::Subscription<
-      lifecycle_msgs::msg::TransitionEvent>> sub_notification_;
 
   rclcpp::PublisherOptions command_publisher_options_;
   rclcpp::SubscriptionOptions sensor_subscription_options_;

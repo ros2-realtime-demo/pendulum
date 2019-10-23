@@ -190,7 +190,7 @@ PendulumDriverNode::on_activate(const rclcpp_lifecycle::State &)
   status_timer_->reset();
 
   if (driver_options_.enable_statistics) {
-    statistics_timer_.reset();
+    statistics_timer_->reset();
     statistics_pub_->on_activate();
   }
 
