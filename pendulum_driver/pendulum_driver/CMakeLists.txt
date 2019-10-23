@@ -22,7 +22,6 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
-find_package(rttest REQUIRED)
 find_package(pendulum_tools REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
@@ -59,7 +58,6 @@ ament_target_dependencies(pendulum_driver
         "lifecycle_msgs"
         "pendulum_msgs_v2"
         "rclcpp"
-        "rttest"
         "rclcpp_components"
         "pendulum_tools"
         "sensor_msgs"

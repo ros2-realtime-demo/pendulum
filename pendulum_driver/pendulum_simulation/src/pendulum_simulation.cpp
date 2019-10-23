@@ -28,7 +28,10 @@ PendulumSimulation::PendulumSimulation(std::chrono::nanoseconds physics_update_p
   if (std::isnan(dt_) || dt_ == 0) {
     throw std::runtime_error("Invalid dt_ calculated in PendulumController constructor");
   }
-  long_to_timespec(physics_update_period_.count(), &physics_update_timespec_);
+  uint32_t nsecs = physics_update_period_.count() % 1000000000;
+  uint32_t secs = (physics_update_period_.count() - nsecs) / 1000000000;
+  physics_update_timespec_.tv_sec = secs;
+  physics_update_timespec_.tv_nsec = nsecs;
 
   derivative_function_ = [this](const std::vector<double> & y,
       double u, size_t i) -> double {
@@ -143,8 +146,6 @@ void * PendulumSimulation::physics_update_wrapper(void * args)
 // Set kinematic and dynamic properties of the pendulum based on state inputs
 void * PendulumSimulation::physics_update()
 {
-  rttest_lock_and_prefault_dynamic();
-
   while (!done_) {
     if (is_active_) {
       update();

@@ -40,7 +40,8 @@
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "pendulum_controller_node/visibility_control.hpp"
 #include "pendulum_controller_node/pendulum_controller.hpp"
-#include "pendulum_tools/timing_analyzer.hpp"
+#include "pendulum_tools/jitter_tracker.hpp"
+#include "pendulum_tools/resource_usage.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/publisher.hpp"
@@ -52,6 +53,19 @@
 
 namespace pendulum
 {
+
+struct PendulumControllerOptions
+{
+  std::string node_name = "pendulum_controller";
+  std::chrono::nanoseconds command_publish_period = std::chrono::nanoseconds(0);
+  rclcpp::QoS status_qos_profile = rclcpp::QoS(10);
+  rclcpp::QoS command_qos_profile = rclcpp::QoS(10);
+  rclcpp::QoS setpoint_qos_profile = rclcpp::QoS(
+    rclcpp::KeepLast(10)).transient_local().reliable();
+  bool enable_statistics = false;
+  std::chrono::nanoseconds statistics_publish_period = std::chrono::nanoseconds(0);
+  bool enable_check_memory = false;
+};
 
 /// \class This class implements a node containing a controller for the inverted pendulum.
 class PendulumControllerNode : public rclcpp_lifecycle::LifecycleNode
@@ -65,23 +79,14 @@ public:
   {}
 
   /// \brief Main constructor with parameters
-  /// \param[in] node_name Name of the node for rclcpp internals
   /// \param[in] controller Pointer to the controller implementation
-  /// \param[in] publish_period Period for the controller command publishing
-  /// \param[in] qos_profile QoS profile for comamnd and status topics
-  /// \param[in] setpoint_qos_profile QoS profile for the setpoint topic
-  /// \param[in] check_memory Flag to enable memory allocation checking
+  /// \param[in] controller_options Options to configure the object
   /// \param[in] options Node options for rclcpp internals
   /// \throw std::runtime_error If memory checking is enabled but not working or not installed.
   COMPOSITION_PUBLIC PendulumControllerNode(
-    const std::string & node_name,
     std::unique_ptr<PendulumController> controller,
-    std::chrono::nanoseconds publish_period,
-    const rclcpp::QoS & qos_profile,
-    const rclcpp::QoS & setpoint_qos_profile,
-    const bool check_memory,
+    PendulumControllerOptions controller_options,
     const rclcpp::NodeOptions & options);
-
   /// \brief Get the sensor subscription's settings options.
   /// \return  subscription's settings options
   rclcpp::SubscriptionOptions & get_state_options() {return sensor_subscription_options_;}
@@ -93,10 +98,6 @@ public:
   /// \brief Get the controller statistics message.
   /// \return  last controller statistics message
   const pendulum_msgs_v2::msg::ControllerStats & get_controller_stats_message() const;
-
-  /// \brief Update system usage statistics
-  /// \param[in] update_active_page_faults update paga faults only in active state
-  void update_sys_usage(bool update_active_page_faults = false);
 
 private:
   /// \brief pendulum state topic message callback
@@ -137,6 +138,9 @@ private:
   on_shutdown(const rclcpp_lifecycle::State & state);
 
 private:
+  std::unique_ptr<PendulumController> controller_;
+  PendulumControllerOptions controller_options_;
+
   std::shared_ptr<rclcpp::Subscription<
       sensor_msgs::msg::JointState>> state_sub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
@@ -144,27 +148,20 @@ private:
   std::shared_ptr<rclcpp::Subscription<
       pendulum_msgs_v2::msg::PendulumCommand>> setpoint_sub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
-      pendulum_msgs_v2::msg::ControllerStats>> logger_pub_;
-  std::shared_ptr<rclcpp::Subscription<
-      lifecycle_msgs::msg::TransitionEvent>> sub_notification_;
+      pendulum_msgs_v2::msg::ControllerStats>> statistics_pub_;
 
   rclcpp::PublisherOptions command_publisher_options_;
   rclcpp::SubscriptionOptions sensor_subscription_options_;
 
-  rclcpp::TimerBase::SharedPtr timer_;
-  std::chrono::nanoseconds publish_period_ = std::chrono::nanoseconds(1000000);
-  std::unique_ptr<PendulumController> controller_;
-  rclcpp::QoS qos_profile_ = rclcpp::QoS(1);
-  rclcpp::QoS setpoint_qos_profile_ = rclcpp::QoS(
-    rclcpp::KeepLast(10)).transient_local().reliable();
-  pendulum_msgs_v2::msg::ControllerStats controller_stats_message_;
+  rclcpp::TimerBase::SharedPtr command_timer_;
+  rclcpp::TimerBase::SharedPtr statistics_timer_;
+
+  pendulum_msgs_v2::msg::ControllerStats statistics_message_;
   sensor_msgs::msg::JointState state_message_;
   pendulum_msgs_v2::msg::PendulumCommand command_message_;
-  rusage sys_usage_;
-  uint64_t minor_page_faults_at_active_start_ = 0;
-  uint64_t major_page_faults_at_active_start_ = 0;
-  bool check_memory_ = false;
-  TimingAnalyzer timer_jitter_{std::chrono::nanoseconds(0)};
+
+  JitterTracker timer_jitter_{std::chrono::nanoseconds(0)};
+  ResourceUsage resource_usage_;
 };
 }  // namespace pendulum
 

@@ -14,7 +14,6 @@
 
 #include <rclcpp/strategies/allocator_memory_strategy.hpp>
 #include <pendulum_msgs_v2/msg/pendulum_stats.hpp>
-#include <rttest/rttest.h>
 
 #include <vector>
 #include <iostream>
@@ -36,6 +35,8 @@
 #include "pendulum_driver/pendulum_driver_node.hpp"
 #include "pendulum_driver/pendulum_driver_interface.hpp"
 #include "pendulum_simulation/pendulum_simulation.hpp"
+#include "pendulum_tools/memory_lock.hpp"
+#include "pendulum_tools/rt_thread.hpp"
 
 #ifdef PENDULUM_DEMO_TLSF_ENABLED
 using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
@@ -144,12 +145,6 @@ int main(int argc, char * argv[])
   }
 
   // TODO(carlossvg): check options
-
-  // use a dummy period to initialize rttest
-  struct timespec dummy_period;
-  dummy_period.tv_sec = 0;
-  dummy_period.tv_nsec = 1000000;
-  rttest_init(1, dummy_period, SCHED_FIFO, 80, 0, NULL);
   rclcpp::init(argc, argv);
 
   // Initialize the executor.
@@ -175,39 +170,24 @@ int main(int argc, char * argv[])
     std::make_unique<pendulum::PendulumSimulation>(physics_update_period);
 
   // Create pendulum driver node
+  pendulum::PendulumDriverOptions driver_options;
+  driver_options.node_name = "pendulum_driver";
+  driver_options.status_publish_period = sensor_publish_period;
+  driver_options.status_qos_profile = qos_deadline_profile;
+  driver_options.enable_statistics = publish_statistics;
+  driver_options.statistics_publish_period = logger_publisher_period;
+  driver_options.enable_check_memory = use_memory_check;
+
   auto pendulum_driver = std::make_shared<pendulum::PendulumDriverNode>(
-    "pendulum_driver",
     std::move(sim),
-    sensor_publish_period,
-    qos_deadline_profile,
-    use_memory_check,
+    driver_options,
     rclcpp::NodeOptions().use_intra_process_comms(true));
   exec.add_node(pendulum_driver->get_node_base_interface());
-
-  // Initialize the logger publisher.
-  auto driver_stats = rclcpp::Node::make_shared("driver_statistics_node");
-  auto driver_stats_pub = driver_stats->create_publisher<pendulum_msgs_v2::msg::PendulumStats>(
-    "driver_statistics", rclcpp::QoS(1));
-
-  // Create a lambda function that will fire regularly to publish the next results message.
-  auto logger_publish_callback =
-    [&driver_stats_pub, &pendulum_driver]() {
-      pendulum_msgs_v2::msg::PendulumStats pendulum_stats_msg;
-      pendulum_driver->update_sys_usage();
-      pendulum_stats_msg = pendulum_driver->get_stats_message();
-      driver_stats_pub->publish(pendulum_stats_msg);
-    };
-  auto logger_publisher_timer = driver_stats->create_wall_timer(
-    logger_publisher_period, logger_publish_callback);
-
-  if (publish_statistics) {
-    exec.add_node(driver_stats);
-  }
 
   // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
   // deterministic (real-time safe) algorithm, round robin.
   if (process_priority > 0 && process_priority < 99) {
-    if (rttest_set_sched_priority(process_priority, SCHED_FIFO)) {
+    if (pendulum::set_this_thread_priority(process_priority, SCHED_FIFO)) {
       perror("Couldn't set scheduling priority and policy");
     }
   }
@@ -221,7 +201,7 @@ int main(int argc, char * argv[])
   // See rttest/rttest.cpp for more details.
   if (lock_memory) {
     std::cout << "lock memory on\n";
-    if (rttest_lock_and_prefault_dynamic() != 0) {
+    if (pendulum::lock_and_prefault_dynamic() != 0) {
       fprintf(stderr, "Couldn't lock all cached virtual memory.\n");
       fprintf(stderr, "Pagefaults from reading pages not yet mapped into RAM will be recorded.\n");
     }
