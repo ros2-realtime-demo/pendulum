@@ -30,8 +30,8 @@ PendulumSimulation::PendulumSimulation(std::chrono::microseconds physics_update_
   }
 
   // convert to timespec
-  uint32_t nsecs = (physics_update_period_.count()*1000L) % 1000000000;
-  uint32_t secs = ((physics_update_period_.count()*1000L) - nsecs) / 1000000000;
+  uint32_t nsecs = (physics_update_period_.count() * 1000L) % 1000000000;
+  uint32_t secs = ((physics_update_period_.count() * 1000L) - nsecs) / 1000000000;
   physics_update_timespec_.tv_sec = secs;
   physics_update_timespec_.tv_nsec = nsecs;
 
