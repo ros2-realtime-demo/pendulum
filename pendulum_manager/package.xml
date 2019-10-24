@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
-  <name>pendulum_teleop</name>
+  <name>pendulum_manager</name>
   <version>0.0.1</version>
-  <description>Implementation of the pendulum teleoperation</description>
+  <description>Implementation of the pendulum lifecycle management</description>
   <maintainer email="carlos.svic@gmail.com">Carlos San Vicente</maintainer>
   <license>Apache License 2.0</license>
 
@@ -12,13 +12,11 @@
   <build_depend>pendulum_msgs_v2</build_depend>
   <build_depend>rclcpp_lifecycle</build_depend>
   <build_depend>lifecycle_msgs</build_depend>
-  <build_depend>rttest</build_depend>
 
   <exec_depend>pendulum_msgs_v2</exec_depend>
   <exec_depend>rclcpp_lifecycle</exec_depend>
   <exec_depend>lifecycle_msgs</exec_depend>
   <exec_depend>ros2run</exec_depend>
-  <exec_depend>rttest</exec_depend>
 
   <test_depend>ament_cmake_gmock</test_depend>
   <test_depend>ament_cmake_gtest</test_depend>

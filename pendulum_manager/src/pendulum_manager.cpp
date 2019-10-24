@@ -15,19 +15,36 @@
 #include <memory>
 #include <string>
 #include "rcutils/cmdline_parser.h"
-#include "pendulum_teleop/pendulum_manager.hpp"
+#include "pendulum_manager/pendulum_node_manager.hpp"
 
 void print_menu()
 {
   std::cout << std::endl;
-  std::cout << "Menu" << std::endl;
-  std::cout << "-----------------------" << std::endl;
-  std::cout << "0: Exit " << std::endl;
-  std::cout << "1: Configure pendulum " << std::endl;
-  std::cout << "2: Activate pendulum " << std::endl;
-  std::cout << "3: Deactivate pendulum " << std::endl;
-  std::cout << "4: Cleanup pendulum " << std::endl;
-  std::cout << "5: Shutdown pendulum " << std::endl;
+  std::cout << "Menu options" << std::endl;
+  std::cout << "-----------------------------------------" << std::endl;
+  std::cout << " q: Exit " << std::endl;
+
+  std::cout << " 0: Pendulum:   Configure and activate" << std::endl;
+  std::cout << " 1: Pendulum:   Configure  " << " | ";
+  std::cout << " w: Controller: Configure  " << " | ";
+  std::cout << " a: Driver:     Configure  " << std::endl;
+
+  std::cout << " 2: Pendulum:   Activate   " << " | ";
+  std::cout << " e: Controller: Activate   " << " | ";
+  std::cout << " s: Driver:     Activate   " << std::endl;
+
+  std::cout << " 3: Pendulum:   Deactivate " << " | ";
+  std::cout << " r: Controller: Deactivate " << " | ";
+  std::cout << " d: Driver:     Deactivate " << std::endl;
+
+  std::cout << " 4: Pendulum:   Cleanup    " << " | ";
+  std::cout << " t: Controller: Cleanup    " << " | ";
+  std::cout << " f: Driver:     Cleanup    " << std::endl;
+
+  std::cout << " 5: Pendulum:   Shutdown   " << " | ";
+  std::cout << " y: Controller: Shutdown   " << " | ";
+  std::cout << " g: Driver:     Shutdown   " << std::endl;
+
   std::cout << "Enter your choice : ";
 }
 
@@ -46,15 +63,11 @@ int main(int argc, char ** argv)
   if (rcutils_cli_option_exist(argv, argv + argc, "--motor-name")) {
     motor_node_name = rcutils_cli_get_option(argv, argv + argc, "--motor-name");
   }
-  // force flush of the stdout buffer.
-  // this ensures a correct sync of all prints
-  // even when executed simultaneously within the launch file.
-  setvbuf(stdout, NULL, _IONBF, BUFSIZ);
 
   rclcpp::init(argc, argv);
   rclcpp::executors::SingleThreadedExecutor exe;
 
-  auto pendulum_manager = std::make_shared<pendulum::PendulumManager>(
+  auto pendulum_manager = std::make_shared<pendulum::PendulumNodeManager>(
     manager_node_name,
     controller_node_name,
     motor_node_name);
@@ -63,39 +76,75 @@ int main(int argc, char ** argv)
   std::shared_future<void> activate_pendulum = std::async(std::launch::async,
       [&exe]() {exe.spin();});
 
-  int choice = 0;
+  char choice = 0;
   do {
     print_menu();
     std::cin >> choice;
     switch (choice) {
-      case 0:
+      case 'q':
         std::cout << "Exit" << std::endl;
         break;
-      case 1:
+      case '0':
         pendulum_manager->configure_controller();
         pendulum_manager->configure_motor();
-        break;
-      case 2:
         pendulum_manager->activate_controller();
         pendulum_manager->activate_motor();
         break;
-      case 3:
+      case '1':
+        pendulum_manager->configure_controller();
+        pendulum_manager->configure_motor();
+        break;
+      case '2':
+        pendulum_manager->activate_controller();
+        pendulum_manager->activate_motor();
+        break;
+      case '3':
         pendulum_manager->deactivate_controller();
         pendulum_manager->deactivate_motor();
         break;
-      case 4:
+      case '4':
         pendulum_manager->cleanup_controller();
         pendulum_manager->cleanup_motor();
         break;
-      case 5:
+      case '5':
         pendulum_manager->shutdown_controller();
+        pendulum_manager->shutdown_motor();
+        break;
+      case 'w':
+        pendulum_manager->configure_controller();
+        break;
+      case 'e':
+        pendulum_manager->activate_controller();
+        break;
+      case 'r':
+        pendulum_manager->deactivate_controller();
+        break;
+      case 't':
+        pendulum_manager->cleanup_controller();
+        break;
+      case 'y':
+        pendulum_manager->shutdown_controller();
+        break;
+      case 'a':
+        pendulum_manager->configure_motor();
+        break;
+      case 's':
+        pendulum_manager->activate_motor();
+        break;
+      case 'd':
+        pendulum_manager->deactivate_motor();
+        break;
+      case 'f':
+        pendulum_manager->cleanup_motor();
+        break;
+      case 'g':
         pendulum_manager->shutdown_motor();
         break;
       default:
         std::cout << "Invalid input" << std::endl;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  } while (rclcpp::ok() && choice != 0);
+  } while (rclcpp::ok() && choice != 'q');
 
   rclcpp::shutdown();
 

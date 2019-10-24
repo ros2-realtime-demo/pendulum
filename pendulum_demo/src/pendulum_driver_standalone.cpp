@@ -14,7 +14,6 @@
 
 #include <rclcpp/strategies/allocator_memory_strategy.hpp>
 #include <pendulum_msgs_v2/msg/pendulum_stats.hpp>
-#include <rttest/rttest.h>
 
 #include <vector>
 #include <iostream>
@@ -36,6 +35,8 @@
 #include "pendulum_driver/pendulum_driver_node.hpp"
 #include "pendulum_driver/pendulum_driver_interface.hpp"
 #include "pendulum_simulation/pendulum_simulation.hpp"
+#include "pendulum_tools/memory_lock.hpp"
+#include "pendulum_tools/rt_thread.hpp"
 
 #ifdef PENDULUM_DEMO_TLSF_ENABLED
 using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
@@ -51,6 +52,7 @@ static const char * OPTION_MEMORY_CHECK = "--memory-check";
 static const char * OPTION_TLSF = "--use-tlsf";
 static const char * OPTION_LOCK_MEMORY = "--lock-memory";
 static const char * OPTION_PRIORITY = "--priority";
+static const char * OPTION_CPU_AFFINITY = "--cpu-affinity";
 static const char * OPTION_PUBLISH_STATISTICS = "--pub-stats";
 static const char * OPTION_DEADLINE_PERIOD = "--deadline";
 static const char * OPTION_STATISTICS_PERIOD = "--stats-period";
@@ -71,6 +73,7 @@ void print_usage()
     "\t[%s use OSRF memory check tool]\n"
     "\t[%s lock memory]\n"
     "\t[%s set process real-time priority]\n"
+    "\t[%s set process cpu affinity]\n"
     "\t[%s statistics publisher period (ms)]\n"
     "\t[%s publish statistics (enable)]\n"
     "\t[%s use TLSF allocator]\n"
@@ -81,6 +84,7 @@ void print_usage()
     OPTION_MEMORY_CHECK,
     OPTION_LOCK_MEMORY,
     OPTION_PRIORITY,
+    OPTION_CPU_AFFINITY,
     OPTION_STATISTICS_PERIOD,
     OPTION_PUBLISH_STATISTICS,
     OPTION_TLSF);
@@ -94,6 +98,7 @@ int main(int argc, char * argv[])
   bool publish_statistics = false;
   bool use_tlfs = false;
   int process_priority = DEFAULT_PRIORITY;
+  uint32_t cpu_affinity = 0;
   std::chrono::nanoseconds deadline_duration(DEFAULT_DEADLINE_PERIOD_NS);
   std::chrono::milliseconds logger_publisher_period(DEFAULT_STATISTICS_PERIOD_MS);
 
@@ -126,6 +131,9 @@ int main(int argc, char * argv[])
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PRIORITY)) {
     process_priority = std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_PRIORITY));
   }
+  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_CPU_AFFINITY)) {
+    cpu_affinity = std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_CPU_AFFINITY));
+  }
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_DEADLINE_PERIOD)) {
     deadline_duration = std::chrono::nanoseconds(
       std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_DEADLINE_PERIOD)));
@@ -144,12 +152,6 @@ int main(int argc, char * argv[])
   }
 
   // TODO(carlossvg): check options
-
-  // use a dummy period to initialize rttest
-  struct timespec dummy_period;
-  dummy_period.tv_sec = 0;
-  dummy_period.tv_nsec = 1000000;
-  rttest_init(1, dummy_period, SCHED_FIFO, 80, 0, NULL);
   rclcpp::init(argc, argv);
 
   // Initialize the executor.
@@ -175,40 +177,30 @@ int main(int argc, char * argv[])
     std::make_unique<pendulum::PendulumSimulation>(physics_update_period);
 
   // Create pendulum driver node
+  pendulum::PendulumDriverOptions driver_options;
+  driver_options.node_name = "pendulum_driver";
+  driver_options.status_publish_period = sensor_publish_period;
+  driver_options.status_qos_profile = qos_deadline_profile;
+  driver_options.enable_statistics = publish_statistics;
+  driver_options.statistics_publish_period = logger_publisher_period;
+  driver_options.enable_check_memory = use_memory_check;
+
   auto pendulum_driver = std::make_shared<pendulum::PendulumDriverNode>(
-    "pendulum_driver",
     std::move(sim),
-    sensor_publish_period,
-    qos_deadline_profile,
-    use_memory_check,
+    driver_options,
     rclcpp::NodeOptions().use_intra_process_comms(true));
   exec.add_node(pendulum_driver->get_node_base_interface());
 
-  // Initialize the logger publisher.
-  auto driver_stats = rclcpp::Node::make_shared("driver_statistics_node");
-  auto driver_stats_pub = driver_stats->create_publisher<pendulum_msgs_v2::msg::PendulumStats>(
-    "driver_statistics", rclcpp::QoS(1));
-
-  // Create a lambda function that will fire regularly to publish the next results message.
-  auto logger_publish_callback =
-    [&driver_stats_pub, &pendulum_driver]() {
-      pendulum_msgs_v2::msg::PendulumStats pendulum_stats_msg;
-      pendulum_driver->update_sys_usage();
-      pendulum_stats_msg = pendulum_driver->get_stats_message();
-      driver_stats_pub->publish(pendulum_stats_msg);
-    };
-  auto logger_publisher_timer = driver_stats->create_wall_timer(
-    logger_publisher_period, logger_publish_callback);
-
-  if (publish_statistics) {
-    exec.add_node(driver_stats);
-  }
-
   // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
-  // deterministic (real-time safe) algorithm, round robin.
+  // deterministic (real-time safe) algorithm, fifo.
   if (process_priority > 0 && process_priority < 99) {
-    if (rttest_set_sched_priority(process_priority, SCHED_FIFO)) {
+    if (pendulum::set_this_thread_priority(process_priority, SCHED_FIFO)) {
       perror("Couldn't set scheduling priority and policy");
+    }
+  }
+  if (cpu_affinity > 0U) {
+    if (pendulum::set_this_thread_cpu_affinity(cpu_affinity)) {
+      perror("Couldn't set cpu affinity");
     }
   }
 
@@ -216,12 +208,9 @@ int main(int argc, char * argv[])
   // and do our best to prefault the locked memory to prevent future pagefaults.
   // Will return with a non-zero error code if something went wrong (insufficient resources or
   // permissions).
-  // Always do this as the last step of the initialization phase.
-  // See README.md for instructions on setting permissions.
-  // See rttest/rttest.cpp for more details.
   if (lock_memory) {
-    std::cout << "lock memory on\n";
-    if (rttest_lock_and_prefault_dynamic() != 0) {
+    std::cout << "Enable lock memory\n";
+    if (pendulum::lock_and_prefault_dynamic() != 0) {
       fprintf(stderr, "Couldn't lock all cached virtual memory.\n");
       fprintf(stderr, "Pagefaults from reading pages not yet mapped into RAM will be recorded.\n");
     }

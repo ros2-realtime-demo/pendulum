@@ -18,13 +18,6 @@
 #ifndef PENDULUM_DRIVER__PENDULUM_DRIVER_NODE_HPP_
 #define PENDULUM_DRIVER__PENDULUM_DRIVER_NODE_HPP_
 
-#include <sys/time.h>  // needed for getrusage
-#include <sys/resource.h>  // needed for getrusage
-
-#include <pendulum_msgs_v2/msg/pendulum_stats.hpp>
-#include <rclcpp/strategies/message_pool_memory_strategy.hpp>
-#include <rclcpp/strategies/allocator_memory_strategy.hpp>
-
 #include <memory>
 #include <string>
 
@@ -33,25 +26,37 @@
 #include <osrf_testing_tools_cpp/scope_exit.hpp>
 #endif
 
-#include "rcutils/logging_macros.h"
-
 #include "rclcpp/rclcpp.hpp"
-
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "lifecycle_msgs/msg/transition_event.hpp"
+#include "rclcpp/strategies/message_pool_memory_strategy.hpp"
+#include "rclcpp/strategies/allocator_memory_strategy.hpp"
+#include "rcutils/logging_macros.h"
+#include "sensor_msgs/msg/joint_state.hpp"
 
 #include "pendulum_msgs_v2/msg/pendulum_command.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
-#include "sensor_msgs/msg/joint_state.hpp"
-
-#include "pendulum_tools/timing_analyzer.hpp"
+#include "pendulum_msgs_v2/msg/pendulum_stats.hpp"
 #include "pendulum_driver/pendulum_driver_interface.hpp"
 #include "pendulum_driver/visibility_control.hpp"
+#include "pendulum_tools/resource_usage.hpp"
+#include "pendulum_tools/jitter_tracker.hpp"
 
 namespace pendulum
 {
+
+struct PendulumDriverOptions
+{
+  std::string node_name = "pendulum_driver";
+  std::chrono::nanoseconds status_publish_period = std::chrono::nanoseconds(0);
+  rclcpp::QoS status_qos_profile = rclcpp::QoS(10);
+  bool enable_statistics = false;
+  std::chrono::nanoseconds statistics_publish_period = std::chrono::nanoseconds(0);
+  bool enable_check_memory = false;
+};
+
 /// \class This class implements a node containing a the a simulated inverted pendulum or
-///        the drivers for a real one.
+/// the drivers for a real one.
 class PendulumDriverNode : public rclcpp_lifecycle::LifecycleNode
 {
 public:
@@ -59,24 +64,17 @@ public:
   /// \param[in] options Node options for rclcpp internals
   COMPOSITION_PUBLIC
   explicit PendulumDriverNode(const rclcpp::NodeOptions & options)
-  : rclcpp_lifecycle::LifecycleNode("pendulum_driver", options),
-    qos_profile_(rclcpp::QoS(1))
+  : rclcpp_lifecycle::LifecycleNode("pendulum_driver", options)
   {}
 
   /// \brief Main constructor with parameters
-  /// \param[in] node_name Name of the node for rclcpp internals
   /// \param[in] driver_interface Pointer to the driver implementation
-  /// \param[in] publish_period Period for the driver node status publishing
-  /// \param[in] qos_profile QoS profile for comamnd and status topics
-  /// \param[in] check_memory Flag to enable memory allocation checking
+  /// \param[in] driver_options Options to configure the object
   /// \param[in] options Node options for rclcpp internals
   /// \throw std::runtime_error If memory checking is enabled but not working or not installed.
   COMPOSITION_PUBLIC PendulumDriverNode(
-    const std::string & node_name,
     std::unique_ptr<PendulumDriverInterface> driver_interface,
-    std::chrono::nanoseconds publish_period,
-    const rclcpp::QoS & qos_profile,
-    const bool check_memory,
+    PendulumDriverOptions driver_options,
     const rclcpp::NodeOptions & options);
 
   /// \brief Get the command subscription's settings options.
@@ -86,14 +84,6 @@ public:
   /// \brief Get the state publisher's settings options.
   /// \return  publisher's settings options
   rclcpp::PublisherOptions & get_state_options() {return sensor_publisher_options_;}
-
-  /// \brief Get the driver statistics message.
-  /// \return  last driver statistics message
-  const pendulum_msgs_v2::msg::PendulumStats & get_stats_message() const;
-
-  /// \brief Update system usage statistics
-  /// \param[in] update_active_page_faults update paga faults only in active state
-  void update_sys_usage(bool update_active_page_faults = false);
 
 private:
   /// \brief pendulum command topic message callback
@@ -136,36 +126,34 @@ private:
   on_shutdown(const rclcpp_lifecycle::State & state);
 
 private:
-  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
-      sensor_msgs::msg::JointState>> sensor_pub_;
+  std::unique_ptr<PendulumDriverInterface> driver_interface_;
+  PendulumDriverOptions driver_options_;
+
   std::shared_ptr<rclcpp::Subscription<
       pendulum_msgs_v2::msg::PendulumCommand>> command_sub_;
   std::shared_ptr<rclcpp::Subscription<
       pendulum_msgs_v2::msg::PendulumCommand>> disturbance_sub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
-      pendulum_msgs_v2::msg::PendulumStats>> logger_pub_;
+      sensor_msgs::msg::JointState>> state_pub_;
+  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
+      pendulum_msgs_v2::msg::PendulumStats>> statistics_pub_;
 
   rclcpp::SubscriptionOptions command_subscription_options_;
   rclcpp::SubscriptionOptions disturbance_subscription_options_;
   rclcpp::PublisherOptions sensor_publisher_options_;
 
-  rclcpp::TimerBase::SharedPtr sensor_timer_;
+  rclcpp::TimerBase::SharedPtr state_timer_;
+  rclcpp::TimerBase::SharedPtr statistics_timer_;
   rclcpp::TimerBase::SharedPtr update_driver_timer_;
-  std::chrono::nanoseconds publish_period_ = std::chrono::nanoseconds(1000000);
 
-  std::unique_ptr<PendulumDriverInterface> driver_interface_;
-  rclcpp::QoS qos_profile_;
-  pendulum_msgs_v2::msg::PendulumStats pendulum_stats_message_;
   sensor_msgs::msg::JointState state_message_;
+  pendulum_msgs_v2::msg::PendulumStats statistics_message_;
   pendulum_msgs_v2::msg::PendulumCommand command_message_;
   pendulum_msgs_v2::msg::PendulumCommand disturbance_message_;
-  rusage sys_usage_;
-  uint64_t minor_page_faults_at_active_start_ = 0;
-  uint64_t major_page_faults_at_active_start_ = 0;
-  bool check_memory_ = false;
-  TimingAnalyzer timer_jitter_{std::chrono::nanoseconds(0)};
-};
 
+  JitterTracker timer_jitter_{std::chrono::nanoseconds(0)};
+  ResourceUsage resource_usage_;
+};
 }  // namespace pendulum
 
 #endif  // PENDULUM_DRIVER__PENDULUM_DRIVER_NODE_HPP_

@@ -14,12 +14,15 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(ament_cmake REQUIRED)
+find_package(pendulum_msgs_v2 REQUIRED)
 
 
 include_directories(include)
 
 add_library(pendulum_tools SHARED
-  src/timing_analyzer.cpp)
+src/jitter_tracker.cpp
+src/memory_lock.cpp
+src/rt_thread.cpp)
 
 target_include_directories(pendulum_tools
   PUBLIC
@@ -28,6 +31,9 @@ target_include_directories(pendulum_tools
 
 ament_export_include_directories(include)
 ament_export_libraries(pendulum_tools)
+
+ament_target_dependencies(pendulum_tools
+        "pendulum_msgs_v2")
 
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported

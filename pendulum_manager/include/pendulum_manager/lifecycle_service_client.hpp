@@ -12,26 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_TELEOP__LIFECYCLE_SERVICE_CLIENT_HPP_
-#define PENDULUM_TELEOP__LIFECYCLE_SERVICE_CLIENT_HPP_
+#ifndef PENDULUM_MANAGER__LIFECYCLE_SERVICE_CLIENT_HPP_
+#define PENDULUM_MANAGER__LIFECYCLE_SERVICE_CLIENT_HPP_
 
 #include <chrono>
 #include <memory>
 #include <string>
 #include <thread>
 
+#include "rclcpp/rclcpp.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
 #include "lifecycle_msgs/msg/transition.hpp"
 #include "lifecycle_msgs/srv/change_state.hpp"
 #include "lifecycle_msgs/srv/get_state.hpp"
-
-#include "rclcpp/rclcpp.hpp"
-
 #include "rcutils/logging_macros.h"
 
 namespace pendulum
 {
 
+/// Helper function to wait for response
 template<typename FutureT, typename WaitTimeT>
 std::future_status
 wait_for_result(
@@ -70,7 +69,10 @@ public:
   void shutdown();
 
 private:
+  /// Requests the current state of the node
   unsigned int get_state(std::chrono::seconds time_out = std::chrono::seconds(3));
+
+  /// Invokes a transition of the lifecycle node
   bool change_state(
     std::uint8_t transition,
     std::chrono::seconds time_out = std::chrono::seconds(3));
@@ -83,4 +85,4 @@ private:
 
 }  // namespace pendulum
 
-#endif  // PENDULUM_TELEOP__LIFECYCLE_SERVICE_CLIENT_HPP_
+#endif  // PENDULUM_MANAGER__LIFECYCLE_SERVICE_CLIENT_HPP_

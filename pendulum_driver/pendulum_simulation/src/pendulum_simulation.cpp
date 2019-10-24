@@ -28,8 +28,13 @@ PendulumSimulation::PendulumSimulation(std::chrono::nanoseconds physics_update_p
   if (std::isnan(dt_) || dt_ == 0) {
     throw std::runtime_error("Invalid dt_ calculated in PendulumController constructor");
   }
-  long_to_timespec(physics_update_period_.count(), &physics_update_timespec_);
+  uint32_t nsecs = physics_update_period_.count() % 1000000000;
+  uint32_t secs = (physics_update_period_.count() - nsecs) / 1000000000;
+  physics_update_timespec_.tv_sec = secs;
+  physics_update_timespec_.tv_nsec = nsecs;
 
+  // we use non-linear equations for the simulation
+  // linearized equations couls be used if there are issues for real-time execution
   derivative_function_ = [this](const std::vector<double> & y,
       double u, size_t i) -> double {
       if (i == 0) {
@@ -96,6 +101,7 @@ void PendulumSimulation::shutdown()
 
 void PendulumSimulation::update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)
 {
+  std::lock_guard<std::mutex> lock(mutex_);
   if (msg.cart_force > max_cart_force_) {
     controller_force_ = max_cart_force_;
   } else if (msg.cart_force < -max_cart_force_) {
@@ -107,12 +113,13 @@ void PendulumSimulation::update_command_data(const pendulum_msgs_v2::msg::Pendul
 
 void PendulumSimulation::update_disturbance_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)
 {
+  std::lock_guard<std::mutex> lock(mutex_);
   disturbance_force_ = msg.cart_force;
 }
 
 void PendulumSimulation::update_status_data(sensor_msgs::msg::JointState & msg)
 {
-  // check size
+  std::lock_guard<std::mutex> lock(mutex_);
   msg.position[0] = state_.cart_position;
   msg.velocity[0] = state_.cart_velocity;
   msg.effort[0] = state_.cart_force;
@@ -122,6 +129,7 @@ void PendulumSimulation::update_status_data(sensor_msgs::msg::JointState & msg)
 
 void PendulumSimulation::update()
 {
+  std::lock_guard<std::mutex> lock(mutex_);
   double cart_force = disturbance_force_ + controller_force_;
   ode_solver_.step(derivative_function_, X_, dt_, cart_force);
 
@@ -143,8 +151,6 @@ void * PendulumSimulation::physics_update_wrapper(void * args)
 // Set kinematic and dynamic properties of the pendulum based on state inputs
 void * PendulumSimulation::physics_update()
 {
-  rttest_lock_and_prefault_dynamic();
-
   while (!done_) {
     if (is_active_) {
       update();

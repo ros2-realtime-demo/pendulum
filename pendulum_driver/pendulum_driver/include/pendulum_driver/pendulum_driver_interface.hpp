@@ -14,12 +14,13 @@
 
 /// \file
 /// \brief This file provides the inverted pendulum driver or simulation interface.
+
 #ifndef PENDULUM_DRIVER__PENDULUM_DRIVER_INTERFACE_HPP_
 #define PENDULUM_DRIVER__PENDULUM_DRIVER_INTERFACE_HPP_
 
+#include "sensor_msgs/msg/joint_state.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_command.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
-#include "sensor_msgs/msg/joint_state.hpp"
 
 namespace pendulum
 {

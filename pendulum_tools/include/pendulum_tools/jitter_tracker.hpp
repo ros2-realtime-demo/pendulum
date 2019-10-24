@@ -12,39 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_TOOLS__TIMING_ANALYZER_HPP_
-#define PENDULUM_TOOLS__TIMING_ANALYZER_HPP_
+#ifndef PENDULUM_TOOLS__JITTER_TRACKER_HPP_
+#define PENDULUM_TOOLS__JITTER_TRACKER_HPP_
 
 #include <cmath>
 #include <limits>
 #include <chrono>
 
+#include "pendulum_tools/statistics_tracker.hpp"
+
 namespace pendulum
 {
 
-class TimingAnalyzer
+class JitterTracker : public StatisticsTracker
 {
 public:
-  explicit TimingAnalyzer(std::chrono::nanoseconds period)
+  explicit JitterTracker(std::chrono::nanoseconds period)
   : period_(period.count())
   {}
+  double period() {return period_;}
   void update();
-  double get_max() {return max_;}
-  double get_min() {return min_;}
-  double get_mean() {return mean_;}
-  double get_variance() {return d_squared_ / count_;}
-  double get_std() {return sqrt(get_variance());}
 
 private:
   std::chrono::system_clock::time_point previous_;
-  double count_ = 0;
-  double period_ = 0;
-  double mean_ = 0;
-  double d_squared_ = 0;
-  double min_ = std::numeric_limits<double>::max();
-  double max_ = std::numeric_limits<double>::min();
+  double period_;
+  bool first_sample_ = true;
 };
 
 }  // namespace pendulum
-
-#endif  // PENDULUM_TOOLS__TIMING_ANALYZER_HPP_
+#endif  // PENDULUM_TOOLS__JITTER_TRACKER_HPP_

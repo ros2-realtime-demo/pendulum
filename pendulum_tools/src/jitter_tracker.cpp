@@ -12,31 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pendulum_tools/timing_analyzer.hpp"
+#include "pendulum_tools/jitter_tracker.hpp"
 
 namespace pendulum
 {
-using namespace std::chrono_literals;
-
-void TimingAnalyzer::update()
+void JitterTracker::update()
 {
   std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-  if (count_ > 0) {
-    // std::chrono::duration<double> interval = now - previous_;
+  if (first_sample_) {
+    first_sample_ = false;
+  } else {
     std::chrono::duration<double, std::nano> interval_ns = now - previous_;
-    double new_value =
-      interval_ns.count() - period_;
-    auto mean_diff = (new_value - mean_) / count_;
-    auto new_mean = mean_ + mean_diff;
-    auto d_squared_increment = (new_value - new_mean) * (new_value - mean_);
-    auto new_d_squared = d_squared_ + d_squared_increment;
-    mean_ = new_mean;
-    d_squared_ = new_d_squared;
-    if (new_value > max_) {max_ = new_value;}
-    if (new_value <= min_) {min_ = new_value;}
+    double diff_from_desired_period = interval_ns.count() - period();
+    add_sample(diff_from_desired_period);
   }
-  count_++;
   previous_ = now;
 }
-
 }  // namespace pendulum

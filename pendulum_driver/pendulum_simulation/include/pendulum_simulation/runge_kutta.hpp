@@ -96,9 +96,18 @@ public:
   }
 
 private:
+  // state space vector
+  // state[0]: cart position
+  // state[1]: cart velocity
+  // state[2]: pole position
+  // state[3]: pole velocity
   std::vector<double> state;
-  std::vector<double> k1, k2, k3, k4;
+
+  // space state dimension
   size_t n;
+
+  // Runge-kutta increments
+  std::vector<double> k1, k2, k3, k4;
 };
 
 }  // namespace pendulum

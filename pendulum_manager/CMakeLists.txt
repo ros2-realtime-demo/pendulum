@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(pendulum_teleop)
+project(pendulum_manager)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -19,7 +19,6 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
-find_package(rttest REQUIRED)
 
 include_directories(
   include
@@ -27,19 +26,18 @@ include_directories(
   ${rclcpp_lifecycle_INCLUDE_DIRS}
   ${rclcpp_INCLUDE_DIRS})
 
-add_executable(pendulum_teleop
-"src/pendulum_teleop.cpp"
+add_executable(pendulum_manager
 "src/pendulum_manager.cpp"
+"src/pendulum_node_manager.cpp"
 "src/lifecycle_service_client.cpp")
 
 ament_export_include_directories(include)
 
-ament_target_dependencies(pendulum_teleop
+ament_target_dependencies(pendulum_manager
         "rclcpp"
         "rclcpp_lifecycle"
         "rclcpp_components"
         "rcutils"
-        "rttest"
         "lifecycle_msgs"
         "pendulum_msgs_v2")
 
@@ -51,7 +49,7 @@ if(NOT WIN32)
 endif()
 
 install(TARGETS
-        pendulum_teleop
+        pendulum_manager
         DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)

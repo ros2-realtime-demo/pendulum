@@ -22,16 +22,10 @@
 #include <chrono>
 #include <vector>
 #include <random>
-
-#include "rttest/rttest.h"
-#include "rttest/utils.h"
+#include <mutex>
 
 #include "pendulum_driver/pendulum_driver_interface.hpp"
 #include "pendulum_simulation/runge_kutta.hpp"
-
-#ifndef GRAVITY
-#define GRAVITY 9.80665
-#endif
 
 #ifndef PI
 #define PI 3.14159265359
@@ -43,10 +37,16 @@ namespace pendulum
 /// Struct representing the dynamic/kinematic state of the pendulum.
 struct PendulumState
 {
+  // Position of the cart in meters
   double cart_position = 0.0;
+  // Velocity of the cart in meters/s
   double cart_velocity = 0.0;
-  double pole_angle = PI;  // Up position
+  // Angular position of the pendulum in radians
+  // PI is up position
+  double pole_angle = PI;
+  // angular velocity of the pendulum in rad/s
   double pole_velocity = 0.0;
+  // total force applied to the cart in Newton
   double cart_force = 0.0;
 };
 
@@ -96,30 +96,48 @@ private:
   double dt_;
   PendulumState state_;
   bool done_ = false;
+  bool is_active_ = false;
 
   pthread_t physics_update_thread_;
   pthread_attr_t thread_attr_;
   timespec physics_update_timespec_;
 
   RungeKutta ode_solver_;
-  std::vector<double> X_;  // state vector for ODE solver
+  // state vector for ODE solver
+  // X[0]: cart position
+  // X[1]: cart velocity
+  // X[2]: pole position
+  // X[3]: pole velocity
+  std::vector<double> X_;
+
+  // force applied by the controller
+  // this can be considered as the force applied by the cart motor
   double controller_force_ = 0.0;
+  // external disturbance force
+  // this can be considered as something pushing the cart
   double disturbance_force_ = 0.0;
 
+  // pendulum mass in kg
   double m = 1.0;
+  // cart mass in Kg
   double M = 5.0;
+  // pendulum length in m
   double L = 2.0;
-  double g = -9.8;
+  // cart damping coefficient
   double d = 20.0;
-
+  // gravity, non const, we may want to change it
+  double g = -9.8;
+  // maximum allowed force applied to the cart
   double max_cart_force_ = 1000;
 
+  // utils to generate random noise
   std::random_device rd;
   std::mt19937 rand_gen_;
   std::uniform_real_distribution<double> noise_gen_;
 
+  // pointer to the derivative motion functions (ODE)
   derivativeF derivative_function_;
-  bool is_active_ = false;
+  std::mutex mutex_;
 };
 
 }  // namespace pendulum
