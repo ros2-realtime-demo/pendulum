@@ -63,10 +63,10 @@ static const size_t DEFAULT_SENSOR_UPDATE_PERIOD_NS = 960000;
 static const char * OPTION_SENSOR_UPDATE_PERIOD = "--sensor-period";
 static const char * OPTION_PHYSICS_UPDATE_PERIOD = "--physics-period";
 
-void print_usage()
+void print_usage(std::string program_name)
 {
-  printf("Usage for pendulum_test:\n");
-  printf("pendulum_test\n"
+  printf("Usage for %s:\n", program_name.c_str());
+  printf("%s\n"
     "\t[%s physics simulation update period (ns)]\n"
     "\t[%s pendulum sensor update period (ns)]\n"
     "\t[%s deadline QoS period (ms)]\n"
@@ -78,6 +78,7 @@ void print_usage()
     "\t[%s publish statistics (enable)]\n"
     "\t[%s use TLSF allocator]\n"
     "\t[-h]\n",
+    program_name.c_str(),
     OPTION_PHYSICS_UPDATE_PERIOD,
     OPTION_SENSOR_UPDATE_PERIOD,
     OPTION_DEADLINE_PERIOD,
@@ -109,9 +110,12 @@ int main(int argc, char * argv[])
   // Force flush of the stdout buffer.
   setvbuf(stdout, NULL, _IONBF, BUFSIZ);
 
+  std::string prog_name(argv[0]);
+  prog_name = prog_name.substr(prog_name.find_last_of("/\\")+1);
+
   // Argument count and usage
   if (rcutils_cli_option_exist(argv, argv + argc, "-h")) {
-    print_usage();
+    print_usage(prog_name);
     return 0;
   }
 

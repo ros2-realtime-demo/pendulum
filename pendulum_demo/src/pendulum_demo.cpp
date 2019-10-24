@@ -75,10 +75,10 @@ static const size_t DEFAULT_SENSOR_UPDATE_PERIOD_NS = 960000;
 static const char * OPTION_SENSOR_UPDATE_PERIOD = "--sensor-period";
 static const char * OPTION_PHYSICS_UPDATE_PERIOD = "--physics-period";
 
-void print_usage()
+void print_usage(std::string program_name)
 {
-  printf("Usage for pendulum_test:\n");
-  printf("pendulum_test\n"
+  printf("Usage for %s:\n", program_name.c_str());
+  printf("%s\n"
     "\t[%s controller update period (ns)]\n"
     "\t[%s physics simulation update period (ns)]\n"
     "\t[%s sensor update period (ns)]\n"
@@ -95,6 +95,7 @@ void print_usage()
     "\t[%s set feedback matrix K3]\n"
     "\t[%s set feedback matrix K4]\n"
     "\t[-h]\n",
+    program_name.c_str(),
     OPTION_CONTROLLER_UPDATE_PERIOD,
     OPTION_PHYSICS_UPDATE_PERIOD,
     OPTION_SENSOR_UPDATE_PERIOD,
@@ -135,9 +136,12 @@ int main(int argc, char * argv[])
   // Force flush of the stdout buffer.
   setvbuf(stdout, NULL, _IONBF, BUFSIZ);
 
+  std::string prog_name(argv[0]);
+  prog_name = prog_name.substr(prog_name.find_last_of("/\\")+1);
+
   // Argument count and usage
   if (rcutils_cli_option_exist(argv, argv + argc, "-h")) {
-    print_usage();
+    print_usage(prog_name);
     return 0;
   }
 
@@ -280,7 +284,7 @@ int main(int argc, char * argv[])
   // See rttest/rttest.cpp for more details.
   if (lock_memory) {
     std::cout << "Enable lock memory\n";
-    if (pendulum::lock_and_prefault_dynamic() != 0) {
+    if (pendulum::lock_and_prefault_dynamic(100*1024*1024) != 0) {
       fprintf(stderr, "Couldn't lock all cached virtual memory.\n");
       fprintf(stderr, "Pagefaults from reading pages not yet mapped into RAM will be recorded.\n");
     }

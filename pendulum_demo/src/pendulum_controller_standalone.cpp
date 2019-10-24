@@ -65,10 +65,10 @@ static const char * OPTION_CONTROLLER_K2 = "--K2";
 static const char * OPTION_CONTROLLER_K3 = "--K3";
 static const char * OPTION_CONTROLLER_K4 = "--K4";
 
-void print_usage()
+void print_usage(std::string program_name)
 {
-  printf("Usage for pendulum_test:\n");
-  printf("pendulum_test\n"
+  printf("Usage for %s:\n", program_name.c_str());
+  printf("%s\n"
     "\t[%s controller update period (ns)]\n"
     "\t[%s deadline QoS period (ms)]\n"
     "\t[%s use OSRF memory check tool]\n"
@@ -83,6 +83,7 @@ void print_usage()
     "\t[%s set feedback matrix K3]\n"
     "\t[%s set feedback matrix K4]\n"
     "\t[-h]\n",
+    program_name.c_str(),
     OPTION_CONTROLLER_UPDATE_PERIOD,
     OPTION_DEADLINE_PERIOD,
     OPTION_MEMORY_CHECK,
@@ -117,9 +118,12 @@ int main(int argc, char * argv[])
   // Force flush of the stdout buffer.
   setvbuf(stdout, NULL, _IONBF, BUFSIZ);
 
+  std::string prog_name(argv[0]);
+  prog_name = prog_name.substr(prog_name.find_last_of("/\\")+1);
+
   // Argument count and usage
   if (rcutils_cli_option_exist(argv, argv + argc, "-h")) {
-    print_usage();
+    print_usage(prog_name);
     return 0;
   }
 
