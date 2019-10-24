@@ -71,19 +71,13 @@ ros2 topic pub -1 /pendulum_disturbance pendulum_msgs_v2/msg/PendulumCommand "ca
 ```
 ![pendulum_rviz](docs/images/pendulum_rviz_disturbance.gif)
 
+#### Managed nodes
 
-# Memory analysis
-
-You can use OSRF memory tools to find memory allocations in your application. To enable it
-you need to do the following steps, assuming you already did compile performance test before:
-
-1. Enter your work space: `cd pendulum_ws/src`
-1. Clone OSRF memory memory tools: `git clone https://github.com/osrf/osrf_testing_tools_cpp.git`
-1. Build everything `colcon build --merge-install`
-1. You need to preload the memory library to make diagnostics work: `export LD_PRELOAD=$(pwd)/install/lib/libmemory_tools_interpose.so`
-1. Run with memory check enabled: `ros2 run pendulum_demo pendulum_demo  --memory-check`
-
-Note that enabling this feature will cause a huge performance impact.
+lyfecyles...
+pendulum_manager
+gui
+disable controller....
+reset...
 
 #### How to contribute
 
