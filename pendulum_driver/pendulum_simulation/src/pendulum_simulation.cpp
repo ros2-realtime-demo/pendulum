@@ -18,18 +18,20 @@
 namespace pendulum
 {
 
-PendulumSimulation::PendulumSimulation(std::chrono::nanoseconds physics_update_period)
+PendulumSimulation::PendulumSimulation(std::chrono::microseconds physics_update_period)
 : physics_update_period_(physics_update_period), done_(false),
   ode_solver_(4), X_{0.0, 0.0, PI, 0.0},
   rand_gen_(rd()), noise_gen_(std::uniform_real_distribution<double>(-1.0, 1.0))
 {
   // Calculate the controller timestep (for discrete differentiation/integration).
-  dt_ = physics_update_period_.count() / (1000.0 * 1000.0 * 1000.0);
+  dt_ = physics_update_period_.count() / (1000.0 * 1000.0);
   if (std::isnan(dt_) || dt_ == 0) {
     throw std::runtime_error("Invalid dt_ calculated in PendulumController constructor");
   }
-  uint32_t nsecs = physics_update_period_.count() % 1000000000;
-  uint32_t secs = (physics_update_period_.count() - nsecs) / 1000000000;
+
+  // convert to timespec
+  uint32_t nsecs = (physics_update_period_.count() * 1000L) % 1000000000;
+  uint32_t secs = ((physics_update_period_.count() * 1000L) - nsecs) / 1000000000;
   physics_update_timespec_.tv_sec = secs;
   physics_update_timespec_.tv_nsec = nsecs;
 

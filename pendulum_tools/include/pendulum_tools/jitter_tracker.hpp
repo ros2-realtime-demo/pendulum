@@ -27,7 +27,7 @@ namespace pendulum
 class JitterTracker : public StatisticsTracker
 {
 public:
-  explicit JitterTracker(std::chrono::nanoseconds period)
+  explicit JitterTracker(std::chrono::microseconds period)
   : period_(period.count())
   {}
   double period() {return period_;}
