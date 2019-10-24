@@ -50,9 +50,12 @@ Terminal 3. Launch rviz:
 ros2 run rviz2 rviz2 -d `ros2 pkg prefix pendulum_bringup --share`/config/pendulum.rviz
 ```
 
+If everything went well we should see now the inverted pendulum being controlled in rviz:
+
 ![pendulum_rviz](docs/images/pendulum_rviz.gif)
 
-ros2 topic pub -1 /pendulum_setpoint pendulum_msgs_v2/msg/PendulumCommand "cart_position: 5.0"
+Now we can try to move the cart by sending a setpoint command.
+
 
 In a new terminal. Move the to x=5:
 ```bash
@@ -62,6 +65,7 @@ ros2 topic pub -1 /pendulum_setpoint pendulum_msgs_v2/msg/PendulumCommand "cart_
 ![pendulum_rviz](docs/images/pendulum_rviz_setpoint.gif)
 
 Not let's try to push the cart by sending a disturbance force:
+
 ```bash
 ros2 topic pub -1 /pendulum_disturbance pendulum_msgs_v2/msg/PendulumCommand "cart_force: 100"
 ```
