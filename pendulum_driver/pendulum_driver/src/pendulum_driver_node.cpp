@@ -88,16 +88,11 @@ void PendulumDriverNode::on_disturbance_received(
 
 void PendulumDriverNode::state_timer_callback()
 {
-  timespec curtime;
-  clock_gettime(CLOCK_REALTIME, &curtime);
-  statistics_message_.timer_stats.stamp.sec = curtime.tv_sec;
-  statistics_message_.timer_stats.stamp.nanosec = curtime.tv_nsec;
-
   timer_jitter_.update();
-  statistics_message_.timer_stats.jitter_mean_nsec = timer_jitter_.mean();
-  statistics_message_.timer_stats.jitter_min_nsec = timer_jitter_.min();
-  statistics_message_.timer_stats.jitter_max_nsec = timer_jitter_.max();
-  statistics_message_.timer_stats.jitter_standard_dev_nsec = std::sqrt(timer_jitter_.variance());
+  statistics_message_.timer_stats.jitter_mean_usec = timer_jitter_.mean();
+  statistics_message_.timer_stats.jitter_min_usec = timer_jitter_.min();
+  statistics_message_.timer_stats.jitter_max_usec = timer_jitter_.max();
+  statistics_message_.timer_stats.jitter_std_usec = std::sqrt(timer_jitter_.variance());
   statistics_message_.command_stats.msg_count++;
   statistics_message_.timer_stats.timer_count++;
 

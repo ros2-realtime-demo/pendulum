@@ -21,7 +21,9 @@ void print_menu()
 {
   std::cout << std::endl;
   std::cout << "Menu options" << std::endl;
+  std::cout << "-----------------------------------------";
   std::cout << "-----------------------------------------" << std::endl;
+
   std::cout << " q: Exit " << std::endl;
 
   std::cout << " 0: Pendulum:   Configure and activate" << std::endl;
