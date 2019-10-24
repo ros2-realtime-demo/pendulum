@@ -60,7 +60,7 @@ static const char * OPTION_STATISTICS_PERIOD = "--stats-period";
 static const size_t DEFAULT_PHYSICS_UPDATE_PERIOD_US = 1000;
 static const size_t DEFAULT_SENSOR_UPDATE_PERIOD_US = 1000;
 
-static const char * OPTION_SENSOR_UPDATE_PERIOD = "--sensor-period";
+static const char * OPTION_SENSOR_UPDATE_PERIOD = "--state-period";
 static const char * OPTION_PHYSICS_UPDATE_PERIOD = "--physics-period";
 
 void print_usage(std::string program_name)
