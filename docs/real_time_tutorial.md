@@ -1,6 +1,6 @@
 # Instructions to test real-time capabilities
 
-First of all make sure you are running the demo in a RTOS. For Linux users you can follow [these instructions](docs/real_time_linux).
+First of all make sure you are running the demo in a RTOS. For Linux users you can follow [these instructions](real_time_linux.md).
 
 ## Requirements
 
