@@ -22,8 +22,8 @@ void JitterTracker::update()
   if (first_sample_) {
     first_sample_ = false;
   } else {
-    std::chrono::duration<double, std::nano> interval_ns = now - previous_;
-    double diff_from_desired_period = interval_ns.count() - period();
+    std::chrono::duration<double, std::micro> interval_micro = now - previous_;
+    double diff_from_desired_period = interval_micro.count() - period();
     add_sample(diff_from_desired_period);
   }
   previous_ = now;

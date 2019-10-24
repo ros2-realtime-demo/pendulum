@@ -57,7 +57,7 @@ struct PendulumState
 class PendulumSimulation : public PendulumDriverInterface
 {
 public:
-  explicit PendulumSimulation(std::chrono::nanoseconds physics_update_period);
+  explicit PendulumSimulation(std::chrono::microseconds physics_update_period);
 
   /// \brief Updates the command data coming from the controller.
   /// \param[in] msg Command data message.
@@ -92,7 +92,7 @@ private:
   void * physics_update();
 
 private:
-  std::chrono::nanoseconds physics_update_period_;
+  std::chrono::microseconds physics_update_period_;
   double dt_;
   PendulumState state_;
   bool done_ = false;

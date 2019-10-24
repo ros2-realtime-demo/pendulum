@@ -52,13 +52,13 @@ namespace pendulum
 struct PendulumControllerOptions
 {
   std::string node_name = "pendulum_controller";
-  std::chrono::nanoseconds command_publish_period = std::chrono::nanoseconds(0);
+  std::chrono::microseconds command_publish_period = std::chrono::microseconds(1000);
   rclcpp::QoS status_qos_profile = rclcpp::QoS(10);
   rclcpp::QoS command_qos_profile = rclcpp::QoS(10);
   rclcpp::QoS setpoint_qos_profile = rclcpp::QoS(
     rclcpp::KeepLast(10)).transient_local().reliable();
   bool enable_statistics = false;
-  std::chrono::nanoseconds statistics_publish_period = std::chrono::nanoseconds(0);
+  std::chrono::microseconds statistics_publish_period = std::chrono::microseconds(0);
   bool enable_check_memory = false;
 };
 
@@ -152,7 +152,7 @@ private:
   pendulum_msgs_v2::msg::ControllerStats statistics_message_;
   pendulum_msgs_v2::msg::PendulumCommand command_message_;
 
-  JitterTracker timer_jitter_{std::chrono::nanoseconds(0)};
+  JitterTracker timer_jitter_{std::chrono::microseconds(0)};
   ResourceUsage resource_usage_;
 };
 }  // namespace pendulum

@@ -44,7 +44,7 @@ template<typename T = void>
 using TLSFAllocator = tlsf_heap_allocator<T>;
 #endif
 
-static const size_t DEFAULT_DEADLINE_PERIOD_NS = 2000000;
+static const size_t DEFAULT_DEADLINE_PERIOD_US = 2000;
 static const int DEFAULT_PRIORITY = 0;
 static const size_t DEFAULT_STATISTICS_PERIOD_MS = 1000;
 
@@ -57,8 +57,8 @@ static const char * OPTION_PUBLISH_STATISTICS = "--pub-stats";
 static const char * OPTION_DEADLINE_PERIOD = "--deadline";
 static const char * OPTION_STATISTICS_PERIOD = "--stats-period";
 
-static const size_t DEFAULT_PHYSICS_UPDATE_PERIOD_NS = 10000000;
-static const size_t DEFAULT_SENSOR_UPDATE_PERIOD_NS = 960000;
+static const size_t DEFAULT_PHYSICS_UPDATE_PERIOD_US = 1000;
+static const size_t DEFAULT_SENSOR_UPDATE_PERIOD_US = 1000;
 
 static const char * OPTION_SENSOR_UPDATE_PERIOD = "--sensor-period";
 static const char * OPTION_PHYSICS_UPDATE_PERIOD = "--physics-period";
@@ -100,12 +100,12 @@ int main(int argc, char * argv[])
   bool use_tlfs = false;
   int process_priority = DEFAULT_PRIORITY;
   uint32_t cpu_affinity = 0;
-  std::chrono::nanoseconds deadline_duration(DEFAULT_DEADLINE_PERIOD_NS);
+  std::chrono::microseconds deadline_duration(DEFAULT_DEADLINE_PERIOD_US);
   std::chrono::milliseconds logger_publisher_period(DEFAULT_STATISTICS_PERIOD_MS);
 
   // driver options
-  std::chrono::nanoseconds sensor_publish_period(DEFAULT_SENSOR_UPDATE_PERIOD_NS);
-  std::chrono::nanoseconds physics_update_period(DEFAULT_PHYSICS_UPDATE_PERIOD_NS);
+  std::chrono::microseconds sensor_publish_period(DEFAULT_SENSOR_UPDATE_PERIOD_US);
+  std::chrono::microseconds physics_update_period(DEFAULT_PHYSICS_UPDATE_PERIOD_US);
 
   // Force flush of the stdout buffer.
   setvbuf(stdout, NULL, _IONBF, BUFSIZ);
@@ -139,7 +139,7 @@ int main(int argc, char * argv[])
     cpu_affinity = std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_CPU_AFFINITY));
   }
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_DEADLINE_PERIOD)) {
-    deadline_duration = std::chrono::nanoseconds(
+    deadline_duration = std::chrono::microseconds(
       std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_DEADLINE_PERIOD)));
   }
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_STATISTICS_PERIOD)) {
@@ -147,11 +147,11 @@ int main(int argc, char * argv[])
       std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_STATISTICS_PERIOD)));
   }
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_SENSOR_UPDATE_PERIOD)) {
-    sensor_publish_period = std::chrono::nanoseconds(
+    sensor_publish_period = std::chrono::microseconds(
       std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_SENSOR_UPDATE_PERIOD)));
   }
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PHYSICS_UPDATE_PERIOD)) {
-    physics_update_period = std::chrono::nanoseconds(
+    physics_update_period = std::chrono::microseconds(
       std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_PHYSICS_UPDATE_PERIOD)));
   }
 

@@ -1,6 +1,5 @@
-builtin_interfaces/Time stamp
 uint64 timer_count
-float64 jitter_mean_nsec
-float64 jitter_min_nsec
-float64 jitter_max_nsec
-float64 jitter_standard_dev_nsec
+float64 jitter_mean_usec
+float64 jitter_min_usec
+float64 jitter_max_usec
+float64 jitter_std_usec

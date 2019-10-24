@@ -48,10 +48,10 @@ namespace pendulum
 struct PendulumDriverOptions
 {
   std::string node_name = "pendulum_driver";
-  std::chrono::nanoseconds status_publish_period = std::chrono::nanoseconds(0);
+  std::chrono::microseconds status_publish_period = std::chrono::microseconds(1000);
   rclcpp::QoS status_qos_profile = rclcpp::QoS(10);
   bool enable_statistics = false;
-  std::chrono::nanoseconds statistics_publish_period = std::chrono::nanoseconds(0);
+  std::chrono::microseconds statistics_publish_period = std::chrono::microseconds(0);
   bool enable_check_memory = false;
 };
 
@@ -151,7 +151,7 @@ private:
   pendulum_msgs_v2::msg::PendulumCommand command_message_;
   pendulum_msgs_v2::msg::PendulumCommand disturbance_message_;
 
-  JitterTracker timer_jitter_{std::chrono::nanoseconds(0)};
+  JitterTracker timer_jitter_{std::chrono::microseconds(0)};
   ResourceUsage resource_usage_;
 };
 }  // namespace pendulum
