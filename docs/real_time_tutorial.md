@@ -143,6 +143,57 @@ Additionally, we can specify the amount of memory we want to pre-allocate. For e
 ros2 run pendulum_demo pendulum_demo --lock-memory 50000
 ```
 
+If we get the following error message this means we don't have permissions or that we can't allocate the requested amount of memory.
+
+```
+mlockall failed: Cannot allocate memory
+Couldn't lock all cached virtual memory.
+```
+
+We can compare the difference of locking memory by comparing the number of page faults during the nodes active state.
+
+With no memory locking we observe how the number of minor page faults increase. This is the output after one minute.
+
+```
+...
+rusage_stats:
+  max_resident_set_size: 42532
+  total_minor_pagefaults: 7146
+  total_major_pagefaults: 0
+  minor_pagefaults_active_node: 3508
+  major_pagefaults_active_node: 0
+  voluntary_context_switches: 1048471
+  involuntary_context_switches: 2947
+```
+
+Enabling memory lock, after one minute we don't observe any page fault in active state:
+
+```
+...
+rusage_stats:
+  max_resident_set_size: 8552112
+  total_minor_pagefaults: 2132814
+  total_major_pagefaults: 15
+  minor_pagefaults_active_node: 0
+  major_pagefaults_active_node: 0
+  voluntary_context_switches: 946474
+  involuntary_context_switches: 3705
+```
+
+However, notice the high amount of memory locked 8.5GB. In this we lock 100MB and we don't observe any page faults neither.
+
+```
+...
+rusage_stats:
+  max_resident_set_size: 264580
+  total_minor_pagefaults: 60713
+  total_major_pagefaults: 0
+  minor_pagefaults_active_node: 0
+  major_pagefaults_active_node: 0
+  voluntary_context_switches: 992589
+  involuntary_context_switches: 3584
+```
+
 ### Set topic deadline QoS
 
 For aplications requiring more control over data delivered [new DDS QoS were introduced](https://design.ros2.org/articles/qos_deadline_liveliness_lifespan.html). One of this QoS is the deadline policy.
