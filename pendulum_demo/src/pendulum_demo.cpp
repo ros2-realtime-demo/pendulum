@@ -20,6 +20,7 @@
 #include <iostream>
 #include <memory>
 #include <utility>
+#include <string>
 
 #ifdef PENDULUM_DEMO_MEMORYTOOLS_ENABLED
 #include <osrf_testing_tools_cpp/memory_tools/memory_tools.hpp>
@@ -55,6 +56,7 @@ static const size_t DEFAULT_STATISTICS_PERIOD_MS = 100;
 static const char * OPTION_MEMORY_CHECK = "--memory-check";
 static const char * OPTION_TLSF = "--use-tlsf";
 static const char * OPTION_LOCK_MEMORY = "--lock-memory";
+static const char * OPTION_LOCK_MEMORY_SIZE = "--lock-memory-size";
 static const char * OPTION_PRIORITY = "--priority";
 static const char * OPTION_CPU_AFFINITY = "--cpu-affinity";
 static const char * OPTION_PUBLISH_STATISTICS = "--pub-stats";
@@ -85,6 +87,7 @@ void print_usage(std::string program_name)
     "\t[%s deadline QoS period (ms)]\n"
     "\t[%s use OSRF memory check tool]\n"
     "\t[%s lock memory]\n"
+    "\t[%s lock a fixed memory size in MB]\n"
     "\t[%s set process real-time priority]\n"
     "\t[%s set process cpu affinity]\n"
     "\t[%s statistics publisher period (ms)]\n"
@@ -102,6 +105,7 @@ void print_usage(std::string program_name)
     OPTION_DEADLINE_PERIOD,
     OPTION_MEMORY_CHECK,
     OPTION_LOCK_MEMORY,
+    OPTION_LOCK_MEMORY_SIZE,
     OPTION_PRIORITY,
     OPTION_CPU_AFFINITY,
     OPTION_STATISTICS_PERIOD,
@@ -122,6 +126,7 @@ int main(int argc, char * argv[])
   bool use_tlfs = false;
   int process_priority = DEFAULT_PRIORITY;
   uint32_t cpu_affinity = 0;
+  size_t lock_memory_size_mb = 0;
   std::chrono::microseconds deadline_duration(DEFAULT_DEADLINE_PERIOD_US);
   std::chrono::milliseconds logger_publisher_period(DEFAULT_STATISTICS_PERIOD_MS);
 
@@ -137,7 +142,7 @@ int main(int argc, char * argv[])
   setvbuf(stdout, NULL, _IONBF, BUFSIZ);
 
   std::string prog_name(argv[0]);
-  prog_name = prog_name.substr(prog_name.find_last_of("/\\")+1);
+  prog_name = prog_name.substr(prog_name.find_last_of("/\\") + 1);
 
   // Argument count and usage
   if (rcutils_cli_option_exist(argv, argv + argc, "-h")) {
@@ -151,6 +156,11 @@ int main(int argc, char * argv[])
   }
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_LOCK_MEMORY)) {
     lock_memory = true;
+  }
+  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_LOCK_MEMORY_SIZE)) {
+    lock_memory = true;
+    lock_memory_size_mb =
+      std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_LOCK_MEMORY_SIZE));
   }
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PUBLISH_STATISTICS)) {
     publish_statistics = true;
@@ -275,18 +285,18 @@ int main(int argc, char * argv[])
       perror("Couldn't set cpu affinity");
     }
   }
-  // Lock the currently cached virtual memory into RAM, as well as any future memory allocations,
-  // and do our best to prefault the locked memory to prevent future pagefaults.
-  // Will return with a non-zero error code if something went wrong (insufficient resources or
-  // permissions).
-  // Always do this as the last step of the initialization phase.
-  // See README.md for instructions on setting permissions.
-  // See rttest/rttest.cpp for more details.
+
   if (lock_memory) {
-    std::cout << "Enable lock memory\n";
-    if (pendulum::lock_and_prefault_dynamic(100*1024*1024) != 0) {
-      fprintf(stderr, "Couldn't lock all cached virtual memory.\n");
-      fprintf(stderr, "Pagefaults from reading pages not yet mapped into RAM will be recorded.\n");
+    int res = 0;
+    if (lock_memory_size_mb > 0) {
+      res = pendulum::lock_and_prefault_dynamic(lock_memory_size_mb * 1024 * 1024);
+    } else {
+      res = pendulum::lock_and_prefault_dynamic();
+    }
+    if (res != 0) {
+      fprintf(stderr, "Couldn't lock  virtual memory.\n");
+    } else {
+      std::cout << "Memory locked succesfully\n";
     }
   }
 
