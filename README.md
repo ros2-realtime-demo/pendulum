@@ -4,10 +4,10 @@
 [![coverage report](https://gitlab.com/LanderU/pendulum/badges/master/coverage.svg)](https://gitlab.com/LanderU/pendulum/commits/master)
 
 ## Table of Contents
-- [Project description](#projectdescription)
+- [Project description](###Project description)
 - [Install instructions](#installinstruction)
 - [How to run the demo](#howtorunthedemo)
-- [Managed nodes](#managednodes)
+- [Managed nodes](###Managed nodes)
 - [How to contribute](#howtocontribute)
 - [Issues and feature request](#issuesandfeaturerequest)
 
