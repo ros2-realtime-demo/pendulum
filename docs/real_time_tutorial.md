@@ -146,7 +146,7 @@ ros2 run pendulum_demo pendulum_demo --lock-memory
 Additionally, we can specify the amount of memory we want to pre-allocate with the option `--lock-memory-size`. For example we can pre-allocate 50 MB
 
 ```
-ros2 run pendulum_demo pendulum_demo --lock-memory 50000
+ros2 run pendulum_demo pendulum_demo --lock-memory-size 50000
 ```
 
 If we get the following error message this means we don't have permissions or that we can't allocate the requested amount of memory.
