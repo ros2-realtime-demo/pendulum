@@ -90,7 +90,6 @@ function compile_ws_symlink()
 prepare_ws
 run_rosdep
 compile_ws
-compile_ws
 compile_ws_symlink
 #If we're here everything is okay
 echo -e "${GREEN}All steps successfully completed${RESET}"
