@@ -3,6 +3,14 @@
 [![pipeline status](https://gitlab.com/LanderU/pendulum/badges/master/pipeline.svg)](https://gitlab.com/LanderU/pendulum/commits/master)
 [![coverage report](https://gitlab.com/LanderU/pendulum/badges/master/coverage.svg)](https://gitlab.com/LanderU/pendulum/commits/master)
 
+## Table of Contents
+- [Project description](#projectdescription)
+- [Install instructions](#installinstruction)
+- [How to run the demo](#howtorunthedemo)
+- [Managed nodes](#managednodes)
+- [How to contribute](#howtocontribute)
+- [Issues and feature request](#issuesandfeaturerequest)
+
 
 ### Project description
 
