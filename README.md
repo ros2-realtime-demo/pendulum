@@ -3,14 +3,15 @@
 [![pipeline status](https://gitlab.com/LanderU/pendulum/badges/master/pipeline.svg)](https://gitlab.com/LanderU/pendulum/commits/master)
 [![coverage report](https://gitlab.com/LanderU/pendulum/badges/master/coverage.svg)](https://gitlab.com/LanderU/pendulum/commits/master)
 
-## Table of Contents
-- [Project description](###Project description)
-- [Install instructions](#installinstruction)
-- [How to run the demo](#howtorunthedemo)
-- [Managed nodes](###Managed nodes)
-- [How to contribute](#howtocontribute)
-- [Issues and feature request](#issuesandfeaturerequest)
+# Table of content
 
+* [Inverted pendulum demo](#inverted-pendulum-demo)
+    * [Project description](#project-description)
+    * [Install instructions](#install-instructions)
+    * [How to run the demo](#how-to-run-the-demo)
+    * [Managed nodes](#managed-nodes)
+    * [How to contribute](#how-to-contribute)
+    * [Issues and feature request](#issues-and-feature-request)
 
 ### Project description
 
