@@ -25,12 +25,6 @@ rosdep install --from-paths src --ignore-src --rosdistro dashing -y
 colcon build --merge-install # OR colcon build --symlink-install
 ```
 
-#### Run instructions
-
-```bash
-fill me!
-```
-
 #### How to run the demo
 
 Terminal 1:
