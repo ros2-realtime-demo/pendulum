@@ -15,7 +15,5 @@ matrix:
         - docker
       sudo:
         - required
-before_script:
-    - cd .ci/
 script:
     - docker build -t pendulum .
