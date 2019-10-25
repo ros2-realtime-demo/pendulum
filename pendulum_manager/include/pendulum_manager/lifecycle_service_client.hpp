@@ -49,9 +49,14 @@ wait_for_result(
   return status;
 }
 
+/// \class This class implements a service client for managed nodes
 class LifecycleServiceClient
 {
 public:
+  /// \brief Constructor of the class
+  /// \param[in] lifecycle_node name of the lifecycle node service
+  /// \param[in] client_get_state client pointer to get state service
+  /// \param[in] client_change_state client pointer to change state service
   LifecycleServiceClient(
     const std::string & lifecycle_node,
     std::shared_ptr<rclcpp::Client<lifecycle_msgs::srv::GetState>> client_get_state,

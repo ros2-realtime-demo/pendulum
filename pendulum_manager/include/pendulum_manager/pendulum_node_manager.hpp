@@ -32,9 +32,14 @@
 namespace pendulum
 {
 
+/// \class This class to manage the pendulum managed nodes
 class PendulumNodeManager : public rclcpp::Node
 {
 public:
+  /// \brief Constructor of the class
+  /// \param[in] node_name name pendulum manager node
+  /// \param[in] controller_node_name name of the controlle node
+  /// \param[in] driver_node_name name of the driver node
   PendulumNodeManager(
     const std::string & node_name,
     const std::string & controller_node_name,
