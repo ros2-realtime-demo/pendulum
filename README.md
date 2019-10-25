@@ -50,7 +50,7 @@ If everything went well we should see now the inverted pendulum being controlled
 Now we can try to move the cart by sending a setpoint command.
 
 
-In a new terminal. Move the to x=5:
+In a new terminal. Move the cart to x=5:
 ```bash
 ros2 topic pub -1 /pendulum_setpoint pendulum_msgs_v2/msg/PendulumCommand "cart_position: 5.0"
 ```
