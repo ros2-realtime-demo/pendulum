@@ -16,12 +16,12 @@ export RESET="\e[0m"
 # Paths
 export WS="/root/ros2_ws"
 export WS_SYMLINK="/root/ros2_symlink"
+export ROS2_DISTRO="dashing"
 
 function prepare_ws()
 {
   echo -e "${YELLOW}Preparing work spaces${RESET}"
   cd ${WS} || exit
-  rm -rf mara-ros2.repos
   cp -r /tmp/pendulum src
   cd ${WS_SYMLINK} || exit
   cp -r /tmp/pendulum src
@@ -53,6 +53,7 @@ function run_rosdep()
 
 function compile_ws()
 {
+  source /opt/ros/"${ROS2_DISTRO}"/setup.bash
   cd ${WS} || exit
   echo -e "${YELLOW}###### Packages to be compiled ######${RESET}"
   echo -e "${PURPLE}"
@@ -71,6 +72,7 @@ function compile_ws()
 
 function compile_ws_symlink()
 {
+  source /opt/ros/"${ROS2_DISTRO}"/setup.bash
   cd ${WS_SYMLINK} || exit
   echo -e "${YELLOW}###### Packages to be compiled ######${RESET}"
   echo -e "${PURPLE}"
