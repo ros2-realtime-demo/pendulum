@@ -15,7 +15,7 @@
 
 ### Project description
 
-The aim of this project is show the real-time capabilities using the ROS2 framework. This project is based on the [previous](https://index.ros.org/doc/ros2/Tutorials/Real-Time-Programming/) work made by the Open Robotics. The project uses these packages as a base.
+The aim of this project is to show the real-time capabilities using the ROS2 framework. This project is based on the [previous](https://index.ros.org/doc/ros2/Tutorials/Real-Time-Programming/) work made by the Open Robotics. The project uses these packages as a base.
 
 This is the motivation of using an inverted pendulum for a real-time demo:
 
@@ -72,7 +72,7 @@ ros2 topic pub -1 /pendulum_setpoint pendulum_msgs_v2/msg/PendulumCommand "cart_
 
 ![pendulum_rviz](docs/images/pendulum_rviz_setpoint.gif)
 
-Not let's try to push the cart by sending a disturbance force:
+Now let's try to push the cart by sending a disturbance force:
 
 ```bash
 ros2 topic pub -1 /pendulum_disturbance pendulum_msgs_v2/msg/PendulumCommand "cart_force: 100"
