@@ -34,7 +34,7 @@ We will extend this section in the future providing detailed instructions about 
 
 ## Examples
 
-For the moment it is not possible in this demo to configure the real-time setting using the ROS 2 launch system. For this reason if we want to play with the real-time settings we have to launch the demo executables using ros2 run.
+For the moment it is not possible in this demo to configure the real-time settings using the ROS 2 launch system. For this reason if we want to tune the real-time settings we have to launch the demo executables using ros2 run.
 
 ### Enable statistics publishers
 
