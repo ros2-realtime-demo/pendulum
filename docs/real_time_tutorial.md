@@ -74,36 +74,38 @@ rusage_stats:
   major_pagefaults_active_node: 0
   voluntary_context_switches: 660032
   involuntary_context_switches: 4431
----
 ```
 
 The same for the driver simulation:
 
 ```
-ros2 topic echo /controller_statistics
+ros2 topic echo /driver_statistics
 timer_stats:
   stamp:
-    sec: 1571909528
-    nanosec: 708351206
-  timer_count: 8611
-  jitter_mean_nsec: 15508.3448315912
-  jitter_min_nsec: -889274.0
-  jitter_max_nsec: 10080557.0
-  jitter_standard_dev_nsec: 274130.4798945434
+    sec: 1571909555
+    nanosec: 906944175
+  timer_count: 36693
+  jitter_mean_nsec: 10216.475362476946
+  jitter_min_nsec: -917970.0
+  jitter_max_nsec: 15299807.0
+  jitter_standard_dev_nsec: 246325.80033779904
 sensor_stats:
-  msg_count: 8641
+  msg_count: 36605
   deadline_misses_count: 0
 command_stats:
-  msg_count: 8611
+  msg_count: 36693
+  deadline_misses_count: 0
+setpoint_stats:
+  msg_count: 0
   deadline_misses_count: 0
 rusage_stats:
-  max_resident_set_size: 37472
-  total_minor_pagefaults: 4338
+  max_resident_set_size: 38340
+  total_minor_pagefaults: 5874
   total_major_pagefaults: 0
-  minor_pagefaults_active_node: 493
+  minor_pagefaults_active_node: 2031
   major_pagefaults_active_node: 0
-  voluntary_context_switches: 155893
-  involuntary_context_switches: 1536
+  voluntary_context_switches: 660032
+  involuntary_context_switches: 4431
 ---
 ```
 
@@ -131,13 +133,13 @@ ros2 run pendulum_demo pendulum_demo --priority 80 --cpu-affinity 4
 
 If our process generates memory page faults when running a real-time task we would suffer an undetermined block time. To prevent this, we must pre-allocate all the dynamic memory used by the process and lock it into RAM.
 
-We can enable memory locking with the option `--lock-memory`. If no memory size is provided the command will pre-fault memory until no more page faults are seen. This usually allocated a high amount of memory (~8GB) so make sure there is enough memory in the system.
+We can enable memory locking with the option `--lock-memory`.The command will pre-fault memory until no more page faults are seen. This usually allocated a high amount of memory (~8GB) so make sure there is enough memory in the system.
 
 ```
 ros2 run pendulum_demo pendulum_demo --lock-memory
 ```
 
-Additionally, we can specify the amount of memory we want to pre-allocate. For example we can pre-allocate 50 MB:
+Additionally, we can specify the amount of memory we want to pre-allocate with the option `--lock-memory-size`. For example we can pre-allocate 50 MB
 
 ```
 ros2 run pendulum_demo pendulum_demo --lock-memory 50000
@@ -147,7 +149,7 @@ If we get the following error message this means we don't have permissions or th
 
 ```
 mlockall failed: Cannot allocate memory
-Couldn't lock all cached virtual memory.
+Couldn't lock  virtual memory.
 ```
 
 We can compare the difference of locking memory by comparing the number of page faults during the nodes active state.
