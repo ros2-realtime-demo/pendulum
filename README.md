@@ -78,7 +78,7 @@ ros2 topic pub -1 /pendulum_disturbance pendulum_msgs_v2/msg/PendulumCommand "ca
 ```
 ![pendulum_rviz](docs/images/pendulum_rviz_disturbance.gif)
 
-Note the force is applied continuously until a different disturbance force is send again. We may change this in the future.
+Note the force is applied continuously until a different disturbance force is sent again. We may change this in the future.
 
 #### Managed nodes
 

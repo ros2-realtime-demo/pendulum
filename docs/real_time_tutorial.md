@@ -1,8 +1,10 @@
 # Instructions to test real-time capabilities
 
-First of all make sure you are running the demo in a RTOS. For Linux users you can follow [these instructions](real_time_linux.md).
-
 ## Requirements
+
+### RTOS
+
+To test the demo real-time capabilities to use a RTOS is strongly recommended but not mandatory. For Linux users you can follow [these instructions](real_time_linux.md).
 
 ### OSRF memory memory tools
 
@@ -91,7 +93,7 @@ timer_stats:
   jitter_standard_dev_nsec: 246325.80033779904
 sensor_stats:
   msg_count: 36605
-  deadline_misses_count: 0
+  deadline_misses_count: 0play
 command_stats:
   msg_count: 36693
   deadline_misses_count: 0
