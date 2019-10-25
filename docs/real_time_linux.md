@@ -2,7 +2,7 @@
 
 ## Real-time Linux
 
-In order have real-time capabilities it is mandatory to use a RTOS. One way to achieve this is to use real-time Linux (formerly known as Linux with preempt-rt patch). In this guide you can find the required steps to setup Linux with real-time:
+In order have real-time capabilities it is mandatory to use a RTOS. One way to achieve this is to use real-time Linux (formerly known as Linux with [preempt-rt](https://wiki.linuxfoundation.org/realtime/start) patch). In this guide you can find the required steps to setup Linux with real-time:
 
 * https://index.ros.org/doc/ros2/Tutorials/Building-Realtime-rt_preempt-kernel-for-ROS-2/
 
