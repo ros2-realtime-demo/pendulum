@@ -70,7 +70,7 @@ ros2 topic pub -1 /pendulum_setpoint pendulum_msgs_v2/msg/PendulumCommand "cart_
 
 ![pendulum_rviz](docs/images/pendulum_rviz_setpoint.gif)
 
-Not let's try to push the cart by sending a disturbance force:
+Now let's try to push the cart by sending a disturbance force:
 
 ```bash
 ros2 topic pub -1 /pendulum_disturbance pendulum_msgs_v2/msg/PendulumCommand "cart_force: 100"
