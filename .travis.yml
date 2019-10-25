@@ -16,6 +16,6 @@ matrix:
       sudo:
         - required
 before_script:
-    - echo "Test"
+    - cd .ci/
 script:
-    - echo "Test script"
+    - docker build -t pendulum .
