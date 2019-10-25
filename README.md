@@ -10,7 +10,7 @@
     * [Install instructions](#install-instructions)
     * [How to run the demo](#how-to-run-the-demo)
     * [Managed nodes](#managed-nodes)
-    * [Real-time demo](#real-time demo)
+    * [Real-time demo](#rtdemo)
     * [How to contribute](#how-to-contribute)
     * [Issues and feature request](#issues-and-feature-request)
 
@@ -90,9 +90,9 @@ The package `pendulum_manager` was created in order to control the state of the 
 
 Just for fun you can try to deactivate the controller node while the simulation is active to see the pendulum falling down.
 
-#### Real-time demo
+#### Realtime demo <a name="rtdemo"></a>
 
-A detailed tutorial for real-time testing can be found [here](docs/real_time_tutorial).
+A detailed tutorial for real-time testing can be found [here](docs/real_time_tutorial.md).
 
 #### How to contribute
 
