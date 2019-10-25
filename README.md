@@ -22,6 +22,8 @@ This is the motivation of using an inverted pendulum for a real-time demo:
 
 >A classic example of a controls problem commonly solved by real-time computing is balancing an inverted pendulum. If the controller blocked for an unexpectedly long amount of time, the pendulum would fall down or go unstable. But if the controller reliably updates at a rate faster than the motor controlling the pendulum can operate, the pendulum will successfully adapt react to sensor data to balance the pendulum.
 
+For a more detailed description of demo the project design be found here: [Design Article](docs/design.md)
+
 #### Install instructions
 
 In order to get the project ready, first you need to install [ROS2](https://index.ros.org/doc/ros2/Installation/Dashing/) and [rosdep](http://wiki.ros.org/rosdep).
