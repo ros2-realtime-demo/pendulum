@@ -111,6 +111,10 @@ rusage_stats:
 
 Also we can change the statistics publishing period by setting the `--stats-period` option. By default it publishes each 500 ms.
 
+### Timer jitter measurement
+
+Among the statistics tracker we measure the jitter of the ROS timers. For the moment we take the interval between two timer executions and we compare it with the ideal period. We take the difference and we calculate mean, min, max and standard deviation. Other methods may be applied in the future to calculate jitter ([this one for example](https://tools.ietf.org/rfcmarkup?rfc=3550&draft=&url=#page-94)). 
+
 ### Set real-time priority
 
 We can change the process priority and set a real-time FIFO priority. This will set the priority of the thread where the ROS 2 executor is running.
