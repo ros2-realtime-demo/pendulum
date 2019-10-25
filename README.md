@@ -8,8 +8,6 @@
 
 The aim of this project is show the real-time capabilities using the ROS2 framework. This project is based on the [previous](https://index.ros.org/doc/ros2/Tutorials/Real-Time-Programming/) work made by the Open Robotics. The project uses these packages as a base.
 
-![rosgraph](docs/images/rosgraph.png)
-
 #### Install instructions
 
 In order to get the project ready, first you need to install [ROS2](https://index.ros.org/doc/ros2/Installation/Dashing/) and [rosdep](http://wiki.ros.org/rosdep).
