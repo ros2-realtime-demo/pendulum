@@ -3,10 +3,24 @@
 [![pipeline status](https://gitlab.com/LanderU/pendulum/badges/master/pipeline.svg)](https://gitlab.com/LanderU/pendulum/commits/master)
 [![coverage report](https://gitlab.com/LanderU/pendulum/badges/master/coverage.svg)](https://gitlab.com/LanderU/pendulum/commits/master)
 
+# Table of content
+
+* [Inverted pendulum demo](#inverted-pendulum-demo)
+    * [Project description](#project-description)
+    * [Install instructions](#install-instructions)
+    * [How to run the demo](#how-to-run-the-demo)
+    * [Managed nodes](#managed-nodes)
+    * [Real-time demo](#rtdemo)
+    * [How to contribute](#how-to-contribute)
+    * [Issues and feature request](#issues-and-feature-request)
 
 ### Project description
 
 The aim of this project is show the real-time capabilities using the ROS2 framework. This project is based on the [previous](https://index.ros.org/doc/ros2/Tutorials/Real-Time-Programming/) work made by the Open Robotics. The project uses these packages as a base.
+
+This is the motivation of using an inverted pendulum for a real-time demo:
+
+>A classic example of a controls problem commonly solved by real-time computing is balancing an inverted pendulum. If the controller blocked for an unexpectedly long amount of time, the pendulum would fall down or go unstable. But if the controller reliably updates at a rate faster than the motor controlling the pendulum can operate, the pendulum will successfully adapt react to sensor data to balance the pendulum.
 
 #### Install instructions
 
@@ -64,7 +78,7 @@ ros2 topic pub -1 /pendulum_disturbance pendulum_msgs_v2/msg/PendulumCommand "ca
 ```
 ![pendulum_rviz](docs/images/pendulum_rviz_disturbance.gif)
 
-Note the force is applied continuously until a different disturbance force is send again. We may change this in the future.
+Note the force is applied continuously until a different disturbance force is sent again. We may change this in the future.
 
 #### Managed nodes
 
@@ -75,6 +89,10 @@ All the configurations and memory allocation must be done in the `onConfigure` t
 The package `pendulum_manager` was created in order to control the state of the nodes easier. This package is in a very early stage, the idea is this package to become a rqt plugin with a control panel.
 
 Just for fun you can try to deactivate the controller node while the simulation is active to see the pendulum falling down.
+
+#### Realtime demo <a name="rtdemo"></a>
+
+A detailed tutorial for real-time testing can be found [here](docs/real_time_tutorial.md).
 
 #### How to contribute
 

@@ -1,8 +1,10 @@
 # Instructions to test real-time capabilities
 
-First of all make sure you are running the demo in a RTOS. For Linux users you can follow [these instructions](real_time_linux.md).
-
 ## Requirements
+
+### RTOS
+
+To test the demo real-time capabilities to use a RTOS is strongly recommended but not mandatory. For Linux users you can follow [these instructions](real_time_linux.md).
 
 ### OSRF memory memory tools
 
@@ -34,7 +36,7 @@ We will extend this section in the future providing detailed instructions about 
 
 ## Examples
 
-For the moment it is not possible in this demo to configure the real-time setting using the ROS 2 launch system. For this reason if we want to play with the real-time settings we have to launch the demo executables using ros2 run.
+For the moment it is not possible in this demo to configure the real-time settings using the ROS 2 launch system. For this reason if we want to tune the real-time settings we have to launch the demo executables using ros2 run.
 
 ### Enable statistics publishers
 
@@ -91,7 +93,7 @@ timer_stats:
   jitter_standard_dev_nsec: 246325.80033779904
 sensor_stats:
   msg_count: 36605
-  deadline_misses_count: 0
+  deadline_misses_count: 0play
 command_stats:
   msg_count: 36693
   deadline_misses_count: 0
@@ -146,7 +148,7 @@ ros2 run pendulum_demo pendulum_demo --lock-memory
 Additionally, we can specify the amount of memory we want to pre-allocate with the option `--lock-memory-size`. For example we can pre-allocate 50 MB
 
 ```
-ros2 run pendulum_demo pendulum_demo --lock-memory 50000
+ros2 run pendulum_demo pendulum_demo --lock-memory-size 50000
 ```
 
 If we get the following error message this means we don't have permissions or that we can't allocate the requested amount of memory.
