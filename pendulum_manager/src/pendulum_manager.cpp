@@ -54,7 +54,7 @@ int main(int argc, char ** argv)
 {
   std::string manager_node_name = "pendulum_manager";
   std::string controller_node_name = "pendulum_controller";
-  std::string motor_node_name = "pendulum_driver";
+  std::string driver_node_name = "pendulum_driver";
 
   if (rcutils_cli_option_exist(argv, argv + argc, "--manager-name")) {
     manager_node_name = rcutils_cli_get_option(argv, argv + argc, "--manager-name");
@@ -62,8 +62,8 @@ int main(int argc, char ** argv)
   if (rcutils_cli_option_exist(argv, argv + argc, "controller-name")) {
     controller_node_name = rcutils_cli_get_option(argv, argv + argc, "--controller-name");
   }
-  if (rcutils_cli_option_exist(argv, argv + argc, "--motor-name")) {
-    motor_node_name = rcutils_cli_get_option(argv, argv + argc, "--motor-name");
+  if (rcutils_cli_option_exist(argv, argv + argc, "--driver-name")) {
+    driver_node_name = rcutils_cli_get_option(argv, argv + argc, "--driver-name");
   }
 
   rclcpp::init(argc, argv);
@@ -72,7 +72,7 @@ int main(int argc, char ** argv)
   auto pendulum_manager = std::make_shared<pendulum::PendulumNodeManager>(
     manager_node_name,
     controller_node_name,
-    motor_node_name);
+    driver_node_name);
   exe.add_node(pendulum_manager);
 
   std::shared_future<void> activate_pendulum = std::async(std::launch::async,
@@ -88,29 +88,29 @@ int main(int argc, char ** argv)
         break;
       case '0':
         pendulum_manager->configure_controller();
-        pendulum_manager->configure_motor();
+        pendulum_manager->configure_driver();
         pendulum_manager->activate_controller();
-        pendulum_manager->activate_motor();
+        pendulum_manager->activate_driver();
         break;
       case '1':
         pendulum_manager->configure_controller();
-        pendulum_manager->configure_motor();
+        pendulum_manager->configure_driver();
         break;
       case '2':
         pendulum_manager->activate_controller();
-        pendulum_manager->activate_motor();
+        pendulum_manager->activate_driver();
         break;
       case '3':
         pendulum_manager->deactivate_controller();
-        pendulum_manager->deactivate_motor();
+        pendulum_manager->deactivate_driver();
         break;
       case '4':
         pendulum_manager->cleanup_controller();
-        pendulum_manager->cleanup_motor();
+        pendulum_manager->cleanup_driver();
         break;
       case '5':
         pendulum_manager->shutdown_controller();
-        pendulum_manager->shutdown_motor();
+        pendulum_manager->shutdown_driver();
         break;
       case 'w':
         pendulum_manager->configure_controller();
@@ -128,19 +128,19 @@ int main(int argc, char ** argv)
         pendulum_manager->shutdown_controller();
         break;
       case 'a':
-        pendulum_manager->configure_motor();
+        pendulum_manager->configure_driver();
         break;
       case 's':
-        pendulum_manager->activate_motor();
+        pendulum_manager->activate_driver();
         break;
       case 'd':
-        pendulum_manager->deactivate_motor();
+        pendulum_manager->deactivate_driver();
         break;
       case 'f':
-        pendulum_manager->cleanup_motor();
+        pendulum_manager->cleanup_driver();
         break;
       case 'g':
-        pendulum_manager->shutdown_motor();
+        pendulum_manager->shutdown_driver();
         break;
       default:
         std::cout << "Invalid input" << std::endl;

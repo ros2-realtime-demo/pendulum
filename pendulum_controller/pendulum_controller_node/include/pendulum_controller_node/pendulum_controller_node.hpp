@@ -152,7 +152,9 @@ private:
   pendulum_msgs_v2::msg::ControllerStats statistics_message_;
   pendulum_msgs_v2::msg::PendulumCommand command_message_;
 
+  // to track the jitter of the ros timer
   JitterTracker timer_jitter_{std::chrono::microseconds(0)};
+  // to read the resource usage such as page faults
   ResourceUsage resource_usage_;
 };
 }  // namespace pendulum

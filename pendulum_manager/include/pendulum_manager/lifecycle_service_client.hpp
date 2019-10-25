@@ -62,17 +62,22 @@ public:
   {
   }
 
+  /// \brief Sends a request to trigger the configure transition
   void configure();
+  /// \brief Sends a request to trigger the activate transition
   void activate();
+  /// \brief Sends a request to trigger the deactivate transition
   void deactivate();
+  /// \brief Sends a request to trigger the cleanup transition
   void cleanup();
+  /// \brief Sends a request to trigger the shutdown transition
   void shutdown();
 
 private:
-  /// Requests the current state of the node
+  /// \brief Requests the current state of the node
   unsigned int get_state(std::chrono::seconds time_out = std::chrono::seconds(3));
 
-  /// Invokes a transition of the lifecycle node
+  /// \brief Invokes a transition of the lifecycle node
   bool change_state(
     std::uint8_t transition,
     std::chrono::seconds time_out = std::chrono::seconds(3));
