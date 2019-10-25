@@ -10,6 +10,7 @@
     * [Install instructions](#install-instructions)
     * [How to run the demo](#how-to-run-the-demo)
     * [Managed nodes](#managed-nodes)
+    * [Real-time demo](#real-time demo)
     * [How to contribute](#how-to-contribute)
     * [Issues and feature request](#issues-and-feature-request)
 
@@ -88,6 +89,10 @@ All the configurations and memory allocation must be done in the `onConfigure` t
 The package `pendulum_manager` was created in order to control the state of the nodes easier. This package is in a very early stage, the idea is this package to become a rqt plugin with a control panel.
 
 Just for fun you can try to deactivate the controller node while the simulation is active to see the pendulum falling down.
+
+#### Real-time demo
+
+A detailed tutorial for real-time testing can be found [here](docs/real_time_tutorial).
 
 #### How to contribute
 
