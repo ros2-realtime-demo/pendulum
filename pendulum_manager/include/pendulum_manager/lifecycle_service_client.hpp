@@ -49,9 +49,14 @@ wait_for_result(
   return status;
 }
 
+/// \class This class implements a service client for managed nodes
 class LifecycleServiceClient
 {
 public:
+  /// \brief Constructor of the class
+  /// \param[in] lifecycle_node name of the lifecycle node service
+  /// \param[in] client_get_state client pointer to get state service
+  /// \param[in] client_change_state client pointer to change state service
   LifecycleServiceClient(
     const std::string & lifecycle_node,
     std::shared_ptr<rclcpp::Client<lifecycle_msgs::srv::GetState>> client_get_state,
@@ -62,17 +67,22 @@ public:
   {
   }
 
+  /// \brief Sends a request to trigger the configure transition
   void configure();
+  /// \brief Sends a request to trigger the activate transition
   void activate();
+  /// \brief Sends a request to trigger the deactivate transition
   void deactivate();
+  /// \brief Sends a request to trigger the cleanup transition
   void cleanup();
+  /// \brief Sends a request to trigger the shutdown transition
   void shutdown();
 
 private:
-  /// Requests the current state of the node
+  /// \brief Requests the current state of the node
   unsigned int get_state(std::chrono::seconds time_out = std::chrono::seconds(3));
 
-  /// Invokes a transition of the lifecycle node
+  /// \brief Invokes a transition of the lifecycle node
   bool change_state(
     std::uint8_t transition,
     std::chrono::seconds time_out = std::chrono::seconds(3));

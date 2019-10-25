@@ -47,8 +47,7 @@ PendulumSimulation::PendulumSimulation(std::chrono::microseconds physics_update_
         double D = m * L * L * (M + m * (1 - Cy * Cy));
         return (1 / D) *
                (-m * m * L * L * g * Cy * Sy + m * L * L * (m * L * y[3] * y[3] * Sy - d * y[1])) +
-               m *
-               L * L * (1 / D) * u;
+               m * L * L * (1 / D) * u;
       } else if (i == 2) {
         return y[3];
       } else if (i == 3) {

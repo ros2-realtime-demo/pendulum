@@ -32,28 +32,43 @@
 namespace pendulum
 {
 
+/// \class This class to manage the pendulum managed nodes
 class PendulumNodeManager : public rclcpp::Node
 {
 public:
+  /// \brief Constructor of the class
+  /// \param[in] node_name name pendulum manager node
+  /// \param[in] controller_node_name name of the controlle node
+  /// \param[in] driver_node_name name of the driver node
   PendulumNodeManager(
     const std::string & node_name,
     const std::string & controller_node_name,
-    const std::string & motor_node_name);
+    const std::string & driver_node_name);
 
+  /// \brief Sends a request to trigger the configure transition in the controller
   void configure_controller() {controller_client_->configure();}
+  /// \brief Sends a request to trigger the activate transition in the controller
   void activate_controller() {controller_client_->activate();}
+  /// \brief Sends a request to trigger the deactivate transition in the controller
   void deactivate_controller() {controller_client_->deactivate();}
+  /// \brief Sends a request to trigger the cleanup transition in the controller
   void cleanup_controller() {controller_client_->cleanup();}
+  /// \brief Sends a request to trigger the shutdown transition in the controller
   void shutdown_controller() {controller_client_->shutdown();}
-  void configure_motor() {motor_client_->configure();}
-  void activate_motor() {motor_client_->activate();}
-  void deactivate_motor() {motor_client_->deactivate();}
-  void cleanup_motor() {motor_client_->cleanup();}
-  void shutdown_motor() {motor_client_->shutdown();}
+  /// \brief Sends a request to trigger the configure transition in the driver
+  void configure_driver() {driver_client_->configure();}
+  /// \brief Sends a request to trigger the activate transition in the driver
+  void activate_driver() {driver_client_->activate();}
+  /// \brief Sends a request to trigger the deactivate transition in the driver
+  void deactivate_driver() {driver_client_->deactivate();}
+  /// \brief Sends a request to trigger the cleanup transition in the driver
+  void cleanup_driver() {driver_client_->cleanup();}
+  /// \brief Sends a request to trigger the shutdown transition in the driver
+  void shutdown_driver() {driver_client_->shutdown();}
 
 private:
   std::shared_ptr<pendulum::LifecycleServiceClient> controller_client_;
-  std::shared_ptr<pendulum::LifecycleServiceClient> motor_client_;
+  std::shared_ptr<pendulum::LifecycleServiceClient> driver_client_;
   std::string node_name_;
 };
 

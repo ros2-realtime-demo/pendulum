@@ -18,9 +18,9 @@ In other terminal activate the node:
 
 ```
 ros2 lifecycle set /pendulum_controller configure
-ros2 lifecycle set /pendulum_motor_node configure
+ros2 lifecycle set /pendulum_driver_node configure
 ros2 lifecycle set /pendulum_controller activate
-ros2 lifecycle set /pendulum_motor_node activate
+ros2 lifecycle set /pendulum_driver_node activate
 ```
 
 You should see how the page number of page faults for active node increases.

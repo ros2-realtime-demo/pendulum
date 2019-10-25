@@ -22,7 +22,7 @@ namespace pendulum
 PendulumNodeManager::PendulumNodeManager(
   const std::string & node_name,
   const std::string & controller_node_name,
-  const std::string & motor_node_name)
+  const std::string & driver_node_name)
 : Node(node_name),
   node_name_(node_name)
 {
@@ -32,12 +32,12 @@ PendulumNodeManager::PendulumNodeManager(
     controller_node_name + "/change_state");
   controller_client_ = std::make_shared<LifecycleServiceClient>(controller_node_name,
       controller_get_state, controller_change_state);
-  auto motor_get_state = this->create_client<lifecycle_msgs::srv::GetState>(
-    motor_node_name + "/get_state");
-  auto motor_change_state = this->create_client<lifecycle_msgs::srv::ChangeState>(
-    motor_node_name + "/change_state");
-  motor_client_ = std::make_shared<LifecycleServiceClient>(motor_node_name,
-      motor_get_state, motor_change_state);
+  auto driver_get_state = this->create_client<lifecycle_msgs::srv::GetState>(
+    driver_node_name + "/get_state");
+  auto driver_change_state = this->create_client<lifecycle_msgs::srv::ChangeState>(
+    driver_node_name + "/change_state");
+  driver_client_ = std::make_shared<LifecycleServiceClient>(driver_node_name,
+      driver_get_state, driver_change_state);
 }
 
 }  // namespace pendulum
