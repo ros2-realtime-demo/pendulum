@@ -24,9 +24,9 @@ One of the main goals of this demo is to show a representative example of a real
 
 Another goal of the demo is to provide a simple use case to develop and test with different controllers. For this reason, it would be interesing to add more controllers to the existing projects. For example a PID controller or a [LQG controller](https://en.wikipedia.org/wiki/Linear%E2%80%93quadratic%E2%80%93Gaussian_control) by adding a [kalman filter](https://en.wikipedia.org/wiki/Kalman_filter). It would interesting also to add new capabilities such as a [swing-up](https://youtu.be/hQK_3C6S4Ak?t=285) capable controller.
 
-### Prototype
+### Component overview
 
-As a first step we are going to create a functional prototype that implements the same functionality existing the previous pendulum demo but with the new design. This prototype will contain the following components:
+The first version of the demo contains the following components:
 
 * `PendulumControllerNode`: Class derived from `LifecycleNode` that implements the ROS 2 interface for the pendulum controller.
 * `PendulumController`: Abstract class used by `PendulumControllerNode` to call the specific controller implementation.

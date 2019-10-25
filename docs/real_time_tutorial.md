@@ -29,7 +29,7 @@ ROS 2 offers support for the TLSF (Two Level Segregate Fit) allocator, which was
 In order to use the TLSF allocator for the pendulum demo the package realtime_support must be compiled in the workspace. If it's not found we would get an error when enabling the TLSF allocator.
 
 ### DDS implementation configuration
-
+First of all make sure you are running the demo in a RTOS.
 ROS 2 uses DDS as communication middleware. Several DDS implementations are currently supported by ROS 2. In order to achieve real-time capabilities the DDS also has to be configured properly. Each DDS has it's own configuration method, usually based in a xml QoS profile file. Depending on the DDS implementation it is possible to configure the middleware threads priority, lock memory, use static memory allocation, etc.  
 
 We will extend this section in the future providing detailed instructions about how to configure each DDS implementation. (Help is welcome!)
