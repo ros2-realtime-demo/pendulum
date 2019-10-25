@@ -1,5 +1,7 @@
 # Inverted pendulum demo
 
+[![Build Status](https://travis-ci.com/ros2-realtime-demo/pendulum.svg?branch=master)](https://travis-ci.com/ros2-realtime-demo/pendulum)
+
 # Table of content
 
 * [Inverted pendulum demo](#inverted-pendulum-demo)
