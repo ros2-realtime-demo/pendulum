@@ -6,7 +6,8 @@ notifications:
   email:
     recipients:
       - lander.usategui@gmail.com
-
+      - carlos.svic@gmail.com
+    on_failure: always
 matrix:
   include:
     - os: linux
