@@ -106,4 +106,4 @@ After this, submit a PR and we will review as soon as possible.
 
 #### Issues and feature request
 
-Please, use the templates and make sure that you labeled them properly. Also, consider to open a PR using the template to fix the issue or to implement a feature.
+Please, use the [templates](https://github.com/ros2-realtime-demo/pendulum/issues/new/choose) and make sure that you labeled them properly. Also, consider to open a PR using the template to fix the issue or to implement a feature.
