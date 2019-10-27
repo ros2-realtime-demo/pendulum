@@ -1,6 +1,6 @@
 # Inverted pendulum demo
 
-[![Build Status](https://travis-ci.com/ros2-realtime-demo/pendulum.svg?branch=master)](https://travis-ci.com/ros2-realtime-demo/pendulum)
+[![Build Status](https://travis-ci.com/ros2-realtime-demo/pendulum.svg?branch=master)](https://travis-ci.com/ros2-realtime-demo/pendulum) [![License](http://img.shields.io/badge/license-APACHE2-blue.svg)]()
 
 # Table of content
 
