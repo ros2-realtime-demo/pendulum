@@ -36,7 +36,7 @@ git clone https://github.com/ros2-realtime-demo/pendulum
 cd ~/pendulum_ws
 sudo rosdep init
 rosdep update
-rosdep install -q -y --from-paths . --ignore-src --rosdistro dashing
+rosdep install -q -y --from-paths src --ignore-src --rosdistro dashing
 colcon build --merge-install # OR colcon build --symlink-install
 ```
 
