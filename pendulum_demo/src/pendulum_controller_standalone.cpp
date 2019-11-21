@@ -201,7 +201,8 @@ int main(int argc, char * argv[])
   #endif
   rclcpp::executors::SingleThreadedExecutor exec(exec_args);
 
-  // set QoS deadline period
+  // Use rmw_qos_profile_default with history size 10 and set QoS deadline period.
+  // NOTE: rmw_qos_profile_default uses reliable policy by default
   rclcpp::QoS qos_deadline_profile(10);
   qos_deadline_profile.deadline(deadline_duration);
 
