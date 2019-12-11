@@ -45,7 +45,7 @@ By default the demo won't publish any statistics with real-time information. To 
 ```
 ros2 run pendulum_demo pendulum_demo  --pub-stats
 ```
-In another terminal launch : 
+In another terminal launch: 
 ```ros2 run pendulum_manager pendulum_manager```
 
 Now we can inspect the statistics for the controller:
