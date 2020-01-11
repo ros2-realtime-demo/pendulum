@@ -1,4 +1,4 @@
-FROM ros:dashing
+FROM ros:eloquent
 
 RUN mkdir -p /root/ros2_ws/src
 RUN mkdir -p /root/ros2_symlink/src
