@@ -32,7 +32,7 @@ In order to get the project ready, first you need to install [ROS2](https://inde
 source /opt/ros/dashing/setup.bash
 mkdir -p ~/pendulum_ws/src
 cd ~/pendulum_ws/src
-git clone https://github.com/ros2-realtime-demo/pendulum
+git clone -b dashing https://github.com/ros2-realtime-demo/pendulum
 cd ~/pendulum_ws
 sudo rosdep init
 rosdep update
