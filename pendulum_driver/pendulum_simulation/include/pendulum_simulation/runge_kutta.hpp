@@ -26,14 +26,14 @@
 namespace pendulum
 {
 
-template <std::size_t N>
+template<std::size_t N>
 using derivativeF = std::function<double (const std::array<double, N> &, double, size_t)>;
 
 /// \class This class implements a classic 4th order
 /// <a href="https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods"> Runge Kutta method</a>
 /// compilation
 /// This method is based on the trapezoidal rule and it just allocates memory at initialization.
-template <std::size_t N>
+template<std::size_t N>
 class RungeKutta
 {
 public:
