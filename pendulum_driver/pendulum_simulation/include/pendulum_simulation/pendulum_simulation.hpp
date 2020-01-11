@@ -20,7 +20,7 @@
 
 #include <cmath>
 #include <chrono>
-#include <vector>
+#include <array>
 #include <random>
 #include <mutex>
 
@@ -102,13 +102,15 @@ private:
   pthread_attr_t thread_attr_;
   timespec physics_update_timespec_;
 
-  RungeKutta ode_solver_;
-  // state vector for ODE solver
+  // dimension of the space state array
+  static const std::size_t state_dim = 4;
+  RungeKutta<state_dim> ode_solver_;
+  // state array for ODE solver
   // X[0]: cart position
   // X[1]: cart velocity
   // X[2]: pole position
   // X[3]: pole velocity
-  std::vector<double> X_;
+  std::array<double, state_dim> X_;
 
   // force applied by the controller
   // this can be considered as the force applied by the cart motor
@@ -136,7 +138,7 @@ private:
   std::uniform_real_distribution<double> noise_gen_;
 
   // pointer to the derivative motion functions (ODE)
-  derivativeF derivative_function_;
+  derivativeF<state_dim> derivative_function_;
   std::mutex mutex_;
 };
 
