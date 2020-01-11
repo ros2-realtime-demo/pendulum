@@ -216,8 +216,7 @@ int main(int argc, char * argv[])
   controller_options.command_publish_period = controller_update_period;
   controller_options.status_qos_profile = qos_deadline_profile;
   controller_options.command_qos_profile = qos_deadline_profile;
-  controller_options.setpoint_qos_profile = rclcpp::QoS(
-    rclcpp::KeepLast(10)).transient_local().reliable();
+  controller_options.setpoint_qos_profile = rclcpp::QoS(rclcpp::KeepLast(10));
   controller_options.enable_check_memory = use_memory_check;
   controller_options.enable_statistics = publish_statistics;
   controller_options.statistics_publish_period = logger_publisher_period;
