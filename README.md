@@ -25,18 +25,18 @@ For a more detailed description of demo the project design be found here: [Desig
 
 #### Install instructions
 
-In order to get the project ready, first you need to install [ROS2](https://index.ros.org/doc/ros2/Installation/Dashing/) and [rosdep](http://wiki.ros.org/rosdep).
+In order to get the project ready, first you need to install [ROS2](https://index.ros.org/doc/ros2/Installation/Eloquent/) and [rosdep](http://wiki.ros.org/rosdep).
 
 
 ```bash
-source /opt/ros/dashing/setup.bash
+source /opt/ros/eloquent/setup.bash
 mkdir -p ~/pendulum_ws/src
 cd ~/pendulum_ws/src
 git clone https://github.com/ros2-realtime-demo/pendulum
 cd ~/pendulum_ws
 sudo rosdep init
 rosdep update
-rosdep install -q -y --from-paths src --ignore-src --rosdistro dashing
+rosdep install -q -y --from-paths src --ignore-src --rosdistro eloquent
 colcon build --merge-install # OR colcon build --symlink-install
 ```
 
