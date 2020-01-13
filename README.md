@@ -2,7 +2,7 @@
 
 ### Build status
 
-| Eloquent |  Dashing | master |
+| eloquent |  dashing | master |
 |--------- | -------- | ------- |
 | [![Build Status](https://travis-ci.com/ros2-realtime-demo/pendulum.svg?branch=eloquent)](https://travis-ci.com/ros2-realtime-demo/pendulum)  | [![Build Status](https://travis-ci.com/ros2-realtime-demo/pendulum.svg?branch=dashing)](https://travis-ci.com/ros2-realtime-demo/pendulum) | [![Build Status](https://travis-ci.com/ros2-realtime-demo/pendulum.svg?branch=master)](https://travis-ci.com/ros2-realtime-demo/pendulum) |
 
