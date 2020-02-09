@@ -1,6 +1,6 @@
 #!/bin/bash
 : '
-Author: Lander Usategui, lander at erlerobotics dot com
+Author: Lander Usategui, lander dot usategui at gmail dot com
 '
 
 set -e
