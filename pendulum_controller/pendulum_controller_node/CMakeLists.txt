@@ -17,6 +17,7 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(ament_cmake REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(pendulum_msgs_v2 REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
@@ -59,6 +60,7 @@ ament_target_dependencies(pendulum_controller_node
         "rclcpp"
         "rclcpp_components"
         "pendulum_tools"
+        "sensor_msgs"
         ${OPTIONAL_AMENT_DEPENDENCES})
 rclcpp_components_register_nodes(pendulum_controller_node "pendulum::Controller")
 target_link_libraries(pendulum_controller_node ${OPTIONAL_LIBRARIES})

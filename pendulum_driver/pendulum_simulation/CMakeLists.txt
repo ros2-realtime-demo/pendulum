@@ -12,6 +12,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(pendulum_msgs_v2 REQUIRED)
 find_package(pendulum_driver REQUIRED)
 
@@ -32,6 +33,7 @@ ament_export_libraries(pendulum_simulation)
 
 ament_target_dependencies(pendulum_simulation
         "pendulum_driver"
+        "sensor_msgs"
         "pendulum_msgs_v2")
 
 # since the package installs libraries without exporting them

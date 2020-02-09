@@ -16,6 +16,7 @@
   <build_depend>pendulum_tools</build_depend>
   <build_depend>pendulum_msgs_v2</build_depend>
   <build_depend>rclcpp_lifecycle</build_depend>
+  <build_depend>rclcpp_components</build_depend>
   <build_depend>rcutils</build_depend>
   <build_depend>osrf_testing_tools_cpp</build_depend>
   <build_depend>tlsf_cpp</build_depend>
@@ -28,6 +29,8 @@
   <exec_depend>pendulum_controllers</exec_depend>
   <exec_depend>pendulum_controller_node</exec_depend>
   <exec_depend>lifecycle_msgs</exec_depend>
+  <exec_depend>rclcpp_lifecycle</exec_depend>
+  <exec_depend>rclcpp_components</exec_depend>
   <exec_depend>ros2run</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
 
