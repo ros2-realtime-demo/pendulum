@@ -49,6 +49,7 @@ static const size_t DEFAULT_DEADLINE_PERIOD_US = 2000;
 static const int DEFAULT_PRIORITY = 0;
 static const size_t DEFAULT_STATISTICS_PERIOD_MS = 100;
 
+static const char * OPTION_AUTO_ACTIVATE_NODES = "--auto";
 static const char * OPTION_MEMORY_CHECK = "--memory-check";
 static const char * OPTION_TLSF = "--use-tlsf";
 static const char * OPTION_LOCK_MEMORY = "--lock-memory";
@@ -71,6 +72,7 @@ void print_usage(std::string program_name)
 {
   printf("Usage for %s:\n", program_name.c_str());
   printf("%s\n"
+    "\t[%s auto activate nodes]\n"
     "\t[%s controller update period (ns)]\n"
     "\t[%s deadline QoS period (ms)]\n"
     "\t[%s use OSRF memory check tool]\n"
@@ -87,6 +89,7 @@ void print_usage(std::string program_name)
     "\t[%s set feedback matrix K4]\n"
     "\t[-h]\n",
     program_name.c_str(),
+    OPTION_AUTO_ACTIVATE_NODES,
     OPTION_CONTROLLER_UPDATE_PERIOD,
     OPTION_DEADLINE_PERIOD,
     OPTION_MEMORY_CHECK,
@@ -106,6 +109,7 @@ void print_usage(std::string program_name)
 int main(int argc, char * argv[])
 {
   // common options
+  bool auto_activate = false;
   bool use_memory_check = false;
   bool lock_memory = false;
   bool publish_statistics = false;
@@ -133,6 +137,9 @@ int main(int argc, char * argv[])
   }
 
   // Optional argument parsing
+  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_AUTO_ACTIVATE_NODES)) {
+    auto_activate = true;
+  }
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_MEMORY_CHECK)) {
     use_memory_check = true;
   }
@@ -251,6 +258,15 @@ int main(int argc, char * argv[])
       fprintf(stderr, "Couldn't lock  virtual memory.\n");
     } else {
       std::cout << "Memory locked succesfully\n";
+    }
+  }
+
+  if (auto_activate) {
+    if (lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE != controller_node->configure().id()) {
+      throw std::runtime_error("Could not configure PendulumControllerNode!");
+    }
+    if (lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE != controller_node->activate().id()) {
+      throw std::runtime_error("Could not activate PendulumControllerNode!");
     }
   }
 
