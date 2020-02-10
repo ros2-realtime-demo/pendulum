@@ -13,14 +13,14 @@
 // limitations under the License.
 
 #include "pendulum_simulation/pendulum_simulation.hpp"
-#include <vector>
+#include <array>
 
 namespace pendulum
 {
 
 PendulumSimulation::PendulumSimulation(std::chrono::microseconds physics_update_period)
 : physics_update_period_(physics_update_period), done_(false),
-  ode_solver_(4), X_{0.0, 0.0, PI, 0.0},
+  ode_solver_(), X_{0.0, 0.0, PI, 0.0},
   rand_gen_(rd()), noise_gen_(std::uniform_real_distribution<double>(-1.0, 1.0))
 {
   // Calculate the controller timestep (for discrete differentiation/integration).
@@ -37,7 +37,7 @@ PendulumSimulation::PendulumSimulation(std::chrono::microseconds physics_update_
 
   // we use non-linear equations for the simulation
   // linearized equations couls be used if there are issues for real-time execution
-  derivative_function_ = [this](const std::vector<double> & y,
+  derivative_function_ = [this](const std::array<double, state_dim> & y,
       double u, size_t i) -> double {
       if (i == 0) {
         return y[1];
