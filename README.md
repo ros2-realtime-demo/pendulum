@@ -4,7 +4,7 @@
 
 | eloquent |  dashing | master |
 |--------- | -------- | ------- |
-| [![Build Status](https://travis-ci.com/ros2-realtime-demo/pendulum.svg?branch=eloquent)](https://travis-ci.com/ros2-realtime-demo/pendulum)  | [![Build Status](https://travis-ci.com/ros2-realtime-demo/pendulum.svg?branch=dashing)](https://travis-ci.com/ros2-realtime-demo/pendulum) | [![Build Status](https://travis-ci.com/ros2-realtime-demo/pendulum.svg?branch=master)](https://travis-ci.com/ros2-realtime-demo/pendulum) |
+| [![Build Status](https://github.com/ros2-realtime-demo/pendulum/workflows/build/badge.svg?branch=eloquent)](https://travis-ci.com/ros2-realtime-demo/pendulum)  | [![Build Status](https://github.com/ros2-realtime-demo/pendulum/workflows/build/badge.svg?branch=dashing)](https://travis-ci.com/ros2-realtime-demo/pendulum) | [![Build Status](https://github.com/ros2-realtime-demo/pendulum/workflows/build/badge.svg?branch=master)](https://travis-ci.com/ros2-realtime-demo/pendulum) |
 
 [![License](https://img.shields.io/badge/license-Apache%202-blue)]() ![GitHub issues](https://img.shields.io/github/issues/ros2-realtime-demo/pendulum)
 
