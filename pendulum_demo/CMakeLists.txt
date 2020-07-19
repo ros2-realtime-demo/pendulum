@@ -28,12 +28,6 @@ find_package(pendulum_driver REQUIRED)
 find_package(pendulum_controller_node REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
-find_package(osrf_testing_tools_cpp)
-if(${osrf_testing_tools_cpp_FOUND})
-    list(APPEND OPTIONAL_AMENT_DEPENDENCES "osrf_testing_tools_cpp")
-    list(APPEND OPTIONAL_LIBRARIES osrf_testing_tools_cpp::memory_tools)
-    add_definitions(-DPENDULUM_DEMO_MEMORYTOOLS_ENABLED)
-endif()
 
 find_package(tlsf_cpp)
 if(${tlsf_cpp_FOUND})
@@ -46,7 +40,6 @@ include_directories(
         ${pendulum_msgs_v2_INCLUDE_DIRS}
         ${rclcpp_lifecycle_INCLUDE_DIRS}
         ${rclcpp_INCLUDE_DIRS}
-        ${osrf_testing_tools_cpp_INCLUDE_DIR}
         ${tlsf_cpp_INCLUDE_DIR}
         ${pendulum_tools_INCLUDE_DIR})
 

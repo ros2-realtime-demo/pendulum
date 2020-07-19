@@ -6,19 +6,6 @@
 
 To test the demo real-time capabilities to use a RTOS is strongly recommended but not mandatory. For Linux users you can follow [these instructions](real_time_linux.md).
 
-### OSRF memory memory tools
-
-You can use OSRF memory tools to find memory allocations in your application. To enable it
-you need to do the following steps, assuming you already did compile performance test before:
-
-1. Enter your work space: `cd pendulum_ws/src`
-2. Clone OSRF memory memory tools: `git clone https://github.com/osrf/osrf_testing_tools_cpp.git`
-3. Build everything `colcon build --merge-install`
-4. You need to preload the memory library to make diagnostics work: `export LD_PRELOAD=$(pwd)/install/lib/libmemory_tools_interpose.so`
-5. Run with memory check enabled: `ros2 run pendulum_demo pendulum_demo  --memory-check`
-
-Note that enabling this feature will cause a huge performance impact.
-
 ### TLSF allocator
 
 ROS 2 offers support for the TLSF (Two Level Segregate Fit) allocator, which was designed to meet real-time requirements:

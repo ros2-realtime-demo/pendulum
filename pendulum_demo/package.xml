@@ -18,7 +18,6 @@
   <build_depend>rclcpp_lifecycle</build_depend>
   <build_depend>rclcpp_components</build_depend>
   <build_depend>rcutils</build_depend>
-  <build_depend>osrf_testing_tools_cpp</build_depend>
   <build_depend>tlsf_cpp</build_depend>
   <build_depend>sensor_msgs</build_depend>
 

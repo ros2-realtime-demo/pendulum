@@ -21,11 +21,6 @@
 #include <memory>
 #include <string>
 
-#ifdef PENDULUM_DRIVER_MEMORYTOOLS_ENABLED
-#include <osrf_testing_tools_cpp/memory_tools/memory_tools.hpp>
-#include <osrf_testing_tools_cpp/scope_exit.hpp>
-#endif
-
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "lifecycle_msgs/msg/transition_event.hpp"
@@ -52,7 +47,6 @@ struct PendulumDriverOptions
   rclcpp::QoS status_qos_profile = rclcpp::QoS(10);
   bool enable_statistics = false;
   std::chrono::microseconds statistics_publish_period = std::chrono::microseconds(0);
-  bool enable_check_memory = false;
 };
 
 /// \class This class implements a node containing a the a simulated inverted pendulum or
@@ -71,7 +65,6 @@ public:
   /// \param[in] driver_interface Pointer to the driver implementation
   /// \param[in] driver_options Options to configure the object
   /// \param[in] options Node options for rclcpp internals
-  /// \throw std::runtime_error If memory checking is enabled but not working or not installed.
   COMPOSITION_PUBLIC PendulumDriverNode(
     std::unique_ptr<PendulumDriverInterface> driver_interface,
     PendulumDriverOptions driver_options,

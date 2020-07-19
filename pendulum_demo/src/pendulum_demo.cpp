@@ -22,11 +22,6 @@
 #include <utility>
 #include <string>
 
-#ifdef PENDULUM_DEMO_MEMORYTOOLS_ENABLED
-#include <osrf_testing_tools_cpp/memory_tools/memory_tools.hpp>
-#include <osrf_testing_tools_cpp/scope_exit.hpp>
-#endif
-
 #ifdef PENDULUM_DEMO_TLSF_ENABLED
 #include <tlsf_cpp/tlsf.hpp>
 #endif
@@ -54,7 +49,6 @@ static const int DEFAULT_PRIORITY = 0;
 static const size_t DEFAULT_STATISTICS_PERIOD_MS = 100;
 
 static const char * OPTION_AUTO_ACTIVATE_NODES = "--auto";
-static const char * OPTION_MEMORY_CHECK = "--memory-check";
 static const char * OPTION_TLSF = "--use-tlsf";
 static const char * OPTION_LOCK_MEMORY = "--lock-memory";
 static const char * OPTION_LOCK_MEMORY_SIZE = "--lock-memory-size";
@@ -87,7 +81,6 @@ void print_usage(std::string program_name)
     "\t[%s physics simulation update period (ns)]\n"
     "\t[%s sensor update period (ns)]\n"
     "\t[%s deadline QoS period (ms)]\n"
-    "\t[%s use OSRF memory check tool]\n"
     "\t[%s lock memory]\n"
     "\t[%s lock a fixed memory size in MB]\n"
     "\t[%s set process real-time priority]\n"
@@ -106,7 +99,6 @@ void print_usage(std::string program_name)
     OPTION_PHYSICS_UPDATE_PERIOD,
     OPTION_SENSOR_UPDATE_PERIOD,
     OPTION_DEADLINE_PERIOD,
-    OPTION_MEMORY_CHECK,
     OPTION_LOCK_MEMORY,
     OPTION_LOCK_MEMORY_SIZE,
     OPTION_PRIORITY,
@@ -124,7 +116,6 @@ int main(int argc, char * argv[])
 {
   // common options
   bool auto_activate = false;
-  bool use_memory_check = false;
   bool lock_memory = false;
   bool publish_statistics = false;
   bool use_tlfs = false;
@@ -157,9 +148,6 @@ int main(int argc, char * argv[])
   // Optional argument parsing
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_AUTO_ACTIVATE_NODES)) {
     auto_activate = true;
-  }
-  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_MEMORY_CHECK)) {
-    use_memory_check = true;
   }
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_LOCK_MEMORY)) {
     lock_memory = true;
@@ -249,7 +237,6 @@ int main(int argc, char * argv[])
   controller_options.status_qos_profile = qos_deadline_profile;
   controller_options.command_qos_profile = qos_deadline_profile;
   controller_options.setpoint_qos_profile = rclcpp::QoS(rclcpp::KeepLast(10));
-  controller_options.enable_check_memory = use_memory_check;
   controller_options.enable_statistics = publish_statistics;
   controller_options.statistics_publish_period = logger_publisher_period;
 
@@ -268,7 +255,6 @@ int main(int argc, char * argv[])
   driver_options.node_name = "pendulum_driver";
   driver_options.status_publish_period = sensor_publish_period;
   driver_options.status_qos_profile = qos_deadline_profile;
-  driver_options.enable_check_memory = use_memory_check;
   driver_options.enable_statistics = publish_statistics;
   driver_options.statistics_publish_period = logger_publisher_period;
 
