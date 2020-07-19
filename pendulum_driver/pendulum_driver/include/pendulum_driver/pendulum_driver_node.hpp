@@ -85,9 +85,6 @@ private:
   /// \brief pendulum state publish timer callback
   void state_timer_callback();
 
-  /// \brief pendulum internal status update timer callback
-  void update_driver_callback();
-
   /// \brief Transition callback for state configuring
   /// \param[in] lifecycle node state
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn

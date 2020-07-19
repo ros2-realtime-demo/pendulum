@@ -29,12 +29,6 @@ PendulumSimulation::PendulumSimulation(std::chrono::microseconds physics_update_
     throw std::runtime_error("Invalid dt_ calculated in PendulumController constructor");
   }
 
-  // convert to timespec
-  uint32_t nsecs = (physics_update_period_.count() * 1000L) % 1000000000;
-  uint32_t secs = ((physics_update_period_.count() * 1000L) - nsecs) / 1000000000;
-  physics_update_timespec_.tv_sec = secs;
-  physics_update_timespec_.tv_nsec = nsecs;
-
   // we use non-linear equations for the simulation
   // linearized equations couls be used if there are issues for real-time execution
   derivative_function_ = [this](const std::array<double, state_dim> & y,
@@ -65,17 +59,6 @@ PendulumSimulation::PendulumSimulation(std::chrono::microseconds physics_update_
 bool PendulumSimulation::init()
 {
   done_ = false;
-
-  // Initialize a separate high-priority thread to run the physics update loop.
-  pthread_attr_init(&thread_attr_);
-  sched_param thread_param;
-  thread_param.sched_priority = 90;
-  pthread_attr_setschedparam(&thread_attr_, &thread_param);
-  pthread_attr_setschedpolicy(&thread_attr_, SCHED_FIFO);
-  pthread_create(
-    &physics_update_thread_, &thread_attr_,
-    &pendulum::PendulumSimulation::physics_update_wrapper, this);
-
   return true;
 }
 
@@ -103,7 +86,6 @@ void PendulumSimulation::shutdown()
 
 void PendulumSimulation::update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)
 {
-  std::lock_guard<std::mutex> lock(mutex_);
   if (msg.cart_force > max_cart_force_) {
     controller_force_ = max_cart_force_;
   } else if (msg.cart_force < -max_cart_force_) {
@@ -115,13 +97,11 @@ void PendulumSimulation::update_command_data(const pendulum_msgs_v2::msg::Pendul
 
 void PendulumSimulation::update_disturbance_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)
 {
-  std::lock_guard<std::mutex> lock(mutex_);
   disturbance_force_ = msg.cart_force;
 }
 
 void PendulumSimulation::update_status_data(sensor_msgs::msg::JointState & msg)
 {
-  std::lock_guard<std::mutex> lock(mutex_);
   msg.position[0] = state_.cart_position;
   msg.velocity[0] = state_.cart_velocity;
   msg.effort[0] = state_.cart_force;
@@ -131,7 +111,6 @@ void PendulumSimulation::update_status_data(sensor_msgs::msg::JointState & msg)
 
 void PendulumSimulation::update()
 {
-  std::lock_guard<std::mutex> lock(mutex_);
   double cart_force = disturbance_force_ + controller_force_;
   ode_solver_.step(derivative_function_, X_, dt_, cart_force);
 
@@ -140,26 +119,5 @@ void PendulumSimulation::update()
   state_.cart_force = cart_force;
   state_.pole_angle = X_[2];
   state_.pole_velocity = X_[3];
-}
-
-void * PendulumSimulation::physics_update_wrapper(void * args)
-{
-  PendulumSimulation * sim = static_cast<PendulumSimulation *>(args);
-  if (!sim) {
-    return NULL;
-  }
-  return sim->physics_update();
-}
-// Set kinematic and dynamic properties of the pendulum based on state inputs
-void * PendulumSimulation::physics_update()
-{
-  while (!done_) {
-    if (is_active_) {
-      update();
-    }
-    // high resolution sleep
-    clock_nanosleep(CLOCK_MONOTONIC, 0, &physics_update_timespec_, NULL);
-  }
-  return 0;
 }
 }  // namespace pendulum
