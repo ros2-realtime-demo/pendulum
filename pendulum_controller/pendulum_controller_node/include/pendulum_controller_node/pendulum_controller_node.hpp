@@ -30,7 +30,6 @@
 #include "rclcpp/strategies/allocator_memory_strategy.hpp"
 #include "lifecycle_msgs/msg/transition_event.hpp"
 #include "lifecycle_msgs/msg/transition.hpp"
-#include "rcutils/logging_macros.h"
 #include "sensor_msgs/msg/joint_state.hpp"
 
 #include "pendulum_msgs_v2/msg/pendulum_command.hpp"
