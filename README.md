@@ -89,7 +89,7 @@ Note the force is applied continuously until a different disturbance force is se
 
 #### Managed nodes
 
-The main nodes used in the demo `/pendulum_controller` and `/pendulum_driver` are [managed nodes](https://design.ros2.org/articles/node_lifecycle.html). That is, they inherit from a Lifecycle node and it is posible to control the node state.
+Thmain nodes used in the demo `/pendulum_controller` and `/pendulum_driver` are [managed nodes](https://design.ros2.org/articles/node_lifecycle.html). That is, they inherit from a Lifecycle node and it is posible to control the node state.
 
 ![lifecycle_rt](docs/images/node_lifecycle_rt.png)
 

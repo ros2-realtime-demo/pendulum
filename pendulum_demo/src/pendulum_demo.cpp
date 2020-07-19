@@ -13,8 +13,6 @@
 // limitations under the License.
 
 #include <rclcpp/strategies/allocator_memory_strategy.hpp>
-#include <pendulum_msgs_v2/msg/pendulum_stats.hpp>
-#include <pendulum_msgs_v2/msg/controller_stats.hpp>
 
 #include <vector>
 #include <iostream>
@@ -46,7 +44,6 @@ using TLSFAllocator = tlsf_heap_allocator<T>;
 
 static const size_t DEFAULT_DEADLINE_PERIOD_US = 2000;
 static const int DEFAULT_PRIORITY = 0;
-static const size_t DEFAULT_STATISTICS_PERIOD_MS = 100;
 
 static const char * OPTION_AUTO_ACTIVATE_NODES = "--auto";
 static const char * OPTION_TLSF = "--use-tlsf";
@@ -54,9 +51,7 @@ static const char * OPTION_LOCK_MEMORY = "--lock-memory";
 static const char * OPTION_LOCK_MEMORY_SIZE = "--lock-memory-size";
 static const char * OPTION_PRIORITY = "--priority";
 static const char * OPTION_CPU_AFFINITY = "--cpu-affinity";
-static const char * OPTION_PUBLISH_STATISTICS = "--pub-stats";
 static const char * OPTION_DEADLINE_PERIOD = "--deadline";
-static const char * OPTION_STATISTICS_PERIOD = "--stats-period";
 
 static const size_t DEFAULT_CONTROLLER_UPDATE_PERIOD_US = 1000;
 static const char * OPTION_CONTROLLER_UPDATE_PERIOD = "--controller-period";
@@ -75,7 +70,8 @@ static const char * OPTION_PHYSICS_UPDATE_PERIOD = "--physics-period";
 void print_usage(std::string program_name)
 {
   printf("Usage for %s:\n", program_name.c_str());
-  printf("%s\n"
+  printf(
+    "%s\n"
     "\t[%s auto activate nodes]\n"
     "\t[%s controller update period (ns)]\n"
     "\t[%s physics simulation update period (ns)]\n"
@@ -85,8 +81,6 @@ void print_usage(std::string program_name)
     "\t[%s lock a fixed memory size in MB]\n"
     "\t[%s set process real-time priority]\n"
     "\t[%s set process cpu affinity]\n"
-    "\t[%s statistics publisher period (ms)]\n"
-    "\t[%s publish statistics (enable)]\n"
     "\t[%s use TLSF allocator]\n"
     "\t[%s set feedback matrix K1]\n"
     "\t[%s set feedback matrix K2]\n"
@@ -103,8 +97,6 @@ void print_usage(std::string program_name)
     OPTION_LOCK_MEMORY_SIZE,
     OPTION_PRIORITY,
     OPTION_CPU_AFFINITY,
-    OPTION_STATISTICS_PERIOD,
-    OPTION_PUBLISH_STATISTICS,
     OPTION_TLSF,
     OPTION_CONTROLLER_K1,
     OPTION_CONTROLLER_K2,
@@ -117,13 +109,11 @@ int main(int argc, char * argv[])
   // common options
   bool auto_activate = false;
   bool lock_memory = false;
-  bool publish_statistics = false;
   bool use_tlfs = false;
   int process_priority = DEFAULT_PRIORITY;
   uint32_t cpu_affinity = 0;
   size_t lock_memory_size_mb = 0;
   std::chrono::microseconds deadline_duration(DEFAULT_DEADLINE_PERIOD_US);
-  std::chrono::milliseconds logger_publisher_period(DEFAULT_STATISTICS_PERIOD_MS);
 
   // controller options
   std::chrono::microseconds controller_update_period(DEFAULT_CONTROLLER_UPDATE_PERIOD_US);
@@ -157,9 +147,6 @@ int main(int argc, char * argv[])
     lock_memory_size_mb =
       std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_LOCK_MEMORY_SIZE));
   }
-  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PUBLISH_STATISTICS)) {
-    publish_statistics = true;
-  }
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_TLSF)) {
     use_tlfs = true;
   }
@@ -172,10 +159,6 @@ int main(int argc, char * argv[])
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_DEADLINE_PERIOD)) {
     deadline_duration = std::chrono::microseconds(
       std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_DEADLINE_PERIOD)));
-  }
-  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_STATISTICS_PERIOD)) {
-    logger_publisher_period = std::chrono::milliseconds(
-      std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_STATISTICS_PERIOD)));
   }
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_CONTROLLER_UPDATE_PERIOD)) {
     controller_update_period = std::chrono::microseconds(
@@ -237,8 +220,6 @@ int main(int argc, char * argv[])
   controller_options.status_qos_profile = qos_deadline_profile;
   controller_options.command_qos_profile = qos_deadline_profile;
   controller_options.setpoint_qos_profile = rclcpp::QoS(rclcpp::KeepLast(10));
-  controller_options.enable_statistics = publish_statistics;
-  controller_options.statistics_publish_period = logger_publisher_period;
 
   auto controller_node = std::make_shared<pendulum::PendulumControllerNode>(
     std::move(controller),
@@ -255,8 +236,6 @@ int main(int argc, char * argv[])
   driver_options.node_name = "pendulum_driver";
   driver_options.status_publish_period = sensor_publish_period;
   driver_options.status_qos_profile = qos_deadline_profile;
-  driver_options.enable_statistics = publish_statistics;
-  driver_options.statistics_publish_period = logger_publisher_period;
 
   auto pendulum_driver = std::make_shared<pendulum::PendulumDriverNode>(
     std::move(sim),

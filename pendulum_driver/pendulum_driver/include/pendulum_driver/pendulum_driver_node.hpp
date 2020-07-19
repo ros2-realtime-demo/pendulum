@@ -31,11 +31,8 @@
 
 #include "pendulum_msgs_v2/msg/pendulum_command.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
-#include "pendulum_msgs_v2/msg/pendulum_stats.hpp"
 #include "pendulum_driver/pendulum_driver_interface.hpp"
 #include "pendulum_driver/visibility_control.hpp"
-#include "pendulum_tools/resource_usage.hpp"
-#include "pendulum_tools/jitter_tracker.hpp"
 
 namespace pendulum
 {
@@ -45,8 +42,6 @@ struct PendulumDriverOptions
   std::string node_name = "pendulum_driver";
   std::chrono::microseconds status_publish_period = std::chrono::microseconds(1000);
   rclcpp::QoS status_qos_profile = rclcpp::QoS(10);
-  bool enable_statistics = false;
-  std::chrono::microseconds statistics_publish_period = std::chrono::microseconds(0);
 };
 
 /// \class This class implements a node containing a the a simulated inverted pendulum or
@@ -128,26 +123,17 @@ private:
       pendulum_msgs_v2::msg::PendulumCommand>> disturbance_sub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
       sensor_msgs::msg::JointState>> state_pub_;
-  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
-      pendulum_msgs_v2::msg::PendulumStats>> statistics_pub_;
 
   rclcpp::SubscriptionOptions command_subscription_options_;
   rclcpp::SubscriptionOptions disturbance_subscription_options_;
   rclcpp::PublisherOptions sensor_publisher_options_;
 
   rclcpp::TimerBase::SharedPtr state_timer_;
-  rclcpp::TimerBase::SharedPtr statistics_timer_;
   rclcpp::TimerBase::SharedPtr update_driver_timer_;
 
   sensor_msgs::msg::JointState state_message_;
-  pendulum_msgs_v2::msg::PendulumStats statistics_message_;
   pendulum_msgs_v2::msg::PendulumCommand command_message_;
   pendulum_msgs_v2::msg::PendulumCommand disturbance_message_;
-
-  // to track the jitter of the ros timer
-  JitterTracker timer_jitter_{std::chrono::microseconds(0)};
-  // to read the resource usage such as page faults
-  ResourceUsage resource_usage_;
 };
 }  // namespace pendulum
 

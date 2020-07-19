@@ -25,87 +25,6 @@ We will extend this section in the future providing detailed instructions about 
 
 For the moment it is not possible in this demo to configure the real-time settings using the ROS 2 launch system. For this reason if we want to tune the real-time settings we have to launch the demo executables using ros2 run.
 
-### Enable statistics publishers
-
-By default the demo won't publish any statistics with real-time information. To enable the publishing of this information we must use the `--pub-stats` option when launching the demo executable.
-
-```
-ros2 run pendulum_demo pendulum_demo  --pub-stats
-```
-In another terminal launch: 
-```ros2 run pendulum_manager pendulum_manager```
-
-Now we can inspect the statistics for the controller:
-
-```
-ros2 topic echo /controller_statistics
-timer_stats:
-  stamp:
-    sec: 1571909555
-    nanosec: 906944175
-  timer_count: 36693
-  jitter_mean_nsec: 10216.475362476946
-  jitter_min_nsec: -917970.0
-  jitter_max_nsec: 15299807.0
-  jitter_standard_dev_nsec: 246325.80033779904
-sensor_stats:
-  msg_count: 36605
-  deadline_misses_count: 0
-command_stats:
-  msg_count: 36693
-  deadline_misses_count: 0
-setpoint_stats:
-  msg_count: 0
-  deadline_misses_count: 0
-rusage_stats:
-  max_resident_set_size: 38340
-  total_minor_pagefaults: 5874
-  total_major_pagefaults: 0
-  minor_pagefaults_active_node: 2031
-  major_pagefaults_active_node: 0
-  voluntary_context_switches: 660032
-  involuntary_context_switches: 4431
-```
-
-The same for the driver simulation:
-
-```
-ros2 topic echo /driver_statistics
-timer_stats:
-  stamp:
-    sec: 1571909555
-    nanosec: 906944175
-  timer_count: 36693
-  jitter_mean_nsec: 10216.475362476946
-  jitter_min_nsec: -917970.0
-  jitter_max_nsec: 15299807.0
-  jitter_standard_dev_nsec: 246325.80033779904
-sensor_stats:
-  msg_count: 36605
-  deadline_misses_count: 0play
-command_stats:
-  msg_count: 36693
-  deadline_misses_count: 0
-setpoint_stats:
-  msg_count: 0
-  deadline_misses_count: 0
-rusage_stats:
-  max_resident_set_size: 38340
-  total_minor_pagefaults: 5874
-  total_major_pagefaults: 0
-  minor_pagefaults_active_node: 2031
-  major_pagefaults_active_node: 0
-  voluntary_context_switches: 660032
-  involuntary_context_switches: 4431
----
-```
-
-Also we can change the statistics publishing period by setting the `--stats-period` option. By default it publishes each 500 ms.
-
-### Timer jitter measurement
-
-Among the statistics tracker we measure the jitter of the ROS timers. For the moment we take the interval between two timer executions and we compare it with the ideal period. We take the difference and we calculate mean, min, max and standard deviation. Other methods may be applied in the future to calculate jitter ([this one for example](https://tools.ietf.org/rfcmarkup?rfc=3550&draft=&url=#page-94)).
-
 ### Set real-time priority
 
 We can change the process priority and set a real-time FIFO priority. This will set the priority of the thread where the ROS 2 executor is running.
@@ -145,50 +64,6 @@ If we get the following error message this means we don't have permissions or th
 ```
 mlockall failed: Cannot allocate memory
 Couldn't lock  virtual memory.
-```
-
-We can compare the difference of locking memory by comparing the number of page faults during the nodes active state.
-
-With no memory locking we observe how the number of minor page faults increase. This is the output after one minute.
-
-```
-...
-rusage_stats:
-  max_resident_set_size: 42532
-  total_minor_pagefaults: 7146
-  total_major_pagefaults: 0
-  minor_pagefaults_active_node: 3508
-  major_pagefaults_active_node: 0
-  voluntary_context_switches: 1048471
-  involuntary_context_switches: 2947
-```
-
-Enabling memory lock, after one minute we don't observe any page fault in active state:
-
-```
-...
-rusage_stats:
-  max_resident_set_size: 8552112
-  total_minor_pagefaults: 2132814
-  total_major_pagefaults: 15
-  minor_pagefaults_active_node: 0
-  major_pagefaults_active_node: 0
-  voluntary_context_switches: 946474
-  involuntary_context_switches: 3705
-```
-
-However, notice the high amount of memory locked 8.5GB. In this we lock 100MB and we don't observe any page faults neither.
-
-```
-...
-rusage_stats:
-  max_resident_set_size: 264580
-  total_minor_pagefaults: 60713
-  total_major_pagefaults: 0
-  minor_pagefaults_active_node: 0
-  major_pagefaults_active_node: 0
-  voluntary_context_switches: 992589
-  involuntary_context_switches: 3584
 ```
 
 ### Set topic deadline QoS

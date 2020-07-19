@@ -72,7 +72,8 @@ bool PendulumSimulation::init()
   thread_param.sched_priority = 90;
   pthread_attr_setschedparam(&thread_attr_, &thread_param);
   pthread_attr_setschedpolicy(&thread_attr_, SCHED_FIFO);
-  pthread_create(&physics_update_thread_, &thread_attr_,
+  pthread_create(
+    &physics_update_thread_, &thread_attr_,
     &pendulum::PendulumSimulation::physics_update_wrapper, this);
 
   return true;

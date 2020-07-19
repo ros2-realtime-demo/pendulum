@@ -40,18 +40,21 @@ LifecycleServiceClient::get_state(std::chrono::seconds time_out)
   auto future_status = wait_for_result(future_result, time_out);
 
   if (future_status != std::future_status::ready) {
-    RCLCPP_ERROR(rclcpp::get_logger(lifecycle_node_),
+    RCLCPP_ERROR(
+      rclcpp::get_logger(lifecycle_node_),
       "Server time out while getting current state for node %s", lifecycle_node_);
     return lifecycle_msgs::msg::State::PRIMARY_STATE_UNKNOWN;
   }
 
   // We have an succesful answer. So let's print the current state.
   if (future_result.get()) {
-    RCLCPP_INFO(rclcpp::get_logger(lifecycle_node_), "Current state %s.",
+    RCLCPP_INFO(
+      rclcpp::get_logger(lifecycle_node_), "Current state %s.",
       future_result.get()->current_state.label.c_str());
     return future_result.get()->current_state.id;
   } else {
-    RCLCPP_ERROR(rclcpp::get_logger(lifecycle_node_),
+    RCLCPP_ERROR(
+      rclcpp::get_logger(lifecycle_node_),
       "Failed to get current state for node %s", lifecycle_node_);
     return lifecycle_msgs::msg::State::PRIMARY_STATE_UNKNOWN;
   }
@@ -64,7 +67,8 @@ LifecycleServiceClient::change_state(std::uint8_t transition, std::chrono::secon
   request->transition.id = transition;
 
   if (!client_change_state_->wait_for_service(time_out)) {
-    RCLCPP_ERROR(rclcpp::get_logger(lifecycle_node_),
+    RCLCPP_ERROR(
+      rclcpp::get_logger(lifecycle_node_),
       "Service %s is not available.",
       client_change_state_->get_service_name());
     return false;
@@ -78,18 +82,21 @@ LifecycleServiceClient::change_state(std::uint8_t transition, std::chrono::secon
   auto future_status = wait_for_result(future_result, time_out);
 
   if (future_status != std::future_status::ready) {
-    RCLCPP_ERROR(rclcpp::get_logger(lifecycle_node_),
+    RCLCPP_ERROR(
+      rclcpp::get_logger(lifecycle_node_),
       "Server time out while getting current state for node %s", lifecycle_node_);
     return false;
   }
 
   // We have an answer, let's print our success.
   if (future_result.get()->success) {
-    RCLCPP_INFO(rclcpp::get_logger(lifecycle_node_),
+    RCLCPP_INFO(
+      rclcpp::get_logger(lifecycle_node_),
       "Transition %d successfully triggered.", static_cast<int>(transition));
     return true;
   } else {
-    RCLCPP_WARN(rclcpp::get_logger(lifecycle_node_),
+    RCLCPP_WARN(
+      rclcpp::get_logger(lifecycle_node_),
       "Failed to trigger transition %u", static_cast<unsigned int>(transition));
     return false;
   }
