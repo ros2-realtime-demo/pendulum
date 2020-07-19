@@ -70,7 +70,6 @@ void print_usage(std::string program_name)
     "\t[%s lock a fixed memory size in MB]\n"
     "\t[%s set process real-time priority]\n"
     "\t[%s set process cpu affinity]\n"
-    "\t[%s publish statistics (enable)]\n"
     "\t[%s use TLSF allocator]\n"
     "\t[%s set feedback matrix K1]\n"
     "\t[%s set feedback matrix K2]\n"
