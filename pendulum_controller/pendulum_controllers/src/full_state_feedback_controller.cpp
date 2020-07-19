@@ -48,7 +48,7 @@ void FullStateFeedbackController::update_command_data(
 
 void FullStateFeedbackController::reset()
 {
-  // We reset the controller status tu an up pendulum position by default
+  // We reset the controller status to an up pendulum position by default
   state_[0] = 0.0;
   state_[1] = 0.0;
   state_[2] = PI;
