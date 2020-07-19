@@ -13,7 +13,6 @@
   <build_depend>pendulum_msgs_v2</build_depend>
   <build_depend>rclcpp_lifecycle</build_depend>
   <build_depend>rclcpp_components</build_depend>
-  <build_depend>osrf_testing_tools_cpp</build_depend>
   <build_depend>pendulum_tools</build_depend>
   <build_depend>sensor_msgs</build_depend>
 

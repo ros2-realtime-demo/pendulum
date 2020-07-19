@@ -25,19 +25,11 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(pendulum_tools REQUIRED)
 
-find_package(osrf_testing_tools_cpp)
-if(${osrf_testing_tools_cpp_FOUND})
-    list(APPEND OPTIONAL_AMENT_DEPENDENCES "osrf_testing_tools_cpp")
-    list(APPEND OPTIONAL_LIBRARIES osrf_testing_tools_cpp::memory_tools)
-    add_definitions(-DPENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED)
-endif()
-
 include_directories(
   include
   ${lifecycle_msgs_INCLUDE_DIRS}
   ${rclcpp_lifecycle_INCLUDE_DIRS}
-  ${rclcpp_INCLUDE_DIRS}
-  ${osrf_testing_tools_cpp_INCLUDE_DIR})
+  ${rclcpp_INCLUDE_DIRS})
 
 add_library(pendulum_controller_node SHARED
         src/pendulum_controller_node.cpp)

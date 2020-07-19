@@ -22,11 +22,6 @@
 #include <climits>
 #include <memory>
 
-#ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
-#include <osrf_testing_tools_cpp/memory_tools/memory_tools.hpp>
-#include <osrf_testing_tools_cpp/scope_exit.hpp>
-#endif
-
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/publisher.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
@@ -59,7 +54,6 @@ struct PendulumControllerOptions
     rclcpp::KeepLast(10)).transient_local().reliable();
   bool enable_statistics = false;
   std::chrono::microseconds statistics_publish_period = std::chrono::microseconds(0);
-  bool enable_check_memory = false;
 };
 
 /// \class This class implements a node containing a controller for the inverted pendulum.

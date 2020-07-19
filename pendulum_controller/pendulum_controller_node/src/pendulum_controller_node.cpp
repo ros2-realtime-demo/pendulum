@@ -34,32 +34,6 @@ PendulumControllerNode::PendulumControllerNode(
   controller_options_(controller_options),
   timer_jitter_(controller_options.command_publish_period)
 {
-  // if OSRF memory tools package is found and we have enable memory checking
-  // we enable hooks for malloc and similar that will report for any call to these functions
-  if (controller_options_.enable_check_memory) {
-  #ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
-    osrf_testing_tools_cpp::memory_tools::initialize();
-    osrf_testing_tools_cpp::memory_tools::enable_monitoring();
-    if (!osrf_testing_tools_cpp::memory_tools::is_working()) {
-      throw std::runtime_error(
-              "Memory checking does not work properly. Please consult the documentation on how to "
-              "properly set it up.");
-    }
-    const auto on_unexpected_memory =
-      [](osrf_testing_tools_cpp::memory_tools::MemoryToolsService & service) {
-        // this will cause a backtrace to be printed for each unexpected memory operations
-        service.print_backtrace();
-      };
-    osrf_testing_tools_cpp::memory_tools::on_unexpected_calloc(on_unexpected_memory);
-    osrf_testing_tools_cpp::memory_tools::on_unexpected_free(on_unexpected_memory);
-    osrf_testing_tools_cpp::memory_tools::on_unexpected_malloc(on_unexpected_memory);
-    osrf_testing_tools_cpp::memory_tools::on_unexpected_realloc(on_unexpected_memory);
-
-  #else
-    throw std::runtime_error(
-            "OSRF memory tools is not installed. Memory check must be disabled.");
-  #endif
-  }
 }
 
 void PendulumControllerNode::on_sensor_message(
@@ -176,16 +150,6 @@ PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
   // real-time execution
   resource_usage_.on_activate();
 
-  // enable memory checking for active state
-  if (controller_options_.enable_check_memory) {
-  #ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
-    osrf_testing_tools_cpp::memory_tools::expect_no_calloc_begin();
-    osrf_testing_tools_cpp::memory_tools::expect_no_free_begin();
-    osrf_testing_tools_cpp::memory_tools::expect_no_malloc_begin();
-    osrf_testing_tools_cpp::memory_tools::expect_no_realloc_begin();
-  #endif
-  }
-
   // reset internal state of the controller for a clean start
   controller_->reset();
 
@@ -195,15 +159,6 @@ PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
 {
-  if (controller_options_.enable_check_memory) {
-  #ifdef PENDULUM_CONTROLLER_MEMORYTOOLS_ENABLED
-    osrf_testing_tools_cpp::memory_tools::expect_no_calloc_end();
-    osrf_testing_tools_cpp::memory_tools::expect_no_free_end();
-    osrf_testing_tools_cpp::memory_tools::expect_no_malloc_end();
-    osrf_testing_tools_cpp::memory_tools::expect_no_realloc_end();
-  #endif
-  }
-
   resource_usage_.on_deactivate();
   command_timer_->cancel();
   command_pub_->on_deactivate();
