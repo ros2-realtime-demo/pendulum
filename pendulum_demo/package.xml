@@ -2,9 +2,9 @@
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
   <name>pendulum_demo</name>
-  <version>0.7.6</version>
-  <description>Package containing demos for lifecycle implementation</description>
-  <maintainer email="karsten@osrfoundation.org">Karsten Knese</maintainer>
+  <version>0.0.1</version>
+  <description>Package containing demos for pendulum implementation</description>
+  <maintainer email="carlos.svic@gmail.com">Carlos San Vicente</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
