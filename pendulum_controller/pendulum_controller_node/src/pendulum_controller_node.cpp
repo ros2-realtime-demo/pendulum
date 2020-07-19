@@ -56,8 +56,6 @@ void PendulumControllerNode::control_timer_callback()
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
 {
-  RCUTILS_LOG_INFO_NAMED(get_name(), "on_configure() is called.");
-
   // The MessagePoolMemoryStrategy preallocates a pool of messages to be used by the subscription.
   // Typically, one MessagePoolMemoryStrategy is used per subscription type, and the size of the
   // message pool is determined by the number of threads (the maximum number of concurrent accesses
@@ -114,7 +112,6 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
 {
-  RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
   command_pub_->on_activate();
   command_timer_->reset();
 
@@ -130,15 +127,12 @@ PendulumControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
   command_timer_->cancel();
   command_pub_->on_deactivate();
 
-  RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
-
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
-  RCUTILS_LOG_INFO_NAMED(get_name(), "on_cleanup() is called.");
   command_timer_.reset();
   command_pub_.reset();
   state_sub_.reset();
@@ -150,7 +144,6 @@ PendulumControllerNode::on_cleanup(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
 {
-  RCUTILS_LOG_INFO_NAMED(get_name(), "on_shutdown() is called.");
   command_timer_.reset();
   command_pub_.reset();
   state_sub_.reset();

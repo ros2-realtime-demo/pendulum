@@ -67,8 +67,6 @@ void PendulumDriverNode::state_timer_callback()
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
 {
-  RCUTILS_LOG_INFO_NAMED(get_name(), "on_configure() is called.");
-
   // The MessagePoolMemoryStrategy preallocates a pool of messages to be used by the subscription.
   // Typically, one MessagePoolMemoryStrategy is used per subscription type, and the size of the
   // message pool is determined by the number of threads (the maximum number of concurrent accesses
@@ -123,7 +121,6 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_activate(const rclcpp_lifecycle::State &)
 {
-  RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
   state_pub_->on_activate();
   state_timer_->reset();
   // reset internal state of the driver for a clean start
@@ -139,15 +136,12 @@ PendulumDriverNode::on_deactivate(const rclcpp_lifecycle::State &)
   state_timer_->cancel();
   state_pub_->on_deactivate();
 
-  RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
-
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
-  RCUTILS_LOG_INFO_NAMED(get_name(), "on_cleanup() is called.");
   driver_interface_->shutdown();
   state_timer_.reset();
   state_pub_.reset();
@@ -160,7 +154,6 @@ PendulumDriverNode::on_cleanup(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_shutdown(const rclcpp_lifecycle::State &)
 {
-  RCUTILS_LOG_INFO_NAMED(get_name(), "on_shutdown() is called.");
   state_timer_.reset();
   state_pub_.reset();
   command_sub_.reset();
