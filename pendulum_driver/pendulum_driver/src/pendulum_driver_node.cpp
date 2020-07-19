@@ -59,13 +59,9 @@ void PendulumDriverNode::on_disturbance_received(
 
 void PendulumDriverNode::state_timer_callback()
 {
+  driver_interface_->update();
   driver_interface_->update_status_data(state_message_);
   state_pub_->publish(state_message_);
-}
-
-void PendulumDriverNode::update_driver_callback()
-{
-  driver_interface_->update();
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn

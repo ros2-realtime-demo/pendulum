@@ -62,9 +62,7 @@ static const char * OPTION_CONTROLLER_K3 = "--K3";
 static const char * OPTION_CONTROLLER_K4 = "--K4";
 
 static const size_t DEFAULT_PHYSICS_UPDATE_PERIOD_US = 1000;
-static const size_t DEFAULT_SENSOR_UPDATE_PERIOD_US = 1000;
 
-static const char * OPTION_SENSOR_UPDATE_PERIOD = "--state-period";
 static const char * OPTION_PHYSICS_UPDATE_PERIOD = "--physics-period";
 
 void print_usage(std::string program_name)
@@ -75,7 +73,6 @@ void print_usage(std::string program_name)
     "\t[%s auto activate nodes]\n"
     "\t[%s controller update period (ns)]\n"
     "\t[%s physics simulation update period (ns)]\n"
-    "\t[%s sensor update period (ns)]\n"
     "\t[%s deadline QoS period (ms)]\n"
     "\t[%s lock memory]\n"
     "\t[%s lock a fixed memory size in MB]\n"
@@ -91,7 +88,6 @@ void print_usage(std::string program_name)
     OPTION_AUTO_ACTIVATE_NODES,
     OPTION_CONTROLLER_UPDATE_PERIOD,
     OPTION_PHYSICS_UPDATE_PERIOD,
-    OPTION_SENSOR_UPDATE_PERIOD,
     OPTION_DEADLINE_PERIOD,
     OPTION_LOCK_MEMORY,
     OPTION_LOCK_MEMORY_SIZE,
@@ -120,7 +116,6 @@ int main(int argc, char * argv[])
   std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
 
   // driver options
-  std::chrono::microseconds sensor_publish_period(DEFAULT_SENSOR_UPDATE_PERIOD_US);
   std::chrono::microseconds physics_update_period(DEFAULT_PHYSICS_UPDATE_PERIOD_US);
 
   // Force flush of the stdout buffer.
@@ -180,10 +175,6 @@ int main(int argc, char * argv[])
     feedback_matrix[3] =
       std::stof(rcutils_cli_get_option(argv, argv + argc, OPTION_CONTROLLER_K4));
   }
-  if (rcutils_cli_option_exist(argv, argv + argc, OPTION_SENSOR_UPDATE_PERIOD)) {
-    sensor_publish_period = std::chrono::microseconds(
-      std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_SENSOR_UPDATE_PERIOD)));
-  }
   if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PHYSICS_UPDATE_PERIOD)) {
     physics_update_period = std::chrono::microseconds(
       std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_PHYSICS_UPDATE_PERIOD)));
@@ -216,7 +207,7 @@ int main(int argc, char * argv[])
   // Create pendulum controller node
   pendulum::PendulumControllerOptions controller_options;
   controller_options.node_name = "pendulum_controller";
-  controller_options.command_publish_period = sensor_publish_period;
+  controller_options.command_publish_period = controller_update_period;
   controller_options.status_qos_profile = qos_deadline_profile;
   controller_options.command_qos_profile = qos_deadline_profile;
   controller_options.setpoint_qos_profile = rclcpp::QoS(rclcpp::KeepLast(10));
@@ -234,7 +225,8 @@ int main(int argc, char * argv[])
   // Create pendulum driver node
   pendulum::PendulumDriverOptions driver_options;
   driver_options.node_name = "pendulum_driver";
-  driver_options.status_publish_period = sensor_publish_period;
+  // set sensor publishing period equal to simulation physics update period
+  driver_options.status_publish_period = physics_update_period;
   driver_options.status_qos_profile = qos_deadline_profile;
 
   auto pendulum_driver = std::make_shared<pendulum::PendulumDriverNode>(

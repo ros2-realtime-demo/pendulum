@@ -71,7 +71,7 @@ public:
   /// \param[in,out] msg Status data message.
   virtual void update_status_data(sensor_msgs::msg::JointState & msg);
 
-  /// \brief Updates the internal state of the driver implementation if necessary.
+  /// \brief Updates the driver simulation.
   virtual void update();
 
   /// \brief Initliaze the internal state of the driver implementation.
@@ -87,20 +87,11 @@ public:
   virtual void shutdown();
 
 private:
-  static void * physics_update_wrapper(void * args);
-  /// \brief Set kinematic and dynamic properties of the pendulum based on state inputs
-  void * physics_update();
-
-private:
   std::chrono::microseconds physics_update_period_;
   double dt_;
   PendulumState state_;
   bool done_ = false;
   bool is_active_ = false;
-
-  pthread_t physics_update_thread_;
-  pthread_attr_t thread_attr_;
-  timespec physics_update_timespec_;
 
   // dimension of the space state array
   static const std::size_t state_dim = 4;
@@ -139,7 +130,6 @@ private:
 
   // pointer to the derivative motion functions (ODE)
   derivativeF<state_dim> derivative_function_;
-  std::mutex mutex_;
 };
 
 }  // namespace pendulum
