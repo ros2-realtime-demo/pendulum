@@ -14,18 +14,20 @@
 
 import os
 
-from ament_index_python.packages import get_package_share_directory
+from launch_ros.substitutions import FindPackageShare
 from launch import LaunchDescription
 from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    # TODO(wjwwood): Use a substitution to find share directory once this is implemented in launch
-    urdf = os.path.join(get_package_share_directory('pendulum_description'),
-                        'urdf', 'pendulum.urdf')
+    pkg_share = FindPackageShare('pendulum_description').find('pendulum_description')
+    urdf_file = os.path.join(pkg_share, 'urdf', 'pendulum.urdf')
+    with open(urdf_file, 'r') as infp:
+        robot_desc = infp.read()
+    rsp_params = {'robot_description': robot_desc}
     return LaunchDescription([
-        Node(package='robot_state_publisher', node_executable='robot_state_publisher',
-             output='screen', arguments=[urdf]),
-        Node(package='pendulum_demo', node_executable='pendulum_demo',
+        Node(package='robot_state_publisher', executable='robot_state_publisher',
+             output='screen', parameters=[rsp_params]),
+        Node(package='pendulum_demo', executable='pendulum_demo',
              output='screen'),
     ])
