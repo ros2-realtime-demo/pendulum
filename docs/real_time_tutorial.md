@@ -85,21 +85,6 @@ It is important to take into account when setting this value if intra-process co
 It is posible to specify a custom allocator to be used by the executor. In this demo the TLSF allocator can be used with the option
 `--use-tlsf`. This allocator provides bounded allocation times during runtime.
 
-### Enable memory check
-
-If the package `osrf_testing_tools_cpp` is available when compiling the project it is possible to enable memory checking to check if there are memory allocations during the node active state. The task execution during the nodes active state are considered in this demo as real-time compliant code. This means that there shouldn't be any memory allocation or blocking during this state. For the moment there are memory allocation in different parts of the ROS 2 libraries but in the future ideally we should see none.
-
-For the moment we can enable memory checking with the option `-memory-check` and inspect where and when we get memory allocations.
-
-Before enabling this option it is necessary to pre-load the library to intercept the malloc calls by calling `export LD_PRELOAD=$(pwd)/install/lib/libmemory_tools_interpose.so`. For more detailed instructions read the following tutorial:
-
-* https://github.com/osrf/osrf_testing_tools_cpp
-
-
-Note that enabling this option generates a high output print rate in the command line for short topic publish intervals. This may cause the system to become non responsive.  
-
-
-
 ### Launch standalone nodes
 
 In the previous examples we launched a process containing both the controller and simulation/driver nodes. This means that a single executor will spin both nodes. The user may want to analyze simpler scenarios. For this reason, it is possible to launch each node in a separate process. For example we may want to launch the simulation without real-time settings and experiment just with the controller node. The same real-time options are available for each executable.
