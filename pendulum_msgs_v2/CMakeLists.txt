@@ -18,11 +18,6 @@ find_package(rosidl_default_generators REQUIRED)
 set(msg_files
   "msg/PendulumCommand.msg"
   "msg/PendulumState.msg"
-  "msg/Rusage.msg"
-  "msg/TimerStats.msg"
-  "msg/TopicStats.msg"
-  "msg/ControllerStats.msg"
-  "msg/PendulumStats.msg"
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME}

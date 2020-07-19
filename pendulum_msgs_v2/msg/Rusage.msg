@@ -1,7 +1,0 @@
-uint64 max_resident_set_size
-uint64 total_minor_pagefaults
-uint64 total_major_pagefaults
-uint64 minor_pagefaults_active_node
-uint64 major_pagefaults_active_node
-uint64 voluntary_context_switches
-uint64 involuntary_context_switches

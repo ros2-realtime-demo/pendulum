@@ -31,8 +31,7 @@ PendulumDriverNode::PendulumDriverNode(
   rclcpp::NodeOptions().use_intra_process_comms(false))
 : rclcpp_lifecycle::LifecycleNode(driver_options.node_name, options),
   driver_interface_(std::move(driver_interface)),
-  driver_options_(driver_options),
-  timer_jitter_(driver_options.status_publish_period)
+  driver_options_(driver_options)
 {
   // Initiliaze joint message
   state_message_.name.push_back("cart_base_joint");
@@ -49,7 +48,6 @@ PendulumDriverNode::PendulumDriverNode(
 void PendulumDriverNode::on_command_received(
   const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg)
 {
-  statistics_message_.sensor_stats.msg_count++;
   driver_interface_->update_command_data(*msg);
 }
 
@@ -61,14 +59,6 @@ void PendulumDriverNode::on_disturbance_received(
 
 void PendulumDriverNode::state_timer_callback()
 {
-  timer_jitter_.update();
-  statistics_message_.timer_stats.jitter_mean_usec = timer_jitter_.mean();
-  statistics_message_.timer_stats.jitter_min_usec = timer_jitter_.min();
-  statistics_message_.timer_stats.jitter_max_usec = timer_jitter_.max();
-  statistics_message_.timer_stats.jitter_std_usec = std::sqrt(timer_jitter_.variance());
-  statistics_message_.command_stats.msg_count++;
-  statistics_message_.timer_stats.timer_count++;
-
   driver_interface_->update_status_data(state_message_);
   state_pub_->publish(state_message_);
 }
@@ -93,7 +83,7 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
   this->get_state_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
-      this->statistics_message_.sensor_stats.deadline_misses_count++;
+      // do nothing
     };
   state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
     "joint_states", driver_options_.status_qos_profile, sensor_publisher_options_);
@@ -101,12 +91,13 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
   this->get_command_options().event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
-      this->statistics_message_.command_stats.deadline_misses_count++;
+      // do nothing
     };
   command_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
     "pendulum_command", driver_options_.status_qos_profile,
-    std::bind(&PendulumDriverNode::on_command_received,
-    this, std::placeholders::_1),
+    std::bind(
+      &PendulumDriverNode::on_command_received,
+      this, std::placeholders::_1),
     command_subscription_options_,
     command_msg_strategy);
 
@@ -115,31 +106,18 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
 
   disturbance_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
     "pendulum_disturbance", rclcpp::QoS(1),
-    std::bind(&PendulumDriverNode::on_disturbance_received,
-    this, std::placeholders::_1),
+    std::bind(
+      &PendulumDriverNode::on_disturbance_received,
+      this, std::placeholders::_1),
     rclcpp::SubscriptionOptions(),
     disturbance_msg_strategy);
 
   state_timer_ =
-    this->create_wall_timer(driver_options_.status_publish_period,
-      std::bind(&PendulumDriverNode::state_timer_callback, this));
+    this->create_wall_timer(
+    driver_options_.status_publish_period,
+    std::bind(&PendulumDriverNode::state_timer_callback, this));
   // cancel immediately to prevent triggering it in this state
   state_timer_->cancel();
-
-  if (driver_options_.enable_statistics) {
-    // Initialize the statistics publisher.
-    statistics_pub_ = this->create_publisher<pendulum_msgs_v2::msg::PendulumStats>(
-      "driver_statistics", 1);
-    statistics_timer_ =
-      this->create_wall_timer(driver_options_.statistics_publish_period, [this] {
-          if (resource_usage_.update(this->get_current_state().label() == "active")) {
-            resource_usage_.update_message(statistics_message_.rusage_stats);
-            statistics_pub_->publish(statistics_message_);
-          }
-        });
-    // cancel immediately to prevent triggering it in this state
-    statistics_timer_->cancel();
-  }
 
   driver_interface_->init();
 
@@ -152,16 +130,6 @@ PendulumDriverNode::on_activate(const rclcpp_lifecycle::State &)
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_activate() is called.");
   state_pub_->on_activate();
   state_timer_->reset();
-
-  if (driver_options_.enable_statistics) {
-    statistics_timer_->reset();
-    statistics_pub_->on_activate();
-  }
-
-  // we need to save resource usage before active state to know the page faults during
-  // real-time execution
-  resource_usage_.on_activate();
-
   // reset internal state of the driver for a clean start
   driver_interface_->start();
 
@@ -172,14 +140,8 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_deactivate(const rclcpp_lifecycle::State &)
 {
   driver_interface_->stop();
-
-  resource_usage_.on_deactivate();
   state_timer_->cancel();
   state_pub_->on_deactivate();
-  if (driver_options_.enable_statistics) {
-    statistics_timer_->cancel();
-    statistics_pub_->on_deactivate();
-  }
 
   RCUTILS_LOG_INFO_NAMED(get_name(), "on_deactivate() is called.");
 
@@ -196,10 +158,6 @@ PendulumDriverNode::on_cleanup(const rclcpp_lifecycle::State &)
   command_sub_.reset();
   disturbance_sub_.reset();
 
-  if (driver_options_.enable_statistics) {
-    statistics_timer_.reset();
-    statistics_pub_.reset();
-  }
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -212,10 +170,6 @@ PendulumDriverNode::on_shutdown(const rclcpp_lifecycle::State &)
   command_sub_.reset();
   disturbance_sub_.reset();
 
-  if (driver_options_.enable_statistics) {
-    statistics_timer_.reset();
-    statistics_pub_.reset();
-  }
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 

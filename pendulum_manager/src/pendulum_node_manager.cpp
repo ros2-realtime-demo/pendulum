@@ -30,14 +30,16 @@ PendulumNodeManager::PendulumNodeManager(
     controller_node_name + "/get_state");
   auto controller_change_state = this->create_client<lifecycle_msgs::srv::ChangeState>(
     controller_node_name + "/change_state");
-  controller_client_ = std::make_shared<LifecycleServiceClient>(controller_node_name,
-      controller_get_state, controller_change_state);
+  controller_client_ = std::make_shared<LifecycleServiceClient>(
+    controller_node_name,
+    controller_get_state, controller_change_state);
   auto driver_get_state = this->create_client<lifecycle_msgs::srv::GetState>(
     driver_node_name + "/get_state");
   auto driver_change_state = this->create_client<lifecycle_msgs::srv::ChangeState>(
     driver_node_name + "/change_state");
-  driver_client_ = std::make_shared<LifecycleServiceClient>(driver_node_name,
-      driver_get_state, driver_change_state);
+  driver_client_ = std::make_shared<LifecycleServiceClient>(
+    driver_node_name,
+    driver_get_state, driver_change_state);
 }
 
 }  // namespace pendulum

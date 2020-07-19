@@ -75,8 +75,9 @@ int main(int argc, char ** argv)
     driver_node_name);
   exe.add_node(pendulum_manager);
 
-  std::shared_future<void> activate_pendulum = std::async(std::launch::async,
-      [&exe]() {exe.spin();});
+  std::shared_future<void> activate_pendulum = std::async(
+    std::launch::async,
+    [&exe]() {exe.spin();});
 
   char choice = 0;
   do {
