@@ -16,7 +16,7 @@ export RESET="\e[0m"
 # Paths
 export WS="/root/ros2_ws"
 export WS_SYMLINK="/root/ros2_symlink"
-export ROS2_DISTRO="eloquent"
+export ROS2_DISTRO="foxy"
 
 function prepare_ws()
 {
