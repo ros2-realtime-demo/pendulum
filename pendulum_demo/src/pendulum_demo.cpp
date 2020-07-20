@@ -183,7 +183,7 @@ int main(int argc, char * argv[])
   rclcpp::init(argc, argv);
 
   // Initialize the executor.
-  rclcpp::executor::ExecutorArgs exec_args;
+  rclcpp::ExecutorOptions exec_options;
   #ifdef PENDULUM_DEMO_TLSF_ENABLED
   // One of the arguments passed to the Executor is the memory strategy, which delegates the
   // runtime-execution allocations to the TLSF allocator.
@@ -191,10 +191,10 @@ int main(int argc, char * argv[])
     std::cout << "TLSF allocator: enabled\n";
     rclcpp::memory_strategy::MemoryStrategy::SharedPtr memory_strategy =
       std::make_shared<AllocatorMemoryStrategy<TLSFAllocator<void>>>();
-    exec_args.memory_strategy = memory_strategy;
+    exec_options.memory_strategy = memory_strategy;
   }
   #endif
-  rclcpp::executors::SingleThreadedExecutor exec(exec_args);
+  rclcpp::executors::SingleThreadedExecutor exec(exec_options);
 
   // set QoS deadline period
   rclcpp::QoS qos_deadline_profile(10);
