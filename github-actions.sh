@@ -53,6 +53,7 @@ function run_rosdep()
 
 function compile_ws()
 {
+  # shellcheck source=/dev/null
   source /opt/ros/"${ROS2_DISTRO}"/setup.bash
   cd ${WS} || exit
   echo -e "${YELLOW}###### Packages to be compiled ######${RESET}"
@@ -74,6 +75,7 @@ function compile_ws()
 
 function compile_ws_symlink()
 {
+  # shellcheck source=/dev/null
   source /opt/ros/"${ROS2_DISTRO}"/setup.bash
   cd ${WS_SYMLINK} || exit
   echo -e "${YELLOW}###### Packages to be compiled ######${RESET}"
