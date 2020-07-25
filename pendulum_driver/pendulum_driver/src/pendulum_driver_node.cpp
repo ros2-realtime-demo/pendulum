@@ -61,6 +61,7 @@ void PendulumDriverNode::state_timer_callback()
 {
   driver_interface_->update();
   driver_interface_->update_status_data(state_message_);
+  state_message_.header.stamp = this->get_clock()->now();
   state_pub_->publish(state_message_);
 }
 
