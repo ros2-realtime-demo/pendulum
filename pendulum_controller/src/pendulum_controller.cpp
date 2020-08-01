@@ -30,8 +30,8 @@ const std::array<double, PendulumController::CONTROLLER_STATE_DIM> &
 
 PendulumController::PendulumController(const Config & config)
 : cfg_(config),
-  state_{0.0, 0.0, PI, 0.0},
-  reference_{0.0, 0.0, PI, 0.0}
+  state_{0.0, 0.0, M_PI, 0.0},
+  reference_{0.0, 0.0, M_PI, 0.0}
   {}
 
 void PendulumController::update_setpoint_data(
@@ -62,11 +62,11 @@ void PendulumController::reset()
   // We reset the controller status to an up pendulum position by default
   state_[0] = 0.0;
   state_[1] = 0.0;
-  state_[2] = PI;
+  state_[2] = M_PI;
   state_[3] = 0.0;
   reference_[0] = 0.0;
   reference_[1] = 0.0;
-  reference_[2] = PI;
+  reference_[2] = M_PI;
   reference_[3] = 0.0;
 }
 

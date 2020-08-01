@@ -28,10 +28,6 @@
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
 #include "pendulum_controller/visibility_control.hpp"
 
-#ifndef PI
-#define PI 3.14159265359
-#endif
-
 namespace pendulum
 {
 /// \class This class implements a <a href="https://en.wikipedia.org/wiki/Full_state_feedback">
