@@ -25,30 +25,30 @@ extern "C"
 
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef __GNUC__
-    #define COMPOSITION_EXPORT __attribute__ ((dllexport))
-    #define COMPOSITION_IMPORT __attribute__ ((dllimport))
+    #define PENDULUM_CONTROLLER_EXPORT __attribute__ ((dllexport))
+    #define PENDULUM_CONTROLLER_IMPORT __attribute__ ((dllimport))
   #else
-    #define COMPOSITION_EXPORT __declspec(dllexport)
-    #define COMPOSITION_IMPORT __declspec(dllimport)
+    #define PENDULUM_CONTROLLER_EXPORT __declspec(dllexport)
+    #define PENDULUM_CONTROLLER_IMPORT __declspec(dllimport)
   #endif
-  #ifdef COMPOSITION_BUILDING_DLL
-    #define COMPOSITION_PUBLIC COMPOSITION_EXPORT
+  #ifdef PENDULUM_CONTROLLER_BUILDING_DLL
+    #define PENDULUM_CONTROLLER_PUBLIC PENDULUM_CONTROLLER_EXPORT
   #else
-    #define COMPOSITION_PUBLIC COMPOSITION_IMPORT
+    #define PENDULUM_CONTROLLER_PUBLIC PENDULUM_CONTROLLER_IMPORT
   #endif
-  #define COMPOSITION_PUBLIC_TYPE COMPOSITION_PUBLIC
-  #define COMPOSITION_LOCAL
+  #define PENDULUM_CONTROLLER_PUBLIC_TYPE PENDULUM_CONTROLLER_PUBLIC
+  #define PENDULUM_CONTROLLER_LOCAL
 #else
-  #define COMPOSITION_EXPORT __attribute__ ((visibility("default")))
-  #define COMPOSITION_IMPORT
+  #define PENDULUM_CONTROLLER_EXPORT __attribute__ ((visibility("default")))
+  #define PENDULUM_CONTROLLER_IMPORT
   #if __GNUC__ >= 4
-    #define COMPOSITION_PUBLIC __attribute__ ((visibility("default")))
-    #define COMPOSITION_LOCAL  __attribute__ ((visibility("hidden")))
+    #define PENDULUM_CONTROLLER_PUBLIC __attribute__ ((visibility("default")))
+    #define PENDULUM_CONTROLLER_LOCAL  __attribute__ ((visibility("hidden")))
   #else
-    #define COMPOSITION_PUBLIC
-    #define COMPOSITION_LOCAL
+    #define PENDULUM_CONTROLLER_PUBLIC
+    #define PENDULUM_CONTROLLER_LOCAL
   #endif
-  #define COMPOSITION_PUBLIC_TYPE
+  #define PENDULUM_CONTROLLER_PUBLIC_TYPE
 #endif
 
 #ifdef __cplusplus

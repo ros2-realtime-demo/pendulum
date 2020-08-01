@@ -26,6 +26,7 @@
 
 #include "pendulum_msgs_v2/msg/pendulum_command.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
+#include "pendulum_controller/visibility_control.hpp"
 
 #ifndef PI
 #define PI 3.14159265359
@@ -39,13 +40,13 @@ namespace pendulum
 ///  The FSF uses the full internal state of the system to control the system in a closed loop.
 ///  This controller allows to implement both a controller designed using closed loop placement
 ///  techniques or a Linear Quadratic Regulator (LQR)
-class PendulumController
+class PENDULUM_CONTROLLER_PUBLIC PendulumController
 {
 public:
   /// dimension of the controller space state array
   static constexpr size_t CONTROLLER_STATE_DIM = 4U;
 
-  class Config
+  class PENDULUM_CONTROLLER_PUBLIC Config
   {
   public:
     /// \brief Constructor
@@ -81,7 +82,7 @@ public:
   virtual void reset();
 
 private:
-  double calculate(
+  PENDULUM_CONTROLLER_LOCAL double calculate(
     const std::array<double, CONTROLLER_STATE_DIM> & state,
     const std::array<double, CONTROLLER_STATE_DIM> & reference) const;
 

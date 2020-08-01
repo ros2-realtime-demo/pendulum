@@ -56,7 +56,7 @@ class PendulumControllerNode : public rclcpp_lifecycle::LifecycleNode
 public:
   /// \brief Default constructor, needed for node composition
   /// \param[in] options Node options for rclcpp internals
-  COMPOSITION_PUBLIC
+  PENDULUM_CONTROLLER_PUBLIC
   explicit PendulumControllerNode(const rclcpp::NodeOptions & options)
   : rclcpp_lifecycle::LifecycleNode("pendulum_controller", options)
   {}
@@ -66,7 +66,7 @@ public:
   /// \param[in] controller_options Options to configure the object
   /// \param[in] options Node options for rclcpp internals
   /// \throw std::runtime_error If memory checking is enabled but not working or not installed.
-  COMPOSITION_PUBLIC PendulumControllerNode(
+  PENDULUM_CONTROLLER_PUBLIC PendulumControllerNode(
     std::unique_ptr<PendulumController> controller,
     PendulumControllerOptions controller_options,
     const rclcpp::NodeOptions & options);
