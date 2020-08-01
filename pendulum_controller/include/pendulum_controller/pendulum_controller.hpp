@@ -30,6 +30,8 @@
 
 namespace pendulum
 {
+namespace pendulum_controller
+{
 /// \class This class implements a <a href="https://en.wikipedia.org/wiki/Full_state_feedback">
 ///        Full State Feedback controller (FSF)</a>
 ///
@@ -44,7 +46,7 @@ public:
 
   class PENDULUM_CONTROLLER_PUBLIC Config
   {
-  public:
+public:
     /// \brief Constructor
     /// \param[in] feedback matrix
     Config(const std::array<double, CONTROLLER_STATE_DIM> feedback_matrix);
@@ -53,7 +55,7 @@ public:
     /// \return feedback matrix array
     const std::array<double, CONTROLLER_STATE_DIM> & get_feedback_matrix() const;
 
-  private:
+private:
     /// feedback_matrix Feedback matrix values
     std::array<double, CONTROLLER_STATE_DIM> feedback_matrix;
   };
@@ -92,5 +94,6 @@ private:
   // Some values may be set by by the user and others are fixed by default
   std::array<double, CONTROLLER_STATE_DIM> reference_;
 };
+}  // namespace pendulum_controller
 }  // namespace pendulum
 #endif  // PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_

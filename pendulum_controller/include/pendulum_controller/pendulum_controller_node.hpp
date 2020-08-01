@@ -39,7 +39,8 @@
 
 namespace pendulum
 {
-
+namespace pendulum_controller
+{
 struct PendulumControllerOptions
 {
   std::string node_name = "pendulum_controller";
@@ -135,6 +136,7 @@ private:
   sensor_msgs::msg::JointState state_message_;
   pendulum_msgs_v2::msg::PendulumCommand command_message_;
 };
+}  // namespace pendulum_controller
 }  // namespace pendulum
 
 #endif  // PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_NODE_HPP_

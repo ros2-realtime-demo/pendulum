@@ -20,7 +20,8 @@
 
 namespace pendulum
 {
-
+namespace pendulum_controller
+{
 using rclcpp::strategies::message_pool_memory_strategy::MessagePoolMemoryStrategy;
 using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
 
@@ -151,6 +152,7 @@ PendulumControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
 
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
+}  // namespace pendulum_controller
 }  // namespace pendulum
 
 #include "rclcpp_components/register_node_macro.hpp"
@@ -158,4 +160,4 @@ PendulumControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
 // Register the component with class_loader.
 // This acts as a sort of entry point, allowing the component to be discoverable when its library
 // is being loaded into a running process.
-RCLCPP_COMPONENTS_REGISTER_NODE(pendulum::PendulumControllerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(pendulum::pendulum_controller::PendulumControllerNode)

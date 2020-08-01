@@ -200,22 +200,22 @@ int main(int argc, char * argv[])
   qos_deadline_profile.deadline(deadline_duration);
 
   // Create a controller
-  pendulum::PendulumController::Config config{feedback_matrix};
-  std::unique_ptr<pendulum::PendulumController> controller = std::make_unique<
-      pendulum::PendulumController>(config);
+  pendulum::pendulum_controller::PendulumController::Config config{feedback_matrix};
+  std::unique_ptr<pendulum::pendulum_controller::PendulumController> controller = std::make_unique<
+      pendulum::pendulum_controller::PendulumController>(config);
 
   // Create pendulum controller node
-  pendulum::PendulumControllerOptions controller_options;
+  pendulum::pendulum_controller::PendulumControllerOptions controller_options;
   controller_options.node_name = "pendulum_controller";
   controller_options.command_publish_period = controller_update_period;
   controller_options.status_qos_profile = qos_deadline_profile;
   controller_options.command_qos_profile = qos_deadline_profile;
   controller_options.setpoint_qos_profile = rclcpp::QoS(rclcpp::KeepLast(10));
 
-  auto controller_node = std::make_shared<pendulum::PendulumControllerNode>(
-    std::move(controller),
-    controller_options,
-    rclcpp::NodeOptions().use_intra_process_comms(true));
+  auto controller_node = std::make_shared<pendulum::pendulum_controller::PendulumControllerNode>(
+      std::move(controller),
+      controller_options,
+      rclcpp::NodeOptions().use_intra_process_comms(true));
   exec.add_node(controller_node->get_node_base_interface());
 
   // Create pendulum simulation
