@@ -10,7 +10,6 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <build_depend>pendulum_driver</build_depend>
-  <build_depend>pendulum_simulation</build_depend>
   <build_depend>pendulum_controller</build_depend>
   <build_depend>pendulum_tools</build_depend>
   <build_depend>pendulum_msgs_v2</build_depend>
@@ -23,7 +22,6 @@
   <exec_depend>pendulum_tools</exec_depend>
   <exec_depend>pendulum_msgs_v2</exec_depend>
   <exec_depend>pendulum_driver</exec_depend>
-  <exec_depend>pendulum_simulation</exec_depend>
   <exec_depend>pendulum_controller</exec_depend>
   <exec_depend>lifecycle_msgs</exec_depend>
   <exec_depend>rclcpp_lifecycle</exec_depend>

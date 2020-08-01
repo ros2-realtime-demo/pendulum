@@ -15,8 +15,8 @@
 /// \file
 /// \brief This file provides an implementation for a simulation of the inverted pendulum.
 
-#ifndef PENDULUM_SIMULATION__PENDULUM_SIMULATION_HPP_
-#define PENDULUM_SIMULATION__PENDULUM_SIMULATION_HPP_
+#ifndef PENDULUM_DRIVER__PENDULUM_DRIVER_HPP_
+#define PENDULUM_DRIVER__PENDULUM_DRIVER_HPP_
 
 #include <cmath>
 #include <chrono>
@@ -24,16 +24,16 @@
 #include <random>
 #include <mutex>
 
-#include "pendulum_driver/pendulum_driver_interface.hpp"
-#include "pendulum_simulation/runge_kutta.hpp"
+#include "sensor_msgs/msg/joint_state.hpp"
+#include "pendulum_msgs_v2/msg/pendulum_command.hpp"
+#include "pendulum_msgs_v2/msg/pendulum_state.hpp"
 
-#ifndef PI
-#define PI 3.14159265359
-#endif
+#include "pendulum_driver/runge_kutta.hpp"
 
 namespace pendulum
 {
-
+namespace pendulum_driver
+{
 /// Struct representing the dynamic/kinematic state of the pendulum.
 struct PendulumState
 {
@@ -43,7 +43,7 @@ struct PendulumState
   double cart_velocity = 0.0;
   // Angular position of the pendulum in radians
   // PI is up position
-  double pole_angle = PI;
+  double pole_angle = M_PI;
   // angular velocity of the pendulum in rad/s
   double pole_velocity = 0.0;
   // total force applied to the cart in Newton
@@ -54,10 +54,10 @@ struct PendulumState
 ///
 ///  The simulation is based on the equations used in the
 /// <a href="https://www.youtube.com/watch?v=qjhAAQexzLg"> control bootcamp series</a>
-class PendulumSimulation : public PendulumDriverInterface
+class PendulumDriver
 {
 public:
-  explicit PendulumSimulation(std::chrono::microseconds physics_update_period);
+  explicit PendulumDriver(std::chrono::microseconds physics_update_period);
 
   /// \brief Updates the command data coming from the controller.
   /// \param[in] msg Command data message.
@@ -131,6 +131,6 @@ private:
   // pointer to the derivative motion functions (ODE)
   derivativeF<state_dim> derivative_function_;
 };
-
+}  // namespace pendulum_driver
 }  // namespace pendulum
-#endif  // PENDULUM_SIMULATION__PENDULUM_SIMULATION_HPP_
+#endif  // PENDULUM_DRIVER__PENDULUM_DRIVER_HPP_

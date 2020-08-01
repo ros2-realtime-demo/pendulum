@@ -30,12 +30,13 @@
 
 #include "pendulum_msgs_v2/msg/pendulum_command.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
-#include "pendulum_driver/pendulum_driver_interface.hpp"
+#include "pendulum_driver/pendulum_driver.hpp"
 #include "pendulum_driver/visibility_control.hpp"
 
 namespace pendulum
 {
-
+namespace pendulum_driver
+{
 struct PendulumDriverOptions
 {
   std::string node_name = "pendulum_driver";
@@ -60,7 +61,7 @@ public:
   /// \param[in] driver_options Options to configure the object
   /// \param[in] options Node options for rclcpp internals
   COMPOSITION_PUBLIC PendulumDriverNode(
-    std::unique_ptr<PendulumDriverInterface> driver_interface,
+    std::unique_ptr<PendulumDriver> driver_interface,
     PendulumDriverOptions driver_options,
     const rclcpp::NodeOptions & options);
 
@@ -110,7 +111,7 @@ private:
   on_shutdown(const rclcpp_lifecycle::State & state);
 
 private:
-  std::unique_ptr<PendulumDriverInterface> driver_interface_;
+  std::unique_ptr<PendulumDriver> driver_;
   PendulumDriverOptions driver_options_;
 
   std::shared_ptr<rclcpp::Subscription<
@@ -131,6 +132,7 @@ private:
   pendulum_msgs_v2::msg::PendulumCommand command_message_;
   pendulum_msgs_v2::msg::PendulumCommand disturbance_message_;
 };
+}  // namespace pendulum_driver
 }  // namespace pendulum
 
 #endif  // PENDULUM_DRIVER__PENDULUM_DRIVER_NODE_HPP_

@@ -20,17 +20,18 @@
 
 namespace pendulum
 {
-
+namespace pendulum_driver
+{
 using rclcpp::strategies::message_pool_memory_strategy::MessagePoolMemoryStrategy;
 using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
 
 PendulumDriverNode::PendulumDriverNode(
-  std::unique_ptr<PendulumDriverInterface> driver_interface,
+  std::unique_ptr<PendulumDriver> driver_interface,
   PendulumDriverOptions driver_options,
   const rclcpp::NodeOptions & options =
   rclcpp::NodeOptions().use_intra_process_comms(false))
 : rclcpp_lifecycle::LifecycleNode(driver_options.node_name, options),
-  driver_interface_(std::move(driver_interface)),
+  driver_(std::move(driver_interface)),
   driver_options_(driver_options)
 {
   // Initiliaze joint message
@@ -48,19 +49,19 @@ PendulumDriverNode::PendulumDriverNode(
 void PendulumDriverNode::on_command_received(
   const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg)
 {
-  driver_interface_->update_command_data(*msg);
+  driver_->update_command_data(*msg);
 }
 
 void PendulumDriverNode::on_disturbance_received(
   const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg)
 {
-  driver_interface_->update_disturbance_data(*msg);
+  driver_->update_disturbance_data(*msg);
 }
 
 void PendulumDriverNode::state_timer_callback()
 {
-  driver_interface_->update();
-  driver_interface_->update_status_data(state_message_);
+  driver_->update();
+  driver_->update_status_data(state_message_);
   state_message_.header.stamp = this->get_clock()->now();
   state_pub_->publish(state_message_);
 }
@@ -114,7 +115,7 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
   // cancel immediately to prevent triggering it in this state
   state_timer_->cancel();
 
-  driver_interface_->init();
+  driver_->init();
 
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
@@ -125,7 +126,7 @@ PendulumDriverNode::on_activate(const rclcpp_lifecycle::State &)
   state_pub_->on_activate();
   state_timer_->reset();
   // reset internal state of the driver for a clean start
-  driver_interface_->start();
+  driver_->start();
 
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
@@ -133,7 +134,7 @@ PendulumDriverNode::on_activate(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_deactivate(const rclcpp_lifecycle::State &)
 {
-  driver_interface_->stop();
+  driver_->stop();
   state_timer_->cancel();
   state_pub_->on_deactivate();
 
@@ -143,7 +144,7 @@ PendulumDriverNode::on_deactivate(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
-  driver_interface_->shutdown();
+  driver_->shutdown();
   state_timer_.reset();
   state_pub_.reset();
   command_sub_.reset();
@@ -162,7 +163,7 @@ PendulumDriverNode::on_shutdown(const rclcpp_lifecycle::State &)
 
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
-
+}  // namespace pendulum_driver
 }  // namespace pendulum
 
 #include "rclcpp_components/register_node_macro.hpp"
@@ -171,4 +172,4 @@ PendulumDriverNode::on_shutdown(const rclcpp_lifecycle::State &)
 // This acts as a sort of entry point,
 // allowing the component to be discoverable when its library
 // is being loaded into a running process.
-RCLCPP_COMPONENTS_REGISTER_NODE(pendulum::PendulumDriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(pendulum::pendulum_driver::PendulumDriverNode)

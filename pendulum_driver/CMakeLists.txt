@@ -32,7 +32,8 @@ include_directories(
   ${rclcpp_INCLUDE_DIRS})
 
 add_library(pendulum_driver SHARED
-src/pendulum_driver_node.cpp)
+src/pendulum_driver_node.cpp
+src/pendulum_driver.cpp)
 
 target_include_directories(pendulum_driver
   PUBLIC

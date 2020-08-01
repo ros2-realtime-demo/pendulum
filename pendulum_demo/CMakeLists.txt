@@ -22,7 +22,6 @@ find_package(rclcpp_components REQUIRED)
 find_package(rcutils)
 find_package(pendulum_tools REQUIRED)
 find_package(pendulum_msgs_v2 REQUIRED)
-find_package(pendulum_simulation REQUIRED)
 find_package(pendulum_driver REQUIRED)
 find_package(pendulum_controller REQUIRED)
 find_package(sensor_msgs REQUIRED)
@@ -54,7 +53,6 @@ ament_target_dependencies(pendulum_demo
         "rcutils"
         "lifecycle_msgs"
         "pendulum_msgs_v2"
-        "pendulum_simulation"
         "pendulum_driver"
         "pendulum_controller"
         "sensor_msgs"
@@ -94,7 +92,6 @@ ament_target_dependencies(pendulum_driver_standalone
         "rcutils"
         "lifecycle_msgs"
         "pendulum_msgs_v2"
-        "pendulum_simulation"
         "pendulum_driver"
         "sensor_msgs"
         "pendulum_tools"

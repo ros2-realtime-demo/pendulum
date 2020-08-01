@@ -12,15 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pendulum_simulation/pendulum_simulation.hpp"
+#include "pendulum_driver/pendulum_driver.hpp"
 #include <array>
 
 namespace pendulum
 {
-
-PendulumSimulation::PendulumSimulation(std::chrono::microseconds physics_update_period)
+namespace pendulum_driver
+{
+PendulumDriver::PendulumDriver(std::chrono::microseconds physics_update_period)
 : physics_update_period_(physics_update_period), done_(false),
-  ode_solver_(), X_{0.0, 0.0, PI, 0.0},
+  ode_solver_(), X_{0.0, 0.0, M_PI, 0.0},
   rand_gen_(rd()), noise_gen_(std::uniform_real_distribution<double>(-1.0, 1.0))
 {
   // Calculate the controller timestep (for discrete differentiation/integration).
@@ -56,35 +57,35 @@ PendulumSimulation::PendulumSimulation(std::chrono::microseconds physics_update_
     };
 }
 
-bool PendulumSimulation::init()
+bool PendulumDriver::init()
 {
   done_ = false;
   return true;
 }
 
-void PendulumSimulation::start()
+void PendulumDriver::start()
 {
   // reset status, use a function!
   X_[0] = 0.0;
   X_[1] = 0.0;
-  X_[2] = PI;
+  X_[2] = M_PI;
   X_[3] = 0.0;
   controller_force_ = 0.0;
   disturbance_force_ = 0.0;
   is_active_ = true;
 }
 
-void PendulumSimulation::stop()
+void PendulumDriver::stop()
 {
   is_active_ = false;
 }
 
-void PendulumSimulation::shutdown()
+void PendulumDriver::shutdown()
 {
   done_ = true;
 }
 
-void PendulumSimulation::update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)
+void PendulumDriver::update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)
 {
   if (msg.cart_force > max_cart_force_) {
     controller_force_ = max_cart_force_;
@@ -95,12 +96,12 @@ void PendulumSimulation::update_command_data(const pendulum_msgs_v2::msg::Pendul
   }
 }
 
-void PendulumSimulation::update_disturbance_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)
+void PendulumDriver::update_disturbance_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)
 {
   disturbance_force_ = msg.cart_force;
 }
 
-void PendulumSimulation::update_status_data(sensor_msgs::msg::JointState & msg)
+void PendulumDriver::update_status_data(sensor_msgs::msg::JointState & msg)
 {
   msg.position[0] = state_.cart_position;
   msg.velocity[0] = state_.cart_velocity;
@@ -109,7 +110,7 @@ void PendulumSimulation::update_status_data(sensor_msgs::msg::JointState & msg)
   msg.velocity[1] = state_.pole_velocity;
 }
 
-void PendulumSimulation::update()
+void PendulumDriver::update()
 {
   double cart_force = disturbance_force_ + controller_force_;
   ode_solver_.step(derivative_function_, X_, dt_, cart_force);
@@ -120,4 +121,5 @@ void PendulumSimulation::update()
   state_.pole_angle = X_[2];
   state_.pole_velocity = X_[3];
 }
+}  // namespace pendulum_driver
 }  // namespace pendulum

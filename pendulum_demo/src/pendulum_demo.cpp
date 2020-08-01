@@ -28,8 +28,6 @@
 #include "rcutils/cmdline_parser.h"
 
 #include "pendulum_driver/pendulum_driver_node.hpp"
-#include "pendulum_driver/pendulum_driver_interface.hpp"
-#include "pendulum_simulation/pendulum_simulation.hpp"
 #include "pendulum_controller/pendulum_controller_node.hpp"
 #include "pendulum_controller/pendulum_controller.hpp"
 #include "pendulum_tools/memory_lock.hpp"
@@ -219,17 +217,17 @@ int main(int argc, char * argv[])
   exec.add_node(controller_node->get_node_base_interface());
 
   // Create pendulum simulation
-  std::unique_ptr<pendulum::PendulumDriverInterface> sim =
-    std::make_unique<pendulum::PendulumSimulation>(physics_update_period);
+  std::unique_ptr<pendulum::pendulum_driver::PendulumDriver> sim =
+      std::make_unique<pendulum::pendulum_driver::PendulumDriver>(physics_update_period);
 
   // Create pendulum driver node
-  pendulum::PendulumDriverOptions driver_options;
+  pendulum::pendulum_driver::PendulumDriverOptions driver_options;
   driver_options.node_name = "pendulum_driver";
   // set sensor publishing period equal to simulation physics update period
   driver_options.status_publish_period = physics_update_period;
   driver_options.status_qos_profile = qos_deadline_profile;
 
-  auto pendulum_driver = std::make_shared<pendulum::PendulumDriverNode>(
+  auto pendulum_driver = std::make_shared<pendulum::pendulum_driver::PendulumDriverNode>(
     std::move(sim),
     driver_options,
     rclcpp::NodeOptions().use_intra_process_comms(true));

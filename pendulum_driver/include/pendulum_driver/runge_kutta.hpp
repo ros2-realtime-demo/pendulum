@@ -25,7 +25,8 @@
 
 namespace pendulum
 {
-
+namespace pendulum_driver
+{
 template<std::size_t N>
 using derivativeF = std::function<double (const std::array<double, N> &, double, size_t)>;
 
@@ -93,7 +94,7 @@ private:
   // Runge-kutta increments
   std::array<double, N> k1, k2, k3, k4;
 };
-
+}  // namespace pendulum_driver
 }  // namespace pendulum
 
 #endif  // PENDULUM_SIMULATION__RUNGE_KUTTA_HPP_
