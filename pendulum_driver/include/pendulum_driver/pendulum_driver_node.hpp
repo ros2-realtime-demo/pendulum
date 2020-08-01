@@ -51,7 +51,7 @@ class PendulumDriverNode : public rclcpp_lifecycle::LifecycleNode
 public:
   /// \brief Default constructor, needed for node composition
   /// \param[in] options Node options for rclcpp internals
-  COMPOSITION_PUBLIC
+  PENDULUM_DRIVER_PUBLIC
   explicit PendulumDriverNode(const rclcpp::NodeOptions & options)
   : rclcpp_lifecycle::LifecycleNode("pendulum_driver", options)
   {}
@@ -60,7 +60,7 @@ public:
   /// \param[in] driver_interface Pointer to the driver implementation
   /// \param[in] driver_options Options to configure the object
   /// \param[in] options Node options for rclcpp internals
-  COMPOSITION_PUBLIC PendulumDriverNode(
+  PENDULUM_DRIVER_PUBLIC PendulumDriverNode(
     std::unique_ptr<PendulumDriver> driver_interface,
     PendulumDriverOptions driver_options,
     const rclcpp::NodeOptions & options);

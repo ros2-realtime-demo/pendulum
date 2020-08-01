@@ -29,6 +29,7 @@
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
 
 #include "pendulum_driver/runge_kutta.hpp"
+#include "pendulum_driver/visibility_control.hpp"
 
 namespace pendulum
 {
@@ -38,7 +39,7 @@ namespace pendulum_driver
 ///
 ///  The simulation is based on the equations used in the
 /// <a href="https://www.youtube.com/watch?v=qjhAAQexzLg"> control bootcamp series</a>
-class PendulumDriver
+class PENDULUM_DRIVER_PUBLIC PendulumDriver
 {
 public:
   /// Struct representing the dynamic/kinematic state of the pendulum.
@@ -158,7 +159,7 @@ private:
   PendulumState state_;
   bool done_ = false;
   bool is_active_ = false;
-  
+
   // dimension of the space state array
   static const std::size_t state_dim = 4;
   RungeKutta<state_dim> ode_solver_;
