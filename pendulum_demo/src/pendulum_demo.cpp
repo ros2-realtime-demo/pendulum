@@ -14,7 +14,7 @@
 
 #include <rclcpp/strategies/allocator_memory_strategy.hpp>
 
-#include <vector>
+#include <array>
 #include <iostream>
 #include <memory>
 #include <utility>
@@ -112,7 +112,7 @@ int main(int argc, char * argv[])
 
   // controller options
   std::chrono::microseconds controller_update_period(DEFAULT_CONTROLLER_UPDATE_PERIOD_US);
-  std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
+  std::array<double, 4> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
 
   // driver options
   std::chrono::microseconds physics_update_period(DEFAULT_PHYSICS_UPDATE_PERIOD_US);
