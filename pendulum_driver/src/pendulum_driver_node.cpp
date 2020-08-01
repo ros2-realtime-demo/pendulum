@@ -34,7 +34,7 @@ PendulumDriverNode::PendulumDriverNode(
   driver_(std::move(driver_interface)),
   driver_options_(driver_options)
 {
-  // Initiliaze joint message
+  // Initialize joint message
   state_message_.name.push_back("cart_base_joint");
   state_message_.position.push_back(0.0);
   state_message_.velocity.push_back(0.0);

@@ -19,13 +19,66 @@ namespace pendulum
 {
 namespace pendulum_driver
 {
-PendulumDriver::PendulumDriver(std::chrono::microseconds physics_update_period)
-: physics_update_period_(physics_update_period), done_(false),
+
+PendulumDriver::Config::Config(
+    const double pendulum_mass,
+    const double cart_mass,
+    const double pendulum_length,
+    const double damping_coefficient,
+    const double gravity,
+    const double max_cart_force,
+    std::chrono::microseconds physics_update_period)
+    : pendulum_mass{pendulum_mass},
+      cart_mass{cart_mass},
+      pendulum_length{pendulum_length},
+      damping_coefficient{damping_coefficient},
+      gravity{gravity},
+      max_cart_force{max_cart_force},
+      physics_update_period{physics_update_period}
+{}
+
+double PendulumDriver::Config::get_pendulum_mass() const
+{
+  return pendulum_mass;
+}
+
+double PendulumDriver::Config::get_cart_mass() const
+{
+  return cart_mass;
+}
+
+double PendulumDriver::Config::get_pendulum_length() const
+{
+  return pendulum_length;
+}
+
+double PendulumDriver::Config::get_damping_coefficient() const
+{
+  return damping_coefficient;
+}
+
+double PendulumDriver::Config::get_gravity() const
+{
+  return gravity;
+}
+
+double PendulumDriver::Config::get_max_cart_force() const
+{
+  return max_cart_force;
+}
+
+std::chrono::microseconds PendulumDriver::Config::get_physics_update_period() const
+{
+  return physics_update_period;
+}
+
+PendulumDriver::PendulumDriver(const Config & config)
+: cfg_(config), done_(false),
   ode_solver_(), X_{0.0, 0.0, M_PI, 0.0},
   rand_gen_(rd()), noise_gen_(std::uniform_real_distribution<double>(-1.0, 1.0))
 {
   // Calculate the controller timestep (for discrete differentiation/integration).
-  dt_ = physics_update_period_.count() / (1000.0 * 1000.0);
+  dt_ = cfg_.get_physics_update_period().count() / (1000.0 * 1000.0);
   if (std::isnan(dt_) || dt_ == 0) {
     throw std::runtime_error("Invalid dt_ calculated in PendulumController constructor");
   }
@@ -34,6 +87,12 @@ PendulumDriver::PendulumDriver(std::chrono::microseconds physics_update_period)
   // linearized equations couls be used if there are issues for real-time execution
   derivative_function_ = [this](const std::array<double, state_dim> & y,
       double u, size_t i) -> double {
+
+      const double m = cfg_.get_pendulum_mass();
+      const double M = cfg_.get_cart_mass();
+      const double L = cfg_.get_pendulum_length();
+      const double d = cfg_.get_damping_coefficient();
+      const double g = cfg_.get_gravity();
       if (i == 0) {
         return y[1];
       } else if (i == 1) {
@@ -87,10 +146,11 @@ void PendulumDriver::shutdown()
 
 void PendulumDriver::update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)
 {
-  if (msg.cart_force > max_cart_force_) {
-    controller_force_ = max_cart_force_;
-  } else if (msg.cart_force < -max_cart_force_) {
-    controller_force_ = -max_cart_force_;
+  double max_cart_force = cfg_.get_max_cart_force();
+  if (msg.cart_force > max_cart_force) {
+    controller_force_ = max_cart_force;
+  } else if (msg.cart_force < -max_cart_force) {
+    controller_force_ = -max_cart_force;
   } else {
     controller_force_ = msg.cart_force;
   }

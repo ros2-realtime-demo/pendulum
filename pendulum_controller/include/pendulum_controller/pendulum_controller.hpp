@@ -46,7 +46,7 @@ public:
 
   class PENDULUM_CONTROLLER_PUBLIC Config
   {
-public:
+  public:
     /// \brief Constructor
     /// \param[in] feedback matrix
     Config(const std::array<double, CONTROLLER_STATE_DIM> feedback_matrix);
@@ -55,7 +55,7 @@ public:
     /// \return feedback matrix array
     const std::array<double, CONTROLLER_STATE_DIM> & get_feedback_matrix() const;
 
-private:
+  private:
     /// feedback_matrix Feedback matrix values
     std::array<double, CONTROLLER_STATE_DIM> feedback_matrix;
   };

@@ -198,9 +198,9 @@ int main(int argc, char * argv[])
   qos_deadline_profile.deadline(deadline_duration);
 
   // Create a controller
-  pendulum::pendulum_controller::PendulumController::Config config{feedback_matrix};
+  pendulum::pendulum_controller::PendulumController::Config controller_config{feedback_matrix};
   std::unique_ptr<pendulum::pendulum_controller::PendulumController> controller = std::make_unique<
-      pendulum::pendulum_controller::PendulumController>(config);
+      pendulum::pendulum_controller::PendulumController>(controller_config);
 
   // Create pendulum controller node
   pendulum::pendulum_controller::PendulumControllerOptions controller_options;
@@ -217,9 +217,10 @@ int main(int argc, char * argv[])
   exec.add_node(controller_node->get_node_base_interface());
 
   // Create pendulum simulation
+  pendulum::pendulum_driver::PendulumDriver::Config driver_config{
+      1.0, 5.0, 2.0, 20.0, -9.8, 1000, physics_update_period};
   std::unique_ptr<pendulum::pendulum_driver::PendulumDriver> sim =
-      std::make_unique<pendulum::pendulum_driver::PendulumDriver>(physics_update_period);
-
+      std::make_unique<pendulum::pendulum_driver::PendulumDriver>(driver_config);
   // Create pendulum driver node
   pendulum::pendulum_driver::PendulumDriverOptions driver_options;
   driver_options.node_name = "pendulum_driver";

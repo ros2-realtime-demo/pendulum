@@ -185,9 +185,9 @@ int main(int argc, char * argv[])
   qos_deadline_profile.deadline(deadline_duration);
 
   // Create a controller
-  pendulum::pendulum_controller::PendulumController::Config config{feedback_matrix};
+  pendulum::pendulum_controller::PendulumController::Config controller_config{feedback_matrix};
   std::unique_ptr<pendulum::pendulum_controller::PendulumController> controller = std::make_unique<
-  pendulum::pendulum_controller::PendulumController>(config);
+      pendulum::pendulum_controller::PendulumController>(controller_config);
 
   // Create pendulum controller node
   pendulum::pendulum_controller::PendulumControllerOptions controller_options;

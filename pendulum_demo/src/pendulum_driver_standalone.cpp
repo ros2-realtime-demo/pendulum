@@ -157,8 +157,10 @@ int main(int argc, char * argv[])
   qos_deadline_profile.deadline(deadline_duration);
 
   // Create pendulum simulation
+  pendulum::pendulum_driver::PendulumDriver::Config driver_config{
+      1.0, 5.0, 2.0, 20.0, -9.8, 1000, physics_update_period};
   std::unique_ptr<pendulum::pendulum_driver::PendulumDriver> sim =
-    std::make_unique<pendulum::pendulum_driver::PendulumDriver>(physics_update_period);
+      std::make_unique<pendulum::pendulum_driver::PendulumDriver>(driver_config);
 
   // Create pendulum driver node
   pendulum::pendulum_driver::PendulumDriverOptions driver_options;
