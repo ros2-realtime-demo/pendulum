@@ -115,8 +115,6 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
   // cancel immediately to prevent triggering it in this state
   state_timer_->cancel();
 
-  driver_->init();
-
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -125,31 +123,24 @@ PendulumDriverNode::on_activate(const rclcpp_lifecycle::State &)
 {
   state_pub_->on_activate();
   state_timer_->reset();
-  // reset internal state of the driver for a clean start
-  driver_->start();
-
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_deactivate(const rclcpp_lifecycle::State &)
 {
-  driver_->stop();
   state_timer_->cancel();
   state_pub_->on_deactivate();
-
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
-  driver_->shutdown();
   state_timer_.reset();
   state_pub_.reset();
   command_sub_.reset();
   disturbance_sub_.reset();
-
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -160,7 +151,6 @@ PendulumDriverNode::on_shutdown(const rclcpp_lifecycle::State &)
   state_pub_.reset();
   command_sub_.reset();
   disturbance_sub_.reset();
-
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 }  // namespace pendulum_driver

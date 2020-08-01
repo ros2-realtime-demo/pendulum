@@ -73,9 +73,13 @@ std::chrono::microseconds PendulumDriver::Config::get_physics_update_period() co
 }
 
 PendulumDriver::PendulumDriver(const Config & config)
-: cfg_(config), done_(false),
-  ode_solver_(), X_{0.0, 0.0, M_PI, 0.0},
-  rand_gen_(rd()), noise_gen_(std::uniform_real_distribution<double>(-1.0, 1.0))
+: cfg_(config),
+  ode_solver_(),
+  X_{0.0, 0.0, M_PI, 0.0},
+  controller_force_{0.0},
+  disturbance_force_{0.0},
+  rand_gen_(rd()),
+  noise_gen_(std::uniform_real_distribution<double>(-1.0, 1.0))
 {
   // Calculate the controller timestep (for discrete differentiation/integration).
   dt_ = cfg_.get_physics_update_period().count() / (1000.0 * 1000.0);
@@ -114,34 +118,6 @@ PendulumDriver::PendulumDriver(const Config & config)
         throw std::invalid_argument("received wrong index");
       }
     };
-}
-
-bool PendulumDriver::init()
-{
-  done_ = false;
-  return true;
-}
-
-void PendulumDriver::start()
-{
-  // reset status, use a function!
-  X_[0] = 0.0;
-  X_[1] = 0.0;
-  X_[2] = M_PI;
-  X_[3] = 0.0;
-  controller_force_ = 0.0;
-  disturbance_force_ = 0.0;
-  is_active_ = true;
-}
-
-void PendulumDriver::stop()
-{
-  is_active_ = false;
-}
-
-void PendulumDriver::shutdown()
-{
-  done_ = true;
 }
 
 void PendulumDriver::update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg)

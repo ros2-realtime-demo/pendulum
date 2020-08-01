@@ -139,26 +139,11 @@ public:
   /// \brief Updates the driver simulation.
   virtual void update();
 
-  /// \brief Initliaze the internal state of the driver implementation.
-  virtual bool init();
-
-  /// \brief Starts communication with the inverted pendulum or the simulation.
-  virtual void start();
-
-  /// \brief Stops communication with the inverted pendulum or the simulation.
-  virtual void stop();
-
-  /// \brief Shuts down communication with the inverted pendulum or the simulation.
-  virtual void shutdown();
-
 private:
   // Pendulum simulation configuration parameters
   const Config cfg_;
-
   double dt_;
   PendulumState state_;
-  bool done_ = false;
-  bool is_active_ = false;
 
   // dimension of the space state array
   static const std::size_t state_dim = 4;
