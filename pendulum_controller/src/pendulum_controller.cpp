@@ -18,10 +18,20 @@
 namespace pendulum
 {
 
-PendulumController::PendulumController(
-  const std::vector<double> & feedback_matrix)
-: feedback_matrix_(feedback_matrix),
-  state_{0.0, 0.0, PI, 0.0}, reference_{0.0, 0.0, PI, 0.0} {}
+PendulumController::Config::Config(const std::vector<double> feedback_matrix)
+: feedback_matrix{feedback_matrix}
+{}
+
+const std::vector<double> & PendulumController::Config::get_feedback_matrix() const
+{
+  return feedback_matrix;
+}
+
+PendulumController::PendulumController(const Config & config)
+: cfg_(config),
+  state_{0.0, 0.0, PI, 0.0},
+  reference_{0.0, 0.0, PI, 0.0}
+  {}
 
 void PendulumController::update_setpoint_data(
   const pendulum_msgs_v2::msg::PendulumCommand & msg)
@@ -66,13 +76,13 @@ double PendulumController::calculate(
   double controller_output = 0.0;
   size_t dim = state.size();
   if ( (dim != reference.size()) &&
-    (dim != feedback_matrix_.size()) )
+    (dim != cfg_.get_feedback_matrix().size()) )
   {
     throw std::invalid_argument("wrong state size vector");
   }
 
   for (size_t i = 0; i < dim; i++) {
-    controller_output += -feedback_matrix_[i] * (state[i] - reference[i]);
+    controller_output += -cfg_.get_feedback_matrix()[i] * (state[i] - reference[i]);
   }
 
   return controller_output;

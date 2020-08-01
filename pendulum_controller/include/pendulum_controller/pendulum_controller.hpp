@@ -42,9 +42,25 @@ namespace pendulum
 class PendulumController
 {
 public:
+  class Config
+  {
+  public:
+    /// \brief Constructor
+    /// \param[in] feedback matrix
+    Config(const std::vector<double> feedback_matrix);
+
+    /// \brief Gets the feedback matrix
+    /// \return feedback matrix array
+    const std::vector<double> & get_feedback_matrix() const;
+
+  private:
+    /// feedback_matrix Feedback matrix values
+    std::vector<double> feedback_matrix;
+  };
+
   /// \brief Controller constructor
   /// \param[in] feedback_matrix Feedback matrix values
-  explicit PendulumController(const std::vector<double> & feedback_matrix);
+  explicit PendulumController(const Config & config);
 
   /// \brief Updates the setpoint data when a setpoint message arrives.
   /// \param[in] msg Setpoint data message.
@@ -67,9 +83,8 @@ private:
     const std::vector<double> & reference) const;
 
 private:
-  // Feedback matrix (K)
-  // Matrix coefficient order: [cart_pos, cart_velocity, pole_angle, pole_velocity]
-  std::vector<double> feedback_matrix_;
+  // Controller configuration parameters
+  const Config cfg_;
 
   // Holds the pendulum full state variables
   std::vector<double> state_;
