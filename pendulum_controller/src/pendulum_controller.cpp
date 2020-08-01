@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pendulum_controllers/full_state_feedback_controller.hpp"
+#include "pendulum_controller/pendulum_controller.hpp"
 #include <vector>
 
 namespace pendulum
 {
 
-FullStateFeedbackController::FullStateFeedbackController(
+PendulumController::PendulumController(
   const std::vector<double> & feedback_matrix)
 : feedback_matrix_(feedback_matrix),
   state_{0.0, 0.0, PI, 0.0}, reference_{0.0, 0.0, PI, 0.0} {}
 
-void FullStateFeedbackController::update_setpoint_data(
+void PendulumController::update_setpoint_data(
   const pendulum_msgs_v2::msg::PendulumCommand & msg)
 {
   // We only allow to set the cart position and velocity for the moment
@@ -31,7 +31,7 @@ void FullStateFeedbackController::update_setpoint_data(
   reference_[1] = msg.cart_velocity;
 }
 
-void FullStateFeedbackController::update_status_data(
+void PendulumController::update_status_data(
   const sensor_msgs::msg::JointState & msg)
 {
   state_[0] = msg.position[0];
@@ -40,13 +40,13 @@ void FullStateFeedbackController::update_status_data(
   state_[3] = msg.velocity[1];
 }
 
-void FullStateFeedbackController::update_command_data(
+void PendulumController::update_command_data(
   pendulum_msgs_v2::msg::PendulumCommand & msg)
 {
   msg.cart_force = calculate(state_, reference_);
 }
 
-void FullStateFeedbackController::reset()
+void PendulumController::reset()
 {
   // We reset the controller status to an up pendulum position by default
   state_[0] = 0.0;
@@ -59,7 +59,7 @@ void FullStateFeedbackController::reset()
   reference_[3] = 0.0;
 }
 
-double FullStateFeedbackController::calculate(
+double PendulumController::calculate(
   const std::vector<double> & state,
   const std::vector<double> & reference) const
 {

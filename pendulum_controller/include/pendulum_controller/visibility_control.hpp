@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_CONTROLLER_NODE__VISIBILITY_CONTROL_HPP_
-#define PENDULUM_CONTROLLER_NODE__VISIBILITY_CONTROL_HPP_
+#ifndef PENDULUM_CONTROLLER__VISIBILITY_CONTROL_HPP_
+#define PENDULUM_CONTROLLER__VISIBILITY_CONTROL_HPP_
 
 #ifdef __cplusplus
 extern "C"
@@ -55,4 +55,4 @@ extern "C"
 }
 #endif
 
-#endif  // PENDULUM_CONTROLLER_NODE__VISIBILITY_CONTROL_HPP_
+#endif  // PENDULUM_CONTROLLER__VISIBILITY_CONTROL_HPP_

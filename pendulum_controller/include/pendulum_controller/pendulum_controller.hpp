@@ -15,14 +15,17 @@
 /// \file
 /// \brief This file provides an implementation for a Full State Feedback controller.
 
-#ifndef PENDULUM_CONTROLLERS__FULL_STATE_FEEDBACK_CONTROLLER_HPP_
-#define PENDULUM_CONTROLLERS__FULL_STATE_FEEDBACK_CONTROLLER_HPP_
+#ifndef PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
+#define PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
 
 #include <chrono>
 #include <cmath>
 #include <vector>
 
-#include "pendulum_controller_node/pendulum_controller.hpp"
+#include "sensor_msgs/msg/joint_state.hpp"
+
+#include "pendulum_msgs_v2/msg/pendulum_command.hpp"
+#include "pendulum_msgs_v2/msg/pendulum_state.hpp"
 
 #ifndef PI
 #define PI 3.14159265359
@@ -33,15 +36,15 @@ namespace pendulum
 /// \class This class implements a <a href="https://en.wikipedia.org/wiki/Full_state_feedback">
 ///        Full State Feedback controller (FSF)</a>
 ///
-///  The FSF uses the full inernal state of the system to control the system in a closed loop.
-///  This controller allows to implement both a controller desgined using closed loop placement
-///  techniques or a Linear Quadratiq Regulator (LQR).
-class FullStateFeedbackController : public PendulumController
+///  The FSF uses the full internal state of the system to control the system in a closed loop.
+///  This controller allows to implement both a controller designed using closed loop placement
+///  techniques or a Linear Quadratic Regulator (LQR)
+class PendulumController
 {
 public:
   /// \brief Controller constructor
   /// \param[in] feedback_matrix Feedback matrix values
-  explicit FullStateFeedbackController(const std::vector<double> & feedback_matrix);
+  explicit PendulumController(const std::vector<double> & feedback_matrix);
 
   /// \brief Updates the setpoint data when a setpoint message arrives.
   /// \param[in] msg Setpoint data message.
@@ -55,7 +58,7 @@ public:
   /// \param[in,out] msg Command data message.
   virtual void update_command_data(pendulum_msgs_v2::msg::PendulumCommand & msg);
 
-  /// \brief Resets the controller internal status and set variables to tehir default values.
+  /// \brief Resets the controller internal status and set variables to their default values.
   virtual void reset();
 
 private:
@@ -76,4 +79,4 @@ private:
   std::vector<double> reference_;
 };
 }  // namespace pendulum
-#endif  // PENDULUM_CONTROLLERS__FULL_STATE_FEEDBACK_CONTROLLER_HPP_
+#endif  // PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_

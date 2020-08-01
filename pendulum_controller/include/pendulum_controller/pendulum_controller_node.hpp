@@ -15,8 +15,8 @@
 /// \file
 /// \brief This file provides a ROS 2 interface to implement the inverted pendulum controller.
 
-#ifndef PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_NODE_HPP_
-#define PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_NODE_HPP_
+#ifndef PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_NODE_HPP_
+#define PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_NODE_HPP_
 
 #include <string>
 #include <climits>
@@ -34,8 +34,8 @@
 
 #include "pendulum_msgs_v2/msg/pendulum_command.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
-#include "pendulum_controller_node/visibility_control.hpp"
-#include "pendulum_controller_node/pendulum_controller.hpp"
+#include "pendulum_controller/visibility_control.hpp"
+#include "pendulum_controller/pendulum_controller.hpp"
 
 namespace pendulum
 {
@@ -138,4 +138,4 @@ private:
 };
 }  // namespace pendulum
 
-#endif  // PENDULUM_CONTROLLER_NODE__PENDULUM_CONTROLLER_NODE_HPP_
+#endif  // PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_NODE_HPP_

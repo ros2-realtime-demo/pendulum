@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(pendulum_controller_node)
+project(pendulum_controller)
 
 set(OPTIONAL_AMENT_DEPENDENCES)
 set(OPTIONAL_LIBRARIES)
@@ -31,21 +31,22 @@ include_directories(
   ${rclcpp_lifecycle_INCLUDE_DIRS}
   ${rclcpp_INCLUDE_DIRS})
 
-add_library(pendulum_controller_node SHARED
-        src/pendulum_controller_node.cpp)
+add_library(pendulum_controller SHARED
+        src/pendulum_controller_node.cpp
+        src/pendulum_controller.cpp)
 
-target_include_directories(pendulum_controller_node
+target_include_directories(pendulum_controller
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
-target_compile_definitions(pendulum_controller_node
+target_compile_definitions(pendulum_controller
         PRIVATE "COMPOSITION_BUILDING_DLL")
 
 ament_export_include_directories(include)
-ament_export_libraries(pendulum_controller_node)
+ament_export_libraries(pendulum_controller)
 
-ament_target_dependencies(pendulum_controller_node
+ament_target_dependencies(pendulum_controller
         "rclcpp_lifecycle"
         "lifecycle_msgs"
         "pendulum_msgs_v2"
@@ -54,8 +55,8 @@ ament_target_dependencies(pendulum_controller_node
         "pendulum_tools"
         "sensor_msgs"
         ${OPTIONAL_AMENT_DEPENDENCES})
-rclcpp_components_register_nodes(pendulum_controller_node "pendulum::Controller")
-target_link_libraries(pendulum_controller_node ${OPTIONAL_LIBRARIES})
+rclcpp_components_register_nodes(pendulum_controller "pendulum::Controller")
+target_link_libraries(pendulum_controller ${OPTIONAL_LIBRARIES})
 
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported
@@ -70,7 +71,7 @@ install(
 )
 
 install(TARGETS
-        pendulum_controller_node
+        pendulum_controller
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)

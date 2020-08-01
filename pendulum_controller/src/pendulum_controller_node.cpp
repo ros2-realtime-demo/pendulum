@@ -16,7 +16,7 @@
 #include <memory>
 #include <utility>
 
-#include "pendulum_controller_node/pendulum_controller_node.hpp"
+#include "pendulum_controller/pendulum_controller_node.hpp"
 
 namespace pendulum
 {

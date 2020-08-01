@@ -27,9 +27,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/cmdline_parser.h"
 
-#include "pendulum_controller_node/pendulum_controller_node.hpp"
-#include "pendulum_controller_node/pendulum_controller.hpp"
-#include "pendulum_controllers/full_state_feedback_controller.hpp"
+#include "pendulum_controller/pendulum_controller_node.hpp"
+#include "pendulum_controller/pendulum_controller.hpp"
 #include "pendulum_tools/memory_lock.hpp"
 #include "pendulum_tools/rt_thread.hpp"
 
@@ -187,7 +186,7 @@ int main(int argc, char * argv[])
 
   // Create a controller
   std::unique_ptr<pendulum::PendulumController> controller = std::make_unique<
-    pendulum::FullStateFeedbackController>(feedback_matrix);
+    pendulum::PendulumController>(feedback_matrix);
 
   // Create pendulum controller node
   pendulum::PendulumControllerOptions controller_options;
