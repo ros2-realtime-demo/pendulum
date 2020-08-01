@@ -82,7 +82,6 @@ private:
     const std::array<double, CONTROLLER_STATE_DIM> & state,
     const std::array<double, CONTROLLER_STATE_DIM> & reference) const;
 
-private:
   // Controller configuration parameters
   const Config cfg_;
 

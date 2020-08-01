@@ -117,7 +117,6 @@ private:
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_shutdown(const rclcpp_lifecycle::State & state);
 
-private:
   std::unique_ptr<PendulumController> controller_;
   PendulumControllerOptions controller_options_;
 
