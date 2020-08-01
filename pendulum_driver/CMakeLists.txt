@@ -33,7 +33,8 @@ include_directories(
 
 add_library(pendulum_driver SHARED
 src/pendulum_driver_node.cpp
-src/pendulum_driver.cpp)
+src/pendulum_driver.cpp
+src/pendulum_driver_config.cpp)
 
 target_include_directories(pendulum_driver
   PUBLIC

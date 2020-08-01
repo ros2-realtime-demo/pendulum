@@ -19,59 +19,6 @@ namespace pendulum
 {
 namespace pendulum_driver
 {
-
-PendulumDriver::Config::Config(
-    const double pendulum_mass,
-    const double cart_mass,
-    const double pendulum_length,
-    const double damping_coefficient,
-    const double gravity,
-    const double max_cart_force,
-    std::chrono::microseconds physics_update_period)
-    : pendulum_mass{pendulum_mass},
-      cart_mass{cart_mass},
-      pendulum_length{pendulum_length},
-      damping_coefficient{damping_coefficient},
-      gravity{gravity},
-      max_cart_force{max_cart_force},
-      physics_update_period{physics_update_period}
-{}
-
-double PendulumDriver::Config::get_pendulum_mass() const
-{
-  return pendulum_mass;
-}
-
-double PendulumDriver::Config::get_cart_mass() const
-{
-  return cart_mass;
-}
-
-double PendulumDriver::Config::get_pendulum_length() const
-{
-  return pendulum_length;
-}
-
-double PendulumDriver::Config::get_damping_coefficient() const
-{
-  return damping_coefficient;
-}
-
-double PendulumDriver::Config::get_gravity() const
-{
-  return gravity;
-}
-
-double PendulumDriver::Config::get_max_cart_force() const
-{
-  return max_cart_force;
-}
-
-std::chrono::microseconds PendulumDriver::Config::get_physics_update_period() const
-{
-  return physics_update_period;
-}
-
 PendulumDriver::PendulumDriver(const Config & config)
 : cfg_(config),
   ode_solver_(),

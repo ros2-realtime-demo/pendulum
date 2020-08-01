@@ -22,7 +22,6 @@
 #include <chrono>
 #include <array>
 #include <random>
-#include <mutex>
 
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_command.hpp"
