@@ -89,7 +89,7 @@ PendulumDriver::PendulumDriver(const Config & config)
 
   // we use non-linear equations for the simulation
   // linearized equations couls be used if there are issues for real-time execution
-  derivative_function_ = [this](const std::array<double, state_dim> & y,
+  derivative_function_ = [this](const std::array<double, STATE_DIM> & y,
       double u, size_t i) -> double {
 
       const double m = cfg_.get_pendulum_mass();

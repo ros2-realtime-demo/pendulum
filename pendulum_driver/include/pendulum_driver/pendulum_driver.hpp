@@ -42,6 +42,9 @@ namespace pendulum_driver
 class PENDULUM_DRIVER_PUBLIC PendulumDriver
 {
 public:
+  // dimension of the space state array
+  static constexpr std::size_t STATE_DIM = 4U;
+
   /// Struct representing the dynamic/kinematic state of the pendulum.
   struct PendulumState
   {
@@ -145,15 +148,13 @@ private:
   double dt_;
   PendulumState state_;
 
-  // dimension of the space state array
-  static const std::size_t state_dim = 4;
-  RungeKutta<state_dim> ode_solver_;
+  RungeKutta<STATE_DIM> ode_solver_;
   // state array for ODE solver
   // X[0]: cart position
   // X[1]: cart velocity
   // X[2]: pole position
   // X[3]: pole velocity
-  std::array<double, state_dim> X_;
+  std::array<double, STATE_DIM> X_;
 
   // force applied by the controller
   // this can be considered as the force applied by the cart motor
@@ -168,7 +169,7 @@ private:
   std::uniform_real_distribution<double> noise_gen_;
 
   // pointer to the derivative motion functions (ODE)
-  derivativeF<state_dim> derivative_function_;
+  derivativeF<STATE_DIM> derivative_function_;
 };
 }  // namespace pendulum_driver
 }  // namespace pendulum
