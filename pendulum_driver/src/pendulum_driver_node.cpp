@@ -48,6 +48,7 @@ PendulumDriverNode::PendulumDriverNode(
       declare_parameter("driver.damping_coefficient").get<double>(),
       declare_parameter("driver.gravity").get<double>(),
       declare_parameter("driver.max_cart_force").get<double>(),
+      declare_parameter("driver.noise_level").get<double>(),
       std::chrono::microseconds {
       declare_parameter("driver.physics_update_period").get<std::uint16_t>()
     }
@@ -65,7 +66,6 @@ PendulumDriverNode::PendulumDriverNode(
   state_message_.velocity.push_back(0.0);
   state_message_.effort.push_back(0.0);
 }
-
 
 PendulumDriverNode::PendulumDriverNode(
   const std::string & node_name,

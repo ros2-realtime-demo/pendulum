@@ -3,9 +3,7 @@ pendulum_controller:
     sensor_topic_name: "joint_states"
     command_topic_name: "pendulum_commmand"
     setpoint_topic_name: "pendulum_setpoint"
-
     command_publish_period_us: 1000
-
     controller:
       feedback_matrix: [-10.0000, -51.5393, 356.8637, 154.4146]
 
@@ -14,9 +12,7 @@ pendulum_driver:
     sensor_topic_name: "joint_states"
     command_topic_name: "pendulum_commmand"
     disturbance_topic_name: "pendulum_disturbance"
-
     state_publish_period_us: 1000
-
     driver:
       pendulum_mass: 1.0
       cart_mass: 5.0
@@ -25,3 +21,4 @@ pendulum_driver:
       gravity: -9.8
       max_cart_force: 1000.0
       physics_update_period: 1000
+      noise_level: 1.0

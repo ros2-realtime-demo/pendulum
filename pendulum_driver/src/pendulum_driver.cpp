@@ -26,7 +26,8 @@ PendulumDriver::PendulumDriver(const Config & config)
   controller_force_{0.0},
   disturbance_force_{0.0},
   rand_gen_(rd()),
-  noise_gen_(std::uniform_real_distribution<double>(-1.0, 1.0))
+  noise_gen_(std::uniform_real_distribution<double>(
+      -config.get_noise_level(), config.get_noise_level()))
 {
   // Calculate the controller timestep (for discrete differentiation/integration).
   dt_ = cfg_.get_physics_update_period().count() / (1000.0 * 1000.0);

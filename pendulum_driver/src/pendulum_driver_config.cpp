@@ -27,6 +27,7 @@ PendulumDriver::Config::Config(
     const double damping_coefficient,
     const double gravity,
     const double max_cart_force,
+    const double noise_level,
     std::chrono::microseconds physics_update_period)
     : pendulum_mass{pendulum_mass},
       cart_mass{cart_mass},
@@ -34,6 +35,7 @@ PendulumDriver::Config::Config(
       damping_coefficient{damping_coefficient},
       gravity{gravity},
       max_cart_force{max_cart_force},
+      noise_level{noise_level},
       physics_update_period{physics_update_period}
 {}
 
@@ -65,6 +67,11 @@ double PendulumDriver::Config::get_gravity() const
 double PendulumDriver::Config::get_max_cart_force() const
 {
   return max_cart_force;
+}
+
+double PendulumDriver::Config::get_noise_level() const
+{
+  return noise_level;
 }
 
 std::chrono::microseconds PendulumDriver::Config::get_physics_update_period() const

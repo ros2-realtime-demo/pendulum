@@ -78,6 +78,7 @@ public:
         const double damping_coefficient,
         const double gravity,
         const double max_cart_force,
+        const double noise_level,
         std::chrono::microseconds physics_update_period);
 
     /// \brief Gets the pendulum mass
@@ -104,6 +105,10 @@ public:
     /// \return Maximum cart force
     double get_max_cart_force() const;
 
+    /// \brief Gets the simulated noise level
+    /// \return Noise level
+    double get_noise_level() const;
+
     /// \brief Gets the physics simulation update period
     /// \return physics simulation update period
     std::chrono::microseconds get_physics_update_period() const;
@@ -122,6 +127,8 @@ public:
     double max_cart_force = 1000;
     /// physics simulation update period
     std::chrono::microseconds physics_update_period;
+    /// Noise level used for simulation
+    double noise_level = 1.0;
   };
 
   explicit PendulumDriver(const Config & config);
