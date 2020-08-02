@@ -38,6 +38,8 @@ PendulumDriverNode::PendulumDriverNode(
   sensor_topic_name_(declare_parameter("sensor_topic_name").get<std::string>().c_str()),
   command_topic_name_(declare_parameter("command_topic_name").get<std::string>().c_str()),
   disturbance_topic_name_(declare_parameter("disturbance_topic_name").get<std::string>().c_str()),
+  cart_base_joint_name_(declare_parameter("cart_base_joint_name").get<std::string>().c_str()),
+  pole_joint_name_(declare_parameter("pole_joint_name").get<std::string>().c_str()),
   state_publish_period_(std::chrono::microseconds{
       declare_parameter("state_publish_period_us").get<std::uint16_t>()}),
   driver_(
@@ -72,12 +74,16 @@ PendulumDriverNode::PendulumDriverNode(
   const std::string & sensor_topic_name,
   const std::string & command_topic_name,
   const std::string & disturbance_topic_name,
+  const std::string & cart_base_joint_name,
+  const std::string & pole_joint_name,
   std::chrono::microseconds state_publish_period,
   const PendulumDriver::Config & driver_cfg)
 : LifecycleNode(node_name.c_str()),
   sensor_topic_name_{sensor_topic_name},
   command_topic_name_{command_topic_name},
   disturbance_topic_name_{disturbance_topic_name},
+  cart_base_joint_name_{cart_base_joint_name},
+  pole_joint_name_{pole_joint_name},
   state_publish_period_{state_publish_period},
   driver_(driver_cfg)
 {

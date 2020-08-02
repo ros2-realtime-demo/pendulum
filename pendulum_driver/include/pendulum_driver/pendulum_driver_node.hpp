@@ -73,6 +73,8 @@ public:
       const std::string & sensor_topic_name,
       const std::string & command_topic_name,
       const std::string & disturbance_topic_name,
+      const std::string & cart_base_joint_name,
+      const std::string & pole_joint_name,
       std::chrono::microseconds status_publish_period,
       const PendulumDriver::Config & driver_cfg);
 
@@ -125,6 +127,8 @@ private:
   const std::string sensor_topic_name_;
   const std::string command_topic_name_;
   const std::string disturbance_topic_name_;
+  const std::string cart_base_joint_name_;
+  const std::string pole_joint_name_;
   std::chrono::microseconds state_publish_period_;
   PendulumDriver driver_;
 

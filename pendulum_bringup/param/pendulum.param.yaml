@@ -12,6 +12,8 @@ pendulum_driver:
     sensor_topic_name: "joint_states"
     command_topic_name: "pendulum_commmand"
     disturbance_topic_name: "pendulum_disturbance"
+    cart_base_joint_name: "cart_base_joint"
+    pole_joint_name: "pole_joint"
     state_publish_period_us: 10000
     driver:
       pendulum_mass: 1.0
