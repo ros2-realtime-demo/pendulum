@@ -39,7 +39,7 @@ PendulumDriverNode::PendulumDriverNode(
   command_topic_name_(declare_parameter("command_topic_name").get<std::string>().c_str()),
   disturbance_topic_name_(declare_parameter("disturbance_topic_name").get<std::string>().c_str()),
   state_publish_period_(std::chrono::microseconds{
-      declare_parameter("command_publish_period_us").get<std::uint16_t>()}),
+      declare_parameter("state_publish_period_us").get<std::uint16_t>()}),
   driver_(
     PendulumDriver::Config(
       declare_parameter("driver.pendulum_mass").get<double>(),
@@ -48,7 +48,9 @@ PendulumDriverNode::PendulumDriverNode(
       declare_parameter("driver.damping_coefficient").get<double>(),
       declare_parameter("driver.gravity").get<double>(),
       declare_parameter("driver.max_cart_force").get<double>(),
-      std::chrono::microseconds {declare_parameter("physics_update_period").get<std::uint16_t>()}
+      std::chrono::microseconds {
+      declare_parameter("driver.physics_update_period").get<std::uint16_t>()
+    }
     )
   )
 {

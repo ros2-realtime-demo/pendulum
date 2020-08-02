@@ -34,6 +34,7 @@ if(${tlsf_cpp_FOUND})
 endif()
 
 include_directories(
+        include
         ${lifecycle_msgs_INCLUDE_DIRS}
         ${pendulum_msgs_v2_INCLUDE_DIRS}
         ${rclcpp_lifecycle_INCLUDE_DIRS}

@@ -4,7 +4,7 @@ project(pendulum_bringup)
 
 find_package(ament_cmake REQUIRED)
 
-install(DIRECTORY config launch
+install(DIRECTORY config launch launch param
   DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)

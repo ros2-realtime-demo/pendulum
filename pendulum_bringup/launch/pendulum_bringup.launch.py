@@ -17,11 +17,15 @@ import os
 from launch_ros.substitutions import FindPackageShare
 from launch import LaunchDescription
 from launch_ros.actions import Node
-
+import launch.substitutions
 
 def generate_launch_description():
     pkg_share = FindPackageShare('pendulum_description').find('pendulum_description')
     urdf_file = os.path.join(pkg_share, 'urdf', 'pendulum.urdf')
+    bringup_pkg_share = FindPackageShare('pendulum_bringup').find('pendulum_bringup')
+    demo_param_file_path = os.path.join(bringup_pkg_share, 'param', 'pendulum.param.yaml')
+    param_file=launch.substitutions.LaunchConfiguration('params', default=[demo_param_file_path])
+
     with open(urdf_file, 'r') as infp:
         robot_desc = infp.read()
     rsp_params = {'robot_description': robot_desc}
@@ -29,5 +33,5 @@ def generate_launch_description():
         Node(package='robot_state_publisher', executable='robot_state_publisher',
              output='screen', parameters=[rsp_params]),
         Node(package='pendulum_demo', executable='pendulum_demo',
-             output='screen'),
+             output='screen', parameters=[param_file], arguments=["--auto"]),
     ])

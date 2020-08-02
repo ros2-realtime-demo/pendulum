@@ -59,7 +59,7 @@ public:
   /// \param[in] options Node options for rclcpp internals
   PENDULUM_DRIVER_PUBLIC PendulumDriverNode(
       const std::string & node_name,
-      rclcpp::NodeOptions options);
+      rclcpp::NodeOptions options = rclcpp::NodeOptions());
 
   /// \brief Explicit constructor
   /// \param[in] node_name Name of this node
