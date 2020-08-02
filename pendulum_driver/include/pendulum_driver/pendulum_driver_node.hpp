@@ -44,7 +44,7 @@ struct PendulumDriverOptions
   rclcpp::QoS status_qos_profile = rclcpp::QoS(10);
 };
 
-/// \class This class implements a node containing a the a simulated inverted pendulum or
+/// \class This class implements a node containing a simulated inverted pendulum or
 /// the drivers for a real one.
 class PendulumDriverNode : public rclcpp_lifecycle::LifecycleNode
 {
@@ -52,18 +52,29 @@ public:
   /// \brief Default constructor, needed for node composition
   /// \param[in] options Node options for rclcpp internals
   PENDULUM_DRIVER_PUBLIC
-  explicit PendulumDriverNode(const rclcpp::NodeOptions & options)
-  : rclcpp_lifecycle::LifecycleNode("pendulum_driver", options)
-  {}
+  explicit PendulumDriverNode(const rclcpp::NodeOptions & options);
 
-  /// \brief Main constructor with parameters
-  /// \param[in] driver_interface Pointer to the driver implementation
-  /// \param[in] driver_options Options to configure the object
+  /// \brief Parameter file constructor
+  /// \param[in] node_name Name of this node
   /// \param[in] options Node options for rclcpp internals
   PENDULUM_DRIVER_PUBLIC PendulumDriverNode(
-    std::unique_ptr<PendulumDriver> driver_interface,
-    PendulumDriverOptions driver_options,
-    const rclcpp::NodeOptions & options);
+      const std::string & node_name,
+      rclcpp::NodeOptions options);
+
+  /// \brief Explicit constructor
+  /// \param[in] node_name Name of this node
+  /// \param[in] sensor_topic_name Name of the sensor state topic
+  /// \param[in] command_topic_name Name of the command topic
+  /// \param[in] disturbance_topic_name Name of the disturbance topic
+  /// \param[in] status_publish_period Period of the sensor state topic publishing
+  /// \param[in] driver_cfg Configuration class for the pendulum driver
+  PENDULUM_DRIVER_PUBLIC PendulumDriverNode(
+      const std::string & node_name,
+      const std::string & sensor_topic_name,
+      const std::string & command_topic_name,
+      const std::string & disturbance_topic_name,
+      std::chrono::microseconds status_publish_period,
+      const PendulumDriver::Config & driver_cfg);
 
   /// \brief Get the command subscription's settings options.
   /// \return  subscription's settings options
@@ -111,8 +122,11 @@ private:
   on_shutdown(const rclcpp_lifecycle::State & state);
 
 private:
-  std::unique_ptr<PendulumDriver> driver_;
-  PendulumDriverOptions driver_options_;
+  const std::string sensor_topic_name_;
+  const std::string command_topic_name_;
+  const std::string disturbance_topic_name_;
+  std::chrono::microseconds state_publish_period_;
+  PendulumDriver driver_;
 
   std::shared_ptr<rclcpp::Subscription<
       pendulum_msgs_v2::msg::PendulumCommand>> command_sub_;

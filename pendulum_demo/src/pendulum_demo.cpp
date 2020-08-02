@@ -215,21 +215,15 @@ int main(int argc, char * argv[])
   exec.add_node(controller_node->get_node_base_interface());
 
   // Create pendulum simulation
-  pendulum::pendulum_driver::PendulumDriver::Config driver_config{
-      1.0, 5.0, 2.0, 20.0, -9.8, 1000, physics_update_period};
-  std::unique_ptr<pendulum::pendulum_driver::PendulumDriver> sim =
-      std::make_unique<pendulum::pendulum_driver::PendulumDriver>(driver_config);
-  // Create pendulum driver node
-  pendulum::pendulum_driver::PendulumDriverOptions driver_options;
-  driver_options.node_name = "pendulum_driver";
-  // set sensor publishing period equal to simulation physics update period
-  driver_options.status_publish_period = physics_update_period;
-  driver_options.status_qos_profile = qos_deadline_profile;
-
   auto pendulum_driver = std::make_shared<pendulum::pendulum_driver::PendulumDriverNode>(
-    std::move(sim),
-    driver_options,
-    rclcpp::NodeOptions().use_intra_process_comms(true));
+      "pendulum_driver",
+      "joint_states",
+      "pendulum_command",
+      "pendulum_disturbance",
+      physics_update_period,
+      pendulum::pendulum_driver::PendulumDriver::Config(
+          1.0, 5.0, 2.0, 20.0, -9.8, 1000, physics_update_period)
+  );
 
   exec.add_node(pendulum_driver->get_node_base_interface());
 

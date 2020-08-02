@@ -49,7 +49,7 @@ PendulumControllerNode::PendulumControllerNode(
   const std::string & sensor_topic_name,
   const std::string & command_topic_name,
   const std::string & setpoint_topic_name,
-  std::chrono::microseconds command_pu-blish_period,
+  std::chrono::microseconds command_publish_period,
   const PendulumController::Config & controller_cfg)
 : LifecycleNode(node_name.c_str()),
   sensor_topic_name_{sensor_topic_name},

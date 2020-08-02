@@ -50,18 +50,20 @@ public:
   PENDULUM_CONTROLLER_PUBLIC
   explicit PendulumControllerNode(const rclcpp::NodeOptions & options);
 
+  /// \brief Parameter file constructor
   /// \param[in] node_name Name of this node
-  /// \param[in] node_namespace Name of this node's namespace
-  /// \throw std::runtime_error if configuration fails
+  /// \param[in] options Node options for rclcpp internals
   PENDULUM_CONTROLLER_PUBLIC PendulumControllerNode(
       const std::string & node_name,
       rclcpp::NodeOptions options);
 
   /// \brief Explicit constructor
   /// \param[in] node_name Name of this node
-  /// \param[in] cfg Configuration class for the controller node
+  /// \param[in] sensor_topic_name Name of the sensor state topic
+  /// \param[in] command_topic_name Name of the command topic
+  /// \param[in] setpoint_topic_name Name of the setpoint topic
+  /// \param[in] command_publish_period Period of the command topic publishing
   /// \param[in] controller_cfg Configuration class for the controller
-  /// \throw
   PENDULUM_CONTROLLER_PUBLIC PendulumControllerNode(
       const std::string & node_name,
       const std::string & sensor_topic_name,
