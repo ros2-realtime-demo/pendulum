@@ -37,13 +37,6 @@ namespace pendulum
 {
 namespace pendulum_driver
 {
-struct PendulumDriverOptions
-{
-  std::string node_name = "pendulum_driver";
-  std::chrono::microseconds status_publish_period = std::chrono::microseconds(1000);
-  rclcpp::QoS status_qos_profile = rclcpp::QoS(10);
-};
-
 /// \class This class implements a node containing a simulated inverted pendulum or
 /// the drivers for a real one.
 class PendulumDriverNode : public rclcpp_lifecycle::LifecycleNode
