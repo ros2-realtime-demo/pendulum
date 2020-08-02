@@ -26,20 +26,12 @@ find_package(pendulum_driver REQUIRED)
 find_package(pendulum_controller REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
-
-find_package(tlsf_cpp)
-if(${tlsf_cpp_FOUND})
-    list(APPEND OPTIONAL_AMENT_DEPENDENCES "tlsf_cpp")
-    add_definitions(-DPENDULUM_DEMO_TLSF_ENABLED)
-endif()
-
 include_directories(
         include
         ${lifecycle_msgs_INCLUDE_DIRS}
         ${pendulum_msgs_v2_INCLUDE_DIRS}
         ${rclcpp_lifecycle_INCLUDE_DIRS}
         ${rclcpp_INCLUDE_DIRS}
-        ${tlsf_cpp_INCLUDE_DIR}
         ${pendulum_tools_INCLUDE_DIR})
 
 add_executable(pendulum_demo

@@ -15,24 +15,12 @@
 #include "pendulum_demo/pendulum_demo_settings.hpp"
 #include <rclcpp/strategies/allocator_memory_strategy.hpp>
 
-#include <iostream>
 #include <memory>
 #include <utility>
 #include <string>
 
-#ifdef PENDULUM_DEMO_TLSF_ENABLED
-#include <tlsf_cpp/tlsf.hpp>
-#endif
-
 #include "rclcpp/rclcpp.hpp"
 #include "pendulum_controller/pendulum_controller_node.hpp"
-
-
-#ifdef PENDULUM_DEMO_TLSF_ENABLED
-using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
-template<typename T = void>
-using TLSFAllocator = tlsf_heap_allocator<T>;
-#endif
 
 int main(int argc, char * argv[])
 {
@@ -47,15 +35,6 @@ int main(int argc, char * argv[])
 
     // Initialize the executor.
     rclcpp::ExecutorOptions exec_options;
-#ifdef PENDULUM_DEMO_TLSF_ENABLED
-    // One of the arguments passed to the Executor is the memory strategy, which delegates the
-    // runtime-execution allocations to the TLSF allocator.
-    if (settings.use_tlfs) {
-      rclcpp::memory_strategy::MemoryStrategy::SharedPtr memory_strategy =
-        std::make_shared<AllocatorMemoryStrategy<TLSFAllocator<void>>>();
-      exec_options.memory_strategy = memory_strategy;
-    }
-#endif
     rclcpp::executors::SingleThreadedExecutor exec(exec_options);
 
     // Create pendulum controller node

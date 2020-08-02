@@ -33,14 +33,12 @@ struct DemoSettings
       "\t[%s lock a fixed memory size in MB]\n"
       "\t[%s set process real-time priority]\n"
       "\t[%s set process cpu affinity]\n"
-      "\t[%s use TLSF allocator]\n"
       "\t[-h]\n",
       OPTION_AUTO_ACTIVATE_NODES.c_str(),
       OPTION_LOCK_MEMORY.c_str(),
       OPTION_LOCK_MEMORY_SIZE.c_str(),
       OPTION_PRIORITY.c_str(),
-      OPTION_CPU_AFFINITY.c_str(),
-      OPTION_TLSF.c_str());
+      OPTION_CPU_AFFINITY.c_str());
   }
 
   bool init(int argc, char * argv[])
@@ -61,9 +59,6 @@ struct DemoSettings
       lock_memory_size_mb =
         std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_LOCK_MEMORY_SIZE.c_str()));
     }
-    if (rcutils_cli_option_exist(argv, argv + argc, OPTION_TLSF.c_str())) {
-      use_tlfs = true;
-    }
     if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PRIORITY.c_str())) {
       process_priority = std::stoi(
         rcutils_cli_get_option(
@@ -81,7 +76,6 @@ struct DemoSettings
 
   void configure_process()
   {
-
     // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
     // deterministic (real-time safe) algorithm, fifo.
     if (process_priority > 0 && process_priority < 99) {
@@ -109,7 +103,6 @@ struct DemoSettings
   }
 
   const std::string OPTION_AUTO_ACTIVATE_NODES = "--auto";
-  const std::string OPTION_TLSF = "--use-tlsf";
   const std::string OPTION_LOCK_MEMORY = "--lock-memory";
   const std::string OPTION_LOCK_MEMORY_SIZE = "--lock-memory-size";
   const std::string OPTION_PRIORITY = "--priority";
@@ -119,8 +112,6 @@ struct DemoSettings
   bool auto_activate = false;
   /// lock and prefault memory
   bool lock_memory = false;
-  /// use TLFS memory allocator
-  bool use_tlfs = false;
   /// process priority value to set
   int process_priority = 0;
   /// process cpu affinity value to set
