@@ -19,6 +19,9 @@
 #include <string>
 #include "rclcpp/rclcpp.hpp"
 
+#include "pendulum_tools/memory_lock.hpp"
+#include "pendulum_tools/rt_thread.hpp"
+
 struct DemoSettings
 {
   void print_usage()
@@ -74,6 +77,35 @@ struct DemoSettings
           OPTION_CPU_AFFINITY.c_str()));
     }
     return true;
+  }
+
+  void configure_process()
+  {
+
+    // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
+    // deterministic (real-time safe) algorithm, fifo.
+    if (process_priority > 0 && process_priority < 99) {
+      if (pendulum::set_this_thread_priority(process_priority, SCHED_FIFO)) {
+        throw std::runtime_error("Couldn't set scheduling priority and policy");
+      }
+    }
+    if (cpu_affinity > 0U) {
+      if (pendulum::set_this_thread_cpu_affinity(cpu_affinity)) {
+        throw std::runtime_error("Couldn't set cpu affinity");
+      }
+    }
+
+    if (lock_memory) {
+      int res = 0;
+      if (lock_memory_size_mb > 0) {
+        res = pendulum::lock_and_prefault_dynamic(lock_memory_size_mb * 1024 * 1024);
+      } else {
+        res = pendulum::lock_and_prefault_dynamic();
+      }
+      if (res != 0) {
+        throw std::runtime_error("Couldn't lock  virtual memory");
+      }
+    }
   }
 
   const std::string OPTION_AUTO_ACTIVATE_NODES = "--auto";

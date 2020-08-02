@@ -29,8 +29,6 @@
 
 #include "pendulum_driver/pendulum_driver_node.hpp"
 #include "pendulum_controller/pendulum_controller_node.hpp"
-#include "pendulum_tools/memory_lock.hpp"
-#include "pendulum_tools/rt_thread.hpp"
 
 #ifdef PENDULUM_DEMO_TLSF_ENABLED
 using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
@@ -71,35 +69,12 @@ int main(int argc, char * argv[])
 
     // Create pendulum simulation
     using pendulum::pendulum_driver::PendulumDriverNode;
-    const auto driver_node_ptr = std::make_shared<PendulumDriverNode>
-        ("pendulum_driver");
+    const auto driver_node_ptr = std::make_shared<PendulumDriverNode>("pendulum_driver");
 
     exec.add_node(driver_node_ptr->get_node_base_interface());
 
-    // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
-    // deterministic (real-time safe) algorithm, fifo.
-    if (settings.process_priority > 0 && settings.process_priority < 99) {
-      if (pendulum::set_this_thread_priority(settings.process_priority, SCHED_FIFO)) {
-        throw std::runtime_error("Couldn't set scheduling priority and policy");
-      }
-    }
-    if (settings.cpu_affinity > 0U) {
-      if (pendulum::set_this_thread_cpu_affinity(settings.cpu_affinity)) {
-        throw std::runtime_error("Couldn't set cpu affinity");
-      }
-    }
-
-    if (settings.lock_memory) {
-      int res = 0;
-      if (settings.lock_memory_size_mb > 0) {
-        res = pendulum::lock_and_prefault_dynamic(settings.lock_memory_size_mb * 1024 * 1024);
-      } else {
-        res = pendulum::lock_and_prefault_dynamic();
-      }
-      if (res != 0) {
-        throw std::runtime_error("Couldn't lock  virtual memory");
-      }
-    }
+    // configure process real-time settings
+    settings.configure_process();
 
     if (settings.auto_activate) {
       if (lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE !=
