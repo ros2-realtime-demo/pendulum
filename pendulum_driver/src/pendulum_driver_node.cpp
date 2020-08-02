@@ -57,16 +57,7 @@ PendulumDriverNode::PendulumDriverNode(
     )
   )
 {
-  // Initialize joint message
-  state_message_.name.push_back("cart_base_joint");
-  state_message_.position.push_back(0.0);
-  state_message_.velocity.push_back(0.0);
-  state_message_.effort.push_back(0.0);
-
-  state_message_.name.push_back("pole_joint");
-  state_message_.position.push_back(0.0);
-  state_message_.velocity.push_back(0.0);
-  state_message_.effort.push_back(0.0);
+  init();
 }
 
 PendulumDriverNode::PendulumDriverNode(
@@ -86,6 +77,11 @@ PendulumDriverNode::PendulumDriverNode(
   pole_joint_name_{pole_joint_name},
   state_publish_period_{state_publish_period},
   driver_(driver_cfg)
+{
+  init();
+}
+
+void PendulumDriverNode::init()
 {
   // Initialize joint message
   state_message_.name.push_back("cart_base_joint");

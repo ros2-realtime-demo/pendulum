@@ -78,6 +78,9 @@ public:
       std::chrono::microseconds status_publish_period,
       const PendulumDriver::Config & driver_cfg);
 
+  /// \brief Initialize pendulum driver
+  void init();
+
   /// \brief Get the command subscription's settings options.
   /// \return  subscription's settings options
   rclcpp::SubscriptionOptions & get_command_options() {return command_subscription_options_;}
