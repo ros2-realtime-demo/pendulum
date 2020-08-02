@@ -41,16 +41,6 @@ namespace pendulum
 {
 namespace pendulum_controller
 {
-struct PendulumControllerOptions
-{
-  std::string node_name = "pendulum_controller";
-  std::chrono::microseconds command_publish_period = std::chrono::microseconds(1000);
-  rclcpp::QoS status_qos_profile = rclcpp::QoS(10);
-  rclcpp::QoS command_qos_profile = rclcpp::QoS(10);
-  rclcpp::QoS setpoint_qos_profile = rclcpp::QoS(
-    rclcpp::KeepLast(10)).transient_local().reliable();
-};
-
 /// \class This class implements a node containing a controller for the inverted pendulum.
 class PendulumControllerNode : public rclcpp_lifecycle::LifecycleNode
 {
@@ -58,19 +48,27 @@ public:
   /// \brief Default constructor, needed for node composition
   /// \param[in] options Node options for rclcpp internals
   PENDULUM_CONTROLLER_PUBLIC
-  explicit PendulumControllerNode(const rclcpp::NodeOptions & options)
-  : rclcpp_lifecycle::LifecycleNode("pendulum_controller", options)
-  {}
+  explicit PendulumControllerNode(const rclcpp::NodeOptions & options);
 
-  /// \brief Main constructor with parameters
-  /// \param[in] controller Pointer to the controller implementation
-  /// \param[in] controller_options Options to configure the object
-  /// \param[in] options Node options for rclcpp internals
-  /// \throw std::runtime_error If memory checking is enabled but not working or not installed.
+  /// \param[in] node_name Name of this node
+  /// \param[in] node_namespace Name of this node's namespace
+  /// \throw std::runtime_error if configuration fails
   PENDULUM_CONTROLLER_PUBLIC PendulumControllerNode(
-    std::unique_ptr<PendulumController> controller,
-    PendulumControllerOptions controller_options,
-    const rclcpp::NodeOptions & options);
+      const std::string & node_name,
+      rclcpp::NodeOptions options);
+
+  /// \brief Explicit constructor
+  /// \param[in] node_name Name of this node
+  /// \param[in] cfg Configuration class for the controller node
+  /// \param[in] controller_cfg Configuration class for the controller
+  /// \throw
+  PENDULUM_CONTROLLER_PUBLIC PendulumControllerNode(
+      const std::string & node_name,
+      const std::string & sensor_topic_name,
+      const std::string & command_topic_name,
+      const std::string & setpoint_topic_name,
+      std::chrono::microseconds command_publish_period,
+      const PendulumController::Config & controller_cfg);
 
   /// \brief Get the sensor subscription's settings options.
   /// \return  subscription's settings options
@@ -118,8 +116,11 @@ private:
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_shutdown(const rclcpp_lifecycle::State & state);
 
-  std::unique_ptr<PendulumController> controller_;
-  PendulumControllerOptions controller_options_;
+  const std::string sensor_topic_name_;
+  const std::string command_topic_name_;
+  const std::string setpoint_topic_name_;
+  std::chrono::microseconds command_publish_period_;
+  PendulumController controller_;
 
   std::shared_ptr<rclcpp::Subscription<
       sensor_msgs::msg::JointState>> state_sub_;

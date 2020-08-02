@@ -110,7 +110,7 @@ int main(int argc, char * argv[])
 
   // controller options
   std::chrono::microseconds controller_update_period(DEFAULT_CONTROLLER_UPDATE_PERIOD_US);
-  std::array<double, 4> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
+  std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
 
   // driver options
   std::chrono::microseconds physics_update_period(DEFAULT_PHYSICS_UPDATE_PERIOD_US);
@@ -203,17 +203,15 @@ int main(int argc, char * argv[])
       pendulum::pendulum_controller::PendulumController>(controller_config);
 
   // Create pendulum controller node
-  pendulum::pendulum_controller::PendulumControllerOptions controller_options;
-  controller_options.node_name = "pendulum_controller";
-  controller_options.command_publish_period = controller_update_period;
-  controller_options.status_qos_profile = qos_deadline_profile;
-  controller_options.command_qos_profile = qos_deadline_profile;
-  controller_options.setpoint_qos_profile = rclcpp::QoS(rclcpp::KeepLast(10));
-
   auto controller_node = std::make_shared<pendulum::pendulum_controller::PendulumControllerNode>(
-      std::move(controller),
-      controller_options,
-      rclcpp::NodeOptions().use_intra_process_comms(true));
+      "pendulum_controller",
+      "joint_states",
+      "pendulum_command",
+      "pendulum_setpoint",
+      controller_update_period,
+      pendulum::pendulum_controller::PendulumController::Config(feedback_matrix)
+  );
+
   exec.add_node(controller_node->get_node_base_interface());
 
   // Create pendulum simulation

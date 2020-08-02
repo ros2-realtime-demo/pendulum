@@ -25,32 +25,55 @@ namespace pendulum_controller
 using rclcpp::strategies::message_pool_memory_strategy::MessagePoolMemoryStrategy;
 using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
 
+PendulumControllerNode::PendulumControllerNode(const rclcpp::NodeOptions & options)
+: PendulumControllerNode("pendulum_controller", options)
+{}
+
 PendulumControllerNode::PendulumControllerNode(
-  std::unique_ptr<PendulumController> controller,
-  PendulumControllerOptions controller_options,
-  const rclcpp::NodeOptions & options =
-  rclcpp::NodeOptions().use_intra_process_comms(false))
-: rclcpp_lifecycle::LifecycleNode(controller_options.node_name, options),
-  controller_(std::move(controller)),
-  controller_options_(controller_options)
-{
-}
+  const std::string & node_name,
+  rclcpp::NodeOptions options)
+: LifecycleNode(
+    node_name.c_str(),
+    options),
+  sensor_topic_name_(declare_parameter("sensor_topic_name").get<std::string>().c_str()),
+  command_topic_name_(declare_parameter("command_topic_name").get<std::string>().c_str()),
+  setpoint_topic_name_(declare_parameter("setpoint_topic_name").get<std::string>().c_str()),
+  command_publish_period_(std::chrono::microseconds{
+      declare_parameter("command_publish_period_us").get<std::uint16_t>()}),
+  controller_(PendulumController::Config(
+      declare_parameter("controller.feedback_matrix").get<std::vector<double>>()))
+{}
+
+PendulumControllerNode::PendulumControllerNode(
+  const std::string & node_name,
+  const std::string & sensor_topic_name,
+  const std::string & command_topic_name,
+  const std::string & setpoint_topic_name,
+  std::chrono::microseconds command_pu-blish_period,
+  const PendulumController::Config & controller_cfg)
+: LifecycleNode(node_name.c_str()),
+  sensor_topic_name_{sensor_topic_name},
+  command_topic_name_{command_topic_name},
+  setpoint_topic_name_{setpoint_topic_name},
+  command_publish_period_{command_publish_period},
+  controller_(controller_cfg)
+{}
 
 void PendulumControllerNode::on_sensor_message(
   const sensor_msgs::msg::JointState::SharedPtr msg)
 {
-  controller_->update_status_data(*msg);
+  controller_.update_status_data(*msg);
 }
 
 void PendulumControllerNode::on_pendulum_setpoint(
   const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg)
 {
-  controller_->update_setpoint_data(*msg);
+  controller_.update_setpoint_data(*msg);
 }
 
 void PendulumControllerNode::control_timer_callback()
 {
-  controller_->update_command_data(command_message_);
+  controller_.update_command_data(command_message_);
   command_pub_->publish(command_message_);
 }
 
@@ -74,7 +97,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
     };
 
   state_sub_ = this->create_subscription<sensor_msgs::msg::JointState>(
-    "joint_states", controller_options_.status_qos_profile,
+    sensor_topic_name_.c_str(), rclcpp::QoS(10),
     std::bind(
       &PendulumControllerNode::on_sensor_message,
       this, std::placeholders::_1),
@@ -88,12 +111,12 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
 
   // Initialize the publisher for the command message.
   command_pub_ = this->create_publisher<pendulum_msgs_v2::msg::PendulumCommand>(
-    "pendulum_command",
-    controller_options_.command_qos_profile,
+    command_topic_name_.c_str(),
+    rclcpp::QoS(10),
     command_publisher_options_);
 
   setpoint_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
-    "pendulum_setpoint", controller_options_.setpoint_qos_profile,
+    setpoint_topic_name_.c_str(), rclcpp::QoS(10),
     std::bind(
       &PendulumControllerNode::on_pendulum_setpoint,
       this, std::placeholders::_1),
@@ -102,7 +125,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
 
   command_timer_ =
     this->create_wall_timer(
-    controller_options_.command_publish_period,
+    command_publish_period_,
     std::bind(&PendulumControllerNode::control_timer_callback, this));
   // cancel immediately to prevent triggering it in this state
   command_timer_->cancel();
@@ -117,7 +140,7 @@ PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
   command_timer_->reset();
 
   // reset internal state of the controller for a clean start
-  controller_->reset();
+  controller_.reset();
 
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }

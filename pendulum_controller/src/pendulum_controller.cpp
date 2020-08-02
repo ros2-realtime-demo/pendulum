@@ -13,16 +13,16 @@
 // limitations under the License.
 
 #include "pendulum_controller/pendulum_controller.hpp"
-#include <array>
+#include <vector>
 
 namespace pendulum
 {
 namespace pendulum_controller
 {
-PendulumController::Config::Config(const std::array<double, 4> feedback_matrix)
+PendulumController::Config::Config(std::vector<double> feedback_matrix)
 : feedback_matrix{feedback_matrix} {}
 
-const std::array<double, PendulumController::CONTROLLER_STATE_DIM> &
+const std::vector<double> &
 PendulumController::Config::get_feedback_matrix() const
 {
   return feedback_matrix;
@@ -70,8 +70,8 @@ void PendulumController::reset()
 }
 
 double PendulumController::calculate(
-  const std::array<double, CONTROLLER_STATE_DIM> & state,
-  const std::array<double, CONTROLLER_STATE_DIM> & reference) const
+  const std::vector<double> & state,
+  const std::vector<double> & reference) const
 {
   double controller_output = 0.0;
   size_t dim = state.size();

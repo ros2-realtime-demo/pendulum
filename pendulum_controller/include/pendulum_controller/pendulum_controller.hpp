@@ -20,7 +20,7 @@
 
 #include <chrono>
 #include <cmath>
-#include <array>
+#include <vector>
 
 #include "sensor_msgs/msg/joint_state.hpp"
 
@@ -49,15 +49,15 @@ public:
   public:
     /// \brief Constructor
     /// \param[in] feedback matrix
-    Config(const std::array<double, CONTROLLER_STATE_DIM> feedback_matrix);
+    Config(const std::vector<double> feedback_matrix);
 
     /// \brief Gets the feedback matrix
     /// \return feedback matrix array
-    const std::array<double, CONTROLLER_STATE_DIM> & get_feedback_matrix() const;
+    const std::vector<double> & get_feedback_matrix() const;
 
   private:
     /// feedback_matrix Feedback matrix values
-    std::array<double, CONTROLLER_STATE_DIM> feedback_matrix;
+    std::vector<double> feedback_matrix;
   };
 
   /// \brief Controller constructor
@@ -81,18 +81,18 @@ public:
 
 private:
   PENDULUM_CONTROLLER_LOCAL double calculate(
-    const std::array<double, CONTROLLER_STATE_DIM> & state,
-    const std::array<double, CONTROLLER_STATE_DIM> & reference) const;
+    const std::vector<double> & state,
+    const std::vector<double> & reference) const;
 
   // Controller configuration parameters
   const Config cfg_;
 
   // Holds the pendulum full state variables
-  std::array<double, CONTROLLER_STATE_DIM> state_;
+  std::vector<double> state_;
 
   // Holds the pendulum reference values.
   // Some values may be set by by the user and others are fixed by default
-  std::array<double, CONTROLLER_STATE_DIM> reference_;
+  std::vector<double> reference_;
 };
 }  // namespace pendulum_controller
 }  // namespace pendulum
