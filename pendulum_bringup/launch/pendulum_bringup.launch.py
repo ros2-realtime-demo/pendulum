@@ -19,19 +19,46 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 import launch.substitutions
 
+
 def generate_launch_description():
-    pkg_share = FindPackageShare('pendulum_description').find('pendulum_description')
-    urdf_file = os.path.join(pkg_share, 'urdf', 'pendulum.urdf')
-    bringup_pkg_share = FindPackageShare('pendulum_bringup').find('pendulum_bringup')
-    demo_param_file_path = os.path.join(bringup_pkg_share, 'param', 'pendulum.param.yaml')
-    param_file=launch.substitutions.LaunchConfiguration('params', default=[demo_param_file_path])
+    pkg_share_description = FindPackageShare('pendulum_description').find('pendulum_description')
+    urdf_file = os.path.join(pkg_share_description, 'urdf', 'pendulum.urdf')
 
     with open(urdf_file, 'r') as infp:
         robot_desc = infp.read()
     rsp_params = {'robot_description': robot_desc}
+
+    pkg_share_bringup = FindPackageShare('pendulum_bringup').find('pendulum_bringup')
+    demo_param_file_path = os.path.join(pkg_share_bringup, 'param', 'pendulum.param.yaml')
+    param_file=launch.substitutions.LaunchConfiguration('params', default=[demo_param_file_path])
+
+    rviz_cfg_path = os.path.join(pkg_share_bringup, 'config/pendulum.rviz')
+
+    # Node definitions
+    robot_state_publisher_runner = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        output='screen',
+        parameters=[rsp_params]
+    )
+
+    pendulum_demo_runner = Node(
+        package='pendulum_demo',
+        executable='pendulum_demo',
+        output='screen',
+        parameters=[param_file],
+        arguments=["--auto"]
+    )
+
+    rviz_runner = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        arguments=['-d', str(rviz_cfg_path)]
+    )
+
     return LaunchDescription([
-        Node(package='robot_state_publisher', executable='robot_state_publisher',
-             output='screen', parameters=[rsp_params]),
-        Node(package='pendulum_demo', executable='pendulum_demo',
-             output='screen', parameters=[param_file], arguments=["--auto"]),
+        robot_state_publisher_runner,
+        pendulum_demo_runner,
+        rviz_runner
     ])
