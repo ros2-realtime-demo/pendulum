@@ -25,7 +25,7 @@
 int main(int argc, char * argv[])
 {
   DemoSettings settings;
-  if(!settings.init(argc, argv)){
+  if (!settings.init(argc, argv)) {
     return EXIT_FAILURE;
   }
 
@@ -39,8 +39,8 @@ int main(int argc, char * argv[])
 
     // Create pendulum controller node
     using pendulum::pendulum_controller::PendulumControllerNode;
-    const auto controller_node_ptr = std::make_shared<PendulumControllerNode>
-        ("pendulum_controller");
+    const auto controller_node_ptr =
+      std::make_shared<PendulumControllerNode>("pendulum_controller");
 
     exec.add_node(controller_node_ptr->get_node_base_interface());
 
@@ -49,11 +49,13 @@ int main(int argc, char * argv[])
 
     if (settings.auto_activate) {
       if (lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE !=
-          controller_node_ptr->configure().id()) {
+        controller_node_ptr->configure().id())
+      {
         throw std::runtime_error("Could not configure PendulumControllerNode!");
       }
       if (lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE !=
-          controller_node_ptr->activate().id()) {
+        controller_node_ptr->activate().id())
+      {
         throw std::runtime_error("Could not activate PendulumControllerNode!");
       }
     }
@@ -66,8 +68,9 @@ int main(int argc, char * argv[])
     RCLCPP_INFO(rclcpp::get_logger("pendulum_demo"), e.what());
     ret = 2;
   } catch (...) {
-    RCLCPP_INFO(rclcpp::get_logger("pendulum_demo"), "Unknown exception caught. "
-                                                     "Exiting...");
+    RCLCPP_INFO(
+      rclcpp::get_logger("pendulum_demo"), "Unknown exception caught. "
+      "Exiting...");
     ret = -1;
   }
   return ret;

@@ -21,22 +21,22 @@ namespace pendulum_driver
 {
 
 PendulumDriver::Config::Config(
-    const double pendulum_mass,
-    const double cart_mass,
-    const double pendulum_length,
-    const double damping_coefficient,
-    const double gravity,
-    const double max_cart_force,
-    const double noise_level,
-    std::chrono::microseconds physics_update_period)
-    : pendulum_mass{pendulum_mass},
-      cart_mass{cart_mass},
-      pendulum_length{pendulum_length},
-      damping_coefficient{damping_coefficient},
-      gravity{gravity},
-      max_cart_force{max_cart_force},
-      noise_level{noise_level},
-      physics_update_period{physics_update_period}
+  const double pendulum_mass,
+  const double cart_mass,
+  const double pendulum_length,
+  const double damping_coefficient,
+  const double gravity,
+  const double max_cart_force,
+  const double noise_level,
+  std::chrono::microseconds physics_update_period)
+: pendulum_mass{pendulum_mass},
+  cart_mass{cart_mass},
+  pendulum_length{pendulum_length},
+  damping_coefficient{damping_coefficient},
+  gravity{gravity},
+  max_cart_force{max_cart_force},
+  noise_level{noise_level},
+  physics_update_period{physics_update_period}
 {}
 
 double PendulumDriver::Config::get_pendulum_mass() const

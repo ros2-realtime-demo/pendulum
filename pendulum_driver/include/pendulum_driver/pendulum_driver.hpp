@@ -62,7 +62,7 @@ public:
 
   class Config
   {
-  public:
+public:
     /// \brief Constructor
     /// \param[in] pendulum_mass pendulum mass
     /// \param[in] cart_mass cart mass
@@ -72,14 +72,14 @@ public:
     /// \param[in] max_cart_force maximum cart force
     /// \param[in] physics_update_period physics simulation update period
     Config(
-        const double pendulum_mass,
-        const double cart_mass,
-        const double pendulum_length,
-        const double damping_coefficient,
-        const double gravity,
-        const double max_cart_force,
-        const double noise_level,
-        std::chrono::microseconds physics_update_period);
+      const double pendulum_mass,
+      const double cart_mass,
+      const double pendulum_length,
+      const double damping_coefficient,
+      const double gravity,
+      const double max_cart_force,
+      const double noise_level,
+      std::chrono::microseconds physics_update_period);
 
     /// \brief Gets the pendulum mass
     /// \return Pendulum mass in kilograms
@@ -112,7 +112,8 @@ public:
     /// \brief Gets the physics simulation update period
     /// \return physics simulation update period
     std::chrono::microseconds get_physics_update_period() const;
-  private:
+
+private:
     /// pendulum mass in kg
     double pendulum_mass = 1.0;
     /// cart mass in Kg

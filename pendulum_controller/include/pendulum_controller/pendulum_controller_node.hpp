@@ -54,8 +54,8 @@ public:
   /// \param[in] node_name Name of this node
   /// \param[in] options Node options for rclcpp internals
   PENDULUM_CONTROLLER_PUBLIC PendulumControllerNode(
-      const std::string & node_name,
-      rclcpp::NodeOptions options =  rclcpp::NodeOptions());
+    const std::string & node_name,
+    rclcpp::NodeOptions options = rclcpp::NodeOptions());
 
   /// \brief Explicit constructor
   /// \param[in] node_name Name of this node
@@ -65,12 +65,12 @@ public:
   /// \param[in] command_publish_period Period of the command topic publishing
   /// \param[in] controller_cfg Configuration class for the controller
   PENDULUM_CONTROLLER_PUBLIC PendulumControllerNode(
-      const std::string & node_name,
-      const std::string & sensor_topic_name,
-      const std::string & command_topic_name,
-      const std::string & setpoint_topic_name,
-      std::chrono::microseconds command_publish_period,
-      const PendulumController::Config & controller_cfg);
+    const std::string & node_name,
+    const std::string & sensor_topic_name,
+    const std::string & command_topic_name,
+    const std::string & setpoint_topic_name,
+    std::chrono::microseconds command_publish_period,
+    const PendulumController::Config & controller_cfg);
 
   /// \brief Get the sensor subscription's settings options.
   /// \return  subscription's settings options

@@ -51,8 +51,8 @@ public:
   /// \param[in] node_name Name of this node
   /// \param[in] options Node options for rclcpp internals
   PENDULUM_DRIVER_PUBLIC PendulumDriverNode(
-      const std::string & node_name,
-      rclcpp::NodeOptions options = rclcpp::NodeOptions());
+    const std::string & node_name,
+    rclcpp::NodeOptions options = rclcpp::NodeOptions());
 
   /// \brief Explicit constructor
   /// \param[in] node_name Name of this node
@@ -62,14 +62,14 @@ public:
   /// \param[in] status_publish_period Period of the sensor state topic publishing
   /// \param[in] driver_cfg Configuration class for the pendulum driver
   PENDULUM_DRIVER_PUBLIC PendulumDriverNode(
-      const std::string & node_name,
-      const std::string & sensor_topic_name,
-      const std::string & command_topic_name,
-      const std::string & disturbance_topic_name,
-      const std::string & cart_base_joint_name,
-      const std::string & pole_joint_name,
-      std::chrono::microseconds status_publish_period,
-      const PendulumDriver::Config & driver_cfg);
+    const std::string & node_name,
+    const std::string & sensor_topic_name,
+    const std::string & command_topic_name,
+    const std::string & disturbance_topic_name,
+    const std::string & cart_base_joint_name,
+    const std::string & pole_joint_name,
+    std::chrono::microseconds status_publish_period,
+    const PendulumDriver::Config & driver_cfg);
 
   /// \brief Initialize pendulum driver
   void init();
