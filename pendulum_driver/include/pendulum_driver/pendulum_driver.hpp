@@ -126,10 +126,10 @@ private:
     double gravity = -9.8;
     /// maximum allowed force applied to the cart
     double max_cart_force = 1000;
-    /// physics simulation update period
-    std::chrono::microseconds physics_update_period;
     /// Noise level used for simulation
     double noise_level = 1.0;
+    /// physics simulation update period
+    std::chrono::microseconds physics_update_period;
   };
 
   explicit PendulumDriver(const Config & config);

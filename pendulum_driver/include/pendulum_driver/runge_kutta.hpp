@@ -16,8 +16,8 @@
 /// \brief This file provides an implementation for a Runge-Kutta method to solve
 ///        ordinary differential equations (ODE)
 
-#ifndef PENDULUM_SIMULATION__RUNGE_KUTTA_HPP_
-#define PENDULUM_SIMULATION__RUNGE_KUTTA_HPP_
+#ifndef PENDULUM_DRIVER__RUNGE_KUTTA_HPP_
+#define PENDULUM_DRIVER__RUNGE_KUTTA_HPP_
 
 #include <array>
 #include <stdexcept>
@@ -97,4 +97,4 @@ private:
 }  // namespace pendulum_driver
 }  // namespace pendulum
 
-#endif  // PENDULUM_SIMULATION__RUNGE_KUTTA_HPP_
+#endif  // PENDULUM_DRIVER__RUNGE_KUTTA_HPP_

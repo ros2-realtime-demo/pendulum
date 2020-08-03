@@ -39,7 +39,6 @@ PendulumDriver::PendulumDriver(const Config & config)
   // linearized equations couls be used if there are issues for real-time execution
   derivative_function_ = [this](const std::array<double, STATE_DIM> & y,
       double u, size_t i) -> double {
-
       const double m = cfg_.get_pendulum_mass();
       const double M = cfg_.get_cart_mass();
       const double L = cfg_.get_pendulum_length();

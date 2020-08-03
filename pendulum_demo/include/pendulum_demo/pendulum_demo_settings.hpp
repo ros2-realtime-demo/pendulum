@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_DEMO_PENDULUM_DEMO_SETTINGS_HPP
-#define PENDULUM_DEMO_PENDULUM_DEMO_SETTINGS_HPP
+#ifndef PENDULUM_DEMO__PENDULUM_DEMO_SETTINGS_HPP_
+#define PENDULUM_DEMO__PENDULUM_DEMO_SETTINGS_HPP_
 
-#include "rcutils/cmdline_parser.h"
 #include <string>
 #include "rclcpp/rclcpp.hpp"
+
+#include "rcutils/cmdline_parser.h"
 
 #include "pendulum_tools/memory_lock.hpp"
 #include "pendulum_tools/rt_thread.hpp"
@@ -120,4 +121,4 @@ struct DemoSettings
   size_t lock_memory_size_mb = 0;
 };
 
-#endif //PENDULUM_DEMO_PENDULUM_DEMO_SETTINGS_HPP
+#endif  // PENDULUM_DEMO__PENDULUM_DEMO_SETTINGS_HPP_
