@@ -1,0 +1,10 @@
+export ADE_DOCKER_RUN_ARGS="
+  --cap-add=SYS_PTRACE
+  --cap-add=SYS_ADMIN
+  --capp-add=NET_ADMIN
+"
+export ADE_GITLAB=gitlab.com
+export ADE_REGISRTY=registry.gitlab.com
+export ADE_IMAGES="
+  ade:foxy
+"
