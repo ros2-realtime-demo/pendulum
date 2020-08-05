@@ -31,9 +31,8 @@ int main(int argc, char * argv[])
   try {
     rclcpp::init(argc, argv);
 
-    // Initialize the executor.
-    rclcpp::ExecutorOptions exec_options;
-    rclcpp::executors::SingleThreadedExecutor exec(exec_options);
+    // Create a static executor
+    rclcpp::executors::StaticSingleThreadedExecutor exec;
 
     // Create pendulum controller node
     using pendulum::pendulum_controller::PendulumControllerNode;
