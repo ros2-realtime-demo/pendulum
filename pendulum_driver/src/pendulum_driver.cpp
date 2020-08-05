@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "pendulum_driver/pendulum_driver.hpp"
-#include <array>
+#include <vector>
 
 namespace pendulum
 {
@@ -21,7 +21,7 @@ namespace pendulum_driver
 {
 PendulumDriver::PendulumDriver(const Config & config)
 : cfg_(config),
-  ode_solver_(),
+  ode_solver_(STATE_DIM),
   X_{0.0, 0.0, M_PI, 0.0},
   controller_force_{0.0},
   disturbance_force_{0.0},
@@ -37,7 +37,7 @@ PendulumDriver::PendulumDriver(const Config & config)
 
   // we use non-linear equations for the simulation
   // linearized equations couls be used if there are issues for real-time execution
-  derivative_function_ = [this](const std::array<double, STATE_DIM> & y,
+  derivative_function_ = [this](const std::vector<double> & y,
       double u, size_t i) -> double {
       const double m = cfg_.get_pendulum_mass();
       const double M = cfg_.get_cart_mass();

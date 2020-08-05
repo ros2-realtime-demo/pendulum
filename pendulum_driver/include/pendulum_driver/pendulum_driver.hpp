@@ -20,7 +20,7 @@
 
 #include <cmath>
 #include <chrono>
-#include <array>
+#include <vector>
 #include <random>
 
 #include "sensor_msgs/msg/joint_state.hpp"
@@ -155,13 +155,13 @@ private:
   double dt_;
   PendulumState state_;
 
-  RungeKutta<STATE_DIM> ode_solver_;
+  RungeKutta ode_solver_;
   // state array for ODE solver
   // X[0]: cart position
   // X[1]: cart velocity
   // X[2]: pole position
   // X[3]: pole velocity
-  std::array<double, STATE_DIM> X_;
+  std::vector<double> X_;
 
   // force applied by the controller
   // this can be considered as the force applied by the cart motor
@@ -176,7 +176,7 @@ private:
   std::uniform_real_distribution<double> noise_gen_;
 
   // pointer to the derivative motion functions (ODE)
-  derivativeF<STATE_DIM> derivative_function_;
+  derivativeF derivative_function_;
 };
 }  // namespace pendulum_driver
 }  // namespace pendulum
