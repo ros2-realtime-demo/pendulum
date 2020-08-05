@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.5)
 
 project(pendulum_driver)
 
-set(OPTIONAL_AMENT_DEPENDENCES)
-set(OPTIONAL_LIBRARIES)
-
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 14)
@@ -22,42 +19,33 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
-find_package(pendulum_tools REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
-include_directories(
-  include
-  ${lifecycle_msgs_INCLUDE_DIRS}
-  ${rclcpp_lifecycle_INCLUDE_DIRS}
-  ${rclcpp_INCLUDE_DIRS})
-
-add_library(pendulum_driver SHARED
+include_directories(include)
+set(PENDULUM_DRIVER_LIB pendulum_driver)
+add_library(${PENDULUM_DRIVER_LIB} SHARED
 src/pendulum_driver_node.cpp
 src/pendulum_driver.cpp
 src/pendulum_driver_config.cpp)
 
-target_include_directories(pendulum_driver
+target_include_directories(${PENDULUM_DRIVER_LIB}
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
-target_compile_definitions(pendulum_driver
-        PRIVATE "COMPOSITION_BUILDING_DLL")
-
 ament_export_include_directories(include)
-ament_export_libraries(pendulum_driver)
+ament_export_libraries(${PENDULUM_DRIVER_LIB})
 
-ament_target_dependencies(pendulum_driver
+ament_target_dependencies(${PENDULUM_DRIVER_LIB}
         "rclcpp_lifecycle"
         "lifecycle_msgs"
         "pendulum_msgs_v2"
         "rclcpp"
         "rclcpp_components"
-        "pendulum_tools"
-        "sensor_msgs"
-        ${OPTIONAL_AMENT_DEPENDENCES})
-rclcpp_components_register_nodes(pendulum_driver "pendulum::PendulumDriverNode")
-target_link_libraries(pendulum_driver ${OPTIONAL_LIBRARIES})
+        "sensor_msgs")
+rclcpp_components_register_nodes(${PENDULUM_DRIVER_LIB}
+    "pendulum::pendulum_driver::PendulumDriver")
+target_link_libraries(${PENDULUM_DRIVER_LIB})
 
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported
@@ -72,7 +60,7 @@ install(
 )
 
 install(TARGETS
-        pendulum_driver
+    ${PENDULUM_DRIVER_LIB}
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)

@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.5)
 
 project(pendulum_demo)
 
-set(OPTIONAL_AMENT_DEPENDENCES)
-set(OPTIONAL_LIBRARIES)
-
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 14)
@@ -26,13 +23,7 @@ find_package(pendulum_driver REQUIRED)
 find_package(pendulum_controller REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
-include_directories(
-        include
-        ${lifecycle_msgs_INCLUDE_DIRS}
-        ${pendulum_msgs_v2_INCLUDE_DIRS}
-        ${rclcpp_lifecycle_INCLUDE_DIRS}
-        ${rclcpp_INCLUDE_DIRS}
-        ${pendulum_tools_INCLUDE_DIR})
+include_directories(include)
 
 add_executable(pendulum_demo
   "src/pendulum_demo.cpp")
@@ -49,10 +40,9 @@ ament_target_dependencies(pendulum_demo
         "pendulum_driver"
         "pendulum_controller"
         "sensor_msgs"
-        "pendulum_tools"
-        ${OPTIONAL_AMENT_DEPENDENCES})
+        "pendulum_tools")
 
-target_link_libraries(pendulum_demo ${OPTIONAL_LIBRARIES})
+target_link_libraries(pendulum_demo)
 
 add_executable(pendulum_controller_standalone
   "src/pendulum_controller_standalone.cpp")
@@ -68,10 +58,9 @@ ament_target_dependencies(pendulum_controller_standalone
         "pendulum_msgs_v2"
         "pendulum_controller"
         "sensor_msgs"
-        "pendulum_tools"
-        ${OPTIONAL_AMENT_DEPENDENCES})
+        "pendulum_tools")
 
-target_link_libraries(pendulum_controller_standalone ${OPTIONAL_LIBRARIES})
+target_link_libraries(pendulum_controller_standalone)
 
 add_executable(pendulum_driver_standalone
   "src/pendulum_driver_standalone.cpp")
@@ -87,10 +76,9 @@ ament_target_dependencies(pendulum_driver_standalone
         "pendulum_msgs_v2"
         "pendulum_driver"
         "sensor_msgs"
-        "pendulum_tools"
-        ${OPTIONAL_AMENT_DEPENDENCES})
+        "pendulum_tools")
 
-target_link_libraries(pendulum_driver_standalone ${OPTIONAL_LIBRARIES})
+target_link_libraries(pendulum_driver_standalone)
 
 
 # since the package installs libraries without exporting them

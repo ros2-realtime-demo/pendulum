@@ -20,40 +20,35 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
-find_package(pendulum_tools REQUIRED)
 
-include_directories(
-  include
-  ${lifecycle_msgs_INCLUDE_DIRS}
-  ${rclcpp_lifecycle_INCLUDE_DIRS}
-  ${rclcpp_INCLUDE_DIRS})
-
-add_library(pendulum_controller SHARED
+include_directories(include)
+set(PENDULUM_CONTROLLER_LIB pendulum_controller)
+add_library(${PENDULUM_CONTROLLER_LIB} SHARED
         src/pendulum_controller_node.cpp
         src/pendulum_controller.cpp)
 
-target_include_directories(pendulum_controller
+target_include_directories(${PENDULUM_CONTROLLER_LIB}
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
-target_compile_definitions(pendulum_controller
+target_compile_definitions(${PENDULUM_CONTROLLER_LIB}
         PRIVATE "COMPOSITION_BUILDING_DLL")
 
 ament_export_include_directories(include)
-ament_export_libraries(pendulum_controller)
+ament_export_libraries(${PENDULUM_CONTROLLER_LIB})
 
-ament_target_dependencies(pendulum_controller
+ament_target_dependencies(${PENDULUM_CONTROLLER_LIB}
         "rclcpp_lifecycle"
         "lifecycle_msgs"
         "pendulum_msgs_v2"
         "rclcpp"
         "rclcpp_components"
-        "pendulum_tools"
         "sensor_msgs"
         ${OPTIONAL_AMENT_DEPENDENCES})
-rclcpp_components_register_nodes(pendulum_controller "pendulum::Controller")
-target_link_libraries(pendulum_controller ${OPTIONAL_LIBRARIES})
+rclcpp_components_register_nodes(${PENDULUM_CONTROLLER_LIB}
+    "pendulum::pendulum_controller::Controller")
+target_link_libraries(pendulum_controller)
 
 # since the package installs libraries without exporting them
 # it needs to make sure that the library path is being exported
@@ -68,7 +63,7 @@ install(
 )
 
 install(TARGETS
-        pendulum_controller
+        ${PENDULUM_CONTROLLER_LIB}
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)

@@ -41,9 +41,6 @@ namespace pendulum_controller
 class PENDULUM_CONTROLLER_PUBLIC PendulumController
 {
 public:
-  /// dimension of the controller space state array
-  static constexpr size_t CONTROLLER_STATE_DIM = 4U;
-
   class PENDULUM_CONTROLLER_PUBLIC Config
   {
 public:

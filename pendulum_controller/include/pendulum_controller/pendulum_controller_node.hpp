@@ -135,8 +135,6 @@ private:
   rclcpp::SubscriptionOptions sensor_subscription_options_;
 
   rclcpp::TimerBase::SharedPtr command_timer_;
-
-  sensor_msgs::msg::JointState state_message_;
   pendulum_msgs_v2::msg::PendulumCommand command_message_;
 };
 }  // namespace pendulum_controller

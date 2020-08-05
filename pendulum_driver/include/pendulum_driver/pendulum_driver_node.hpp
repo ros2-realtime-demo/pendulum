@@ -141,10 +141,7 @@ private:
 
   rclcpp::TimerBase::SharedPtr state_timer_;
   rclcpp::TimerBase::SharedPtr update_driver_timer_;
-
   sensor_msgs::msg::JointState state_message_;
-  pendulum_msgs_v2::msg::PendulumCommand command_message_;
-  pendulum_msgs_v2::msg::PendulumCommand disturbance_message_;
 };
 }  // namespace pendulum_driver
 }  // namespace pendulum
