@@ -18,7 +18,6 @@
 #ifndef PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
 #define PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
 
-#include <chrono>
 #include <cmath>
 #include <vector>
 

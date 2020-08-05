@@ -34,8 +34,8 @@
 
 #include "pendulum_msgs_v2/msg/pendulum_command.hpp"
 #include "pendulum_msgs_v2/msg/pendulum_state.hpp"
-#include "pendulum_controller/visibility_control.hpp"
 #include "pendulum_controller/pendulum_controller.hpp"
+#include "pendulum_controller/visibility_control.hpp"
 
 namespace pendulum
 {
@@ -122,6 +122,7 @@ private:
   const std::string command_topic_name_;
   const std::string setpoint_topic_name_;
   std::chrono::microseconds command_publish_period_;
+
   PendulumController controller_;
 
   std::shared_ptr<rclcpp::Subscription<
