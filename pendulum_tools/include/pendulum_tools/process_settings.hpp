@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_DEMO__PENDULUM_DEMO_SETTINGS_HPP_
-#define PENDULUM_DEMO__PENDULUM_DEMO_SETTINGS_HPP_
+#ifndef PENDULUM_TOOLS__PROCESS_SETTINGS_HPP_
+#define PENDULUM_TOOLS__PROCESS_SETTINGS_HPP_
 
 #include <string>
 #include "rclcpp/rclcpp.hpp"
@@ -23,7 +23,7 @@
 #include "pendulum_tools/memory_lock.hpp"
 #include "pendulum_tools/rt_thread.hpp"
 
-struct DemoSettings
+struct ProcessSettings
 {
   void print_usage()
   {
@@ -127,4 +127,4 @@ struct DemoSettings
   size_t lock_memory_size_mb = 0;
 };
 
-#endif  // PENDULUM_DEMO__PENDULUM_DEMO_SETTINGS_HPP_
+#endif  // PENDULUM_TOOLS__PROCESS_SETTINGS_HPP_

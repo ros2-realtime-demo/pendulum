@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pendulum_demo/pendulum_demo_settings.hpp"
-
 #include <rclcpp/strategies/allocator_memory_strategy.hpp>
 
 #include <memory>
@@ -24,10 +22,11 @@
 
 #include "pendulum_driver/pendulum_driver_node.hpp"
 #include "pendulum_controller/pendulum_controller_node.hpp"
+#include "pendulum_tools/process_settings.hpp"
 
 int main(int argc, char * argv[])
 {
-  DemoSettings settings;
+  ProcessSettings settings;
   if (!settings.init(argc, argv)) {
     return EXIT_FAILURE;
   }

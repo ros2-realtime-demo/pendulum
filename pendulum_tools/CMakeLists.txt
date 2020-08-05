@@ -14,6 +14,7 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
 include_directories(include)
 
 add_library(pendulum_tools SHARED
@@ -24,6 +25,9 @@ target_include_directories(pendulum_tools
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
+
+ament_target_dependencies(pendulum_tools
+    "rclcpp")
 
 ament_export_include_directories(include)
 ament_export_libraries(pendulum_tools)
