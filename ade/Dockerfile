@@ -13,6 +13,7 @@ ENV LC_ALL en_US.UTF-8
 
 # After apt install sudo
 RUN echo 'ALL ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN echo 'Set disable_coredump false' >> /etc/sudo.conf
 
 COPY env.sh /etc/profile.d/ade_env.sh
 COPY entrypoint /ade_entrypoint
