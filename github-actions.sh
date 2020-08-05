@@ -66,7 +66,6 @@ function compile_ws()
   colcon test --merge-install
   colcon test-result --verbose
   result=$?
-  echo $result
   if [ $result -ne 0 ]; then
     echo -e "${RED}Error compiling the ws${RESET}"
     colcon test-result --verbose
