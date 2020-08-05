@@ -35,7 +35,7 @@ def generate_launch_description():
 
     # Set parameter file path
     param_file_path = os.path.join(bringup_dir, 'params', 'pendulum.param.yaml')
-    param_file=launch.substitutions.LaunchConfiguration('params', default=[param_file_path])
+    param_file = launch.substitutions.LaunchConfiguration('params', default=[param_file_path])
 
     # Set rviz config path
     rviz_cfg_path = os.path.join(bringup_dir, 'rviz/pendulum.rviz')
@@ -79,7 +79,7 @@ def generate_launch_description():
            '--cpu-affinity', LaunchConfiguration('cpu-affinity'),
            '--lock-memory', LaunchConfiguration('lock-memory'),
            '--lock-memory-size', LaunchConfiguration('lock-memory-size')
-       ]
+           ]
     )
 
     robot_state_publisher_runner = Node(
