@@ -15,12 +15,18 @@
 import os
 
 from launch_ros.substitutions import FindPackageShare
+from launch.substitutions import LaunchConfiguration
 from launch import LaunchDescription
 from launch_ros.actions import Node
+from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
 import launch.substitutions
 
 
 def generate_launch_description():
+    # Set configuration file paths
+
+    # Set robot description parameters
     pkg_share_description = FindPackageShare('pendulum_description').find('pendulum_description')
     urdf_file = os.path.join(pkg_share_description, 'urdf', 'pendulum.urdf')
 
@@ -28,36 +34,79 @@ def generate_launch_description():
         robot_desc = infp.read()
     rsp_params = {'robot_description': robot_desc}
 
+    # Set parameter file path
     pkg_share_bringup = FindPackageShare('pendulum_bringup').find('pendulum_bringup')
     demo_param_file_path = os.path.join(pkg_share_bringup, 'param', 'pendulum.param.yaml')
     param_file=launch.substitutions.LaunchConfiguration('params', default=[demo_param_file_path])
 
+    # Set rviz config path
     rviz_cfg_path = os.path.join(pkg_share_bringup, 'config/pendulum.rviz')
 
-    # Node definitions
-    robot_state_publisher_runner = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        output='screen',
-        parameters=[rsp_params]
+    # Arguments definition
+    autostart_param = DeclareLaunchArgument(
+        name='autostart',
+        default_value='True',
+        description='Automatically start lifecycle nodes')
+    priority_param = DeclareLaunchArgument(
+        name='priority',
+        default_value='0',
+        description='Set process priority')
+    cpu_affinity_param = DeclareLaunchArgument(
+        name='cpu-affinity',
+        default_value='0',
+        description='Set process CPU affinity')
+    with_lock_memory_param = DeclareLaunchArgument(
+        name='lock-memory',
+        default_value='False',
+        description='Lock the process memory')
+    lock_memory_size_param = DeclareLaunchArgument(
+        name='lock-memory-size',
+        default_value='0',
+        description='Set lock memory size in MB')
+    with_rviz_param = DeclareLaunchArgument(
+        'with_rviz',
+        default_value='False',
+        description='Launch RVIZ2 in addition to other nodes'
     )
 
+# Node definitions
     pendulum_demo_runner = Node(
         package='pendulum_demo',
         executable='pendulum_demo',
         output='screen',
         parameters=[param_file],
-        arguments=["--auto"]
+        arguments=[
+                   '--autostart', LaunchConfiguration('autostart'),
+                   '--priority', LaunchConfiguration('priority'),
+                   '--cpu-affinity', LaunchConfiguration('cpu-affinity'),
+                   '--lock-memory', LaunchConfiguration('lock-memory'),
+                   '--lock-memory-size', LaunchConfiguration('lock-memory-size')
+                   ]
+    )
+
+    robot_state_publisher_runner = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        output='screen',
+        parameters=[rsp_params],
+        condition=IfCondition(LaunchConfiguration('with_rviz'))
     )
 
     rviz_runner = Node(
         package='rviz2',
         executable='rviz2',
         name='rviz2',
-        arguments=['-d', str(rviz_cfg_path)]
+        arguments=['-d', str(rviz_cfg_path)],
+        condition=IfCondition(LaunchConfiguration('with_rviz'))
     )
 
     return LaunchDescription([
+        autostart_param,
+        priority_param,
+        cpu_affinity_param,
+        with_lock_memory_param,
+        lock_memory_size_param,
+        with_rviz_param,
         robot_state_publisher_runner,
         pendulum_demo_runner,
         rviz_runner

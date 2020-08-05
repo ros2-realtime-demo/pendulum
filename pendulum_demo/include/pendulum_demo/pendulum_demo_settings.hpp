@@ -29,7 +29,7 @@ struct DemoSettings
   {
     RCLCPP_INFO(
       rclcpp::get_logger("settings"),
-      "\t[%s auto activate nodes]\n"
+      "\t[%s auto start nodes]\n"
       "\t[%s lock memory]\n"
       "\t[%s lock a fixed memory size in MB]\n"
       "\t[%s set process real-time priority]\n"
@@ -50,15 +50,21 @@ struct DemoSettings
     }
     // Optional argument parsing
     if (rcutils_cli_option_exist(argv, argv + argc, OPTION_AUTO_ACTIVATE_NODES.c_str())) {
-      auto_activate = true;
+      std::string option = rcutils_cli_get_option(
+        argv, argv + argc, OPTION_AUTO_ACTIVATE_NODES.c_str());
+      auto_start_nodes = ( option == "True") ? true : false;
     }
     if (rcutils_cli_option_exist(argv, argv + argc, OPTION_LOCK_MEMORY.c_str())) {
-      lock_memory = true;
+      std::string option = rcutils_cli_get_option(
+        argv, argv + argc, OPTION_LOCK_MEMORY_SIZE.c_str());
+      lock_memory = ( option == "True") ? true : false;
     }
     if (rcutils_cli_option_exist(argv, argv + argc, OPTION_LOCK_MEMORY_SIZE.c_str())) {
-      lock_memory = true;
       lock_memory_size_mb =
         std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_LOCK_MEMORY_SIZE.c_str()));
+      if (lock_memory_size_mb > 0U) {
+        lock_memory = true;
+      }
     }
     if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PRIORITY.c_str())) {
       process_priority = std::stoi(
@@ -103,14 +109,14 @@ struct DemoSettings
     }
   }
 
-  const std::string OPTION_AUTO_ACTIVATE_NODES = "--auto";
+  const std::string OPTION_AUTO_ACTIVATE_NODES = "--autostart";
   const std::string OPTION_LOCK_MEMORY = "--lock-memory";
   const std::string OPTION_LOCK_MEMORY_SIZE = "--lock-memory-size";
   const std::string OPTION_PRIORITY = "--priority";
   const std::string OPTION_CPU_AFFINITY = "--cpu-affinity";
 
   /// automatically activate lifecycle nodes
-  bool auto_activate = false;
+  bool auto_start_nodes = false;
   /// lock and prefault memory
   bool lock_memory = false;
   /// process priority value to set

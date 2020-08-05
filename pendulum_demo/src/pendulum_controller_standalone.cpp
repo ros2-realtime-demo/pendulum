@@ -47,7 +47,7 @@ int main(int argc, char * argv[])
     // configure process real-time settings
     settings.configure_process();
 
-    if (settings.auto_activate) {
+    if (settings.auto_start_nodes) {
       if (lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE !=
         controller_node_ptr->configure().id())
       {
