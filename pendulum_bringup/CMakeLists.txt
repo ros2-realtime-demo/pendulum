@@ -4,7 +4,7 @@ project(pendulum_bringup)
 
 find_package(ament_cmake REQUIRED)
 
-install(DIRECTORY config launch launch param
+install(DIRECTORY rviz urdf launch params
   DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)

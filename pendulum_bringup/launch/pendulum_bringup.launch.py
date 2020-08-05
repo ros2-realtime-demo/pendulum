@@ -24,25 +24,23 @@ import launch.substitutions
 
 
 def generate_launch_description():
-    # Set configuration file paths
+    # Get the bringup directory
+    bringup_dir = FindPackageShare('pendulum_bringup').find('pendulum_bringup')
 
     # Set robot description parameters
-    pkg_share_description = FindPackageShare('pendulum_description').find('pendulum_description')
-    urdf_file = os.path.join(pkg_share_description, 'urdf', 'pendulum.urdf')
-
+    urdf_file = os.path.join(bringup_dir, 'urdf', 'pendulum.urdf')
     with open(urdf_file, 'r') as infp:
         robot_desc = infp.read()
     rsp_params = {'robot_description': robot_desc}
 
     # Set parameter file path
-    pkg_share_bringup = FindPackageShare('pendulum_bringup').find('pendulum_bringup')
-    demo_param_file_path = os.path.join(pkg_share_bringup, 'param', 'pendulum.param.yaml')
-    param_file=launch.substitutions.LaunchConfiguration('params', default=[demo_param_file_path])
+    param_file_path = os.path.join(bringup_dir, 'params', 'pendulum.param.yaml')
+    param_file=launch.substitutions.LaunchConfiguration('params', default=[param_file_path])
 
     # Set rviz config path
-    rviz_cfg_path = os.path.join(pkg_share_bringup, 'config/pendulum.rviz')
+    rviz_cfg_path = os.path.join(bringup_dir, 'rviz/pendulum.rviz')
 
-    # Arguments definition
+    # Create the launch configuration variables
     autostart_param = DeclareLaunchArgument(
         name='autostart',
         default_value='True',
@@ -69,19 +67,19 @@ def generate_launch_description():
         description='Launch RVIZ2 in addition to other nodes'
     )
 
-# Node definitions
+    # Node definitions
     pendulum_demo_runner = Node(
         package='pendulum_demo',
         executable='pendulum_demo',
         output='screen',
         parameters=[param_file],
         arguments=[
-                   '--autostart', LaunchConfiguration('autostart'),
-                   '--priority', LaunchConfiguration('priority'),
-                   '--cpu-affinity', LaunchConfiguration('cpu-affinity'),
-                   '--lock-memory', LaunchConfiguration('lock-memory'),
-                   '--lock-memory-size', LaunchConfiguration('lock-memory-size')
-                   ]
+           '--autostart', LaunchConfiguration('autostart'),
+           '--priority', LaunchConfiguration('priority'),
+           '--cpu-affinity', LaunchConfiguration('cpu-affinity'),
+           '--lock-memory', LaunchConfiguration('lock-memory'),
+           '--lock-memory-size', LaunchConfiguration('lock-memory-size')
+       ]
     )
 
     robot_state_publisher_runner = Node(
