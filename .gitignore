@@ -191,3 +191,11 @@ vgcore.*
 *.swo
 *.gch
 *.patch
+
+## ADE
+ade/.adehome
+ade/.bash_history
+ade/.bash_logout
+ade/.bashrc
+ade/.profile
+ade/.ssh
