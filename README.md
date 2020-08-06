@@ -1,5 +1,9 @@
 # Inverted pendulum demo
 
+## Disclaimer
+
+This is work in progress and should be considered just as a proof of concept on how to leverage ROS 2 features to use in real-time applications. Any feedback and help to improve the project is appreciated.
+
 ### Build status
 
 | eloquent |  dashing | master |
