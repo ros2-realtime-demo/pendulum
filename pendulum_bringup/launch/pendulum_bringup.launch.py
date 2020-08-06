@@ -61,6 +61,10 @@ def generate_launch_description():
         name='lock-memory-size',
         default_value='0',
         description='Set lock memory size in MB')
+    config_child_threads_param = DeclareLaunchArgument(
+        name='config-child-threads',
+        default_value='False',
+        description='Configure process child threads (typically DDS threads)')
     with_rviz_param = DeclareLaunchArgument(
         'with_rviz',
         default_value='False',
@@ -78,7 +82,8 @@ def generate_launch_description():
            '--priority', LaunchConfiguration('priority'),
            '--cpu-affinity', LaunchConfiguration('cpu-affinity'),
            '--lock-memory', LaunchConfiguration('lock-memory'),
-           '--lock-memory-size', LaunchConfiguration('lock-memory-size')
+           '--lock-memory-size', LaunchConfiguration('lock-memory-size'),
+           '--config-child-threads', LaunchConfiguration('config-child-threads')
            ]
     )
 
@@ -104,6 +109,7 @@ def generate_launch_description():
         cpu_affinity_param,
         with_lock_memory_param,
         lock_memory_size_param,
+        config_child_threads_param,
         with_rviz_param,
         robot_state_publisher_runner,
         pendulum_demo_runner,

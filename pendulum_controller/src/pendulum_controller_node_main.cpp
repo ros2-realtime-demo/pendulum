@@ -29,6 +29,11 @@ int main(int argc, char * argv[])
 
   int32_t ret = 0;
   try {
+    // configure process real-time settings
+    if (settings.configure_child_threads) {
+      // process child threads created by ROS nodes will inherit the settings
+      settings.configure_process();
+    }
     rclcpp::init(argc, argv);
 
     // Create a static executor
@@ -42,7 +47,10 @@ int main(int argc, char * argv[])
     exec.add_node(controller_node_ptr->get_node_base_interface());
 
     // configure process real-time settings
-    settings.configure_process();
+    if (!settings.configure_child_threads) {
+      // process child threads created by ROS nodes will NOT inherit the settings
+      settings.configure_process();
+    }
 
     if (settings.auto_start_nodes) {
       if (lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE !=
