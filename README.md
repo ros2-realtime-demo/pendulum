@@ -1,5 +1,10 @@
 # Inverted pendulum demo
 
+## Disclaimer
+
+**This branch is not under active development.**
+
+
 ### Build status
 
 | eloquent |  dashing | master |
