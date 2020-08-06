@@ -1,7 +1,9 @@
 export ADE_DOCKER_RUN_ARGS="
   --cap-add=SYS_PTRACE
-  --cap-add=SYS_ADMIN
-  --capp-add=NET_ADMIN
+  --cap-add=NET_ADMIN
+  --cap-add=IPC_LOCK
+  --ulimit rtprio=100:100
+  --ulimit memlock=-1:-1
 "
 export ADE_GITLAB=gitlab.com
 export ADE_REGISRTY=registry.gitlab.com
