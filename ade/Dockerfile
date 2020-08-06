@@ -5,6 +5,8 @@ RUN apt-get update && \
         sudo \
         locales \
         tzdata \
+	libogre-1.12 \
+	ros-foxy-rviz2 \
   && rm -rf /var/lib/apt/lists/*
 RUN locale-gen en_US.UTF-8; dpkg-reconfigure -f noninteractive locales
 ENV LANG en_US.UTF-8
