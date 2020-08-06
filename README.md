@@ -6,7 +6,7 @@ This is work in progress and should be considered just as a proof of concept on 
 
 ### Build status
 
-| foxy | | eloquent |  dashing | master |
+| foxy | eloquent |  dashing | master |
 |--------- | -------- | ------- | ------- |
 | [![Build Status](https://github.com/ros2-realtime-demo/pendulum/workflows/build/badge.svg?branch=foxy)](https://travis-ci.com/ros2-realtime-demo/pendulum) | [![Build Status](https://github.com/ros2-realtime-demo/pendulum/workflows/build/badge.svg?branch=eloquent)](https://travis-ci.com/ros2-realtime-demo/pendulum)  | [![Build Status](https://github.com/ros2-realtime-demo/pendulum/workflows/build/badge.svg?branch=dashing)](https://travis-ci.com/ros2-realtime-demo/pendulum) | [![Build Status](https://github.com/ros2-realtime-demo/pendulum/workflows/build/badge.svg?branch=master)](https://travis-ci.com/ros2-realtime-demo/pendulum) |
 
