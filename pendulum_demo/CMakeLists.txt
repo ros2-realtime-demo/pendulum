@@ -12,92 +12,26 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp_lifecycle REQUIRED)
-find_package(lifecycle_msgs REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(rclcpp_components REQUIRED)
-find_package(rcutils)
-find_package(pendulum_tools REQUIRED)
-find_package(pendulum_msgs_v2 REQUIRED)
-find_package(pendulum_driver REQUIRED)
 find_package(pendulum_controller REQUIRED)
-find_package(sensor_msgs REQUIRED)
+find_package(pendulum_driver REQUIRED)
 
-include_directories(include)
+set(PENDULUM_DEMO_EXE pendulum_demo)
 
-add_executable(pendulum_demo
-  "src/pendulum_demo.cpp")
-
-ament_export_include_directories(include)
-
-ament_target_dependencies(pendulum_demo
-        "rclcpp"
-        "rclcpp_lifecycle"
-        "rclcpp_components"
-        "rcutils"
-        "lifecycle_msgs"
-        "pendulum_msgs_v2"
-        "pendulum_driver"
-        "pendulum_controller"
-        "sensor_msgs"
-        "pendulum_tools")
-
-target_link_libraries(pendulum_demo)
-
-add_executable(pendulum_controller_standalone
-  "src/pendulum_controller_standalone.cpp")
-
-ament_export_include_directories(include)
-
-ament_target_dependencies(pendulum_controller_standalone
-        "rclcpp"
-        "rclcpp_lifecycle"
-        "rclcpp_components"
-        "rcutils"
-        "lifecycle_msgs"
-        "pendulum_msgs_v2"
-        "pendulum_controller"
-        "sensor_msgs"
-        "pendulum_tools")
-
-target_link_libraries(pendulum_controller_standalone)
-
-add_executable(pendulum_driver_standalone
-  "src/pendulum_driver_standalone.cpp")
-
-ament_export_include_directories(include)
-
-ament_target_dependencies(pendulum_driver_standalone
-        "rclcpp"
-        "rclcpp_lifecycle"
-        "rclcpp_components"
-        "rcutils"
-        "lifecycle_msgs"
-        "pendulum_msgs_v2"
-        "pendulum_driver"
-        "sensor_msgs"
-        "pendulum_tools")
-
-target_link_libraries(pendulum_driver_standalone)
-
-
-# since the package installs libraries without exporting them
-# it needs to make sure that the library path is being exported
-if(NOT WIN32)
-    ament_environment_hooks(
-            "${ament_cmake_package_templates_ENVIRONMENT_HOOK_LIBRARY_PATH}")
-endif()
-
-install(TARGETS
-        pendulum_demo
-        pendulum_controller_standalone
-        pendulum_driver_standalone
-        DESTINATION lib/${PROJECT_NAME})
+add_executable(${PENDULUM_DEMO_EXE} "src/pendulum_demo.cpp")
+target_link_libraries(${PENDULUM_DEMO_EXE}
+    pendulum_controller::pendulum_controller
+    pendulum_driver::pendulum_driver)
 
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+install(TARGETS ${PENDULUM_DEMO_EXE}
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION lib/${PROJECT_NAME}
+    INCLUDES DESTINATION include)
 
 ament_package()
