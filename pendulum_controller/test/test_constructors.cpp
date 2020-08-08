@@ -14,6 +14,7 @@
 
 #include <gtest/gtest.h>
 #include <memory>
+#include <vector>
 #include "rclcpp/rclcpp.hpp"
 #include "pendulum_controller/pendulum_controller_node.hpp"
 #include "pendulum_controller/pendulum_controller.hpp"
@@ -65,4 +66,10 @@ TEST(TransitionTest, test_transition) {
   ASSERT_EQ(
     State::PRIMARY_STATE_FINALIZED, test_node->trigger_transition(
       rclcpp_lifecycle::Transition(Transition::TRANSITION_UNCONFIGURED_SHUTDOWN)).id());
+}
+
+TEST(ConfigTest, test_config) {
+  std::vector<double> feedback_matrix = {0.0, 0.0, 0.0, 0.0};
+  PendulumController::Config config({0.0, 0.0, 0.0, 0.0});
+  ASSERT_EQ(feedback_matrix, config.get_feedback_matrix());
 }
