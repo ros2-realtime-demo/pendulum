@@ -57,6 +57,25 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
+
+  # Test Node
+  set(TEST_NODE_NAME "test_constructors")
+
+  # "Unit" test
+  set(CONSTRUCTORS_GTEST test_constructors)
+
+  ament_add_gtest(${CONSTRUCTORS_GTEST}
+    "test/test_constructors.cpp"
+  )
+
+  target_include_directories(${CONSTRUCTORS_GTEST} PRIVATE include)
+  target_link_libraries(${CONSTRUCTORS_GTEST} pendulum_controller)
+  ament_target_dependencies(${TEST_NODE_NAME}
+    "rclcpp"
+    "rclcpp_lifecycle"
+    "pendulum_msgs_v2"
+    "sensor_msgs"
+  )
 endif()
 
 install(
