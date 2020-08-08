@@ -8,6 +8,8 @@ RUN apt-get update && \
 	libogre-1.12 \
 	ros-foxy-rviz2 \
 	htop \
+	stress-ng \
+	rt-tests \
   && rm -rf /var/lib/apt/lists/*
 RUN locale-gen en_US.UTF-8; dpkg-reconfigure -f noninteractive locales
 ENV LANG en_US.UTF-8
