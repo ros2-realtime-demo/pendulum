@@ -1,0 +1,8 @@
+pendulum_controller:
+  ros__parameters:
+    sensor_topic_name: "joint_states"
+    command_topic_name: "command"
+    setpoint_topic_name: "setpoint"
+    command_publish_period_us: 10000
+    controller:
+      feedback_matrix: [-10.0000, -51.5393, 356.8637, 154.4146]
