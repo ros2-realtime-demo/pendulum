@@ -73,3 +73,20 @@ TEST(ConfigTest, test_config) {
   PendulumController::Config config({0.0, 0.0, 0.0, 0.0});
   ASSERT_EQ(feedback_matrix, config.get_feedback_matrix());
 }
+
+TEST(ParamTest, test_param) {
+  std::vector<rclcpp::Parameter> params;
+  std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
+
+  params.emplace_back("sensor_topic_name", "joint_states");
+  params.emplace_back("command_topic_name", "command");
+  params.emplace_back("setpoint_topic_name", "setpoint");
+  params.emplace_back("command_publish_period_us", 10000);
+  params.emplace_back("controller.feedback_matrix", feedback_matrix);
+
+  rclcpp::NodeOptions node_options;
+  node_options.parameter_overrides(params);
+
+  const auto test_node_ptr =
+    std::make_shared<PendulumControllerNode>(node_options);
+}
