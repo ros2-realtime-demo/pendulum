@@ -63,6 +63,9 @@ public:
   /// \param[in] command_topic_name Name of the command topic
   /// \param[in] setpoint_topic_name Name of the setpoint topic
   /// \param[in] command_publish_period Period of the command topic publishing
+  /// \param[in] enable_topic_stats Enable topic statistics publishing
+  /// \param[in] topic_stats_topic_name Name of the stats topic
+  /// \param[in] topic_stats_publish_period Period of the stats topic publishing
   /// \param[in] controller_cfg Configuration class for the controller
   PENDULUM_CONTROLLER_PUBLIC PendulumControllerNode(
     const std::string & node_name,
@@ -70,6 +73,9 @@ public:
     const std::string & command_topic_name,
     const std::string & setpoint_topic_name,
     std::chrono::microseconds command_publish_period,
+    bool enable_topic_stats,
+    const std::string & topic_stats_topic_name,
+    std::chrono::milliseconds topic_stats_publish_period,
     const PendulumController::Config & controller_cfg);
 
   /// \brief Get the sensor subscription's settings options.
@@ -122,6 +128,9 @@ private:
   const std::string command_topic_name_;
   const std::string setpoint_topic_name_;
   std::chrono::microseconds command_publish_period_;
+  bool enable_topic_stats_;
+  const std::string topic_stats_topic_name_;
+  std::chrono::milliseconds topic_stats_publish_period_;
 
   PendulumController controller_;
 

@@ -42,6 +42,10 @@ PendulumDriverNode::PendulumDriverNode(
   pole_joint_name_(declare_parameter("pole_joint_name").get<std::string>().c_str()),
   state_publish_period_(std::chrono::microseconds{
       declare_parameter("state_publish_period_us").get<std::uint16_t>()}),
+  enable_topic_stats_(declare_parameter("enable_topic_stats").get<bool>()),
+  topic_stats_topic_name_{declare_parameter("topic_stats_topic_name").get<std::string>().c_str()},
+  topic_stats_publish_period_{std::chrono::milliseconds {
+        declare_parameter("topic_stats_publish_period_ms").get<std::uint16_t>()}},
   driver_(
     PendulumDriver::Config(
       declare_parameter("driver.pendulum_mass").get<double>(),
@@ -68,6 +72,9 @@ PendulumDriverNode::PendulumDriverNode(
   const std::string & cart_base_joint_name,
   const std::string & pole_joint_name,
   std::chrono::microseconds state_publish_period,
+  bool enable_topic_stats,
+  const std::string & topic_stats_topic_name,
+  std::chrono::milliseconds topic_stats_publish_period,
   const PendulumDriver::Config & driver_cfg)
 : LifecycleNode(node_name.c_str()),
   sensor_topic_name_{sensor_topic_name},
@@ -76,6 +83,9 @@ PendulumDriverNode::PendulumDriverNode(
   cart_base_joint_name_{cart_base_joint_name},
   pole_joint_name_{pole_joint_name},
   state_publish_period_{state_publish_period},
+  enable_topic_stats_{enable_topic_stats},
+  topic_stats_topic_name_{topic_stats_topic_name},
+  topic_stats_publish_period_{topic_stats_publish_period},
   driver_(driver_cfg)
 {
   init();
@@ -138,6 +148,12 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
     {
       // do nothing
     };
+
+  if (enable_topic_stats_) {
+    command_subscription_options_.topic_stats_options.state = rclcpp::TopicStatisticsState::Enable;
+    command_subscription_options_.topic_stats_options.publish_topic = topic_stats_topic_name_;
+    command_subscription_options_.topic_stats_options.publish_period = topic_stats_publish_period_;
+  }
   command_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
     command_topic_name_.c_str(), rclcpp::QoS(10),
     std::bind(
