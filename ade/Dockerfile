@@ -10,6 +10,9 @@ RUN apt-get update && \
 	htop \
 	stress-ng \
 	rt-tests \
+	vim \
+	nano \
+	heaptrack \
   && rm -rf /var/lib/apt/lists/*
 RUN locale-gen en_US.UTF-8; dpkg-reconfigure -f noninteractive locales
 ENV LANG en_US.UTF-8
