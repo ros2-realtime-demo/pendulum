@@ -8,5 +8,5 @@ export ADE_DOCKER_RUN_ARGS="
 export ADE_GITLAB=gitlab.com
 export ADE_REGISRTY=registry.gitlab.com
 export ADE_IMAGES="
-  ade:foxy
+    ros2realtimedemo/pendulum:ade-base-foxy
 "
