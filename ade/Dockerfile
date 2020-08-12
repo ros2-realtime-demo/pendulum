@@ -7,13 +7,17 @@ RUN apt-get update && \
         tzdata \
 	libogre-1.12 \
 	ros-foxy-rviz2 \
+	ros-foxy-console-bridge-vendor \
+	ros-rolling-console-bridge-vendor \
 	htop \
 	stress-ng \
 	rt-tests \
 	vim \
 	nano \
 	heaptrack \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* \
+  && mv /opt/ros/rolling/lib/libconsole_bridge.so* /usr/lib/x86_64-linux-gnu/ \
+  && rm -rf /opt/ros/rolling
 RUN locale-gen en_US.UTF-8; dpkg-reconfigure -f noninteractive locales
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
