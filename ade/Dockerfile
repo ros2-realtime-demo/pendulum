@@ -1,5 +1,7 @@
 FROM ros:foxy
 
+MAINTAINER Lander Usategui <lander dot usategui at gmail dot com>
+
 RUN apt-get update && \
     apt-get install -y \
         sudo \
