@@ -1,0 +1,26 @@
+pendulum_controller:
+  ros__parameters:
+    sensor_topic_name: "joint_states"
+    command_topic_name: "command"
+    setpoint_topic_name: "setpoint"
+    command_publish_period_us: 10000
+    controller:
+      feedback_matrix: [-10.0000, -51.5393, 356.8637, 154.4146]
+
+pendulum_driver:
+  ros__parameters:
+    sensor_topic_name: "joint_states"
+    command_topic_name: "command"
+    disturbance_topic_name: "disturbance"
+    cart_base_joint_name: "cart_base_joint"
+    pole_joint_name: "pole_joint"
+    state_publish_period_us: 10000
+    driver:
+      pendulum_mass: 1.0
+      cart_mass: 5.0
+      pendulum_length: 2.0
+      damping_coefficient: 20.0
+      gravity: -9.8
+      max_cart_force: 1000.0
+      physics_update_period: 10000
+      noise_level: 1.0

@@ -17,9 +17,7 @@
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
-
 #include "pendulum_driver/pendulum_driver_node.hpp"
-#include "pendulum_controller/pendulum_controller_node.hpp"
 #include "pendulum_tools/process_settings.hpp"
 
 int main(int argc, char * argv[])
@@ -30,25 +28,16 @@ int main(int argc, char * argv[])
   }
 
   int32_t ret = 0;
-
   try {
     // configure process real-time settings
     if (settings.configure_child_threads) {
       // process child threads created by ROS nodes will inherit the settings
       settings.configure_process();
     }
-
     rclcpp::init(argc, argv);
 
     // Create a static executor
     rclcpp::executors::StaticSingleThreadedExecutor exec;
-
-    // Create pendulum controller node
-    using pendulum::pendulum_controller::PendulumControllerNode;
-    const auto controller_node_ptr =
-      std::make_shared<PendulumControllerNode>("pendulum_controller");
-
-    exec.add_node(controller_node_ptr->get_node_base_interface());
 
     // Create pendulum simulation
     using pendulum::pendulum_driver::PendulumDriverNode;
@@ -63,16 +52,6 @@ int main(int argc, char * argv[])
     }
 
     if (settings.auto_start_nodes) {
-      if (lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE !=
-        controller_node_ptr->configure().id())
-      {
-        throw std::runtime_error("Could not configure PendulumControllerNode!");
-      }
-      if (lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE !=
-        controller_node_ptr->activate().id())
-      {
-        throw std::runtime_error("Could not activate PendulumControllerNode!");
-      }
       if (lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE !=
         driver_node_ptr->configure().id())
       {

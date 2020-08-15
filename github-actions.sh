@@ -63,11 +63,9 @@ function compile_ws()
   echo -e "${YELLOW}Compile the WS for ROS2${RESET}"
   colcon build --merge-install
   echo -e "${YELLOW}Testing WS${RESET}"
-  colcon test --merge-install --return-code-on-test-failure
-  result=$?
-  if [ $result -ne 0 ]; then
-    echo -e "${RED}Error compiling the ws${RESET}"
-    exit $result
+  if ! colcon test --merge-install --return-code-on-test-failure; then
+    colcon test-result --verbose
+    exit 1
   else
     echo -e "${BLUE}WS compiled successfully${RESET}"
   fi
