@@ -5,8 +5,6 @@ export ADE_DOCKER_RUN_ARGS="
   --ulimit rtprio=100:100
   --ulimit memlock=-1:-1
 "
-export ADE_GITLAB=gitlab.com
-export ADE_REGISRTY=registry.gitlab.com
 export ADE_IMAGES="
     ros2realtimedemo/pendulum:ade-base-foxy
 "
