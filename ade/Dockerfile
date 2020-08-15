@@ -17,6 +17,15 @@ RUN apt-get update && \
 	vim \
 	nano \
 	heaptrack \
+	bash-completion \
+	openssh-client \
+	lcov \
+	strace \
+	man \
+	gdb \
+	doxygen \
+	curl \
+	strace \
   && rm -rf /var/lib/apt/lists/* \
   && mv /opt/ros/rolling/lib/libconsole_bridge.so* /usr/lib/x86_64-linux-gnu/ \
   && rm -rf /opt/ros/rolling
@@ -31,5 +40,8 @@ RUN echo 'Set disable_coredump false' >> /etc/sudo.conf
 
 COPY env.sh /etc/profile.d/ade_env.sh
 COPY entrypoint /ade_entrypoint
+COPY bashrc-git-prompt /
+RUN cat /bashrc-git-prompt >> /etc/skel/.bashrc && \
+    rm /bashrc-git-prompt
 ENTRYPOINT ["/ade_entrypoint"]
 CMD ["/bin/sh", "-c", "trap 'exit 147' TERM; tail -f /dev/null & while wait ${!}; test $? -ge 128; do true; done"]
