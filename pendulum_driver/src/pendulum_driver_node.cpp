@@ -140,7 +140,7 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
 
   // Create command subscription
   auto command_msg_strategy =
-  std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
+    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
 
   rclcpp::SubscriptionOptions command_subscription_options;
   command_subscription_options.event_callbacks.deadline_callback =

@@ -66,7 +66,7 @@ def generate_launch_description():
         default_value='False',
         description='Configure process child threads (typically DDS threads)')
     with_rviz_param = DeclareLaunchArgument(
-        'with_rviz',
+        'rviz',
         default_value='False',
         description='Launch RVIZ2 in addition to other nodes'
     )
@@ -92,7 +92,7 @@ def generate_launch_description():
         executable='robot_state_publisher',
         output='screen',
         parameters=[rsp_params],
-        condition=IfCondition(LaunchConfiguration('with_rviz'))
+        condition=IfCondition(LaunchConfiguration('rviz'))
     )
 
     rviz_runner = Node(
@@ -100,7 +100,7 @@ def generate_launch_description():
         executable='rviz2',
         name='rviz2',
         arguments=['-d', str(rviz_cfg_path)],
-        condition=IfCondition(LaunchConfiguration('with_rviz'))
+        condition=IfCondition(LaunchConfiguration('rviz'))
     )
 
     return LaunchDescription([

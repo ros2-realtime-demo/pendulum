@@ -126,7 +126,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
 
   // Create setpoint subscription
   auto setpoint_msg_strategy =
-  std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
+    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
 
   setpoint_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
     setpoint_topic_name_.c_str(), rclcpp::QoS(10),
