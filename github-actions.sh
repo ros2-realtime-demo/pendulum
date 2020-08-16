@@ -15,15 +15,12 @@ export RESET="\e[0m"
 
 # Paths
 export WS="/root/ros2_ws"
-export WS_SYMLINK="/root/ros2_symlink"
 export ROS2_DISTRO="foxy"
 
 function prepare_ws()
 {
-  echo -e "${YELLOW}Preparing work spaces${RESET}"
+  echo -e "${YELLOW}Preparing work space${RESET}"
   cd ${WS} || exit
-  cp -r /tmp/pendulum src
-  cd ${WS_SYMLINK} || exit
   cp -r /tmp/pendulum src
   result=$?
   if [ $result -ne 0 ]; then
@@ -61,10 +58,16 @@ function compile_ws()
   colcon list --names-only
   echo -e "${RESET}"
   echo -e "${YELLOW}Compile the WS for ROS2${RESET}"
-  colcon build --merge-install
+  if ! colcon build --build-base build-install --install-base install-merge --merge-install; then
+    echo -e "${RED}Unable to compile the ws${RESET}"
+    exit 1
+  else
+    echo -e "${BLUE}WS compiled successfully${RESET}"
+  fi
   echo -e "${YELLOW}Testing WS${RESET}"
-  if ! colcon test --merge-install --return-code-on-test-failure; then
+  if ! colcon test --build-base build-install --install-base install-merge --merge-install --return-code-on-test-failure; then
     colcon test-result --verbose
+    echo -e "${RED}Error testing the ws${RESET}"
     exit 1
   else
     echo -e "${BLUE}WS compiled successfully${RESET}"
@@ -75,17 +78,15 @@ function compile_ws_symlink()
 {
   # shellcheck source=/dev/null
   source /opt/ros/"${ROS2_DISTRO}"/setup.bash
-  cd ${WS_SYMLINK} || exit
+  cd ${WS} || exit
   echo -e "${YELLOW}###### Packages to be compiled ######${RESET}"
   echo -e "${PURPLE}"
   colcon list --names-only
   echo -e "${RESET}"
   echo -e "${YELLOW}Compile the WS for ROS2 using --symlink-install${RESET}"
-  colcon build --symlink-install
-  result=$?
-  if [ $result -ne 0 ]; then
+  if ! colcon build --build-base build-symlink --install-base install-symlink --symlink-install; then
     echo -e "${RED}Error compiling the WS_SYMLINK${RESET}"
-    exit $result
+    exit 1
   else
     echo -e "${BLUE}WS_SYMLINK compiled successfully${RESET}"
   fi
