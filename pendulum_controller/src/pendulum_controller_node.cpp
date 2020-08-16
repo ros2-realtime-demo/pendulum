@@ -42,6 +42,10 @@ PendulumControllerNode::PendulumControllerNode(
   setpoint_topic_name_(declare_parameter("setpoint_topic_name").get<std::string>().c_str()),
   command_publish_period_(std::chrono::microseconds{
       declare_parameter("command_publish_period_us").get<std::uint16_t>()}),
+  enable_topic_stats_(declare_parameter("enable_topic_stats").get<bool>()),
+  topic_stats_topic_name_{declare_parameter("topic_stats_topic_name").get<std::string>().c_str()},
+  topic_stats_publish_period_{std::chrono::milliseconds {
+        declare_parameter("topic_stats_publish_period_ms").get<std::uint16_t>()}},
   controller_(PendulumController::Config(
       declare_parameter("controller.feedback_matrix").get<std::vector<double>>()))
 {}
@@ -52,12 +56,18 @@ PendulumControllerNode::PendulumControllerNode(
   const std::string & command_topic_name,
   const std::string & setpoint_topic_name,
   std::chrono::microseconds command_publish_period,
+  bool enable_topic_stats,
+  const std::string & topic_stats_topic_name,
+  std::chrono::milliseconds topic_stats_publish_period,
   const PendulumController::Config & controller_cfg)
 : LifecycleNode(node_name.c_str()),
   sensor_topic_name_{sensor_topic_name},
   command_topic_name_{command_topic_name},
   setpoint_topic_name_{setpoint_topic_name},
   command_publish_period_{command_publish_period},
+  enable_topic_stats_{enable_topic_stats},
+  topic_stats_topic_name_{topic_stats_topic_name},
+  topic_stats_publish_period_{topic_stats_publish_period},
   controller_(controller_cfg)
 {}
 
@@ -98,6 +108,11 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
       // Do nothing
     };
 
+  if (enable_topic_stats_) {
+    sensor_subscription_options_.topic_stats_options.state = rclcpp::TopicStatisticsState::Enable;
+    sensor_subscription_options_.topic_stats_options.publish_topic = topic_stats_topic_name_;
+    sensor_subscription_options_.topic_stats_options.publish_period = topic_stats_publish_period_;
+  }
   state_sub_ = this->create_subscription<sensor_msgs::msg::JointState>(
     sensor_topic_name_.c_str(), rclcpp::QoS(10),
     std::bind(

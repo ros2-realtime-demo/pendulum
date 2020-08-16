@@ -4,6 +4,9 @@ pendulum_controller:
     command_topic_name: "command"
     setpoint_topic_name: "setpoint"
     command_publish_period_us: 10000
+    enable_topic_stats: False
+    topic_stats_topic_name: "controller_stats"
+    topic_stats_publish_period_ms: 1000
     controller:
       feedback_matrix: [-10.0000, -51.5393, 356.8637, 154.4146]
 
@@ -15,6 +18,9 @@ pendulum_driver:
     cart_base_joint_name: "cart_base_joint"
     pole_joint_name: "pole_joint"
     state_publish_period_us: 10000
+    enable_topic_stats: False
+    topic_stats_topic_name: "driver_stats"
+    topic_stats_publish_period_ms: 1000
     driver:
       pendulum_mass: 1.0
       cart_mass: 5.0

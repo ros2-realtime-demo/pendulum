@@ -69,6 +69,9 @@ public:
     const std::string & cart_base_joint_name,
     const std::string & pole_joint_name,
     std::chrono::microseconds status_publish_period,
+    bool enable_topic_stats,
+    const std::string & topic_stats_topic_name,
+    std::chrono::milliseconds topic_stats_publish_period,
     const PendulumDriver::Config & driver_cfg);
 
   /// \brief Initialize pendulum driver
@@ -126,6 +129,9 @@ private:
   const std::string cart_base_joint_name_;
   const std::string pole_joint_name_;
   std::chrono::microseconds state_publish_period_;
+  bool enable_topic_stats_;
+  const std::string topic_stats_topic_name_;
+  std::chrono::milliseconds topic_stats_publish_period_;
   PendulumDriver driver_;
 
   std::shared_ptr<rclcpp::Subscription<
