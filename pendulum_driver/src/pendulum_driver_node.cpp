@@ -66,35 +66,6 @@ PendulumDriverNode::PendulumDriverNode(
   init();
 }
 
-PendulumDriverNode::PendulumDriverNode(
-  const std::string & node_name,
-  const std::string & sensor_topic_name,
-  const std::string & command_topic_name,
-  const std::string & disturbance_topic_name,
-  const std::string & cart_base_joint_name,
-  const std::string & pole_joint_name,
-  std::chrono::microseconds state_publish_period,
-  bool enable_topic_stats,
-  const std::string & topic_stats_topic_name,
-  std::chrono::milliseconds topic_stats_publish_period,
-  std::chrono::milliseconds deadline_duration,
-  const PendulumDriver::Config & driver_cfg)
-: LifecycleNode(node_name.c_str()),
-  sensor_topic_name_{sensor_topic_name},
-  command_topic_name_{command_topic_name},
-  disturbance_topic_name_{disturbance_topic_name},
-  cart_base_joint_name_{cart_base_joint_name},
-  pole_joint_name_{pole_joint_name},
-  state_publish_period_{state_publish_period},
-  enable_topic_stats_{enable_topic_stats},
-  topic_stats_topic_name_{topic_stats_topic_name},
-  topic_stats_publish_period_{topic_stats_publish_period},
-  deadline_duration_{deadline_duration},
-  driver_(driver_cfg)
-{
-  init();
-}
-
 void PendulumDriverNode::init()
 {
   // Initialize joint message
