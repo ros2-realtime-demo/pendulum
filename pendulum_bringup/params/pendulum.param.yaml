@@ -1,6 +1,6 @@
 pendulum_controller:
   ros__parameters:
-    sensor_topic_name: "joint_states"
+    state_topic_name: "joint_states"
     command_topic_name: "command"
     setpoint_topic_name: "setpoint"
     command_publish_period_us: 10000
@@ -13,7 +13,7 @@ pendulum_controller:
 
 pendulum_driver:
   ros__parameters:
-    sensor_topic_name: "joint_states"
+    state_topic_name: "joint_states"
     command_topic_name: "command"
     disturbance_topic_name: "disturbance"
     cart_base_joint_name: "cart_base_joint"

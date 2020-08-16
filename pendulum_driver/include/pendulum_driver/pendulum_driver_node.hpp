@@ -95,7 +95,7 @@ private:
   on_shutdown(const rclcpp_lifecycle::State & state);
 
 private:
-  const std::string sensor_topic_name_;
+  const std::string state_topic_name_;
   const std::string command_topic_name_;
   const std::string disturbance_topic_name_;
   const std::string cart_base_joint_name_;

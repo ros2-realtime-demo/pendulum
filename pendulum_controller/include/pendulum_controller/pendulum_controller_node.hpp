@@ -56,6 +56,7 @@ public:
   PENDULUM_CONTROLLER_PUBLIC PendulumControllerNode(
     const std::string & node_name,
     rclcpp::NodeOptions options = rclcpp::NodeOptions());
+
 private:
   /// \brief pendulum state topic message callback
   /// \param[in] msg pendulum state message
@@ -94,7 +95,7 @@ private:
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_shutdown(const rclcpp_lifecycle::State & state);
 
-  const std::string sensor_topic_name_;
+  const std::string state_topic_name_;
   const std::string command_topic_name_;
   const std::string setpoint_topic_name_;
   std::chrono::microseconds command_publish_period_;

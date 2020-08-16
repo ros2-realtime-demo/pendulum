@@ -37,7 +37,7 @@ PendulumControllerNode::PendulumControllerNode(
 : LifecycleNode(
     node_name.c_str(),
     options),
-  sensor_topic_name_(declare_parameter("sensor_topic_name").get<std::string>().c_str()),
+  state_topic_name_(declare_parameter("state_topic_name").get<std::string>().c_str()),
   command_topic_name_(declare_parameter("command_topic_name").get<std::string>().c_str()),
   setpoint_topic_name_(declare_parameter("setpoint_topic_name").get<std::string>().c_str()),
   command_publish_period_(std::chrono::microseconds{
@@ -73,34 +73,34 @@ void PendulumControllerNode::control_timer_callback()
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
 {
-  // Create sensor subscription
-  rclcpp::SubscriptionOptions sensor_subscription_options;
-  sensor_subscription_options.event_callbacks.deadline_callback =
+  // Create state subscription
+  rclcpp::SubscriptionOptions state_subscription_options;
+  state_subscription_options.event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
-      // transit to deactivate state when a deadline is missed
+      // transit to inactive state when a deadline is missed
       if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
         this->deactivate();
       }
     };
   if (enable_topic_stats_) {
-    sensor_subscription_options.topic_stats_options.state = rclcpp::TopicStatisticsState::Enable;
-    sensor_subscription_options.topic_stats_options.publish_topic = topic_stats_topic_name_;
-    sensor_subscription_options.topic_stats_options.publish_period = topic_stats_publish_period_;
+    state_subscription_options.topic_stats_options.state = rclcpp::TopicStatisticsState::Enable;
+    state_subscription_options.topic_stats_options.publish_topic = topic_stats_topic_name_;
+    state_subscription_options.topic_stats_options.publish_period = topic_stats_publish_period_;
   }
   state_sub_ = this->create_subscription<sensor_msgs::msg::JointState>(
-    sensor_topic_name_.c_str(), rclcpp::QoS(10).deadline(deadline_duration_),
+    state_topic_name_.c_str(), rclcpp::QoS(10).deadline(deadline_duration_),
     std::bind(
       &PendulumControllerNode::on_sensor_message,
       this, std::placeholders::_1),
-    sensor_subscription_options);
+    state_subscription_options);
 
   // Create command publisher
   rclcpp::PublisherOptions command_publisher_options;
   command_publisher_options.event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
-      // transit to deactivate state when a deadline is missed
+      // transit to inactive state when a deadline is missed
       if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
         this->deactivate();
       }

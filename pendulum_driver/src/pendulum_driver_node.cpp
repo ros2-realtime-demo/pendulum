@@ -35,7 +35,7 @@ PendulumDriverNode::PendulumDriverNode(
 : LifecycleNode(
     node_name.c_str(),
     options),
-  sensor_topic_name_(declare_parameter("sensor_topic_name").get<std::string>().c_str()),
+  state_topic_name_(declare_parameter("state_topic_name").get<std::string>().c_str()),
   command_topic_name_(declare_parameter("command_topic_name").get<std::string>().c_str()),
   disturbance_topic_name_(declare_parameter("disturbance_topic_name").get<std::string>().c_str()),
   cart_base_joint_name_(declare_parameter("cart_base_joint_name").get<std::string>().c_str()),
@@ -108,13 +108,13 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
   sensor_publisher_options.event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
-      // transit to deactivate state when a deadline is missed
+      // transit to inactive state when a deadline is missed
       if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
         this->deactivate();
       }
     };
   state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
-    sensor_topic_name_.c_str(), rclcpp::QoS(10).deadline(
+    state_topic_name_.c_str(), rclcpp::QoS(10).deadline(
       deadline_duration_), sensor_publisher_options);
 
   // Create command subscription
@@ -125,7 +125,7 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
   command_subscription_options.event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
-      // transit to deactivate state when a deadline is missed
+      // transit to inactive state when a deadline is missed
       if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
         this->deactivate();
       }
