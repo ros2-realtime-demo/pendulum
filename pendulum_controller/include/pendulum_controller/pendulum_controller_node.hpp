@@ -76,6 +76,7 @@ public:
     bool enable_topic_stats,
     const std::string & topic_stats_topic_name,
     std::chrono::milliseconds topic_stats_publish_period,
+    std::chrono::milliseconds deadline_duration,
     const PendulumController::Config & controller_cfg);
 
 private:
@@ -123,6 +124,7 @@ private:
   bool enable_topic_stats_;
   const std::string topic_stats_topic_name_;
   std::chrono::milliseconds topic_stats_publish_period_;
+  std::chrono::milliseconds deadline_duration_;
 
   PendulumController controller_;
 
