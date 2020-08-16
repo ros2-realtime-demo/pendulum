@@ -57,28 +57,6 @@ public:
     const std::string & node_name,
     rclcpp::NodeOptions options = rclcpp::NodeOptions());
 
-  /// \brief Explicit constructor
-  /// \param[in] node_name Name of this node
-  /// \param[in] sensor_topic_name Name of the sensor state topic
-  /// \param[in] command_topic_name Name of the command topic
-  /// \param[in] setpoint_topic_name Name of the setpoint topic
-  /// \param[in] command_publish_period Period of the command topic publishing
-  /// \param[in] enable_topic_stats Enable topic statistics publishing
-  /// \param[in] topic_stats_topic_name Name of the stats topic
-  /// \param[in] topic_stats_publish_period Period of the stats topic publishing
-  /// \param[in] controller_cfg Configuration class for the controller
-  PENDULUM_CONTROLLER_PUBLIC PendulumControllerNode(
-    const std::string & node_name,
-    const std::string & sensor_topic_name,
-    const std::string & command_topic_name,
-    const std::string & setpoint_topic_name,
-    std::chrono::microseconds command_publish_period,
-    bool enable_topic_stats,
-    const std::string & topic_stats_topic_name,
-    std::chrono::milliseconds topic_stats_publish_period,
-    std::chrono::milliseconds deadline_duration,
-    const PendulumController::Config & controller_cfg);
-
 private:
   /// \brief pendulum state topic message callback
   /// \param[in] msg pendulum state message
@@ -117,7 +95,7 @@ private:
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_shutdown(const rclcpp_lifecycle::State & state);
 
-  const std::string sensor_topic_name_;
+  const std::string state_topic_name_;
   const std::string command_topic_name_;
   const std::string setpoint_topic_name_;
   std::chrono::microseconds command_publish_period_;
