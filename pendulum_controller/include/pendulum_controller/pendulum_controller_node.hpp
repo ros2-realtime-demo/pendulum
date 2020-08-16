@@ -78,14 +78,6 @@ public:
     std::chrono::milliseconds topic_stats_publish_period,
     const PendulumController::Config & controller_cfg);
 
-  /// \brief Get the sensor subscription's settings options.
-  /// \return  subscription's settings options
-  rclcpp::SubscriptionOptions & get_state_options() {return sensor_subscription_options_;}
-
-  /// \brief Get the command publisher's settings options.
-  /// \return  publisher's settings options
-  rclcpp::PublisherOptions & get_command_options() {return command_publisher_options_;}
-
 private:
   /// \brief pendulum state topic message callback
   /// \param[in] msg pendulum state message
@@ -140,9 +132,6 @@ private:
       pendulum_msgs_v2::msg::PendulumCommand>> setpoint_sub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
       pendulum_msgs_v2::msg::PendulumCommand>> command_pub_;
-
-  rclcpp::PublisherOptions command_publisher_options_;
-  rclcpp::SubscriptionOptions sensor_subscription_options_;
 
   rclcpp::TimerBase::SharedPtr command_timer_;
   pendulum_msgs_v2::msg::PendulumCommand command_message_;

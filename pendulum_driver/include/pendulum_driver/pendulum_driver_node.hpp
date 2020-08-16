@@ -77,14 +77,6 @@ public:
   /// \brief Initialize pendulum driver
   void init();
 
-  /// \brief Get the command subscription's settings options.
-  /// \return  subscription's settings options
-  rclcpp::SubscriptionOptions & get_command_options() {return command_subscription_options_;}
-
-  /// \brief Get the state publisher's settings options.
-  /// \return  publisher's settings options
-  rclcpp::PublisherOptions & get_state_options() {return sensor_publisher_options_;}
-
 private:
   /// \brief pendulum command topic message callback
   /// \param[in] msg pendulum command message
@@ -140,10 +132,6 @@ private:
       pendulum_msgs_v2::msg::PendulumCommand>> disturbance_sub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
       sensor_msgs::msg::JointState>> state_pub_;
-
-  rclcpp::SubscriptionOptions command_subscription_options_;
-  rclcpp::SubscriptionOptions disturbance_subscription_options_;
-  rclcpp::PublisherOptions sensor_publisher_options_;
 
   rclcpp::TimerBase::SharedPtr state_timer_;
   rclcpp::TimerBase::SharedPtr update_driver_timer_;

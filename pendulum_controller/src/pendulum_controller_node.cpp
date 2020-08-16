@@ -92,45 +92,41 @@ void PendulumControllerNode::control_timer_callback()
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
 {
-  // The MessagePoolMemoryStrategy preallocates a pool of messages to be used by the subscription.
-  // Typically, one MessagePoolMemoryStrategy is used per subscription type, and the size of the
-  // message pool is determined by the number of threads (the maximum number of concurrent accesses
-  // to the subscription).
-  // Commented because sensor_msgs::msg::JointState is not a fix size msg type
-  // auto state_msg_strategy =
-  //   std::make_shared<MessagePoolMemoryStrategy<sensor_msgs::msg::JointState, 1>>();
-  auto setpoint_msg_strategy =
-    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
-
-  this->get_state_options().event_callbacks.deadline_callback =
+  // Create sensor subscription
+  rclcpp::SubscriptionOptions sensor_subscription_options;
+  sensor_subscription_options.event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
       // Do nothing
     };
-
   if (enable_topic_stats_) {
-    sensor_subscription_options_.topic_stats_options.state = rclcpp::TopicStatisticsState::Enable;
-    sensor_subscription_options_.topic_stats_options.publish_topic = topic_stats_topic_name_;
-    sensor_subscription_options_.topic_stats_options.publish_period = topic_stats_publish_period_;
+    sensor_subscription_options.topic_stats_options.state = rclcpp::TopicStatisticsState::Enable;
+    sensor_subscription_options.topic_stats_options.publish_topic = topic_stats_topic_name_;
+    sensor_subscription_options.topic_stats_options.publish_period = topic_stats_publish_period_;
   }
   state_sub_ = this->create_subscription<sensor_msgs::msg::JointState>(
     sensor_topic_name_.c_str(), rclcpp::QoS(10),
     std::bind(
       &PendulumControllerNode::on_sensor_message,
       this, std::placeholders::_1),
-    sensor_subscription_options_);
+    sensor_subscription_options);
 
-  this->get_command_options().event_callbacks.deadline_callback =
+  // Create command publisher
+  rclcpp::PublisherOptions command_publisher_options;
+  command_publisher_options.event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
       // Do nothing
     };
 
-  // Initialize the publisher for the command message.
   command_pub_ = this->create_publisher<pendulum_msgs_v2::msg::PendulumCommand>(
     command_topic_name_.c_str(),
     rclcpp::QoS(10),
-    command_publisher_options_);
+    command_publisher_options);
+
+  // Create setpoint subscription
+  auto setpoint_msg_strategy =
+  std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
 
   setpoint_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
     setpoint_topic_name_.c_str(), rclcpp::QoS(10),
@@ -140,6 +136,7 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
     rclcpp::SubscriptionOptions(),
     setpoint_msg_strategy);
 
+  // Create command update timer
   command_timer_ =
     this->create_wall_timer(
     command_publish_period_,
