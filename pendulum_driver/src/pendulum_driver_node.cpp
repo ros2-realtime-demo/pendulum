@@ -128,40 +128,40 @@ void PendulumDriverNode::state_timer_callback()
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
 {
-  // The MessagePoolMemoryStrategy preallocates a pool of messages to be used by the subscription.
-  // Typically, one MessagePoolMemoryStrategy is used per subscription type, and the size of the
-  // message pool is determined by the number of threads (the maximum number of concurrent accesses
-  // to the subscription).
-  auto command_msg_strategy =
-    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
-
-  this->get_state_options().event_callbacks.deadline_callback =
+  // Create sensor publisher
+  rclcpp::PublisherOptions sensor_publisher_options;
+  sensor_publisher_options.event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
       // do nothing
     };
   state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
-    sensor_topic_name_.c_str(), rclcpp::QoS(10), sensor_publisher_options_);
+    sensor_topic_name_.c_str(), rclcpp::QoS(10), sensor_publisher_options);
 
-  this->get_command_options().event_callbacks.deadline_callback =
+  // Create command subscription
+  auto command_msg_strategy =
+    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
+
+  rclcpp::SubscriptionOptions command_subscription_options;
+  command_subscription_options.event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
       // do nothing
     };
-
   if (enable_topic_stats_) {
-    command_subscription_options_.topic_stats_options.state = rclcpp::TopicStatisticsState::Enable;
-    command_subscription_options_.topic_stats_options.publish_topic = topic_stats_topic_name_;
-    command_subscription_options_.topic_stats_options.publish_period = topic_stats_publish_period_;
+    command_subscription_options.topic_stats_options.state = rclcpp::TopicStatisticsState::Enable;
+    command_subscription_options.topic_stats_options.publish_topic = topic_stats_topic_name_;
+    command_subscription_options.topic_stats_options.publish_period = topic_stats_publish_period_;
   }
   command_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
     command_topic_name_.c_str(), rclcpp::QoS(10),
     std::bind(
       &PendulumDriverNode::on_command_received,
       this, std::placeholders::_1),
-    command_subscription_options_,
+    command_subscription_options,
     command_msg_strategy);
 
+  // Create disturbance force subscription
   auto disturbance_msg_strategy =
     std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
 
@@ -173,6 +173,7 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
     rclcpp::SubscriptionOptions(),
     disturbance_msg_strategy);
 
+  // Create state update timer
   state_timer_ =
     this->create_wall_timer(
     state_publish_period_,

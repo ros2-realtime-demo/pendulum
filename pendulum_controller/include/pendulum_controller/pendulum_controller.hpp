@@ -65,7 +65,7 @@ private:
   virtual void update_setpoint_data(const pendulum_msgs_v2::msg::PendulumCommand & msg);
 
   /// \brief Updates the sensor data when a status message arrives.
-  /// \param[in] msg Setpoint data message.
+  /// \param[in] msg Sensor status data message.
   virtual void update_status_data(const sensor_msgs::msg::JointState & msg);
 
   /// \brief Updates the command data from the controller before publishing.
