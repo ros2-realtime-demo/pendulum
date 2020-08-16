@@ -46,6 +46,8 @@ PendulumDriverNode::PendulumDriverNode(
   topic_stats_topic_name_{declare_parameter("topic_stats_topic_name").get<std::string>().c_str()},
   topic_stats_publish_period_{std::chrono::milliseconds {
         declare_parameter("topic_stats_publish_period_ms").get<std::uint16_t>()}},
+  deadline_duration_{std::chrono::milliseconds {
+        declare_parameter("deadline_duration_ms").get<std::uint16_t>()}},
   driver_(
     PendulumDriver::Config(
       declare_parameter("driver.pendulum_mass").get<double>(),
@@ -75,6 +77,7 @@ PendulumDriverNode::PendulumDriverNode(
   bool enable_topic_stats,
   const std::string & topic_stats_topic_name,
   std::chrono::milliseconds topic_stats_publish_period,
+  std::chrono::milliseconds deadline_duration,
   const PendulumDriver::Config & driver_cfg)
 : LifecycleNode(node_name.c_str()),
   sensor_topic_name_{sensor_topic_name},
@@ -86,6 +89,7 @@ PendulumDriverNode::PendulumDriverNode(
   enable_topic_stats_{enable_topic_stats},
   topic_stats_topic_name_{topic_stats_topic_name},
   topic_stats_publish_period_{topic_stats_publish_period},
+  deadline_duration_{deadline_duration},
   driver_(driver_cfg)
 {
   init();
@@ -133,10 +137,14 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
   sensor_publisher_options.event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
-      // do nothing
+      // transit to deactivate state when a deadline is missed
+      if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
+        this->deactivate();
+      }
     };
   state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
-    sensor_topic_name_.c_str(), rclcpp::QoS(10), sensor_publisher_options);
+    sensor_topic_name_.c_str(), rclcpp::QoS(10).deadline(
+      deadline_duration_), sensor_publisher_options);
 
   // Create command subscription
   auto command_msg_strategy =
@@ -146,7 +154,10 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
   command_subscription_options.event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
-      // do nothing
+      // transit to deactivate state when a deadline is missed
+      if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
+        this->deactivate();
+      }
     };
   if (enable_topic_stats_) {
     command_subscription_options.topic_stats_options.state = rclcpp::TopicStatisticsState::Enable;
@@ -154,7 +165,7 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
     command_subscription_options.topic_stats_options.publish_period = topic_stats_publish_period_;
   }
   command_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
-    command_topic_name_.c_str(), rclcpp::QoS(10),
+    command_topic_name_.c_str(), rclcpp::QoS(10).deadline(deadline_duration_),
     std::bind(
       &PendulumDriverNode::on_command_received,
       this, std::placeholders::_1),
