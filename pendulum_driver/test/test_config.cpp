@@ -13,9 +13,14 @@
 // limitations under the License.
 
 #include <gtest/gtest.h>
+#include <vector>
+#include <memory>
+#include "rclcpp/rclcpp.hpp"
+#include "pendulum_driver/pendulum_driver_node.hpp"
 #include "pendulum_driver/pendulum_driver.hpp"
 
 using pendulum::pendulum_driver::PendulumDriver;
+using pendulum::pendulum_driver::PendulumDriverNode;
 
 TEST(ConfigDriverTest, test_config_driver) {
   PendulumDriver::Config config(1.0, 5.0, 2.0, 20.0, -9.8,
@@ -31,4 +36,39 @@ TEST(ConfigDriverTest, test_config_driver) {
   EXPECT_EQ(config.get_max_cart_force(), 1000.0);
   EXPECT_EQ(config.get_noise_level(), 1.0);
   EXPECT_EQ(config.get_physics_update_period(), std::chrono::microseconds(1000));
+}
+
+TEST(ConstructorsTest, test_constructors) {
+  rclcpp::init(0, nullptr);
+  std::vector<rclcpp::Parameter> params;
+
+  params.emplace_back("state_topic_name", "joint_states");
+  params.emplace_back("command_topic_name", "command");
+  params.emplace_back("disturbance_topic_name", "disturbance");
+  params.emplace_back("cart_base_joint_name", "cart_base_joint");
+  params.emplace_back("pole_joint_name", "pole_joint");
+  params.emplace_back("state_publish_period_us", 10000);
+  params.emplace_back("enable_topic_stats", false);
+  params.emplace_back("topic_stats_topic_name", "driver_stats");
+  params.emplace_back("topic_stats_publish_period_ms", 1000);
+  params.emplace_back("deadline_duration_ms", 0);
+  params.emplace_back("driver.pendulum_mass", 1.0);
+  params.emplace_back("driver.cart_mass", 5.0);
+  params.emplace_back("driver.pendulum_length", 2.0);
+  params.emplace_back("driver.damping_coefficient", 20.0);
+  params.emplace_back("driver.gravity", -9.8);
+  params.emplace_back("driver.max_cart_force", 1000.0);
+  params.emplace_back("driver.physics_update_period", 10000);
+  params.emplace_back("driver.noise_level", 1.0);
+
+  rclcpp::NodeOptions node_options;
+  node_options.parameter_overrides(params);
+
+  const auto test_node_ptr =
+    std::make_shared<PendulumDriverNode>(node_options);
+  auto names = test_node_ptr->get_node_names();
+
+  EXPECT_EQ(names.size(), 1u);
+  EXPECT_STREQ(names[0].c_str(), "/pendulum_driver");
+  EXPECT_STREQ("/", test_node_ptr->get_namespace());
 }
