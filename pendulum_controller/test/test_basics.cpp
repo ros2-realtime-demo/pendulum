@@ -25,30 +25,54 @@ using pendulum::pendulum_controller::PendulumController;
 using lifecycle_msgs::msg::State;
 using lifecycle_msgs::msg::Transition;
 
-TEST(NodeTest, test_node) {
+TEST(ConstructorOptionsTest, test_options_constructor) {
   rclcpp::init(0, nullptr);
-  PendulumController::Config config({0.0, 0.0, 0.0, 0.0});
 
-  const auto test_node_ptr =
-    std::make_shared<PendulumControllerNode>(
-    "test_node", "sensor_topic_name",
-    "command_topic_name", "setpoint_topic_name",
-    std::chrono::microseconds(1000), config);
+  std::vector<rclcpp::Parameter> params;
+  std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
 
-  auto names = test_node_ptr->get_node_names();
+  params.emplace_back("state_topic_name", "joint_states");
+  params.emplace_back("command_topic_name", "command");
+  params.emplace_back("setpoint_topic_name", "setpoint");
+  params.emplace_back("command_publish_period_us", 10000);
+  params.emplace_back("enable_topic_stats", false);
+  params.emplace_back("topic_stats_topic_name", "controller_stats");
+  params.emplace_back("topic_stats_publish_period_ms", 1000);
+  params.emplace_back("deadline_duration_ms", 0);
+  params.emplace_back("controller.feedback_matrix", feedback_matrix);
+
+  rclcpp::NodeOptions node_options;
+  node_options.parameter_overrides(params);
+
+  const auto test_node =
+    std::make_shared<PendulumControllerNode>(node_options);
+
+  auto names = test_node->get_node_names();
 
   EXPECT_EQ(names.size(), 1u);
-  EXPECT_STREQ(names[0].c_str(), "/test_node");
-  EXPECT_STREQ("/", test_node_ptr->get_namespace());
+  EXPECT_STREQ(names[0].c_str(), "/pendulum_controller");
+  EXPECT_STREQ("/", test_node->get_namespace());
 }
 
 TEST(TransitionTest, test_transition) {
-  PendulumController::Config config({0.0, 0.0, 0.0, 0.0});
+  std::vector<rclcpp::Parameter> params;
+  std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
+
+  params.emplace_back("state_topic_name", "joint_states");
+  params.emplace_back("command_topic_name", "command");
+  params.emplace_back("setpoint_topic_name", "setpoint");
+  params.emplace_back("command_publish_period_us", 10000);
+  params.emplace_back("enable_topic_stats", false);
+  params.emplace_back("topic_stats_topic_name", "controller_stats");
+  params.emplace_back("topic_stats_publish_period_ms", 1000);
+  params.emplace_back("deadline_duration_ms", 0);
+  params.emplace_back("controller.feedback_matrix", feedback_matrix);
+
+  rclcpp::NodeOptions node_options;
+  node_options.parameter_overrides(params);
+
   const auto test_node =
-    std::make_shared<PendulumControllerNode>(
-    "test_node", "sensor_topic_name",
-    "command_topic_name", "setpoint_topic_name",
-    std::chrono::microseconds(1000), config);
+    std::make_shared<PendulumControllerNode>(node_options);
 
   EXPECT_EQ(State::PRIMARY_STATE_UNCONFIGURED, test_node->get_current_state().id());
   ASSERT_EQ(
@@ -74,14 +98,25 @@ TEST(ConfigTest, test_config) {
   ASSERT_EQ(feedback_matrix, config.get_feedback_matrix());
 }
 
-TEST(ParamTest, test_param) {
+TEST(ControllerTest, test_controller) {
+  PendulumController::Config config({0.0, 0.0, 0.0, 0.0});
+
+  PendulumController pendulum(config);
+  // ASSERT_EQ(feedback_matrix, config.get_feedback_matrix());
+}
+
+TEST(ConstructorParamTest, test_param_constructor) {
   std::vector<rclcpp::Parameter> params;
   std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
 
-  params.emplace_back("sensor_topic_name", "joint_states");
+  params.emplace_back("state_topic_name", "joint_states");
   params.emplace_back("command_topic_name", "command");
   params.emplace_back("setpoint_topic_name", "setpoint");
   params.emplace_back("command_publish_period_us", 10000);
+  params.emplace_back("enable_topic_stats", false);
+  params.emplace_back("topic_stats_topic_name", "controller_stats");
+  params.emplace_back("topic_stats_publish_period_ms", 1000);
+  params.emplace_back("deadline_duration_ms", 0);
   params.emplace_back("controller.feedback_matrix", feedback_matrix);
 
   rclcpp::NodeOptions node_options;
@@ -91,15 +126,7 @@ TEST(ParamTest, test_param) {
     std::make_shared<PendulumControllerNode>(node_options);
   auto names = test_node_ptr->get_node_names();
 
-  const auto test_node_ptr2 =
-    std::make_shared<PendulumControllerNode>("test_node2", node_options);
-  auto names2 = test_node_ptr2->get_node_names();
-
   EXPECT_EQ(names.size(), 1u);
   EXPECT_STREQ(names[0].c_str(), "/pendulum_controller");
   EXPECT_STREQ("/", test_node_ptr->get_namespace());
-
-  EXPECT_EQ(names2.size(), 2u);
-  EXPECT_STREQ(names2[0].c_str(), "/pendulum_controller");
-  EXPECT_STREQ("/", test_node_ptr2->get_namespace());
 }
