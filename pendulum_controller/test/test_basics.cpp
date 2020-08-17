@@ -25,7 +25,7 @@ using pendulum::pendulum_controller::PendulumController;
 using lifecycle_msgs::msg::State;
 using lifecycle_msgs::msg::Transition;
 
-TEST(ConstructorsTest, test_constructors) {
+TEST(NodeTest, test_node) {
   rclcpp::init(0, nullptr);
   PendulumController::Config config({0.0, 0.0, 0.0, 0.0});
 
@@ -89,4 +89,17 @@ TEST(ParamTest, test_param) {
 
   const auto test_node_ptr =
     std::make_shared<PendulumControllerNode>(node_options);
+  auto names = test_node_ptr->get_node_names();
+
+  const auto test_node_ptr2 =
+    std::make_shared<PendulumControllerNode>("test_node2", node_options);
+  auto names2 = test_node_ptr2->get_node_names();
+
+  EXPECT_EQ(names.size(), 1u);
+  EXPECT_STREQ(names[0].c_str(), "/pendulum_controller");
+  EXPECT_STREQ("/", test_node_ptr->get_namespace());
+
+  EXPECT_EQ(names2.size(), 2u);
+  EXPECT_STREQ(names2[0].c_str(), "/pendulum_controller");
+  EXPECT_STREQ("/", test_node_ptr2->get_namespace());
 }

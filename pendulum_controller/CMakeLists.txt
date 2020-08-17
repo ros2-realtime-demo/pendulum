@@ -59,17 +59,17 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Test Node
-  set(TEST_NODE_NAME "test_constructors")
+  set(TEST_NODE_NAME "test_basics")
 
   # "Unit" test
-  set(CONSTRUCTORS_GTEST test_constructors)
+  set(BASICS_GTEST test_basics)
 
-  ament_add_gtest(${CONSTRUCTORS_GTEST}
-    "test/test_constructors.cpp"
+  ament_add_gtest(${BASICS_GTEST}
+    "test/test_basics.cpp"
   )
 
-  target_include_directories(${CONSTRUCTORS_GTEST} PRIVATE include)
-  target_link_libraries(${CONSTRUCTORS_GTEST} pendulum_controller)
+  target_include_directories(${BASICS_GTEST} PRIVATE include)
+  target_link_libraries(${BASICS_GTEST} pendulum_controller)
   ament_target_dependencies(${TEST_NODE_NAME}
     "rclcpp"
     "rclcpp_lifecycle"
