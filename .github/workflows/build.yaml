@@ -6,6 +6,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: docker
+    - name: Build/Tests
       run: |
         docker build -t ci-pendulum .
+
+    - name: Build/Push ADE images
+      run: |
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_TOKEN }}
+        cd ade/ADE-base && docker build -t ros2realtimedemo/pendulum:ade-base-foxy .
+        docker push ros2realtimedemo/pendulum:ade-base-foxy
