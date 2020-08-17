@@ -98,13 +98,6 @@ TEST(ConfigTest, test_config) {
   ASSERT_EQ(feedback_matrix, config.get_feedback_matrix());
 }
 
-TEST(ControllerTest, test_controller) {
-  PendulumController::Config config({0.0, 0.0, 0.0, 0.0});
-
-  PendulumController pendulum(config);
-  // ASSERT_EQ(feedback_matrix, config.get_feedback_matrix());
-}
-
 TEST(ConstructorParamTest, test_param_constructor) {
   std::vector<rclcpp::Parameter> params;
   std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
