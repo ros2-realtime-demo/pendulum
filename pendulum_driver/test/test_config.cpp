@@ -13,14 +13,11 @@
 // limitations under the License.
 
 #include <gtest/gtest.h>
-#include "rclcpp/rclcpp.hpp"
 #include "pendulum_driver/pendulum_driver.hpp"
 
 using pendulum::pendulum_driver::PendulumDriver;
 
-TEST(ConstructorOptionsTest, test_options_constructor) {
-  rclcpp::init(0, nullptr);
-
+TEST(ConfigDriverTest, test_config_driver) {
   PendulumDriver::Config config(1.0, 5.0, 2.0, 20.0, -9.8,
     1000.0,
     1.0,
