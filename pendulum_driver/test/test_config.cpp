@@ -71,4 +71,5 @@ TEST(ConstructorsTest, test_constructors) {
   EXPECT_EQ(names.size(), 1u);
   EXPECT_STREQ(names[0].c_str(), "/pendulum_driver");
   EXPECT_STREQ("/", test_node_ptr->get_namespace());
+  rclcpp::shutdown();
 }
