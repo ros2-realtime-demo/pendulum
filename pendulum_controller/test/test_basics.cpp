@@ -122,4 +122,5 @@ TEST(ConstructorParamTest, test_param_constructor) {
   EXPECT_EQ(names.size(), 1u);
   EXPECT_STREQ(names[0].c_str(), "/pendulum_controller");
   EXPECT_STREQ("/", test_node_ptr->get_namespace());
+  rclcpp::shutdown();
 }
