@@ -14,13 +14,14 @@
 
 import os
 
-from launch_ros.substitutions import FindPackageShare
-from launch.substitutions import LaunchConfiguration
 from launch import LaunchDescription
-from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
 import launch.substitutions
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
+from tracetools_launch.action import Trace
 
 
 def generate_launch_description():
@@ -70,7 +71,11 @@ def generate_launch_description():
         default_value='False',
         description='Launch RVIZ2 in addition to other nodes'
     )
-
+    trace_param = DeclareLaunchArgument(
+        'trace',
+        default_value='False',
+        description='Launch ROS tracing action'
+    )
     # Node definitions
     pendulum_demo_runner = Node(
         package='pendulum_demo',
@@ -103,7 +108,15 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('rviz'))
     )
 
+    ros_tracing = Trace(
+        session_name='pendulum',
+        events_kernel=[],
+        condition=IfCondition(LaunchConfiguration('trace'))
+    )
+
     return LaunchDescription([
+        trace_param,
+        ros_tracing,
         autostart_param,
         priority_param,
         cpu_affinity_param,
