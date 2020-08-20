@@ -52,9 +52,11 @@ TEST(ConstructorOptionsTest, test_options_constructor) {
   EXPECT_EQ(names.size(), 1u);
   EXPECT_STREQ(names[0].c_str(), "/pendulum_controller");
   EXPECT_STREQ("/", test_node->get_namespace());
+  rclcpp::shutdown();
 }
 
 TEST(TransitionTest, test_transition) {
+  rclcpp::init(0, nullptr);
   std::vector<rclcpp::Parameter> params;
   std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
 
@@ -96,9 +98,11 @@ TEST(ConfigTest, test_config) {
   std::vector<double> feedback_matrix = {0.0, 0.0, 0.0, 0.0};
   PendulumController::Config config({0.0, 0.0, 0.0, 0.0});
   ASSERT_EQ(feedback_matrix, config.get_feedback_matrix());
+  rclcpp::shutdown();
 }
 
 TEST(ConstructorParamTest, test_param_constructor) {
+  rclcpp::init(0, nullptr);
   std::vector<rclcpp::Parameter> params;
   std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
 
