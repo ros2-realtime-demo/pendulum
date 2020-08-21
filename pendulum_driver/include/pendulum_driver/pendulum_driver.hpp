@@ -24,8 +24,7 @@
 #include <random>
 
 #include "sensor_msgs/msg/joint_state.hpp"
-#include "pendulum_msgs_v2/msg/pendulum_command.hpp"
-#include "pendulum_msgs_v2/msg/pendulum_state.hpp"
+#include "pendulum_msgs_v2/msg/joint_command_stamped.hpp"
 
 #include "pendulum_driver/runge_kutta.hpp"
 #include "pendulum_driver/visibility_control.hpp"
@@ -136,11 +135,11 @@ private:
 
   /// \brief Updates the command data coming from the controller.
   /// \param[in] msg Command data message.
-  virtual void update_command_data(const pendulum_msgs_v2::msg::PendulumCommand & msg);
+  virtual void update_command_data(const pendulum_msgs_v2::msg::JointCommandStamped & msg);
 
   /// \brief Updates the disturbance force data.
   /// \param[in] msg Disturbance data message.
-  virtual void update_disturbance_data(const pendulum_msgs_v2::msg::PendulumCommand & msg);
+  virtual void update_disturbance_data(const pendulum_msgs_v2::msg::JointCommandStamped & msg);
 
   /// \brief Updates the status data from the driver implementation.
   /// \param[in,out] msg Status data message.

@@ -24,9 +24,6 @@ namespace pendulum
 namespace pendulum_controller
 {
 
-using rclcpp::strategies::message_pool_memory_strategy::MessagePoolMemoryStrategy;
-using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
-
 PendulumControllerNode::PendulumControllerNode(const rclcpp::NodeOptions & options)
 : PendulumControllerNode("pendulum_controller", options)
 {}
@@ -59,7 +56,7 @@ void PendulumControllerNode::on_sensor_message(
 }
 
 void PendulumControllerNode::on_pendulum_setpoint(
-  const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg)
+  const pendulum_msgs_v2::msg::PendulumTeleop::SharedPtr msg)
 {
   controller_.update_setpoint_data(*msg);
 }
@@ -67,6 +64,7 @@ void PendulumControllerNode::on_pendulum_setpoint(
 void PendulumControllerNode::control_timer_callback()
 {
   controller_.update_command_data(command_message_);
+  command_message_.header.stamp = this->get_clock()->now();
   command_pub_->publish(command_message_);
 }
 
@@ -106,22 +104,18 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
       }
     };
 
-  command_pub_ = this->create_publisher<pendulum_msgs_v2::msg::PendulumCommand>(
+  command_pub_ = this->create_publisher<pendulum_msgs_v2::msg::JointCommandStamped>(
     command_topic_name_.c_str(),
     rclcpp::QoS(10).deadline(deadline_duration_),
     command_publisher_options);
 
   // Create setpoint subscription
-  auto setpoint_msg_strategy =
-    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
-
-  setpoint_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
+  setpoint_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumTeleop>(
     setpoint_topic_name_.c_str(), rclcpp::QoS(10),
     std::bind(
       &PendulumControllerNode::on_pendulum_setpoint,
       this, std::placeholders::_1),
-    rclcpp::SubscriptionOptions(),
-    setpoint_msg_strategy);
+    rclcpp::SubscriptionOptions());
 
   // Create command update timer
   command_timer_ =

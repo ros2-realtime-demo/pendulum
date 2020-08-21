@@ -23,8 +23,8 @@
 
 #include "sensor_msgs/msg/joint_state.hpp"
 
-#include "pendulum_msgs_v2/msg/pendulum_command.hpp"
-#include "pendulum_msgs_v2/msg/pendulum_state.hpp"
+#include "pendulum_msgs_v2/msg/joint_command_stamped.hpp"
+#include "pendulum_msgs_v2/msg/pendulum_teleop.hpp"
 #include "pendulum_controller/visibility_control.hpp"
 
 namespace pendulum
@@ -62,7 +62,7 @@ private:
 
   /// \brief Updates the setpoint data when a setpoint message arrives.
   /// \param[in] msg Setpoint data message.
-  virtual void update_setpoint_data(const pendulum_msgs_v2::msg::PendulumCommand & msg);
+  virtual void update_setpoint_data(const pendulum_msgs_v2::msg::PendulumTeleop & msg);
 
   /// \brief Updates the sensor data when a status message arrives.
   /// \param[in] msg Sensor status data message.
@@ -70,7 +70,7 @@ private:
 
   /// \brief Updates the command data from the controller before publishing.
   /// \param[in,out] msg Command data message.
-  virtual void update_command_data(pendulum_msgs_v2::msg::PendulumCommand & msg);
+  virtual void update_command_data(pendulum_msgs_v2::msg::JointCommandStamped & msg);
 
   /// \brief Resets the controller internal status and set variables to their default values.
   virtual void reset();
