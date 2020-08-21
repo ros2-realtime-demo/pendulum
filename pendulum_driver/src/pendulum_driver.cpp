@@ -67,7 +67,7 @@ PendulumDriver::PendulumDriver(const Config & config)
     };
 }
 
-void PendulumDriver::update_command_data(const pendulum_msgs_v2::msg::JointCommandStamped & msg)
+void PendulumDriver::update_command_data(const pendulum2_msgs::msg::JointCommandStamped & msg)
 {
   double max_cart_force = cfg_.get_max_cart_force();
   if (msg.cmd.force > max_cart_force) {
@@ -79,7 +79,7 @@ void PendulumDriver::update_command_data(const pendulum_msgs_v2::msg::JointComma
   }
 }
 
-void PendulumDriver::update_disturbance_data(const pendulum_msgs_v2::msg::JointCommandStamped & msg)
+void PendulumDriver::update_disturbance_data(const pendulum2_msgs::msg::JointCommandStamped & msg)
 {
   disturbance_force_ = msg.cmd.force;
 }

@@ -56,7 +56,7 @@ void PendulumControllerNode::on_sensor_message(
 }
 
 void PendulumControllerNode::on_pendulum_setpoint(
-  const pendulum_msgs_v2::msg::PendulumTeleop::SharedPtr msg)
+  const pendulum2_msgs::msg::PendulumTeleop::SharedPtr msg)
 {
   controller_.update_setpoint_data(*msg);
 }
@@ -104,13 +104,13 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
       }
     };
 
-  command_pub_ = this->create_publisher<pendulum_msgs_v2::msg::JointCommandStamped>(
+  command_pub_ = this->create_publisher<pendulum2_msgs::msg::JointCommandStamped>(
     command_topic_name_.c_str(),
     rclcpp::QoS(10).deadline(deadline_duration_),
     command_publisher_options);
 
   // Create setpoint subscription
-  setpoint_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumTeleop>(
+  setpoint_sub_ = this->create_subscription<pendulum2_msgs::msg::PendulumTeleop>(
     setpoint_topic_name_.c_str(), rclcpp::QoS(10),
     std::bind(
       &PendulumControllerNode::on_pendulum_setpoint,

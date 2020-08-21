@@ -34,7 +34,7 @@ PendulumController::PendulumController(const Config & config)
   reference_{0.0, 0.0, M_PI, 0.0} {}
 
 void PendulumController::update_setpoint_data(
-  const pendulum_msgs_v2::msg::PendulumTeleop & msg)
+  const pendulum2_msgs::msg::PendulumTeleop & msg)
 {
   // We only allow to set the cart position and velocity for the moment
   reference_[0] = msg.cart_position;
@@ -51,7 +51,7 @@ void PendulumController::update_status_data(
 }
 
 void PendulumController::update_command_data(
-  pendulum_msgs_v2::msg::JointCommandStamped & msg)
+  pendulum2_msgs::msg::JointCommandStamped & msg)
 {
   msg.cmd.force = calculate(state_, reference_);
 }

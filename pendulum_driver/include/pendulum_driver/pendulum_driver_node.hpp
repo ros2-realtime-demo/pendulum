@@ -57,11 +57,11 @@ public:
 private:
   /// \brief pendulum command topic message callback
   /// \param[in] msg pendulum command message
-  void on_command_received(const pendulum_msgs_v2::msg::JointCommandStamped::SharedPtr msg);
+  void on_command_received(const pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg);
 
   /// \brief pendulum disturbance topic message callback
   /// \param[in] msg pendulum disturbance message
-  void on_disturbance_received(const pendulum_msgs_v2::msg::JointCommandStamped::SharedPtr msg);
+  void on_disturbance_received(const pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg);
 
   /// \brief pendulum state publish timer callback
   void state_timer_callback();
@@ -105,9 +105,9 @@ private:
   PendulumDriver driver_;
 
   std::shared_ptr<rclcpp::Subscription<
-      pendulum_msgs_v2::msg::JointCommandStamped>> command_sub_;
+      pendulum2_msgs::msg::JointCommandStamped>> command_sub_;
   std::shared_ptr<rclcpp::Subscription<
-      pendulum_msgs_v2::msg::JointCommandStamped>> disturbance_sub_;
+      pendulum2_msgs::msg::JointCommandStamped>> disturbance_sub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
       sensor_msgs::msg::JointState>> state_pub_;
 

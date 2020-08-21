@@ -60,7 +60,7 @@ private:
   /// \brief pendulum setpoint topic message callback
   /// \param[in] msg pendulum setpoint message
   void on_pendulum_setpoint(
-    const pendulum_msgs_v2::msg::PendulumTeleop::SharedPtr msg);
+    const pendulum2_msgs::msg::PendulumTeleop::SharedPtr msg);
 
   /// \brief controller command publish timer callback
   void control_timer_callback();
@@ -104,12 +104,12 @@ private:
   std::shared_ptr<rclcpp::Subscription<
       sensor_msgs::msg::JointState>> state_sub_;
   std::shared_ptr<rclcpp::Subscription<
-      pendulum_msgs_v2::msg::PendulumTeleop>> setpoint_sub_;
+      pendulum2_msgs::msg::PendulumTeleop>> setpoint_sub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
-      pendulum_msgs_v2::msg::JointCommandStamped>> command_pub_;
+      pendulum2_msgs::msg::JointCommandStamped>> command_pub_;
 
   rclcpp::TimerBase::SharedPtr command_timer_;
-  pendulum_msgs_v2::msg::JointCommandStamped command_message_;
+  pendulum2_msgs::msg::JointCommandStamped command_message_;
 };
 }  // namespace pendulum_controller
 }  // namespace pendulum
