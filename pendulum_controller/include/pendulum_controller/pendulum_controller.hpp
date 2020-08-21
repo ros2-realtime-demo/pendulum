@@ -60,9 +60,9 @@ private:
   /// \param[in] feedback_matrix Feedback matrix values
   explicit PendulumController(const Config & config);
 
-  /// \brief Updates the setpoint data when a setpoint message arrives.
-  /// \param[in] msg Setpoint data message.
-  virtual void update_setpoint_data(const pendulum2_msgs::msg::PendulumTeleop & msg);
+  /// \brief Updates the teleop data when a teleoperation message arrives.
+  /// \param[in] msg PendulumTeleop data message.
+  virtual void update_teleop_data(const pendulum2_msgs::msg::PendulumTeleop & msg);
 
   /// \brief Updates the sensor data when a status message arrives.
   /// \param[in] msg Sensor status data message.

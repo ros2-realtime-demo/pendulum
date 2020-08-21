@@ -36,7 +36,7 @@ PendulumControllerNode::PendulumControllerNode(
     options),
   state_topic_name_(declare_parameter("state_topic_name").get<std::string>().c_str()),
   command_topic_name_(declare_parameter("command_topic_name").get<std::string>().c_str()),
-  setpoint_topic_name_(declare_parameter("setpoint_topic_name").get<std::string>().c_str()),
+  teleop_topic_name_(declare_parameter("teleop_topic_name").get<std::string>().c_str()),
   command_publish_period_(std::chrono::microseconds{
       declare_parameter("command_publish_period_us").get<std::uint16_t>()}),
   enable_topic_stats_(declare_parameter("enable_topic_stats").get<bool>()),
@@ -55,10 +55,10 @@ void PendulumControllerNode::on_sensor_message(
   controller_.update_status_data(*msg);
 }
 
-void PendulumControllerNode::on_pendulum_setpoint(
+void PendulumControllerNode::on_pendulum_teleop(
   const pendulum2_msgs::msg::PendulumTeleop::SharedPtr msg)
 {
-  controller_.update_setpoint_data(*msg);
+  controller_.update_teleop_data(*msg);
 }
 
 void PendulumControllerNode::control_timer_callback()
@@ -109,11 +109,11 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
     rclcpp::QoS(10).deadline(deadline_duration_),
     command_publisher_options);
 
-  // Create setpoint subscription
-  setpoint_sub_ = this->create_subscription<pendulum2_msgs::msg::PendulumTeleop>(
-    setpoint_topic_name_.c_str(), rclcpp::QoS(10),
+  // Create teleop subscription
+  teleop_sub_ = this->create_subscription<pendulum2_msgs::msg::PendulumTeleop>(
+    teleop_topic_name_.c_str(), rclcpp::QoS(10),
     std::bind(
-      &PendulumControllerNode::on_pendulum_setpoint,
+      &PendulumControllerNode::on_pendulum_teleop,
       this, std::placeholders::_1),
     rclcpp::SubscriptionOptions());
 
@@ -155,7 +155,7 @@ PendulumControllerNode::on_cleanup(const rclcpp_lifecycle::State &)
   command_timer_.reset();
   command_pub_.reset();
   state_sub_.reset();
-  setpoint_sub_.reset();
+  teleop_sub_.reset();
 
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
@@ -166,7 +166,7 @@ PendulumControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
   command_timer_.reset();
   command_pub_.reset();
   state_sub_.reset();
-  setpoint_sub_.reset();
+  teleop_sub_.reset();
 
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }

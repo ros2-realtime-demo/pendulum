@@ -33,7 +33,7 @@ PendulumController::PendulumController(const Config & config)
   state_{0.0, 0.0, M_PI, 0.0},
   reference_{0.0, 0.0, M_PI, 0.0} {}
 
-void PendulumController::update_setpoint_data(
+void PendulumController::update_teleop_data(
   const pendulum2_msgs::msg::PendulumTeleop & msg)
 {
   // We only allow to set the cart position and velocity for the moment
