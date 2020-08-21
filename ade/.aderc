@@ -4,6 +4,7 @@ export ADE_DOCKER_RUN_ARGS="
   --cap-add=IPC_LOCK
   --ulimit rtprio=100:100
   --ulimit memlock=-1:-1
+  --privileged
 "
 export ADE_IMAGES="
     ros2realtimedemo/pendulum:ade-base-foxy
