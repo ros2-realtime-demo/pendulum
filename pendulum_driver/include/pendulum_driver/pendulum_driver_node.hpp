@@ -26,10 +26,7 @@
 #include "lifecycle_msgs/msg/transition_event.hpp"
 #include "rclcpp/strategies/message_pool_memory_strategy.hpp"
 #include "rclcpp/strategies/allocator_memory_strategy.hpp"
-#include "sensor_msgs/msg/joint_state.hpp"
 
-#include "pendulum_msgs_v2/msg/pendulum_command.hpp"
-#include "pendulum_msgs_v2/msg/pendulum_state.hpp"
 #include "pendulum_driver/pendulum_driver.hpp"
 #include "pendulum_driver/visibility_control.hpp"
 
@@ -60,11 +57,11 @@ public:
 private:
   /// \brief pendulum command topic message callback
   /// \param[in] msg pendulum command message
-  void on_command_received(const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg);
+  void on_command_received(const pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg);
 
   /// \brief pendulum disturbance topic message callback
   /// \param[in] msg pendulum disturbance message
-  void on_disturbance_received(const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg);
+  void on_disturbance_received(const pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg);
 
   /// \brief pendulum state publish timer callback
   void state_timer_callback();
@@ -108,9 +105,9 @@ private:
   PendulumDriver driver_;
 
   std::shared_ptr<rclcpp::Subscription<
-      pendulum_msgs_v2::msg::PendulumCommand>> command_sub_;
+      pendulum2_msgs::msg::JointCommandStamped>> command_sub_;
   std::shared_ptr<rclcpp::Subscription<
-      pendulum_msgs_v2::msg::PendulumCommand>> disturbance_sub_;
+      pendulum2_msgs::msg::JointCommandStamped>> disturbance_sub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
       sensor_msgs::msg::JointState>> state_pub_;
 

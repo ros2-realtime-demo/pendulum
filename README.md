@@ -79,7 +79,7 @@ Now we can try to move the cart by sending a setpoint command.
 
 In a new terminal. Move the cart to x=5:
 ```bash
-ros2 topic pub -1 /pendulum_setpoint pendulum_msgs_v2/msg/PendulumCommand "cart_position: 5.0"
+ros2 topic pub -1 /pendulum_setpoint pendulum2_msgs/msg/PendulumCommand "cart_position: 5.0"
 ```
 
 ![pendulum_rviz](docs/images/pendulum_rviz_setpoint.gif)
@@ -87,7 +87,7 @@ ros2 topic pub -1 /pendulum_setpoint pendulum_msgs_v2/msg/PendulumCommand "cart_
 Now let's try to push the cart by sending a disturbance force:
 
 ```bash
-ros2 topic pub -1 /pendulum_disturbance pendulum_msgs_v2/msg/PendulumCommand "cart_force: 100"
+ros2 topic pub -1 /pendulum_disturbance pendulum2_msgs/msg/PendulumCommand "cart_force: 100"
 ```
 ![pendulum_rviz](docs/images/pendulum_rviz_disturbance.gif)
 
