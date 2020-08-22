@@ -73,7 +73,7 @@ if(BUILD_TESTING)
   ament_target_dependencies(${TEST_NODE_NAME}
     "rclcpp"
     "rclcpp_lifecycle"
-    "pendulum_msgs_v2"
+    "pendulum2_msgs"
     "sensor_msgs"
   )
 endif()

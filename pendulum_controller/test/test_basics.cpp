@@ -49,7 +49,7 @@ TEST_F(InitNodesTest, test_options_constructor) {
 
   params.emplace_back("state_topic_name", "joint_states");
   params.emplace_back("command_topic_name", "command");
-  params.emplace_back("setpoint_topic_name", "setpoint");
+  params.emplace_back("teleop_topic_name", "teleop");
   params.emplace_back("command_publish_period_us", 10000);
   params.emplace_back("enable_topic_stats", false);
   params.emplace_back("topic_stats_topic_name", "controller_stats");
@@ -78,7 +78,7 @@ TEST_F(InitNodesTest, test_transition) {
 
   params.emplace_back("state_topic_name", "joint_states");
   params.emplace_back("command_topic_name", "command");
-  params.emplace_back("setpoint_topic_name", "setpoint");
+  params.emplace_back("teleop_topic_name", "setpoint");
   params.emplace_back("command_publish_period_us", 10000);
   params.emplace_back("enable_topic_stats", false);
   params.emplace_back("topic_stats_topic_name", "controller_stats");
@@ -125,7 +125,7 @@ TEST_F(InitNodesTest, test_param_constructor) {
 
   params.emplace_back("state_topic_name", "joint_states");
   params.emplace_back("command_topic_name", "command");
-  params.emplace_back("setpoint_topic_name", "setpoint");
+  params.emplace_back("teleop_topic_name", "setpoint");
   params.emplace_back("command_publish_period_us", 10000);
   params.emplace_back("enable_topic_stats", false);
   params.emplace_back("topic_stats_topic_name", "controller_stats");

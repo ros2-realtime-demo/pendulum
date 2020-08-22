@@ -66,7 +66,7 @@ function compile_ws()
   fi
   echo -e "${YELLOW}Testing WS${RESET}"
   if ! colcon test --build-base build-install --install-base install-merge --merge-install --return-code-on-test-failure; then
-    colcon test-result --test-result-base build-install --verbose
+    colcon test-result --verbose
     echo -e "${RED}Error testing the ws${RESET}"
     exit 1
   else
