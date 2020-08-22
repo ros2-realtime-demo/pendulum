@@ -73,6 +73,7 @@ RUN apt-get update \
     flake8-docstrings \
     flake8-import-order \
     flake8-quotes \
+    pandas \ 
     pytest-repeat \
     pytest-rerunfailures \
     pytest \
@@ -82,7 +83,7 @@ RUN apt-get update \
     libasio-dev \
     libtinyxml2-dev \
     libcunit1-dev \
-  && mkdir -p /root/ros2_foxy/src \
+  && mkdir -p /root/ros2_$ROS_VERSION/src \
   && wget https://raw.githubusercontent.com/ros2/ros2/$ROS_VERSION/ros2.repos \
   && vcs import src < ros2.repos \
   && rosdep init \
