@@ -19,7 +19,7 @@ find_package(rclcpp_components REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(pendulum_msgs_v2 REQUIRED)
+find_package(pendulum2_msgs REQUIRED)
 find_package(pendulum_tools REQUIRED)
 
 set(dependencies
@@ -28,7 +28,7 @@ set(dependencies
     rclcpp_lifecycle
     lifecycle_msgs
     sensor_msgs
-    pendulum_msgs_v2
+    pendulum2_msgs
     pendulum_tools)
 
 set(PENDULUM_CONTROLLER_LIB pendulum_controller)
@@ -73,7 +73,7 @@ if(BUILD_TESTING)
   ament_target_dependencies(${TEST_NODE_NAME}
     "rclcpp"
     "rclcpp_lifecycle"
-    "pendulum_msgs_v2"
+    "pendulum2_msgs"
     "sensor_msgs"
   )
 endif()

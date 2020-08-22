@@ -22,9 +22,6 @@ namespace pendulum
 {
 namespace pendulum_driver
 {
-using rclcpp::strategies::message_pool_memory_strategy::MessagePoolMemoryStrategy;
-using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
-
 PendulumDriverNode::PendulumDriverNode(const rclcpp::NodeOptions & options)
 : PendulumDriverNode("pendulum_driver", options)
 {}
@@ -81,13 +78,13 @@ void PendulumDriverNode::init()
 }
 
 void PendulumDriverNode::on_command_received(
-  const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg)
+  const pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg)
 {
   driver_.update_command_data(*msg);
 }
 
 void PendulumDriverNode::on_disturbance_received(
-  const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg)
+  const pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg)
 {
   driver_.update_disturbance_data(*msg);
 }
@@ -118,9 +115,6 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
       deadline_duration_), sensor_publisher_options);
 
   // Create command subscription
-  auto command_msg_strategy =
-    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
-
   rclcpp::SubscriptionOptions command_subscription_options;
   command_subscription_options.event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
@@ -135,25 +129,20 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
     command_subscription_options.topic_stats_options.publish_topic = topic_stats_topic_name_;
     command_subscription_options.topic_stats_options.publish_period = topic_stats_publish_period_;
   }
-  command_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
+  command_sub_ = this->create_subscription<pendulum2_msgs::msg::JointCommandStamped>(
     command_topic_name_.c_str(), rclcpp::QoS(10).deadline(deadline_duration_),
     std::bind(
       &PendulumDriverNode::on_command_received,
       this, std::placeholders::_1),
-    command_subscription_options,
-    command_msg_strategy);
+    command_subscription_options);
 
   // Create disturbance force subscription
-  auto disturbance_msg_strategy =
-    std::make_shared<MessagePoolMemoryStrategy<pendulum_msgs_v2::msg::PendulumCommand, 1>>();
-
-  disturbance_sub_ = this->create_subscription<pendulum_msgs_v2::msg::PendulumCommand>(
+  disturbance_sub_ = this->create_subscription<pendulum2_msgs::msg::JointCommandStamped>(
     disturbance_topic_name_.c_str(), rclcpp::QoS(10),
     std::bind(
       &PendulumDriverNode::on_disturbance_received,
       this, std::placeholders::_1),
-    rclcpp::SubscriptionOptions(),
-    disturbance_msg_strategy);
+    rclcpp::SubscriptionOptions());
 
   // Create state update timer
   state_timer_ =

@@ -26,14 +26,9 @@
 #include "rclcpp/publisher.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "rclcpp_lifecycle/lifecycle_publisher.hpp"
-#include "rclcpp/strategies/message_pool_memory_strategy.hpp"
-#include "rclcpp/strategies/allocator_memory_strategy.hpp"
 #include "lifecycle_msgs/msg/transition_event.hpp"
 #include "lifecycle_msgs/msg/transition.hpp"
-#include "sensor_msgs/msg/joint_state.hpp"
 
-#include "pendulum_msgs_v2/msg/pendulum_command.hpp"
-#include "pendulum_msgs_v2/msg/pendulum_state.hpp"
 #include "pendulum_controller/pendulum_controller.hpp"
 #include "pendulum_controller/visibility_control.hpp"
 
@@ -62,12 +57,12 @@ private:
   /// \param[in] msg pendulum state message
   void on_sensor_message(const sensor_msgs::msg::JointState::SharedPtr msg);
 
-  /// \brief pendulum setpoint topic message callback
-  /// \param[in] msg pendulum setpoint message
-  void on_pendulum_setpoint(
-    const pendulum_msgs_v2::msg::PendulumCommand::SharedPtr msg);
+  /// \brief pendulum teleop topic message callback
+  /// \param[in] msg pendulum teleop message
+  void on_pendulum_teleop(
+    const pendulum2_msgs::msg::PendulumTeleop::SharedPtr msg);
 
-  /// \brief controller command publishtimer callback
+  /// \brief controller command publish timer callback
   void control_timer_callback();
 
   /// \brief Transition callback for state configuring
@@ -97,7 +92,7 @@ private:
 
   const std::string state_topic_name_;
   const std::string command_topic_name_;
-  const std::string setpoint_topic_name_;
+  const std::string teleop_topic_name_;
   std::chrono::microseconds command_publish_period_;
   bool enable_topic_stats_;
   const std::string topic_stats_topic_name_;
@@ -109,12 +104,12 @@ private:
   std::shared_ptr<rclcpp::Subscription<
       sensor_msgs::msg::JointState>> state_sub_;
   std::shared_ptr<rclcpp::Subscription<
-      pendulum_msgs_v2::msg::PendulumCommand>> setpoint_sub_;
+      pendulum2_msgs::msg::PendulumTeleop>> teleop_sub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
-      pendulum_msgs_v2::msg::PendulumCommand>> command_pub_;
+      pendulum2_msgs::msg::JointCommandStamped>> command_pub_;
 
   rclcpp::TimerBase::SharedPtr command_timer_;
-  pendulum_msgs_v2::msg::PendulumCommand command_message_;
+  pendulum2_msgs::msg::JointCommandStamped command_message_;
 };
 }  // namespace pendulum_controller
 }  // namespace pendulum
