@@ -91,3 +91,4 @@ RUN apt-get update \
   && mkdir -p /opt/ros/$ROS_VERSION \
   && colcon build --merge-install --install-base /opt/ros/$ROS_VERSION/ \
   && rm -rf /var/lib/apt/lists/* \
+  && rm -rf /root/ros2_$ROS_VERSION
