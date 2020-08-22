@@ -22,7 +22,24 @@
 using pendulum::pendulum_driver::PendulumDriver;
 using pendulum::pendulum_driver::PendulumDriverNode;
 
-TEST(ConfigDriverTest, test_config_driver) {
+class InitNodesTest : public ::testing::Test
+{
+protected:
+  void SetUp() override
+  {
+    ASSERT_FALSE(rclcpp::ok());
+    rclcpp::init(0, nullptr);
+    ASSERT_TRUE(rclcpp::ok());
+  }
+
+  void TearDown() override
+  {
+    (void)rclcpp::shutdown();
+  }
+};
+
+TEST_F(InitNodesTest, test_config_driver) {
+  // rclcpp::init(0, nullptr);
   PendulumDriver::Config config(1.0, 5.0, 2.0, 20.0, -9.8,
     1000.0,
     1.0,
@@ -36,10 +53,11 @@ TEST(ConfigDriverTest, test_config_driver) {
   EXPECT_EQ(config.get_max_cart_force(), 1000.0);
   EXPECT_EQ(config.get_noise_level(), 1.0);
   EXPECT_EQ(config.get_physics_update_period(), std::chrono::microseconds(1000));
+  // rclcpp::shutdown();
 }
 
-TEST(ConstructorsTest, test_constructors) {
-  rclcpp::init(0, nullptr);
+TEST_F(InitNodesTest, test_constructors) {
+  // rclcpp::init(0, nullptr);
   std::vector<rclcpp::Parameter> params;
 
   params.emplace_back("state_topic_name", "joint_states");
@@ -71,5 +89,5 @@ TEST(ConstructorsTest, test_constructors) {
   EXPECT_EQ(names.size(), 1u);
   EXPECT_STREQ(names[0].c_str(), "/pendulum_driver");
   EXPECT_STREQ("/", test_node_ptr->get_namespace());
-  rclcpp::shutdown();
+  // rclcpp::shutdown();
 }
