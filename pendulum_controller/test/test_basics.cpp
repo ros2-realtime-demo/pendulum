@@ -28,11 +28,24 @@ using lifecycle_msgs::msg::Transition;
 class InitNodesTest : public ::testing::Test
 {
 protected:
+  std::vector<rclcpp::Parameter> params;
+  std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
+
   void SetUp() override
   {
     ASSERT_FALSE(rclcpp::ok());
     rclcpp::init(0, nullptr);
     ASSERT_TRUE(rclcpp::ok());
+
+    params.emplace_back("state_topic_name", "joint_states");
+    params.emplace_back("command_topic_name", "command");
+    params.emplace_back("teleop_topic_name", "setpoint");
+    params.emplace_back("command_publish_period_us", 10000);
+    params.emplace_back("enable_topic_stats", false);
+    params.emplace_back("topic_stats_topic_name", "controller_stats");
+    params.emplace_back("topic_stats_publish_period_ms", 1000);
+    params.emplace_back("deadline_duration_ms", 0);
+    params.emplace_back("controller.feedback_matrix", feedback_matrix);
   }
 
   void TearDown() override
@@ -42,21 +55,6 @@ protected:
 };
 
 TEST_F(InitNodesTest, test_options_constructor) {
-  // rclcpp::init(0, nullptr);
-
-  std::vector<rclcpp::Parameter> params;
-  std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
-
-  params.emplace_back("state_topic_name", "joint_states");
-  params.emplace_back("command_topic_name", "command");
-  params.emplace_back("teleop_topic_name", "teleop");
-  params.emplace_back("command_publish_period_us", 10000);
-  params.emplace_back("enable_topic_stats", false);
-  params.emplace_back("topic_stats_topic_name", "controller_stats");
-  params.emplace_back("topic_stats_publish_period_ms", 1000);
-  params.emplace_back("deadline_duration_ms", 0);
-  params.emplace_back("controller.feedback_matrix", feedback_matrix);
-
   rclcpp::NodeOptions node_options;
   node_options.parameter_overrides(params);
 
@@ -68,24 +66,9 @@ TEST_F(InitNodesTest, test_options_constructor) {
   EXPECT_EQ(names.size(), 1u);
   EXPECT_STREQ(names[0].c_str(), "/pendulum_controller");
   EXPECT_STREQ("/", test_node->get_namespace());
-  // rclcpp::shutdown();
 }
 
 TEST_F(InitNodesTest, test_transition) {
-  // rclcpp::init(0, nullptr);
-  std::vector<rclcpp::Parameter> params;
-  std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
-
-  params.emplace_back("state_topic_name", "joint_states");
-  params.emplace_back("command_topic_name", "command");
-  params.emplace_back("teleop_topic_name", "setpoint");
-  params.emplace_back("command_publish_period_us", 10000);
-  params.emplace_back("enable_topic_stats", false);
-  params.emplace_back("topic_stats_topic_name", "controller_stats");
-  params.emplace_back("topic_stats_publish_period_ms", 1000);
-  params.emplace_back("deadline_duration_ms", 0);
-  params.emplace_back("controller.feedback_matrix", feedback_matrix);
-
   rclcpp::NodeOptions node_options;
   node_options.parameter_overrides(params);
 
@@ -108,31 +91,15 @@ TEST_F(InitNodesTest, test_transition) {
   ASSERT_EQ(
     State::PRIMARY_STATE_FINALIZED, test_node->trigger_transition(
       rclcpp_lifecycle::Transition(Transition::TRANSITION_UNCONFIGURED_SHUTDOWN)).id());
-  // rclcpp::shutdown();
 }
 
 TEST_F(InitNodesTest, test_config) {
   std::vector<double> feedback_matrix = {0.0, 0.0, 0.0, 0.0};
   PendulumController::Config config({0.0, 0.0, 0.0, 0.0});
   ASSERT_EQ(feedback_matrix, config.get_feedback_matrix());
-  // rclcpp::shutdown();
 }
 
 TEST_F(InitNodesTest, test_param_constructor) {
-  // rclcpp::init(0, nullptr);
-  std::vector<rclcpp::Parameter> params;
-  std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
-
-  params.emplace_back("state_topic_name", "joint_states");
-  params.emplace_back("command_topic_name", "command");
-  params.emplace_back("teleop_topic_name", "setpoint");
-  params.emplace_back("command_publish_period_us", 10000);
-  params.emplace_back("enable_topic_stats", false);
-  params.emplace_back("topic_stats_topic_name", "controller_stats");
-  params.emplace_back("topic_stats_publish_period_ms", 1000);
-  params.emplace_back("deadline_duration_ms", 0);
-  params.emplace_back("controller.feedback_matrix", feedback_matrix);
-
   rclcpp::NodeOptions node_options;
   node_options.parameter_overrides(params);
 
@@ -143,5 +110,4 @@ TEST_F(InitNodesTest, test_param_constructor) {
   EXPECT_EQ(names.size(), 1u);
   EXPECT_STREQ(names[0].c_str(), "/pendulum_controller");
   EXPECT_STREQ("/", test_node_ptr->get_namespace());
-  // rclcpp::shutdown();
 }
