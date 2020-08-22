@@ -3,15 +3,21 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-18.04
-
     steps:
     - uses: actions/checkout@v1
     - name: Build/Tests
       run: |
         docker build -t ci-pendulum .
 
-    - name: Build/Push ADE images
-      run: |
-        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_TOKEN }}
-        cd ade/ADE-base && docker build -t ros2realtimedemo/pendulum:ade-base-foxy .
-        docker push ros2realtimedemo/pendulum:ade-base-foxy
+  deployment:
+    name: Deployment
+    runs-on: ubuntu-18.04
+    needs: [Build/Tests]
+    if: if: github.ref == 'refs/heads/foxy'
+    steps:
+      - uses: actions/checkout@v1
+      - name: Deploy
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_TOKEN }}
+          cd ade/ADE-base && docker build -t ros2realtimedemo/pendulum:ade-base-foxy .
+          docker push ros2realtimedemo/pendulum:ade-base-foxy
