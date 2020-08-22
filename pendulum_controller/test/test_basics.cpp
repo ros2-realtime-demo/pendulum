@@ -25,8 +25,24 @@ using pendulum::pendulum_controller::PendulumController;
 using lifecycle_msgs::msg::State;
 using lifecycle_msgs::msg::Transition;
 
-TEST(ConstructorOptionsTest, test_options_constructor) {
-  rclcpp::init(0, nullptr);
+class InitNodesTest : public ::testing::Test
+{
+protected:
+  void SetUp() override
+  {
+    ASSERT_FALSE(rclcpp::ok());
+    rclcpp::init(0, nullptr);
+    ASSERT_TRUE(rclcpp::ok());
+  }
+
+  void TearDown() override
+  {
+    (void)rclcpp::shutdown();
+  }
+};
+
+TEST_F(InitNodesTest, test_options_constructor) {
+  // rclcpp::init(0, nullptr);
 
   std::vector<rclcpp::Parameter> params;
   std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
@@ -52,11 +68,11 @@ TEST(ConstructorOptionsTest, test_options_constructor) {
   EXPECT_EQ(names.size(), 1u);
   EXPECT_STREQ(names[0].c_str(), "/pendulum_controller");
   EXPECT_STREQ("/", test_node->get_namespace());
-  rclcpp::shutdown();
+  // rclcpp::shutdown();
 }
 
-TEST(TransitionTest, test_transition) {
-  rclcpp::init(0, nullptr);
+TEST_F(InitNodesTest, test_transition) {
+  // rclcpp::init(0, nullptr);
   std::vector<rclcpp::Parameter> params;
   std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
 
@@ -92,17 +108,18 @@ TEST(TransitionTest, test_transition) {
   ASSERT_EQ(
     State::PRIMARY_STATE_FINALIZED, test_node->trigger_transition(
       rclcpp_lifecycle::Transition(Transition::TRANSITION_UNCONFIGURED_SHUTDOWN)).id());
+  // rclcpp::shutdown();
 }
 
-TEST(ConfigTest, test_config) {
+TEST_F(InitNodesTest, test_config) {
   std::vector<double> feedback_matrix = {0.0, 0.0, 0.0, 0.0};
   PendulumController::Config config({0.0, 0.0, 0.0, 0.0});
   ASSERT_EQ(feedback_matrix, config.get_feedback_matrix());
-  rclcpp::shutdown();
+  // rclcpp::shutdown();
 }
 
-TEST(ConstructorParamTest, test_param_constructor) {
-  rclcpp::init(0, nullptr);
+TEST_F(InitNodesTest, test_param_constructor) {
+  // rclcpp::init(0, nullptr);
   std::vector<rclcpp::Parameter> params;
   std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
 
@@ -126,5 +143,5 @@ TEST(ConstructorParamTest, test_param_constructor) {
   EXPECT_EQ(names.size(), 1u);
   EXPECT_STREQ(names[0].c_str(), "/pendulum_controller");
   EXPECT_STREQ("/", test_node_ptr->get_namespace());
-  rclcpp::shutdown();
+  // rclcpp::shutdown();
 }
