@@ -29,14 +29,18 @@ class InitNodesTest : public ::testing::Test
 {
 protected:
   std::vector<rclcpp::Parameter> params;
+  rclcpp::NodeOptions node_options;
   std::vector<double> feedback_matrix = {-10.0000, -51.5393, 356.8637, 154.4146};
 
-  void SetUp() override
+  static void SetUpTestCase()
   {
     ASSERT_FALSE(rclcpp::ok());
     rclcpp::init(0, nullptr);
     ASSERT_TRUE(rclcpp::ok());
+  }
 
+  void SetUp() override
+  {
     params.emplace_back("state_topic_name", "joint_states");
     params.emplace_back("command_topic_name", "command");
     params.emplace_back("teleop_topic_name", "setpoint");
@@ -48,14 +52,13 @@ protected:
     params.emplace_back("controller.feedback_matrix", feedback_matrix);
   }
 
-  void TearDown() override
+  static void TearDownTestCase()
   {
     (void)rclcpp::shutdown();
   }
 };
 
 TEST_F(InitNodesTest, test_options_constructor) {
-  rclcpp::NodeOptions node_options;
   node_options.parameter_overrides(params);
 
   const auto test_node =
@@ -69,7 +72,6 @@ TEST_F(InitNodesTest, test_options_constructor) {
 }
 
 TEST_F(InitNodesTest, test_transition) {
-  rclcpp::NodeOptions node_options;
   node_options.parameter_overrides(params);
 
   const auto test_node =
@@ -93,14 +95,13 @@ TEST_F(InitNodesTest, test_transition) {
       rclcpp_lifecycle::Transition(Transition::TRANSITION_UNCONFIGURED_SHUTDOWN)).id());
 }
 
-TEST_F(InitNodesTest, test_config) {
+TEST(ConfigTest, test_config) {
   std::vector<double> feedback_matrix = {0.0, 0.0, 0.0, 0.0};
   PendulumController::Config config({0.0, 0.0, 0.0, 0.0});
   ASSERT_EQ(feedback_matrix, config.get_feedback_matrix());
 }
 
 TEST_F(InitNodesTest, test_param_constructor) {
-  rclcpp::NodeOptions node_options;
   node_options.parameter_overrides(params);
 
   const auto test_node_ptr =

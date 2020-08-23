@@ -26,13 +26,16 @@ class InitNodesTest : public ::testing::Test
 {
 protected:
   std::vector<rclcpp::Parameter> params;
+  rclcpp::NodeOptions node_options;
 
-  void SetUp() override
+  static void SetUpTestCase()
   {
     ASSERT_FALSE(rclcpp::ok());
     rclcpp::init(0, nullptr);
     ASSERT_TRUE(rclcpp::ok());
-
+  }
+  void SetUp() override
+  {
     params.emplace_back("state_topic_name", "joint_states");
     params.emplace_back("command_topic_name", "command");
     params.emplace_back("disturbance_topic_name", "disturbance");
@@ -53,13 +56,13 @@ protected:
     params.emplace_back("driver.noise_level", 1.0);
   }
 
-  void TearDown() override
+  static void TearDownTestCase()
   {
     (void)rclcpp::shutdown();
   }
 };
 
-TEST_F(InitNodesTest, test_config_driver) {
+TEST(ConfigTest, test_config_driver) {
   PendulumDriver::Config config(1.0, 5.0, 2.0, 20.0, -9.8,
     1000.0,
     1.0,
@@ -76,7 +79,6 @@ TEST_F(InitNodesTest, test_config_driver) {
 }
 
 TEST_F(InitNodesTest, test_constructors) {
-  rclcpp::NodeOptions node_options;
   node_options.parameter_overrides(params);
 
   const auto test_node_ptr =
