@@ -8,9 +8,9 @@ This is work in progress and should be considered just as a proof of concept on 
 
 ### Build status
 
-| foxy | eloquent |  dashing | master |
-|--------- | -------- | ------- | ------- |
-| ![Build Status](https://github.com/ros2-realtime-demo/pendulum/workflows/build/badge.svg?branch=foxy) | ![Build Status](https://github.com/ros2-realtime-demo/pendulum/workflows/build/badge.svg?branch=eloquent) | ![Build Status](https://github.com/ros2-realtime-demo/pendulum/workflows/build/badge.svg?branch=dashing) | ![Build Status](https://github.com/ros2-realtime-demo/pendulum/workflows/build/badge.svg?branch=master) |
+| foxy | eloquent |  dashing |
+|--------- | -------- | ------- |
+| ![Build Status](https://github.com/ros2-realtime-demo/pendulum/workflows/build/badge.svg?branch=foxy) | ![Build Status](https://github.com/ros2-realtime-demo/pendulum/workflows/build/badge.svg?branch=eloquent) | ![Build Status](https://github.com/ros2-realtime-demo/pendulum/workflows/build/badge.svg?branch=dashing) |
 
 [![License](https://img.shields.io/badge/license-Apache%202-blue)]() ![GitHub issues](https://img.shields.io/github/issues/ros2-realtime-demo/pendulum)
 
