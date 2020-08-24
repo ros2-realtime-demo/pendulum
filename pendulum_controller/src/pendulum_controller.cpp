@@ -87,5 +87,15 @@ double PendulumController::calculate(
 
   return controller_output;
 }
+
+std::vector<double> PendulumController::get_state()
+{
+  return state_;
+}
+
+std::vector<double> PendulumController::get_reference()
+{
+  return reference_;
+}
 }  // namespace pendulum_controller
 }  // namespace pendulum

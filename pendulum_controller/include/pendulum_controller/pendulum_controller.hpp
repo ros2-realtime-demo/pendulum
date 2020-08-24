@@ -75,6 +75,14 @@ private:
   /// \brief Resets the controller internal status and set variables to their default values.
   virtual void reset();
 
+  /// \brief Returns a vector with the status of the controller
+  /// \return Status vector
+  virtual std::vector<double> get_state();
+
+  /// \brief Returns a vector with the reference of the controller
+  /// \return Reference vector
+  virtual std::vector<double> get_reference();
+
 private:
   PENDULUM_CONTROLLER_LOCAL double calculate(
     const std::vector<double> & state,

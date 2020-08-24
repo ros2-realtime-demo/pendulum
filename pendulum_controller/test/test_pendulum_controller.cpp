@@ -85,3 +85,9 @@ TEST(UpdateTest, test_update_reset) {
   // controller.update_command_data(msg_command);
   // controller.reset();
 }
+
+// Test calculate
+TEST(CalculateTest, test_calculate) {
+  std::vector<double> state;
+  std::vector<double> reference;
+}
