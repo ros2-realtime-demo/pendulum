@@ -83,6 +83,10 @@ private:
   /// \return Reference vector
   virtual std::vector<double> get_reference();
 
+  /// \brief Returns the config object of the controller
+  /// \return Config object
+  virtual Config get_config();
+
 private:
   PENDULUM_CONTROLLER_LOCAL double calculate(
     const std::vector<double> & state,

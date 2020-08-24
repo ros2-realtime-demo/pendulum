@@ -68,11 +68,29 @@ TEST_F(InitNodesTest, test_config) {
 }
 
 // Test constructor
-TEST(ConstructorTest, test_constructor) {
+TEST_F(InitNodesTest, test_constructor) {
+  PendulumController::Config config({-10.0000, -51.5393, 356.8637, 154.4146});
+  PendulumController controller(config);
+
+  std::vector<double> state = controller.get_state();
+  std::vector<double> reference = controller.get_reference();
+  PendulumController::Config configObj = controller.get_config();
+
+  ASSERT_EQ(state[0], 0.0);
+  ASSERT_EQ(state[1], 0.0);
+  ASSERT_EQ(state[2], M_PI);
+  ASSERT_EQ(state[3], 0.0);
+
+  ASSERT_EQ(reference[0], 0.0);
+  ASSERT_EQ(reference[1], 0.0);
+  ASSERT_EQ(reference[2], M_PI);
+  ASSERT_EQ(reference[3], 0.0);
+
+  ASSERT_EQ(configObj.get_feedback_matrix(), config.get_feedback_matrix());
 }
 
 // Test update functions & reset
-TEST(UpdateTest, test_update_reset) {
+TEST_F(InitNodesTest, test_update_reset) {
   PendulumController::Config config({-10.0000, -51.5393, 356.8637, 154.4146});
   PendulumController controller(config);
 

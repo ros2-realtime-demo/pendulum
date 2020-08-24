@@ -97,5 +97,10 @@ std::vector<double> PendulumController::get_reference()
 {
   return reference_;
 }
+
+PendulumController::Config PendulumController::get_config()
+{
+  return cfg_;
+}
 }  // namespace pendulum_controller
 }  // namespace pendulum
