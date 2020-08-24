@@ -58,7 +58,7 @@ function compile_ws()
   colcon list --names-only
   echo -e "${RESET}"
   echo -e "${YELLOW}Compile the WS for ROS2${RESET}"
-  if ! colcon build --build-base build-install --install-base install-merge --merge-install; then
+  if ! colcon build --build-base build-install --install-base install-merge --merge-install --packages-up-to pendulum; then
     echo -e "${RED}Unable to compile the ws${RESET}"
     exit 1
   else
@@ -84,7 +84,7 @@ function compile_ws_symlink()
   colcon list --names-only
   echo -e "${RESET}"
   echo -e "${YELLOW}Compile the WS for ROS2 using --symlink-install${RESET}"
-  if ! colcon build --build-base build-symlink --install-base install-symlink --symlink-install; then
+  if ! colcon build --build-base build-symlink --install-base install-symlink --symlink-install --packages-up-to pendulum; then
     echo -e "${RED}Error compiling the WS_SYMLINK${RESET}"
     exit 1
   else
