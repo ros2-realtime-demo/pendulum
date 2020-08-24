@@ -59,22 +59,38 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Test Node
-  set(TEST_NODE_NAME "test_basics")
+  set(TEST_NODE_NAME "test_pendulum_controller")
+  set(TEST_NODE_NAME2 "test_pendulum_controller_node")
 
   # "Unit" test
-  set(BASICS_GTEST test_basics)
+  set(CONTROLLER_GTEST test_pendulum_controller)
+  set(CONTROLLER_GTEST2 test_pendulum_controller_node)
 
-  ament_add_gtest(${BASICS_GTEST}
-    "test/test_basics.cpp"
+  ament_add_gtest(${CONTROLLER_GTEST}
+    "test/test_pendulum_controller.cpp"
+  )
+  ament_add_gtest(${CONTROLLER_GTEST2}
+    "test/test_pendulum_controller_node.cpp"
   )
 
-  target_include_directories(${BASICS_GTEST} PRIVATE include)
-  target_link_libraries(${BASICS_GTEST} pendulum_controller)
+  target_include_directories(${CONTROLLER_GTEST} PRIVATE include)
+  target_link_libraries(${CONTROLLER_GTEST} pendulum_controller)
   ament_target_dependencies(${TEST_NODE_NAME}
     "rclcpp"
     "rclcpp_lifecycle"
     "pendulum2_msgs"
     "sensor_msgs"
+  )
+  target_include_directories(${CONTROLLER_GTEST2} PRIVATE include)
+  target_link_libraries(${CONTROLLER_GTEST2} pendulum_controller)
+  ament_target_dependencies(${TEST_NODE_NAME2}
+    "rclcpp"
+    "rclcpp_components"
+    "rclcpp_lifecycle"
+    "lifecycle_msgs"
+    "sensor_msgs"
+    "pendulum2_msgs"
+    "pendulum_tools"
   )
 endif()
 
