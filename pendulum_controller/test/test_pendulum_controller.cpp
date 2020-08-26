@@ -89,23 +89,95 @@ TEST_F(InitNodesTest, test_constructor) {
   ASSERT_EQ(configObj.get_feedback_matrix(), config.get_feedback_matrix());
 }
 
-// Test update functions & reset
-TEST_F(InitNodesTest, test_update_reset) {
+// Test update teleop
+TEST_F(InitNodesTest, test_update_teleop) {
   PendulumController::Config config({-10.0000, -51.5393, 356.8637, 154.4146});
   PendulumController controller(config);
 
   pendulum2_msgs::msg::PendulumTeleop msg_teleop;
-  sensor_msgs::msg::JointState msg_status;
-  pendulum2_msgs::msg::JointCommandStamped msg_command;
+  msg_teleop.cart_position = M_PI / 2;
+  msg_teleop.cart_velocity = 3.0;
 
   controller.update_teleop_data(msg_teleop);
-  // controller.update_status_data(msg_status);
-  // controller.update_command_data(msg_command);
-  // controller.reset();
+
+  std::vector<double> ref = controller.get_reference();
+  ASSERT_EQ(ref[0], M_PI / 2);
+  ASSERT_EQ(ref[1], 3.0);
+  ASSERT_EQ(ref[2], M_PI);
+  ASSERT_EQ(ref[3], 0.0);
+}
+
+// Test update status
+TEST_F(InitNodesTest, test_update_status) {
+  PendulumController::Config config({-10.0000, -51.5393, 356.8637, 154.4146});
+  PendulumController controller(config);
+
+  sensor_msgs::msg::JointState msg_status;
+  msg_status.position.emplace_back(M_PI / 2);
+  msg_status.position.emplace_back(M_PI / 2);
+  msg_status.velocity.emplace_back(3.0);
+  msg_status.velocity.emplace_back(2.0);
+
+  controller.update_status_data(msg_status);
+
+  std::vector<double> state = controller.get_state();
+  ASSERT_EQ(state[0], M_PI / 2);
+  ASSERT_EQ(state[1], 3.0);
+  ASSERT_EQ(state[2], M_PI / 2);
+  ASSERT_EQ(state[3], 2.0);
+}
+
+// Test update command
+TEST_F(InitNodesTest, test_update_command) {
+  PendulumController::Config config({-10.0000, -51.5393, 356.8637, 154.4146});
+  PendulumController controller(config);
+
+  pendulum2_msgs::msg::JointCommandStamped msg_command;
+  controller.reset();
+  controller.update_command_data(msg_command);
+  ASSERT_EQ(msg_command.cmd.force, 0.0);
+
+  sensor_msgs::msg::JointState msg_status;
+  msg_status.position.emplace_back(M_PI / 2);
+  msg_status.position.emplace_back(M_PI / 2);
+  msg_status.velocity.emplace_back(3.0);
+  msg_status.velocity.emplace_back(2.0);
+  controller.update_status_data(msg_status);
+
+  pendulum2_msgs::msg::PendulumTeleop msg_teleop;
+  msg_teleop.cart_position = M_PI / 2;
+  msg_teleop.cart_velocity = 3.0;
+  controller.update_teleop_data(msg_teleop);
+
+  controller.update_command_data(msg_command);
+  ASSERT_FLOAT_EQ(msg_command.cmd.force, 251.731);
+}
+
+// Test reset
+TEST_F(InitNodesTest, test_reset) {
+  PendulumController::Config config({-10.0000, -51.5393, 356.8637, 154.4146});
+  PendulumController controller(config);
+  controller.reset();
+
+  std::vector<double> ref = controller.get_reference();
+  ASSERT_EQ(ref[0], 0.0);
+  ASSERT_EQ(ref[1], 0.0);
+  ASSERT_EQ(ref[2], M_PI);
+  ASSERT_EQ(ref[3], 0.0);
+
+  std::vector<double> state = controller.get_state();
+  ASSERT_EQ(state[0], 0.0);
+  ASSERT_EQ(state[1], 0.0);
+  ASSERT_EQ(state[2], M_PI);
+  ASSERT_EQ(state[3], 0.0);
 }
 
 // Test calculate
 TEST(CalculateTest, test_calculate) {
-  std::vector<double> state;
-  std::vector<double> reference;
+  // std::vector<double> state{0.0, 0.0, M_PI, 0.0};
+  // std::vector<double> reference{0.0, 0.0, M_PI, 0.0};
+  // PendulumController::Config config({-10.0000, -51.5393, 356.8637, 154.4146});
+  // PendulumController controller(config);
+  // double result = controller.calculate(state, reference);
+  // ASSERT_EQ(result, 0.0);
 }
