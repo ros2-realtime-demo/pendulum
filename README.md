@@ -48,7 +48,7 @@ pre-configured Docker image with everything ready to be used. This is the recomm
 - [Crosscompilation](docs/installation.md#crosscompile): provides instructions to
  crosscompile the demo for an embedded device.
 - [Pre-configured Raspberry PI image](docs/installation.md#raspberry#pi#image): provides a
- Raspberry PI with everything configured in a Linux Real-time
+ Raspberry PI with everything configured in a Linux Real-time (RT-PREEMPT patch).
 
 ## How to run the demo
 
