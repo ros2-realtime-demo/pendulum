@@ -18,7 +18,7 @@ These are the options that allows to configure the process real-time settings:
   (100 in binary).
 * `lock-memory`: pre-faults memory until no more page faults are seen. This usually allocated a 
  high amount of memory so make sure there is enough memory in the system.
-* `lock-memory`: specifies the amount of memory we want to pre-allocate. For example 
+* `lock-memory-size`: specifies the amount of memory we want to pre-allocate. For example 
  `lock-memory-size 100` pre-allocates 100 MB.
 * `config-child-threads`: specifies if the RMW middleware child threads will inherit the
  main process settings. This applies for `priority` and `cpu-affinity options.`. For example, if 
