@@ -46,7 +46,7 @@ pre-configured Docker image with everything ready to be used. This is the recomm
 - [Installation from source](docs/installation.md#installation#from#source): provides instructions
  to build all the required ROS 2 packages from source.
 - [Crosscompilation](docs/installation.md#crosscompile): provides instructions to
- crosscompile the demo for an embedded device
+ crosscompile the demo for an embedded device.
 - [Pre-configured Raspberry PI image](docs/installation.md#raspberry#pi#image): provides a
  Raspberry PI with everything configured in a Linux Real-time
 
