@@ -81,7 +81,7 @@ sudo apt-get install qemu-user-static
 For more information, checkout: https://github.com/ros-tooling/cross_compile#installation
 
 ```bash
-mkdir ~/xcompile_ws/src
+mkdir -p ~/xcompile_ws/src
 cd ~/xcompile_ws/src
 git clone https://github.com/ros2-realtime-demo/pendulum -b foxy
 pip3 install ros_cross_compile
