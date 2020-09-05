@@ -4,7 +4,7 @@
 
 TODO: describe how the ADE image is structured and which features already includes (ROS 2traces
  enabled, real-time limits configured, etc)  
-   
+
 Instructions taken from: https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/installation.html
 
 [ADE](https://ade-cli.readthedocs.io/en/latest/index.html) is a modular Docker-based tool to ensure that all developers in a project have a common,
@@ -44,7 +44,7 @@ $ touch .adehome
 ```
 
 For ADE to function, it must be properly configured. The pendulum demo provides an `.aderc` file
- which is expected to exist in the current working directory, or in any parent directory. 
+ which is expected to exist in the current working directory, or in any parent directory.
 
 ```
 $ cd adehome
@@ -53,7 +53,7 @@ $ git clone git@github.com:ros2-realtime-demo/pendulum.git
 
 How to build
 ```
-$ ade start --update --enter 
+$ ade start --update --enter
 ade$ source /opt/ros/foxy/setup.bash
 ade$ cd pendulum
 ade$ colcon build
@@ -63,12 +63,35 @@ ade$ colcon test-result
 
 ## Installation from source
 
-TODO 
-
-## Crosscompile
- 
 TODO
- 
+
+## Cross compile
+
+In order to cross compile the project to use it on aarch64 CPU architecture, here the needed steps.
+
+### Prerequisites
+
+* [Docker](https://docs.docker.com/engine/install/ubuntu/), add current user to docker group to execute it as non-root user.
+* Python >= 3.5
+
+```bash
+sudo apt-get install qemu-user-static
+```
+
+For more information, checkout: https://github.com/ros-tooling/cross_compile#installation
+
+```bash
+mkdir ~/xcompile_ws/src
+cd ~/xcompile_ws/src
+git clone https://github.com/ros2-realtime-demo/pendulum -b foxy
+pip3 install ros_cross_compile
+cd ~
+ros_cross_compile xcompile_ws/ --arch aarch64 --os ubuntu --rosdistro foxy
+```
+
+Folder that contains the project compiled is `~/xcompile_ws/install_aarch64`, the folder need to be copied to target board.
+
+
 ## Raspberry PI image
 
 TODO
