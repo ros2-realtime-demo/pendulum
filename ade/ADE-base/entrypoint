@@ -30,6 +30,7 @@ useradd -M -u "$USER_ID" -g "$GROUP_ID" -d "/home/$USER" -s /bin/bash "$USER"
 groupdel video &> /dev/null || true
 groupadd -og "${VIDEO_GROUP_ID}" video
 gpasswd -a "${USER}" video
+gpasswd -a "${USER}" tracing
 
 
 for x in /etc/skel/.*; do
