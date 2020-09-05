@@ -76,6 +76,7 @@ In order to cross compile the project to use it on aarch64 CPU architecture, her
 
 ```bash
 sudo apt-get install qemu-user-static
+pip3 install ros_cross_compile
 ```
 
 For more information, checkout: https://github.com/ros-tooling/cross_compile#installation
@@ -83,10 +84,10 @@ For more information, checkout: https://github.com/ros-tooling/cross_compile#ins
 ```bash
 mkdir -p ~/xcompile_ws/src
 cd ~/xcompile_ws/src
-git clone https://github.com/ros2-realtime-demo/pendulum -b foxy
-pip3 install ros_cross_compile
+export ROS_DISTRO=foxy
+git clone https://github.com/ros2-realtime-demo/pendulum -b "${ROS_DISTRO}"
 cd ~
-ros_cross_compile xcompile_ws/ --arch aarch64 --os ubuntu --rosdistro foxy
+ros_cross_compile xcompile_ws/ --arch aarch64 --os ubuntu --rosdistro  "${ROS_DISTRO}"
 ```
 
 Folder that contains the project compiled is `~/xcompile_ws/install_aarch64`, the folder need to be copied to target board.
