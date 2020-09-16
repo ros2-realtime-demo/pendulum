@@ -2,7 +2,7 @@
 
 ### Purpose
 
-This is a rework of the existing pendulum demo in ros2/demos. The aim of this project is to
+This is a rework of the existing pendulum demo in [ros2/demos](https://github.com/ros2/demos). The aim of this project is to
  create a complete use case to show ROS 2 real-time capabilities. The goal is not measure ROS 2
   real-time performance but to show how ROS 2 could be used for a real-time application. Ideally
    this project could help ROS developers to understand how to program a ROS 2 application in C
@@ -33,4 +33,3 @@ for the pendulum controller.
 * `pendulum_demo`: The main program which configures the process settings, creates and executor
 , adds a `PendulumControllerNode` and a `PendulumDriverNode`  using manual composition and spins
  all the nodes.
-
