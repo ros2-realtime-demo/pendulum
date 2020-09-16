@@ -91,7 +91,7 @@ TODO
 ## How to contribute
 
 Make a fork using github, and make your changes. This project uses the same guidelines as all the
- officials ROS2 packages, make sure that your code is compliant with cppcheck, uncrustify...
+ officials ROS 2 packages, make sure that your code is compliant with cppcheck, uncrustify...
 After this, submit a PR and we will review as soon as possible.
 
 ## Issues and feature request
