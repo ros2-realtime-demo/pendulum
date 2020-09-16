@@ -48,6 +48,8 @@ For ADE to function, it must be properly configured. The pendulum demo provides 
 
 ```
 $ cd adehome
+$ mkdir -p pendulum_ws/src
+$ cd pendulum_ws/src
 $ git clone git@github.com:ros2-realtime-demo/pendulum.git
 ```
 
@@ -55,10 +57,8 @@ How to build
 ```
 $ ade start --update --enter
 ade$ source /opt/ros/foxy/setup.bash
-ade$ cd pendulum
+ade$ cd pendulum_ws
 ade$ colcon build
-ade$ colcon test
-ade$ colcon test-result
 ```
 
 ## Installation from source
