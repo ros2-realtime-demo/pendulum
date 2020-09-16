@@ -28,6 +28,7 @@ $ ade --version
 ```
 
 ### Setup ADE home and project checkout
+
 ADE needs a directory on the host machine which is mounted as the user's home directory within
  the container. The directory is populated with dotfiles, and must be different than the
   user's home directory outside of the container. In the event ADE is used for multiple,
