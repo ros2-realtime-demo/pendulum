@@ -51,7 +51,7 @@ public:
     const std::string & node_name,
     rclcpp::NodeOptions options = rclcpp::NodeOptions());
 
-  /// \brief Initialize pendulum driver
+  /// \brief Initialize node
   void init();
 
 private:

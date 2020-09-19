@@ -47,7 +47,9 @@ PendulumControllerNode::PendulumControllerNode(
         declare_parameter("deadline_duration_ms").get<std::uint16_t>()}},
   controller_(PendulumController::Config(
       declare_parameter("controller.feedback_matrix").get<std::vector<double>>()))
-{}
+{
+  init();
+}
 
 void PendulumControllerNode::on_sensor_message(
   const sensor_msgs::msg::JointState::SharedPtr msg)
@@ -68,8 +70,7 @@ void PendulumControllerNode::control_timer_callback()
   command_pub_->publish(command_message_);
 }
 
-rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
+void PendulumControllerNode::init()
 {
   // Create state subscription
   rclcpp::SubscriptionOptions state_subscription_options;
@@ -124,7 +125,11 @@ PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
     std::bind(&PendulumControllerNode::control_timer_callback, this));
   // cancel immediately to prevent triggering it in this state
   command_timer_->cancel();
+}
 
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
+{
   return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
