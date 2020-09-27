@@ -57,18 +57,39 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
+
+  find_package(launch_testing_ament_cmake)
+  add_launch_test(
+      test/pendulum_controller_lifecycle.test.py
+      TARGET pendulum_controller_lifecycle.test
+      ENV
+      TIMEOUT 30
+  )
+  add_launch_test(
+      test/pendulum_controller_autostart.test.py
+      TARGET pendulum_controller_autostart.test
+      ENV
+      TIMEOUT 30
+  )
 endif()
 
 install(
-  DIRECTORY include/
-  DESTINATION include
+    DIRECTORY include/
+    DESTINATION include
 )
 
-install(TARGETS ${PENDULUM_CONTROLLER_LIB} ${PENDULUM_CONTROLLER_EXE}
-        EXPORT export_${PENDULUM_CONTROLLER_LIB}
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION lib/${PROJECT_NAME}
-        INCLUDES DESTINATION include)
+install(
+    DIRECTORY params
+    DESTINATION share/${PROJECT_NAME}
+)
+
+install(
+    TARGETS ${PENDULUM_CONTROLLER_LIB} ${PENDULUM_CONTROLLER_EXE}
+    EXPORT export_${PENDULUM_CONTROLLER_LIB}
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION lib/${PROJECT_NAME}
+    INCLUDES DESTINATION include
+)
 
 ament_package()

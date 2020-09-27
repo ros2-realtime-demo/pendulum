@@ -26,7 +26,26 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
+
+  find_package(launch_testing_ament_cmake)
+  add_launch_test(
+      test/pendulum_demo_autostart.test.py
+      TARGET pendulum_demo_autostart.test
+      ENV
+      TIMEOUT 30
+  )
+  add_launch_test(
+      test/pendulum_demo_lifecycle.test.py
+      TARGET pendulum_demo_lifecycle.test
+      ENV
+      TIMEOUT 30
+  )
 endif()
+
+install(
+    DIRECTORY params
+    DESTINATION share/${PROJECT_NAME}
+)
 
 install(TARGETS ${PENDULUM_DEMO_EXE}
     LIBRARY DESTINATION lib
