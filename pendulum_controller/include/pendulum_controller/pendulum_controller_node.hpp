@@ -53,6 +53,9 @@ public:
     rclcpp::NodeOptions options = rclcpp::NodeOptions());
 
 private:
+  /// \brief initialize node
+  void init();
+
   /// \brief pendulum state topic message callback
   /// \param[in] msg pendulum state message
   void on_sensor_message(const sensor_msgs::msg::JointState::SharedPtr msg);

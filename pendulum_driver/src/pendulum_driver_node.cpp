@@ -75,31 +75,7 @@ void PendulumDriverNode::init()
   state_message_.position.push_back(0.0);
   state_message_.velocity.push_back(0.0);
   state_message_.effort.push_back(0.0);
-}
 
-void PendulumDriverNode::on_command_received(
-  const pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg)
-{
-  driver_.update_command_data(*msg);
-}
-
-void PendulumDriverNode::on_disturbance_received(
-  const pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg)
-{
-  driver_.update_disturbance_data(*msg);
-}
-
-void PendulumDriverNode::state_timer_callback()
-{
-  driver_.update();
-  driver_.update_status_data(state_message_);
-  state_message_.header.stamp = this->get_clock()->now();
-  state_pub_->publish(state_message_);
-}
-
-rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
-{
   // Create sensor publisher
   rclcpp::PublisherOptions sensor_publisher_options;
   sensor_publisher_options.event_callbacks.deadline_callback =
@@ -151,7 +127,31 @@ PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
     std::bind(&PendulumDriverNode::state_timer_callback, this));
   // cancel immediately to prevent triggering it in this state
   state_timer_->cancel();
+}
 
+void PendulumDriverNode::on_command_received(
+  const pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg)
+{
+  driver_.update_command_data(*msg);
+}
+
+void PendulumDriverNode::on_disturbance_received(
+  const pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg)
+{
+  driver_.update_disturbance_data(*msg);
+}
+
+void PendulumDriverNode::state_timer_callback()
+{
+  driver_.update();
+  driver_.update_status_data(state_message_);
+  state_message_.header.stamp = this->get_clock()->now();
+  state_pub_->publish(state_message_);
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
+{
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 

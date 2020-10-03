@@ -69,7 +69,11 @@ source ./install/setup.bash
 
 ### Launch the demo
 
-Launch the demo with rviz enabled:
+A complete explanation of all the possible options to run the demo can be found in the tutorial
+ document:
+ - [Tutorial](docs/tutorial.md)
+
+For a quick test, launch the demo with rviz enabled:
 
 ```bash
 ros2 launch pendulum_bringup pendulum_bringup.launch.py rviz:=True
