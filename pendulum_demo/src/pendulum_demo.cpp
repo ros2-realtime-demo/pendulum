@@ -84,9 +84,7 @@ int main(int argc, char * argv[])
     }
 
     exec.spin();
-    if (!rclcpp::shutdown()) {
-      throw std::runtime_error("rclcpp shutdown failed!");
-    }
+    rclcpp::shutdown();
   } catch (const std::exception & e) {
     RCLCPP_INFO(rclcpp::get_logger("pendulum_demo"), e.what());
     ret = 2;
