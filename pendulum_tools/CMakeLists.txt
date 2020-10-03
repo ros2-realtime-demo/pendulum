@@ -15,6 +15,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
+find_package(lifecycle_msgs REQUIRED)
 
 set(PENDULUM_TOOLS_LIB pendulum_tools)
 
@@ -30,7 +32,11 @@ target_include_directories(${PENDULUM_TOOLS_LIB}
 ament_target_dependencies(${PENDULUM_TOOLS_LIB} "rclcpp")
 
 ament_export_targets(export_${PENDULUM_TOOLS_LIB} HAS_LIBRARY_TARGET)
-ament_export_dependencies("rclcpp")
+ament_export_dependencies(
+    "rclcpp"
+    "rclcpp_lifecycle"
+    "lifecycle_msgs"
+)
 
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)

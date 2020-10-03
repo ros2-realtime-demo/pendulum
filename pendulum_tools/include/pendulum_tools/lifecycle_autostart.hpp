@@ -17,11 +17,8 @@
 
 #include <string>
 
-#include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
-#include "rclcpp_lifecycle/lifecycle_publisher.hpp"
 #include "lifecycle_msgs/msg/transition_event.hpp"
-#include "lifecycle_msgs/msg/transition.hpp"
 
 namespace pendulum
 {
