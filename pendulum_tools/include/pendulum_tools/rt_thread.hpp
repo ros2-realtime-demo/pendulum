@@ -32,9 +32,12 @@
 
 namespace pendulum
 {
+namespace tools
+{
 int set_thread_priority(size_t sched_priority, int policy);
 int set_this_thread_priority(size_t sched_priority, int policy);
 int set_thread_cpu_affinity(uint32_t cpu_bit_mask);
 int set_this_thread_cpu_affinity(uint32_t cpu_bit_mask);
+}  // namespace tools
 }  // namespace pendulum
 #endif  // PENDULUM_TOOLS__RT_THREAD_HPP_

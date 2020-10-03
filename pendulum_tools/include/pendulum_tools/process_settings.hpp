@@ -23,6 +23,10 @@
 #include "pendulum_tools/memory_lock.hpp"
 #include "pendulum_tools/rt_thread.hpp"
 
+namespace pendulum
+{
+namespace tools
+{
 struct ProcessSettings
 {
   void print_usage()
@@ -94,12 +98,12 @@ struct ProcessSettings
     // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
     // deterministic (real-time safe) algorithm, fifo.
     if (process_priority > 0 && process_priority < 99) {
-      if (pendulum::set_this_thread_priority(process_priority, SCHED_FIFO)) {
+      if (set_this_thread_priority(process_priority, SCHED_FIFO)) {
         throw std::runtime_error("Couldn't set scheduling priority and policy");
       }
     }
     if (cpu_affinity > 0U) {
-      if (pendulum::set_this_thread_cpu_affinity(cpu_affinity)) {
+      if (set_this_thread_cpu_affinity(cpu_affinity)) {
         throw std::runtime_error("Couldn't set cpu affinity");
       }
     }
@@ -107,9 +111,9 @@ struct ProcessSettings
     if (lock_memory) {
       int res = 0;
       if (lock_memory_size_mb > 0) {
-        res = pendulum::lock_and_prefault_dynamic(lock_memory_size_mb * 1024 * 1024);
+        res = lock_and_prefault_dynamic(lock_memory_size_mb * 1024 * 1024);
       } else {
-        res = pendulum::lock_and_prefault_dynamic();
+        res = lock_and_prefault_dynamic();
       }
       if (res != 0) {
         throw std::runtime_error("Couldn't lock  virtual memory");
@@ -137,5 +141,7 @@ struct ProcessSettings
   /// configure process child threads (typically DDS threads)
   bool configure_child_threads = false;
 };
+}  // namespace tools
+}  // namespace pendulum
 
 #endif  // PENDULUM_TOOLS__PROCESS_SETTINGS_HPP_

@@ -34,7 +34,8 @@
 
 namespace pendulum
 {
-
+namespace tools
+{
 /// \brief Lock currently paged memory using mlockall.
 /// \return Error code to propagate to main
 int lock_memory();
@@ -56,7 +57,7 @@ int lock_and_prefault_dynamic(size_t process_max_dynamic_memory);
 // /// \brief Prefault the stack using default stack size.
 // /// \return Error code to propagate to main
 // int prefault_stack();
-
-
+}  // namespace tools
 }  // namespace pendulum
+
 #endif  // PENDULUM_TOOLS__MEMORY_LOCK_HPP_
