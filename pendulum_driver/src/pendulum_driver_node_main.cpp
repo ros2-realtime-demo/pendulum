@@ -19,10 +19,11 @@
 #include "rclcpp/rclcpp.hpp"
 #include "pendulum_driver/pendulum_driver_node.hpp"
 #include "pendulum_tools/process_settings.hpp"
+#include "pendulum_tools/lifecycle_autostart.hpp"
 
 int main(int argc, char * argv[])
 {
-  ProcessSettings settings;
+  pendulum::tools::ProcessSettings settings;
   if (!settings.init(argc, argv)) {
     return EXIT_FAILURE;
   }
@@ -52,14 +53,7 @@ int main(int argc, char * argv[])
     }
 
     if (settings.auto_start_nodes) {
-      if (lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE !=
-        driver_node_ptr->configure().id())
-      {
-        throw std::runtime_error("Could not configure PendulumDriverNode!");
-      }
-      if (lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE != driver_node_ptr->activate().id()) {
-        throw std::runtime_error("Could not activate PendulumDriverNode!");
-      }
+      pendulum::tools::autostart(*driver_node_ptr);
     }
 
     exec.spin();

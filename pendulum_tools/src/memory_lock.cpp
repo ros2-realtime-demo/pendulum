@@ -17,7 +17,8 @@
 
 namespace pendulum
 {
-
+namespace tools
+{
 int lock_memory()
 {
   if (mlockall(MCL_CURRENT | MCL_FUTURE) != 0) {
@@ -128,5 +129,5 @@ int lock_and_prefault_dynamic(size_t process_max_dynamic_memory)
 //
 //   return prefault_stack_size(stacksize);
 // }
-
+}  // namespace tools
 }  // namespace pendulum

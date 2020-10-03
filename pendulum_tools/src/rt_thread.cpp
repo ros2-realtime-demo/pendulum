@@ -16,7 +16,8 @@
 
 namespace pendulum
 {
-
+namespace tools
+{
 int set_thread_priority(pid_t pid, size_t sched_priority, int policy)
 {
   struct sched_param param;
@@ -49,5 +50,5 @@ int set_this_thread_cpu_affinity(uint32_t cpu_bit_mask)
 {
   return set_thread_cpu_affinity(getpid(), cpu_bit_mask);
 }
-
+}  // namespace tools
 }  // namespace pendulum
