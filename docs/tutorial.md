@@ -232,5 +232,4 @@ $ ros2 lifecycle set /pendulum_driver configure
 Transitioning successful
 ```
 
-- TODO(carlossvg): fix bug lifecycle bug
 - TODO(carlossvg): add cleanup instructions
