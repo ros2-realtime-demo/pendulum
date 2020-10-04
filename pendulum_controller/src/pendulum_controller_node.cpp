@@ -54,18 +54,21 @@ PendulumControllerNode::PendulumControllerNode(
 void PendulumControllerNode::on_sensor_message(
   const sensor_msgs::msg::JointState::SharedPtr msg)
 {
-  controller_.update_status_data(*msg);
+  controller_.set_state(
+    msg->position[0], msg->velocity[0],
+    msg->position[1], msg->velocity[1]);
 }
 
 void PendulumControllerNode::on_pendulum_teleop(
   const pendulum2_msgs::msg::PendulumTeleop::SharedPtr msg)
 {
-  controller_.update_teleop_data(*msg);
+  controller_.set_teleop(msg->cart_position, msg->cart_velocity);
 }
 
 void PendulumControllerNode::control_timer_callback()
 {
-  controller_.update_command_data(command_message_);
+  controller_.update();
+  command_message_.cmd.force = controller_.get_force_command();
   command_message_.header.stamp = this->get_clock()->now();
   command_pub_->publish(command_message_);
 }

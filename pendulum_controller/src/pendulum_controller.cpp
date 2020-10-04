@@ -32,33 +32,62 @@ PendulumController::Config::get_feedback_matrix() const
 PendulumController::PendulumController(const Config & config)
 : cfg_(config),
   state_{0.0, 0.0, M_PI, 0.0},
-  reference_{0.0, 0.0, M_PI, 0.0} {}
-
-void PendulumController::update_teleop_data(
-  const pendulum2_msgs::msg::PendulumTeleop & msg)
-{
-  // We only allow to set the cart position and velocity for the moment
-  reference_[0] = msg.cart_position;
-  reference_[1] = msg.cart_velocity;
-}
-
-void PendulumController::update_status_data(
-  const sensor_msgs::msg::JointState & msg)
-{
-  state_ = {msg.position[0], msg.velocity[0], msg.position[1], msg.velocity[1]};
-}
-
-void PendulumController::update_command_data(
-  pendulum2_msgs::msg::JointCommandStamped & msg)
-{
-  msg.cmd.force = calculate(state_, reference_);
-}
+  reference_{0.0, 0.0, M_PI, 0.0}
+{}
 
 void PendulumController::reset()
 {
   // We reset the controller status to an up pendulum position by default
-  state_ = {0.0, 0.0, M_PI, 0.0};
-  reference_ = {0.0, 0.0, M_PI, 0.0};
+  set_state(0.0, 0.0, M_PI, 0.0);
+  set_teleop(0.0, 0.0, M_PI, 0.0);
+}
+
+void PendulumController::update()
+{
+  set_force_command(calculate(state_, reference_));
+}
+
+void PendulumController::set_teleop(
+  double cart_pos, double cart_vel,
+  double pole_pos, double pole_vel)
+{
+  reference_[0] = cart_pos;
+  reference_[1] = cart_vel;
+  reference_[2] = pole_pos;
+  reference_[3] = pole_vel;
+}
+
+void PendulumController::set_teleop(double cart_pos, double cart_vel)
+{
+  reference_[0] = cart_pos;
+  reference_[1] = cart_vel;
+}
+
+void PendulumController::set_state(
+  double cart_pos, double cart_vel,
+  double pole_pos, double pole_vel)
+{
+  state_ = {cart_pos, cart_vel, pole_pos, pole_vel};
+}
+
+void PendulumController::set_force_command(double force)
+{
+  force_command_ = force;
+}
+
+const std::vector<double> & PendulumController::get_teleop() const
+{
+  return reference_;
+}
+
+const std::vector<double> & PendulumController::get_state() const
+{
+  return state_;
+}
+
+double PendulumController::get_force_command() const
+{
+  return force_command_;
 }
 
 double PendulumController::calculate(

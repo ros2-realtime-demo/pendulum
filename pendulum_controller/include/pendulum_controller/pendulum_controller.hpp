@@ -60,20 +60,48 @@ private:
   /// \param[in] feedback_matrix Feedback matrix values
   explicit PendulumController(const Config & config);
 
-  /// \brief Updates the teleop data when a teleoperation message arrives.
-  /// \param[in] msg PendulumTeleop data message.
-  void update_teleop_data(const pendulum2_msgs::msg::PendulumTeleop & msg);
-
-  /// \brief Updates the sensor data when a status message arrives.
-  /// \param[in] msg Sensor status data message.
-  void update_status_data(const sensor_msgs::msg::JointState & msg);
-
-  /// \brief Updates the command data from the controller before publishing.
-  /// \param[in,out] msg Command data message.
-  void update_command_data(pendulum2_msgs::msg::JointCommandStamped & msg);
-
   /// \brief Resets the controller internal status and set variables to their default values.
   void reset();
+
+  /// \brief Update controller output command
+  void update();
+
+  /// \brief Updates the teleop data when a teleoperation message arrives.
+  /// \param[in] cart_pos cart position in m
+  /// \param[in] cart_vel cart velocity in m/s
+  /// \param[in] pole_pos pole position in radians
+  /// \param[in] pole_vel pole velocity in radians/s
+  void set_teleop(
+    double cart_pos, double cart_vel,
+    double pole_pos, double pole_vel);
+
+  /// \brief Updates the teleop data when a teleoperation message arrives.
+  /// \param[in] cart_pos cart position in m
+  /// \param[in] cart_vel cart velocity in m/s
+  void set_teleop(double cart_pos, double cart_vel);
+
+  /// \brief Updates the sensor data when a status message arrives.
+  /// \param[in] cart_pos cart position in m
+  /// \param[in] cart_vel cart velocity in m/s
+  /// \param[in] pole_pos pole position in radians
+  /// \param[in] pole_vel pole velocity in radians/s
+  void set_state(double cart_pos, double cart_vel, double pole_pos, double pole_vel);
+
+  /// \brief Updates the command data from the controller before publishing.
+  /// \param[in] msg Command force in Newton.
+  void set_force_command(double cart_force);
+
+  /// \brief Get pendulum teleoperation data
+  /// \return Teleoperation data
+  const std::vector<double> & get_teleop() const;
+
+  /// \brief Get pendulum state
+  /// \return State data
+  const std::vector<double> & get_state() const;
+
+  /// \brief Get force command data
+  /// \return Force command in Newton
+  double get_force_command() const;
 
 private:
   PENDULUM_CONTROLLER_LOCAL double calculate(
@@ -89,6 +117,9 @@ private:
   // Holds the pendulum reference values.
   // Some values may be set by by the user and others are fixed by default
   std::vector<double> reference_;
+
+  // Force command to control the inverted pendulum
+  double force_command_;
 };
 }  // namespace pendulum_controller
 }  // namespace pendulum
