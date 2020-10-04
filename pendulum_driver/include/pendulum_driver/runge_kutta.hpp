@@ -51,7 +51,7 @@ public:
   /// \param[in] h Time step.
   /// \param[in] u Single input in the equations.
   /// \throw std::invalid_argument If the state vector doesn't have wrong dimensions.
-  void step(derivativeF df, std::vector<double> & y, double h, double u)
+  void step(const derivativeF & df, std::vector<double> & y, double h, double u)
   {
     std::size_t i = 0U;
 

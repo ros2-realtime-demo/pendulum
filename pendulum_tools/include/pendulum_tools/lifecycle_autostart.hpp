@@ -24,7 +24,6 @@ namespace pendulum
 {
 namespace tools
 {
-
 /// \brief Transit a LifecycleNode from inactive to active state
 void autostart(rclcpp_lifecycle::LifecycleNode & node)
 {

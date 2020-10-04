@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "pendulum_controller/pendulum_controller.hpp"
+#include <utility>
 #include <vector>
 
 namespace pendulum
@@ -20,7 +21,7 @@ namespace pendulum
 namespace pendulum_controller
 {
 PendulumController::Config::Config(std::vector<double> feedback_matrix)
-: feedback_matrix{feedback_matrix} {}
+: feedback_matrix{std::move(feedback_matrix)} {}
 
 const std::vector<double> &
 PendulumController::Config::get_feedback_matrix() const
@@ -44,10 +45,7 @@ void PendulumController::update_teleop_data(
 void PendulumController::update_status_data(
   const sensor_msgs::msg::JointState & msg)
 {
-  state_[0] = msg.position[0];
-  state_[1] = msg.velocity[0];
-  state_[2] = msg.position[1];
-  state_[3] = msg.velocity[1];
+  state_ = {msg.position[0], msg.velocity[0], msg.position[1], msg.velocity[1]};
 }
 
 void PendulumController::update_command_data(
@@ -59,14 +57,8 @@ void PendulumController::update_command_data(
 void PendulumController::reset()
 {
   // We reset the controller status to an up pendulum position by default
-  state_[0] = 0.0;
-  state_[1] = 0.0;
-  state_[2] = M_PI;
-  state_[3] = 0.0;
-  reference_[0] = 0.0;
-  reference_[1] = 0.0;
-  reference_[2] = M_PI;
-  reference_[3] = 0.0;
+  state_ = {0.0, 0.0, M_PI, 0.0};
+  reference_ = {0.0, 0.0, M_PI, 0.0};
 }
 
 double PendulumController::calculate(

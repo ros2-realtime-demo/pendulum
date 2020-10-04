@@ -135,18 +135,18 @@ private:
 
   /// \brief Updates the command data coming from the controller.
   /// \param[in] msg Command data message.
-  virtual void update_command_data(const pendulum2_msgs::msg::JointCommandStamped & msg);
+  void update_command_data(const pendulum2_msgs::msg::JointCommandStamped & msg);
 
   /// \brief Updates the disturbance force data.
   /// \param[in] msg Disturbance data message.
-  virtual void update_disturbance_data(const pendulum2_msgs::msg::JointCommandStamped & msg);
+  void update_disturbance_data(const pendulum2_msgs::msg::JointCommandStamped & msg);
 
   /// \brief Updates the status data from the driver implementation.
   /// \param[in,out] msg Status data message.
-  virtual void update_status_data(sensor_msgs::msg::JointState & msg);
+  void update_status_data(sensor_msgs::msg::JointState & msg);
 
   /// \brief Updates the driver simulation.
-  virtual void update();
+  void update();
 
 private:
   // Pendulum simulation configuration parameters

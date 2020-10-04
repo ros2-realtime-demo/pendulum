@@ -32,15 +32,15 @@ PendulumControllerNode::PendulumControllerNode(
   const std::string & node_name,
   rclcpp::NodeOptions options)
 : LifecycleNode(
-    node_name.c_str(),
+    node_name,
     options),
-  state_topic_name_(declare_parameter("state_topic_name").get<std::string>().c_str()),
-  command_topic_name_(declare_parameter("command_topic_name").get<std::string>().c_str()),
-  teleop_topic_name_(declare_parameter("teleop_topic_name").get<std::string>().c_str()),
+  state_topic_name_(declare_parameter("state_topic_name").get<std::string>()),
+  command_topic_name_(declare_parameter("command_topic_name").get<std::string>()),
+  teleop_topic_name_(declare_parameter("teleop_topic_name").get<std::string>()),
   command_publish_period_(std::chrono::microseconds{
       declare_parameter("command_publish_period_us").get<std::uint16_t>()}),
   enable_topic_stats_(declare_parameter("enable_topic_stats").get<bool>()),
-  topic_stats_topic_name_{declare_parameter("topic_stats_topic_name").get<std::string>().c_str()},
+  topic_stats_topic_name_{declare_parameter("topic_stats_topic_name").get<std::string>()},
   topic_stats_publish_period_{std::chrono::milliseconds {
         declare_parameter("topic_stats_publish_period_ms").get<std::uint16_t>()}},
   deadline_duration_{std::chrono::milliseconds {
@@ -88,7 +88,7 @@ void PendulumControllerNode::init()
     state_subscription_options.topic_stats_options.publish_period = topic_stats_publish_period_;
   }
   state_sub_ = this->create_subscription<sensor_msgs::msg::JointState>(
-    state_topic_name_.c_str(), rclcpp::QoS(10).deadline(deadline_duration_),
+    state_topic_name_, rclcpp::QoS(10).deadline(deadline_duration_),
     std::bind(
       &PendulumControllerNode::on_sensor_message,
       this, std::placeholders::_1),
@@ -106,13 +106,13 @@ void PendulumControllerNode::init()
     };
 
   command_pub_ = this->create_publisher<pendulum2_msgs::msg::JointCommandStamped>(
-    command_topic_name_.c_str(),
+    command_topic_name_,
     rclcpp::QoS(10).deadline(deadline_duration_),
     command_publisher_options);
 
   // Create teleop subscription
   teleop_sub_ = this->create_subscription<pendulum2_msgs::msg::PendulumTeleop>(
-    teleop_topic_name_.c_str(), rclcpp::QoS(10),
+    teleop_topic_name_, rclcpp::QoS(10),
     std::bind(
       &PendulumControllerNode::on_pendulum_teleop,
       this, std::placeholders::_1),
