@@ -45,7 +45,7 @@ public:
 public:
     /// \brief Constructor
     /// \param[in] feedback matrix
-    explicit Config(const std::vector<double> feedback_matrix);
+    explicit Config(std::vector<double> feedback_matrix);
 
     /// \brief Gets the feedback matrix
     /// \return feedback matrix array
