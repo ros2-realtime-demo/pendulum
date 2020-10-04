@@ -30,17 +30,17 @@ PendulumDriverNode::PendulumDriverNode(
   const std::string & node_name,
   rclcpp::NodeOptions options)
 : LifecycleNode(
-    node_name.c_str(),
+    node_name,
     options),
-  state_topic_name_(declare_parameter("state_topic_name").get<std::string>().c_str()),
-  command_topic_name_(declare_parameter("command_topic_name").get<std::string>().c_str()),
-  disturbance_topic_name_(declare_parameter("disturbance_topic_name").get<std::string>().c_str()),
-  cart_base_joint_name_(declare_parameter("cart_base_joint_name").get<std::string>().c_str()),
-  pole_joint_name_(declare_parameter("pole_joint_name").get<std::string>().c_str()),
+  state_topic_name_(declare_parameter("state_topic_name").get<std::string>()),
+  command_topic_name_(declare_parameter("command_topic_name").get<std::string>()),
+  disturbance_topic_name_(declare_parameter("disturbance_topic_name").get<std::string>()),
+  cart_base_joint_name_(declare_parameter("cart_base_joint_name").get<std::string>()),
+  pole_joint_name_(declare_parameter("pole_joint_name").get<std::string>()),
   state_publish_period_(std::chrono::microseconds{
       declare_parameter("state_publish_period_us").get<std::uint16_t>()}),
   enable_topic_stats_(declare_parameter("enable_topic_stats").get<bool>()),
-  topic_stats_topic_name_{declare_parameter("topic_stats_topic_name").get<std::string>().c_str()},
+  topic_stats_topic_name_{declare_parameter("topic_stats_topic_name").get<std::string>()},
   topic_stats_publish_period_{std::chrono::milliseconds {
         declare_parameter("topic_stats_publish_period_ms").get<std::uint16_t>()}},
   deadline_duration_{std::chrono::milliseconds {
@@ -87,7 +87,7 @@ void PendulumDriverNode::init()
       }
     };
   state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
-    state_topic_name_.c_str(), rclcpp::QoS(10).deadline(
+    state_topic_name_, rclcpp::QoS(10).deadline(
       deadline_duration_), sensor_publisher_options);
 
   // Create command subscription
@@ -106,7 +106,7 @@ void PendulumDriverNode::init()
     command_subscription_options.topic_stats_options.publish_period = topic_stats_publish_period_;
   }
   command_sub_ = this->create_subscription<pendulum2_msgs::msg::JointCommandStamped>(
-    command_topic_name_.c_str(), rclcpp::QoS(10).deadline(deadline_duration_),
+    command_topic_name_, rclcpp::QoS(10).deadline(deadline_duration_),
     std::bind(
       &PendulumDriverNode::on_command_received,
       this, std::placeholders::_1),
@@ -114,7 +114,7 @@ void PendulumDriverNode::init()
 
   // Create disturbance force subscription
   disturbance_sub_ = this->create_subscription<pendulum2_msgs::msg::JointCommandStamped>(
-    disturbance_topic_name_.c_str(), rclcpp::QoS(10),
+    disturbance_topic_name_, rclcpp::QoS(10),
     std::bind(
       &PendulumDriverNode::on_disturbance_received,
       this, std::placeholders::_1),
