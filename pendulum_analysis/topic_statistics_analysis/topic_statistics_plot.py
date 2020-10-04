@@ -37,9 +37,9 @@ def main():
         outfile = args.outfile
     else:
         if topicname:
-            outfile = topicname + '_' + metric
+            outfile = f"{topicname}_{metric}"
         else:
-            outfile = 'topic_statistics' + '_' + metric
+            outfile = f"topic_statistics_{metric}"
 
     col_names=["measurement_source_name",
                "metrics_source",
@@ -86,11 +86,11 @@ def main():
     df.plot(kind='line', x='time', y='maximum', ax=ax)
 
     ax.set_xlabel("Time (s)")
-    ax.set_ylabel(metric + " (" + unit + ")")
-    plt.title(metric + ' vs. time')
+    ax.set_ylabel(f"{metric} ({unit} )")
+    plt.title(f"{metric}  vs. time")
     if show:
         plt.show()
-    plt.savefig(outfile + '.svg')
+    plt.savefig(f"{outfile}.svg")
 
 
 if __name__ == '__main__':
