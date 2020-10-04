@@ -69,27 +69,27 @@ private:
   /// \brief Transition callback for state configuring
   /// \param[in] lifecycle node state
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-  on_configure(const rclcpp_lifecycle::State &);
+  on_configure(const rclcpp_lifecycle::State &) override;
 
   /// \brief Transition callback for state activating
   /// \param[in] lifecycle node state
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-  on_activate(const rclcpp_lifecycle::State &);
+  on_activate(const rclcpp_lifecycle::State &) override;
 
   /// \brief Transition callback for state deactivating
   /// \param[in] lifecycle node state
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-  on_deactivate(const rclcpp_lifecycle::State &);
+  on_deactivate(const rclcpp_lifecycle::State &) override;
 
   /// \brief Transition callback for state cleaningup
   /// \param[in] lifecycle node state
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-  on_cleanup(const rclcpp_lifecycle::State &);
+  on_cleanup(const rclcpp_lifecycle::State &) override;
 
   /// \brief Transition callback for state shutting down
   /// \param[in] lifecycle node state
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-  on_shutdown(const rclcpp_lifecycle::State & state);
+  on_shutdown(const rclcpp_lifecycle::State & state) override;
 
 private:
   const std::string state_topic_name_;
