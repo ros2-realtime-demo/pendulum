@@ -91,7 +91,6 @@ int lock_and_prefault_dynamic()
   return 0;
 }
 
-
 int lock_and_prefault_dynamic(size_t process_max_dynamic_memory)
 {
   if (lock_memory() != 0) {
@@ -111,23 +110,5 @@ int lock_and_prefault_dynamic(size_t process_max_dynamic_memory)
 
   return 0;
 }
-
-//
-// int prefault_stack_size(const size_t stack_size)
-// {
-//   unsigned char stack[stack_size];
-//   memset(stack, 0, stack_size);
-//   return 0;
-// }
-//
-// int prefault_stack()
-// {
-//   pthread_attr_t attr;
-//   size_t stacksize;
-//   pthread_attr_init(&attr);
-//   pthread_attr_getstacksize(&attr, &stacksize);
-//
-//   return prefault_stack_size(stacksize);
-// }
 }  // namespace tools
 }  // namespace pendulum
