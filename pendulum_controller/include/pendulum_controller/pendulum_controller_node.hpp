@@ -48,7 +48,7 @@ public:
   /// \brief Parameter file constructor
   /// \param[in] node_name Name of this node
   /// \param[in] options Node options for rclcpp internals
-  PENDULUM_CONTROLLER_PUBLIC PendulumControllerNode(
+  PENDULUM_CONTROLLER_PUBLIC explicit PendulumControllerNode(
     const std::string & node_name,
     rclcpp::NodeOptions options = rclcpp::NodeOptions());
 
