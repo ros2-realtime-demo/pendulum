@@ -62,18 +62,18 @@ private:
 
   /// \brief Updates the teleop data when a teleoperation message arrives.
   /// \param[in] msg PendulumTeleop data message.
-  virtual void update_teleop_data(const pendulum2_msgs::msg::PendulumTeleop & msg);
+  void update_teleop_data(const pendulum2_msgs::msg::PendulumTeleop & msg);
 
   /// \brief Updates the sensor data when a status message arrives.
   /// \param[in] msg Sensor status data message.
-  virtual void update_status_data(const sensor_msgs::msg::JointState & msg);
+  void update_status_data(const sensor_msgs::msg::JointState & msg);
 
   /// \brief Updates the command data from the controller before publishing.
   /// \param[in,out] msg Command data message.
-  virtual void update_command_data(pendulum2_msgs::msg::JointCommandStamped & msg);
+  void update_command_data(pendulum2_msgs::msg::JointCommandStamped & msg);
 
   /// \brief Resets the controller internal status and set variables to their default values.
-  virtual void reset();
+  void reset();
 
 private:
   PENDULUM_CONTROLLER_LOCAL double calculate(
