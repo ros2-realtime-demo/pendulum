@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "pendulum_controller/pendulum_controller.hpp"
+#include <utility>
 #include <vector>
 
 namespace pendulum
@@ -20,7 +21,7 @@ namespace pendulum
 namespace pendulum_controller
 {
 PendulumController::Config::Config(std::vector<double> feedback_matrix)
-: feedback_matrix{feedback_matrix} {}
+: feedback_matrix{std::move(feedback_matrix)} {}
 
 const std::vector<double> &
 PendulumController::Config::get_feedback_matrix() const
