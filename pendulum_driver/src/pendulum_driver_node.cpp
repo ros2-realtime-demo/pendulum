@@ -13,8 +13,6 @@
 // limitations under the License.
 
 #include <string>
-#include <memory>
-#include <utility>
 
 #include "pendulum_driver/pendulum_driver_node.hpp"
 
@@ -103,54 +101,47 @@ void PendulumDriverNode::init()
     command_subscription_options.topic_stats_options.publish_topic = topic_stats_topic_name_;
     command_subscription_options.topic_stats_options.publish_period = topic_stats_publish_period_;
   }
+
+  auto on_command_received = [this](pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg) {
+      driver_.set_controller_cart_force(msg->cmd.force);
+    };
+
   command_sub_ = this->create_subscription<pendulum2_msgs::msg::JointCommandStamped>(
-    command_topic_name_, rclcpp::QoS(10).deadline(deadline_duration_),
-    std::bind(
-      &PendulumDriverNode::on_command_received,
-      this, std::placeholders::_1),
+    command_topic_name_,
+    rclcpp::QoS(10).deadline(deadline_duration_),
+    on_command_received,
     command_subscription_options);
+
+  auto on_disturbance_received = [this](pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg) {
+      driver_.set_disturbance_force(msg->cmd.force);
+    };
 
   // Create disturbance force subscription
   disturbance_sub_ = this->create_subscription<pendulum2_msgs::msg::JointCommandStamped>(
-    disturbance_topic_name_, rclcpp::QoS(10),
-    std::bind(
-      &PendulumDriverNode::on_disturbance_received,
-      this, std::placeholders::_1),
+    disturbance_topic_name_,
+    rclcpp::QoS(10),
+    on_disturbance_received,
     rclcpp::SubscriptionOptions());
+
+  auto state_timer_callback = [this]() {
+      driver_.update();
+      const auto state = driver_.get_state();
+      state_message_.position[0] = state.cart_position;
+      state_message_.velocity[0] = state.cart_velocity;
+      state_message_.effort[0] = state.cart_force;
+      state_message_.position[1] = state.pole_angle;
+      state_message_.velocity[1] = state.pole_velocity;
+      state_message_.header.stamp = this->get_clock()->now();
+      state_pub_->publish(state_message_);
+    };
 
   // Create state update timer
   state_timer_ =
     this->create_wall_timer(
     state_publish_period_,
-    std::bind(&PendulumDriverNode::state_timer_callback, this));
+    state_timer_callback);
   // cancel immediately to prevent triggering it in this state
   state_timer_->cancel();
-}
-
-void PendulumDriverNode::on_command_received(
-  pendulum2_msgs::msg::JointCommandStamped::SharedPtr
-  msg)
-{
-  driver_.set_controller_cart_force(msg->cmd.force);
-}
-
-void PendulumDriverNode::on_disturbance_received(
-  const pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg)
-{
-  driver_.set_disturbance_force(msg->cmd.force);
-}
-
-void PendulumDriverNode::state_timer_callback()
-{
-  driver_.update();
-  const auto state = driver_.get_state();
-  state_message_.position[0] = state.cart_position;
-  state_message_.velocity[0] = state.cart_velocity;
-  state_message_.effort[0] = state.cart_force;
-  state_message_.position[1] = state.pole_angle;
-  state_message_.velocity[1] = state.pole_velocity;
-  state_message_.header.stamp = this->get_clock()->now();
-  state_pub_->publish(state_message_);
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn

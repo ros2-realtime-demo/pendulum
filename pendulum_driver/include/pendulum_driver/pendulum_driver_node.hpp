@@ -55,17 +55,6 @@ public:
   void init();
 
 private:
-  /// \brief pendulum command topic message callback
-  /// \param[in] msg pendulum command message
-  void on_command_received(pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg);
-
-  /// \brief pendulum disturbance topic message callback
-  /// \param[in] msg pendulum disturbance message
-  void on_disturbance_received(const pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg);
-
-  /// \brief pendulum state publish timer callback
-  void state_timer_callback();
-
   /// \brief Transition callback for state configuring
   /// \param[in] lifecycle node state
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn

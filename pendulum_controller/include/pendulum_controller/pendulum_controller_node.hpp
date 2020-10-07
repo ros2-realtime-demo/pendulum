@@ -56,18 +56,6 @@ private:
   /// \brief initialize node
   void init();
 
-  /// \brief pendulum state topic message callback
-  /// \param[in] msg pendulum state message
-  void on_sensor_message(const sensor_msgs::msg::JointState::SharedPtr msg);
-
-  /// \brief pendulum teleop topic message callback
-  /// \param[in] msg pendulum teleop message
-  void on_pendulum_teleop(
-    const pendulum2_msgs::msg::PendulumTeleop::SharedPtr msg);
-
-  /// \brief controller command publish timer callback
-  void control_timer_callback();
-
   /// \brief Transition callback for state configuring
   /// \param[in] lifecycle node state
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
