@@ -54,9 +54,7 @@ PendulumDriverNode::PendulumDriverNode(
       declare_parameter("driver.gravity").get<double>(),
       declare_parameter("driver.max_cart_force").get<double>(),
       declare_parameter("driver.noise_level").get<double>(),
-      std::chrono::microseconds {
-      declare_parameter("driver.physics_update_period").get<std::uint16_t>()
-    }
+      std::chrono::microseconds {state_publish_period_}
     )
   )
 {
