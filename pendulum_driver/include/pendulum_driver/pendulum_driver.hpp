@@ -71,13 +71,13 @@ public:
     /// \param[in] max_cart_force maximum cart force
     /// \param[in] physics_update_period physics simulation update period
     Config(
-      const double pendulum_mass,
-      const double cart_mass,
-      const double pendulum_length,
-      const double damping_coefficient,
-      const double gravity,
-      const double max_cart_force,
-      const double noise_level,
+      double pendulum_mass,
+      double cart_mass,
+      double pendulum_length,
+      double damping_coefficient,
+      double gravity,
+      double max_cart_force,
+      double noise_level,
       std::chrono::microseconds physics_update_period);
 
     /// \brief Gets the pendulum mass
