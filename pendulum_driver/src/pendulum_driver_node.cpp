@@ -130,21 +130,27 @@ void PendulumDriverNode::init()
 }
 
 void PendulumDriverNode::on_command_received(
-  const pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg)
+  pendulum2_msgs::msg::JointCommandStamped::SharedPtr
+  msg)
 {
-  driver_.update_command_data(*msg);
+  driver_.set_controller_cart_force(msg->cmd.force);
 }
 
 void PendulumDriverNode::on_disturbance_received(
   const pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg)
 {
-  driver_.update_disturbance_data(*msg);
+  driver_.set_disturbance_force(msg->cmd.force);
 }
 
 void PendulumDriverNode::state_timer_callback()
 {
   driver_.update();
-  driver_.update_status_data(state_message_);
+  const auto state = driver_.get_state();
+  state_message_.position[0] = state.cart_position;
+  state_message_.velocity[0] = state.cart_velocity;
+  state_message_.effort[0] = state.cart_force;
+  state_message_.position[1] = state.pole_angle;
+  state_message_.velocity[1] = state.pole_velocity;
   state_message_.header.stamp = this->get_clock()->now();
   state_pub_->publish(state_message_);
 }

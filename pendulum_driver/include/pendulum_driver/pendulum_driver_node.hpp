@@ -57,7 +57,7 @@ public:
 private:
   /// \brief pendulum command topic message callback
   /// \param[in] msg pendulum command message
-  void on_command_received(const pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg);
+  void on_command_received(pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg);
 
   /// \brief pendulum disturbance topic message callback
   /// \param[in] msg pendulum disturbance message
