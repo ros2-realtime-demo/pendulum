@@ -71,13 +71,13 @@ public:
     /// \param[in] max_cart_force maximum cart force
     /// \param[in] physics_update_period physics simulation update period
     Config(
-      const double pendulum_mass,
-      const double cart_mass,
-      const double pendulum_length,
-      const double damping_coefficient,
-      const double gravity,
-      const double max_cart_force,
-      const double noise_level,
+      double pendulum_mass,
+      double cart_mass,
+      double pendulum_length,
+      double damping_coefficient,
+      double gravity,
+      double max_cart_force,
+      double noise_level,
       std::chrono::microseconds physics_update_period);
 
     /// \brief Gets the pendulum mass
@@ -133,17 +133,32 @@ private:
 
   explicit PendulumDriver(const Config & config);
 
-  /// \brief Updates the command data coming from the controller.
-  /// \param[in] msg Command data message.
-  void update_command_data(const pendulum2_msgs::msg::JointCommandStamped & msg);
+  /// \brief Set the pendulum state data
+  /// \param[in] cart_pos cart position in m
+  /// \param[in] cart_vel cart velocity in m/s
+  /// \param[in] pole_pos pole position in radians
+  /// \param[in] pole_vel pole velocity in radians/s
+  void set_state(double cart_pos, double cart_vel, double pole_pos, double pole_vel);
 
-  /// \brief Updates the disturbance force data.
-  /// \param[in] msg Disturbance data message.
-  void update_disturbance_data(const pendulum2_msgs::msg::JointCommandStamped & msg);
+  /// \brief Sets the applied force by the controller motor
+  /// \param[in] force to set in Newton.
+  void set_controller_cart_force(double force);
 
-  /// \brief Updates the status data from the driver implementation.
-  /// \param[in,out] msg Status data message.
-  void update_status_data(sensor_msgs::msg::JointState & msg);
+  /// \brief Sets the applied force by a disturbance
+  /// \param[in] force to set in Newton.
+  void set_disturbance_force(double force);
+
+  /// \brief Get pendulum state
+  /// \return State data
+  const PendulumState & get_state() const;
+
+  /// \brief Gets the applied force by the controller motor to the cart
+  /// \return controller cart applied force in Newton
+  double get_controller_cart_force() const;
+
+  /// \brief Gets the applied force by a disturbance
+  /// \return cart disturbance force in Newton.
+  double get_disturbance_force() const;
 
   /// \brief Updates the driver simulation.
   void update();

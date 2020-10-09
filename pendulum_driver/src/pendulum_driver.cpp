@@ -67,30 +67,44 @@ PendulumDriver::PendulumDriver(const Config & config)
     };
 }
 
-void PendulumDriver::update_command_data(const pendulum2_msgs::msg::JointCommandStamped & msg)
+void PendulumDriver::set_controller_cart_force(double force)
 {
-  double max_cart_force = cfg_.get_max_cart_force();
-  if (msg.cmd.force > max_cart_force) {
+  const auto max_cart_force = cfg_.get_max_cart_force();
+  if (force > max_cart_force) {
     controller_force_ = max_cart_force;
-  } else if (msg.cmd.force < -max_cart_force) {
+  } else if (force < -max_cart_force) {
     controller_force_ = -max_cart_force;
   } else {
-    controller_force_ = msg.cmd.force;
+    controller_force_ = force;
   }
 }
 
-void PendulumDriver::update_disturbance_data(const pendulum2_msgs::msg::JointCommandStamped & msg)
+void PendulumDriver::set_state(double cart_pos, double cart_vel, double pole_pos, double pole_vel)
 {
-  disturbance_force_ = msg.cmd.force;
+  state_.cart_position = cart_pos;
+  state_.cart_velocity = cart_vel;
+  state_.pole_angle = pole_pos;
+  state_.pole_velocity = pole_vel;
 }
 
-void PendulumDriver::update_status_data(sensor_msgs::msg::JointState & msg)
+void PendulumDriver::set_disturbance_force(double force)
 {
-  msg.position[0] = state_.cart_position;
-  msg.velocity[0] = state_.cart_velocity;
-  msg.effort[0] = state_.cart_force;
-  msg.position[1] = state_.pole_angle;
-  msg.velocity[1] = state_.pole_velocity;
+  disturbance_force_ = force;
+}
+
+const PendulumDriver::PendulumState & PendulumDriver::get_state() const
+{
+  return state_;
+}
+
+double PendulumDriver::get_controller_cart_force() const
+{
+  return controller_force_;
+}
+
+double PendulumDriver::get_disturbance_force() const
+{
+  return disturbance_force_;
 }
 
 void PendulumDriver::update()

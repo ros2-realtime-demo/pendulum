@@ -14,8 +14,6 @@
 
 #include <string>
 #include <vector>
-#include <memory>
-#include <utility>
 
 #include "pendulum_controller/pendulum_controller_node.hpp"
 
@@ -51,25 +49,6 @@ PendulumControllerNode::PendulumControllerNode(
   init();
 }
 
-void PendulumControllerNode::on_sensor_message(
-  const sensor_msgs::msg::JointState::SharedPtr msg)
-{
-  controller_.update_status_data(*msg);
-}
-
-void PendulumControllerNode::on_pendulum_teleop(
-  const pendulum2_msgs::msg::PendulumTeleop::SharedPtr msg)
-{
-  controller_.update_teleop_data(*msg);
-}
-
-void PendulumControllerNode::control_timer_callback()
-{
-  controller_.update_command_data(command_message_);
-  command_message_.header.stamp = this->get_clock()->now();
-  command_pub_->publish(command_message_);
-}
-
 void PendulumControllerNode::init()
 {
   // Create state subscription
@@ -87,11 +66,17 @@ void PendulumControllerNode::init()
     state_subscription_options.topic_stats_options.publish_topic = topic_stats_topic_name_;
     state_subscription_options.topic_stats_options.publish_period = topic_stats_publish_period_;
   }
+
+  auto on_sensor_message = [this](const sensor_msgs::msg::JointState::SharedPtr msg) {
+      controller_.set_state(
+        msg->position[0], msg->velocity[0],
+        msg->position[1], msg->velocity[1]);
+    };
+
   state_sub_ = this->create_subscription<sensor_msgs::msg::JointState>(
-    state_topic_name_, rclcpp::QoS(10).deadline(deadline_duration_),
-    std::bind(
-      &PendulumControllerNode::on_sensor_message,
-      this, std::placeholders::_1),
+    state_topic_name_,
+    rclcpp::QoS(10).deadline(deadline_duration_),
+    on_sensor_message,
     state_subscription_options);
 
   // Create command publisher
@@ -111,18 +96,28 @@ void PendulumControllerNode::init()
     command_publisher_options);
 
   // Create teleop subscription
+  auto on_pendulum_teleop = [this](const pendulum2_msgs::msg::PendulumTeleop::SharedPtr msg) {
+      controller_.set_teleop(msg->cart_position, msg->cart_velocity);
+    };
+
   teleop_sub_ = this->create_subscription<pendulum2_msgs::msg::PendulumTeleop>(
-    teleop_topic_name_, rclcpp::QoS(10),
-    std::bind(
-      &PendulumControllerNode::on_pendulum_teleop,
-      this, std::placeholders::_1),
+    teleop_topic_name_,
+    rclcpp::QoS(10),
+    on_pendulum_teleop,
     rclcpp::SubscriptionOptions());
 
   // Create command update timer
+  auto control_timer_callback = [this]() {
+      controller_.update();
+      command_message_.cmd.force = controller_.get_force_command();
+      command_message_.header.stamp = this->get_clock()->now();
+      command_pub_->publish(command_message_);
+    };
+
   command_timer_ =
     this->create_wall_timer(
     command_publish_period_,
-    std::bind(&PendulumControllerNode::control_timer_callback, this));
+    control_timer_callback);
   // cancel immediately to prevent triggering it in this state
   command_timer_->cancel();
 }
