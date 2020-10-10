@@ -65,6 +65,9 @@ private:
   /// \brief Create command timer callback
   void create_command_timer_callback();
 
+  /// \brief Log pendulum controller state
+  void log_controller_state();
+
   /// \brief Transition callback for state configuring
   /// \param[in] lifecycle node state
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn

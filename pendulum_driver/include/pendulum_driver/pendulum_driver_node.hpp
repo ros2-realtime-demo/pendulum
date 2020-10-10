@@ -67,6 +67,9 @@ private:
   /// \brief Create timer callback
   void create_state_timer_callback();
 
+  /// \brief Log pendulum driver state
+  void log_driver_state();
+
   /// \brief Transition callback for state configuring
   /// \param[in] lifecycle node state
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn

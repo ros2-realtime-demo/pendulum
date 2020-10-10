@@ -141,10 +141,26 @@ void PendulumDriverNode::create_state_timer_callback()
   state_timer_->cancel();
 }
 
+void PendulumDriverNode::log_driver_state()
+{
+  const auto state = driver_.get_state();
+  const auto disturbance_force = driver_.get_disturbance_force();
+  const double controller_force_command = driver_.get_controller_cart_force();
+
+  RCLCPP_INFO(get_logger(), "Cart position = %lf", state.cart_position);
+  RCLCPP_INFO(get_logger(), "Cart velocity = %lf", state.cart_velocity);
+  RCLCPP_INFO(get_logger(), "Pole angle = %lf", state.pole_angle);
+  RCLCPP_INFO(get_logger(), "Pole angular velocity = %lf", state.pole_velocity);
+  RCLCPP_INFO(get_logger(), "Controller force command = %lf", controller_force_command);
+  RCLCPP_INFO(get_logger(), "Disturbance force = %lf", disturbance_force);
+}
+
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(get_logger(), "Configuring");
+  // reset internal state of the driver for a clean start
+  driver_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -163,6 +179,8 @@ PendulumDriverNode::on_deactivate(const rclcpp_lifecycle::State &)
   RCLCPP_INFO(get_logger(), "Deactivating");
   state_timer_->cancel();
   state_pub_->on_deactivate();
+  // log the status to introspect the result
+  log_driver_state();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -170,8 +188,6 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(get_logger(), "Cleaning up");
-  state_timer_.reset();
-  state_pub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -179,8 +195,6 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_shutdown(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(get_logger(), "Shutting down");
-  state_timer_.reset();
-  state_pub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 }  // namespace pendulum_driver
