@@ -118,12 +118,14 @@ void PendulumControllerNode::create_command_timer_callback()
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
 {
+  RCLCPP_INFO(get_logger(), "Configuring");
   return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
 {
+  RCLCPP_INFO(get_logger(), "Activating");
   command_pub_->on_activate();
   command_timer_->reset();
   // reset internal state of the controller for a clean start
@@ -134,6 +136,7 @@ PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
 {
+  RCLCPP_INFO(get_logger(), "Deactivating");
   command_timer_->cancel();
   command_pub_->on_deactivate();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
@@ -142,6 +145,7 @@ PendulumControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
+  RCLCPP_INFO(get_logger(), "Cleaning up");
   command_timer_.reset();
   command_pub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
@@ -150,6 +154,7 @@ PendulumControllerNode::on_cleanup(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
 {
+  RCLCPP_INFO(get_logger(), "Shutting down");
   command_timer_.reset();
   command_pub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;

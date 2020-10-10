@@ -144,12 +144,14 @@ void PendulumDriverNode::create_state_timer_callback()
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_configure(const rclcpp_lifecycle::State &)
 {
+  RCLCPP_INFO(get_logger(), "Configuring");
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_activate(const rclcpp_lifecycle::State &)
 {
+  RCLCPP_INFO(get_logger(), "Activating");
   state_pub_->on_activate();
   state_timer_->reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
@@ -158,6 +160,7 @@ PendulumDriverNode::on_activate(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_deactivate(const rclcpp_lifecycle::State &)
 {
+  RCLCPP_INFO(get_logger(), "Deactivating");
   state_timer_->cancel();
   state_pub_->on_deactivate();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
@@ -166,6 +169,7 @@ PendulumDriverNode::on_deactivate(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
+  RCLCPP_INFO(get_logger(), "Cleaning up");
   state_timer_.reset();
   state_pub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
@@ -174,6 +178,7 @@ PendulumDriverNode::on_cleanup(const rclcpp_lifecycle::State &)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumDriverNode::on_shutdown(const rclcpp_lifecycle::State &)
 {
+  RCLCPP_INFO(get_logger(), "Shutting down");
   state_timer_.reset();
   state_pub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
