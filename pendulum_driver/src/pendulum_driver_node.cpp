@@ -56,73 +56,75 @@ PendulumDriverNode::PendulumDriverNode(
     )
   )
 {
-  init();
+  init_state_message();
+  create_state_publisher();
+  create_command_subscription();
+  create_disturbance_subscription();
+  create_state_timer_callback();
 }
 
-void PendulumDriverNode::init()
+void PendulumDriverNode::init_state_message()
 {
-  // Initialize joint message
-  state_message_.name.push_back("cart_base_joint");
+  state_message_.name.push_back(cart_base_joint_name_);
   state_message_.position.push_back(0.0);
   state_message_.velocity.push_back(0.0);
   state_message_.effort.push_back(0.0);
-
-  state_message_.name.push_back("pole_joint");
+  state_message_.name.push_back(pole_joint_name_);
   state_message_.position.push_back(0.0);
   state_message_.velocity.push_back(0.0);
   state_message_.effort.push_back(0.0);
+}
 
-  // Create sensor publisher
+void PendulumDriverNode::create_state_publisher()
+{
   rclcpp::PublisherOptions sensor_publisher_options;
   sensor_publisher_options.event_callbacks.deadline_callback =
-    [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
+    [](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
-      // transit to inactive state when a deadline is missed
-      if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
-        this->deactivate();
-      }
+      // do nothing for instrumenting purposes
+      // in a real-application we may want to trigger an error for a specific deadline misses
     };
   state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
-    state_topic_name_, rclcpp::QoS(10).deadline(
-      deadline_duration_), sensor_publisher_options);
+    state_topic_name_,
+    rclcpp::QoS(10).deadline(deadline_duration_),
+    sensor_publisher_options);
+}
 
-  // Create command subscription
+void PendulumDriverNode::create_command_subscription()
+{
   rclcpp::SubscriptionOptions command_subscription_options;
   command_subscription_options.event_callbacks.deadline_callback =
-    [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
+    [](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
-      // transit to inactive state when a deadline is missed
-      if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
-        this->deactivate();
-      }
+      // do nothing for instrumenting purposes
+      // in a real-application we may want to trigger an error for a specific deadline misses
     };
   if (enable_topic_stats_) {
     command_subscription_options.topic_stats_options.state = rclcpp::TopicStatisticsState::Enable;
     command_subscription_options.topic_stats_options.publish_topic = topic_stats_topic_name_;
     command_subscription_options.topic_stats_options.publish_period = topic_stats_publish_period_;
   }
-
   auto on_command_received = [this](pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg) {
       driver_.set_controller_cart_force(msg->cmd.force);
     };
-
   command_sub_ = this->create_subscription<pendulum2_msgs::msg::JointCommandStamped>(
     command_topic_name_,
     rclcpp::QoS(10).deadline(deadline_duration_),
     on_command_received,
     command_subscription_options);
+}
 
+void PendulumDriverNode::create_disturbance_subscription()
+{
   auto on_disturbance_received = [this](pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg) {
       driver_.set_disturbance_force(msg->cmd.force);
     };
-
-  // Create disturbance force subscription
   disturbance_sub_ = this->create_subscription<pendulum2_msgs::msg::JointCommandStamped>(
-    disturbance_topic_name_,
-    rclcpp::QoS(10),
-    on_disturbance_received,
-    rclcpp::SubscriptionOptions());
+    disturbance_topic_name_, rclcpp::QoS(10), on_disturbance_received);
+}
 
+void PendulumDriverNode::create_state_timer_callback()
+{
   auto state_timer_callback = [this]() {
       driver_.update();
       const auto state = driver_.get_state();
@@ -134,12 +136,7 @@ void PendulumDriverNode::init()
       state_message_.header.stamp = this->get_clock()->now();
       state_pub_->publish(state_message_);
     };
-
-  // Create state update timer
-  state_timer_ =
-    this->create_wall_timer(
-    state_publish_period_,
-    state_timer_callback);
+  state_timer_ = this->create_wall_timer(state_publish_period_, state_timer_callback);
   // cancel immediately to prevent triggering it in this state
   state_timer_->cancel();
 }
@@ -171,8 +168,6 @@ PendulumDriverNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
   state_timer_.reset();
   state_pub_.reset();
-  command_sub_.reset();
-  disturbance_sub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -181,8 +176,6 @@ PendulumDriverNode::on_shutdown(const rclcpp_lifecycle::State &)
 {
   state_timer_.reset();
   state_pub_.reset();
-  command_sub_.reset();
-  disturbance_sub_.reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 }  // namespace pendulum_driver

@@ -51,10 +51,22 @@ public:
     const std::string & node_name,
     rclcpp::NodeOptions options = rclcpp::NodeOptions());
 
-  /// \brief Initialize node
-  void init();
-
 private:
+  /// \brief Initialize state message
+  void init_state_message();
+
+  /// \brief Create command subscription
+  void create_command_subscription();
+
+  /// \brief Create disturbance subscription
+  void create_disturbance_subscription();
+
+  /// \brief Create state publisher
+  void create_state_publisher();
+
+  /// \brief Create timer callback
+  void create_state_timer_callback();
+
   /// \brief Transition callback for state configuring
   /// \param[in] lifecycle node state
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -80,7 +92,6 @@ private:
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_shutdown(const rclcpp_lifecycle::State & state) override;
 
-private:
   const std::string state_topic_name_;
   const std::string command_topic_name_;
   const std::string disturbance_topic_name_;

@@ -53,8 +53,17 @@ public:
     rclcpp::NodeOptions options = rclcpp::NodeOptions());
 
 private:
-  /// \brief initialize node
-  void init();
+  /// \brief Create teleoperation subscription
+  void create_teleoperation_subscription();
+
+  /// \brief Create state subscription
+  void create_state_subscription();
+
+  /// \brief Create command publisher
+  void create_command_publisher();
+
+  /// \brief Create command timer callback
+  void create_command_timer_callback();
 
   /// \brief Transition callback for state configuring
   /// \param[in] lifecycle node state
