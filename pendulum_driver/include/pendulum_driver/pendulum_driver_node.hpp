@@ -49,7 +49,7 @@ public:
   /// \param[in] options Node options for rclcpp internals
   PENDULUM_DRIVER_PUBLIC explicit PendulumDriverNode(
     const std::string & node_name,
-    rclcpp::NodeOptions options = rclcpp::NodeOptions());
+    const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
 private:
   /// \brief Initialize state message

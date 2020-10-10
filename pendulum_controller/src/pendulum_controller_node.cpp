@@ -28,10 +28,8 @@ PendulumControllerNode::PendulumControllerNode(const rclcpp::NodeOptions & optio
 
 PendulumControllerNode::PendulumControllerNode(
   const std::string & node_name,
-  rclcpp::NodeOptions options)
-: LifecycleNode(
-    node_name,
-    options),
+  const rclcpp::NodeOptions & options)
+: LifecycleNode(node_name, options),
   state_topic_name_(declare_parameter("state_topic_name").get<std::string>()),
   command_topic_name_(declare_parameter("command_topic_name").get<std::string>()),
   teleop_topic_name_(declare_parameter("teleop_topic_name").get<std::string>()),

@@ -50,7 +50,7 @@ public:
   /// \param[in] options Node options for rclcpp internals
   PENDULUM_CONTROLLER_PUBLIC explicit PendulumControllerNode(
     const std::string & node_name,
-    rclcpp::NodeOptions options = rclcpp::NodeOptions());
+    const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
 private:
   /// \brief Create teleoperation subscription

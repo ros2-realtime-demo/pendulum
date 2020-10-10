@@ -26,10 +26,8 @@ PendulumDriverNode::PendulumDriverNode(const rclcpp::NodeOptions & options)
 
 PendulumDriverNode::PendulumDriverNode(
   const std::string & node_name,
-  rclcpp::NodeOptions options)
-: LifecycleNode(
-    node_name,
-    options),
+  const rclcpp::NodeOptions & options)
+: LifecycleNode(node_name, options),
   state_topic_name_(declare_parameter("state_topic_name").get<std::string>()),
   command_topic_name_(declare_parameter("command_topic_name").get<std::string>()),
   disturbance_topic_name_(declare_parameter("disturbance_topic_name").get<std::string>()),
@@ -39,9 +37,9 @@ PendulumDriverNode::PendulumDriverNode(
       declare_parameter("state_publish_period_us").get<std::uint16_t>()}),
   enable_topic_stats_(declare_parameter("enable_topic_stats").get<bool>()),
   topic_stats_topic_name_{declare_parameter("topic_stats_topic_name").get<std::string>()},
-  topic_stats_publish_period_{std::chrono::milliseconds {
+  topic_stats_publish_period_{std::chrono::milliseconds{
         declare_parameter("topic_stats_publish_period_ms").get<std::uint16_t>()}},
-  deadline_duration_{std::chrono::milliseconds {
+  deadline_duration_{std::chrono::milliseconds{
         declare_parameter("deadline_duration_ms").get<std::uint16_t>()}},
   driver_(
     PendulumDriver::Config(
