@@ -28,10 +28,8 @@ PendulumControllerNode::PendulumControllerNode(const rclcpp::NodeOptions & optio
 
 PendulumControllerNode::PendulumControllerNode(
   const std::string & node_name,
-  rclcpp::NodeOptions options)
-: LifecycleNode(
-    node_name,
-    options),
+  const rclcpp::NodeOptions & options)
+: LifecycleNode(node_name, options),
   state_topic_name_(declare_parameter("state_topic_name").get<std::string>()),
   command_topic_name_(declare_parameter("command_topic_name").get<std::string>()),
   teleop_topic_name_(declare_parameter("teleop_topic_name").get<std::string>()),
@@ -46,128 +44,130 @@ PendulumControllerNode::PendulumControllerNode(
   controller_(PendulumController::Config(
       declare_parameter("controller.feedback_matrix").get<std::vector<double>>()))
 {
-  init();
+  create_teleoperation_subscription();
+  create_state_subscription();
+  create_command_publisher();
+  create_command_timer_callback();
 }
 
-void PendulumControllerNode::init()
+void PendulumControllerNode::create_teleoperation_subscription()
 {
-  // Create state subscription
+  auto on_pendulum_teleop = [this](const pendulum2_msgs::msg::PendulumTeleop::SharedPtr msg) {
+      controller_.set_teleop(msg->cart_position, msg->cart_velocity);
+    };
+  teleop_sub_ = this->create_subscription<pendulum2_msgs::msg::PendulumTeleop>(
+    teleop_topic_name_, rclcpp::QoS(10), on_pendulum_teleop);
+}
+
+void PendulumControllerNode::create_state_subscription()
+{
   rclcpp::SubscriptionOptions state_subscription_options;
   state_subscription_options.event_callbacks.deadline_callback =
-    [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
+    [](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
-      // transit to inactive state when a deadline is missed
-      if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
-        this->deactivate();
-      }
+      // do nothing for instrumenting purposes
+      // in a real-application we may want to trigger an error for a specific deadline misses
     };
   if (enable_topic_stats_) {
     state_subscription_options.topic_stats_options.state = rclcpp::TopicStatisticsState::Enable;
     state_subscription_options.topic_stats_options.publish_topic = topic_stats_topic_name_;
     state_subscription_options.topic_stats_options.publish_period = topic_stats_publish_period_;
   }
-
   auto on_sensor_message = [this](const sensor_msgs::msg::JointState::SharedPtr msg) {
       controller_.set_state(
         msg->position[0], msg->velocity[0],
         msg->position[1], msg->velocity[1]);
     };
-
   state_sub_ = this->create_subscription<sensor_msgs::msg::JointState>(
     state_topic_name_,
     rclcpp::QoS(10).deadline(deadline_duration_),
     on_sensor_message,
     state_subscription_options);
+}
 
-  // Create command publisher
+void PendulumControllerNode::create_command_publisher()
+{
   rclcpp::PublisherOptions command_publisher_options;
   command_publisher_options.event_callbacks.deadline_callback =
-    [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
+    [](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
-      // transit to inactive state when a deadline is missed
-      if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
-        this->deactivate();
-      }
+      // do nothing for instrumenting purposes
+      // in a real-application we may want to trigger an error for a specific deadline misses
     };
-
   command_pub_ = this->create_publisher<pendulum2_msgs::msg::JointCommandStamped>(
     command_topic_name_,
     rclcpp::QoS(10).deadline(deadline_duration_),
     command_publisher_options);
+}
 
-  // Create teleop subscription
-  auto on_pendulum_teleop = [this](const pendulum2_msgs::msg::PendulumTeleop::SharedPtr msg) {
-      controller_.set_teleop(msg->cart_position, msg->cart_velocity);
-    };
-
-  teleop_sub_ = this->create_subscription<pendulum2_msgs::msg::PendulumTeleop>(
-    teleop_topic_name_,
-    rclcpp::QoS(10),
-    on_pendulum_teleop,
-    rclcpp::SubscriptionOptions());
-
-  // Create command update timer
+void PendulumControllerNode::create_command_timer_callback()
+{
   auto control_timer_callback = [this]() {
       controller_.update();
       command_message_.cmd.force = controller_.get_force_command();
       command_message_.header.stamp = this->get_clock()->now();
       command_pub_->publish(command_message_);
     };
-
-  command_timer_ =
-    this->create_wall_timer(
-    command_publish_period_,
-    control_timer_callback);
+  command_timer_ = this->create_wall_timer(command_publish_period_, control_timer_callback);
   // cancel immediately to prevent triggering it in this state
   command_timer_->cancel();
+}
+
+void PendulumControllerNode::log_controller_state()
+{
+  const auto state = controller_.get_state();
+  const auto teleoperation_command = controller_.get_teleop();
+  const double force_command = controller_.get_force_command();
+
+  RCLCPP_INFO(get_logger(), "Cart position = %lf", state.at(0));
+  RCLCPP_INFO(get_logger(), "Cart velocity = %lf", state.at(1));
+  RCLCPP_INFO(get_logger(), "Pole angle = %lf", state.at(2));
+  RCLCPP_INFO(get_logger(), "Pole angular velocity = %lf", state.at(3));
+  RCLCPP_INFO(get_logger(), "Teleoperation cart position = %lf", teleoperation_command.at(0));
+  RCLCPP_INFO(get_logger(), "Teleoperation cart velocity = %lf", teleoperation_command.at(1));
+  RCLCPP_INFO(get_logger(), "Force command = %lf", force_command);
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_configure(const rclcpp_lifecycle::State &)
 {
+  RCLCPP_INFO(get_logger(), "Configuring");
+  // reset internal state of the controller for a clean start
+  controller_.reset();
   return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
 {
+  RCLCPP_INFO(get_logger(), "Activating");
   command_pub_->on_activate();
   command_timer_->reset();
-
-  // reset internal state of the controller for a clean start
-  controller_.reset();
-
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
 {
+  RCLCPP_INFO(get_logger(), "Deactivating");
   command_timer_->cancel();
   command_pub_->on_deactivate();
-
+  // log the status to introspect the result
+  log_controller_state();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_cleanup(const rclcpp_lifecycle::State &)
 {
-  command_timer_.reset();
-  command_pub_.reset();
-  state_sub_.reset();
-  teleop_sub_.reset();
-
+  RCLCPP_INFO(get_logger(), "Cleaning up");
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
 {
-  command_timer_.reset();
-  command_pub_.reset();
-  state_sub_.reset();
-  teleop_sub_.reset();
-
+  RCLCPP_INFO(get_logger(), "Shutting down");
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 }  // namespace pendulum_controller

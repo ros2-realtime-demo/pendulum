@@ -163,6 +163,9 @@ private:
   /// \brief Updates the driver simulation.
   void update();
 
+  /// \brief Reset the driver simulation.
+  void reset();
+
 private:
   // Pendulum simulation configuration parameters
   const Config cfg_;

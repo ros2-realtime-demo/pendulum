@@ -50,11 +50,23 @@ public:
   /// \param[in] options Node options for rclcpp internals
   PENDULUM_CONTROLLER_PUBLIC explicit PendulumControllerNode(
     const std::string & node_name,
-    rclcpp::NodeOptions options = rclcpp::NodeOptions());
+    const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
 private:
-  /// \brief initialize node
-  void init();
+  /// \brief Create teleoperation subscription
+  void create_teleoperation_subscription();
+
+  /// \brief Create state subscription
+  void create_state_subscription();
+
+  /// \brief Create command publisher
+  void create_command_publisher();
+
+  /// \brief Create command timer callback
+  void create_command_timer_callback();
+
+  /// \brief Log pendulum controller state
+  void log_controller_state();
 
   /// \brief Transition callback for state configuring
   /// \param[in] lifecycle node state

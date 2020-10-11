@@ -118,5 +118,15 @@ void PendulumDriver::update()
   state_.pole_angle = X_[2];
   state_.pole_velocity = X_[3];
 }
+
+void PendulumDriver::reset()
+{
+  // Up position
+  set_state(0.0, 0.0, M_PI, 0.0);
+  set_disturbance_force(0.0);
+  set_controller_cart_force(0.0);
+  X_ = {0.0, 0.0, M_PI, 0.0};
+}
+
 }  // namespace pendulum_driver
 }  // namespace pendulum
