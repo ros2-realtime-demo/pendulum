@@ -62,9 +62,6 @@ private:
   /// \brief Create command publisher
   void create_command_publisher();
 
-  /// \brief Create command timer callback
-  void create_command_timer_callback();
-
   /// \brief Log pendulum controller state
   void log_controller_state();
 
@@ -96,7 +93,6 @@ private:
   const std::string state_topic_name_;
   const std::string command_topic_name_;
   const std::string teleop_topic_name_;
-  std::chrono::microseconds command_publish_period_;
   bool enable_topic_stats_;
   const std::string topic_stats_topic_name_;
   std::chrono::milliseconds topic_stats_publish_period_;
@@ -110,8 +106,6 @@ private:
       pendulum2_msgs::msg::PendulumTeleop>> teleop_sub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
       pendulum2_msgs::msg::JointCommandStamped>> command_pub_;
-
-  rclcpp::TimerBase::SharedPtr command_timer_;
   pendulum2_msgs::msg::JointCommandStamped command_message_;
 
   uint32_t num_missed_deadlines_pub_;
