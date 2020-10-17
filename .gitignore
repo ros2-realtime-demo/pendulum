@@ -199,3 +199,12 @@ ade/.bash_logout
 ade/.bashrc
 ade/.profile
 ade/.ssh
+
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook
+.ipynb_checkpoints
