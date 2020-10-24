@@ -113,6 +113,9 @@ private:
 
   rclcpp::TimerBase::SharedPtr command_timer_;
   pendulum2_msgs::msg::JointCommandStamped command_message_;
+
+  uint32_t num_missed_deadlines_pub_;
+  uint32_t num_missed_deadlines_sub_;
 };
 }  // namespace pendulum_controller
 }  // namespace pendulum

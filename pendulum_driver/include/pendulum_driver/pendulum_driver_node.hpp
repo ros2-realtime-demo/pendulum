@@ -117,6 +117,9 @@ private:
   rclcpp::TimerBase::SharedPtr state_timer_;
   rclcpp::TimerBase::SharedPtr update_driver_timer_;
   sensor_msgs::msg::JointState state_message_;
+
+  uint32_t num_missed_deadlines_pub_;
+  uint32_t num_missed_deadlines_sub_;
 };
 }  // namespace pendulum_driver
 }  // namespace pendulum

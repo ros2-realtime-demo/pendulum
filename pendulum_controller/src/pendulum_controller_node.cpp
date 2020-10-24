@@ -42,7 +42,9 @@ PendulumControllerNode::PendulumControllerNode(
   deadline_duration_{std::chrono::milliseconds {
         declare_parameter("deadline_duration_ms").get<std::uint16_t>()}},
   controller_(PendulumController::Config(
-      declare_parameter("controller.feedback_matrix").get<std::vector<double>>()))
+      declare_parameter("controller.feedback_matrix").get<std::vector<double>>())),
+  num_missed_deadlines_pub_{0U},
+  num_missed_deadlines_sub_{0U}
 {
   create_teleoperation_subscription();
   create_state_subscription();
@@ -63,10 +65,9 @@ void PendulumControllerNode::create_state_subscription()
 {
   rclcpp::SubscriptionOptions state_subscription_options;
   state_subscription_options.event_callbacks.deadline_callback =
-    [](rclcpp::QOSDeadlineRequestedInfo &) -> void
+    [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
-      // do nothing for instrumenting purposes
-      // in a real-application we may want to trigger an error for a specific deadline misses
+      num_missed_deadlines_sub_++;
     };
   if (enable_topic_stats_) {
     state_subscription_options.topic_stats_options.state = rclcpp::TopicStatisticsState::Enable;
@@ -89,10 +90,9 @@ void PendulumControllerNode::create_command_publisher()
 {
   rclcpp::PublisherOptions command_publisher_options;
   command_publisher_options.event_callbacks.deadline_callback =
-    [](rclcpp::QOSDeadlineOfferedInfo &) -> void
+    [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
-      // do nothing for instrumenting purposes
-      // in a real-application we may want to trigger an error for a specific deadline misses
+      num_missed_deadlines_pub_++;
     };
   command_pub_ = this->create_publisher<pendulum2_msgs::msg::JointCommandStamped>(
     command_topic_name_,
@@ -126,6 +126,8 @@ void PendulumControllerNode::log_controller_state()
   RCLCPP_INFO(get_logger(), "Teleoperation cart position = %lf", teleoperation_command.at(0));
   RCLCPP_INFO(get_logger(), "Teleoperation cart velocity = %lf", teleoperation_command.at(1));
   RCLCPP_INFO(get_logger(), "Force command = %lf", force_command);
+  RCLCPP_INFO(get_logger(), "Publisher missed deadlines = %lu", num_missed_deadlines_pub_);
+  RCLCPP_INFO(get_logger(), "Subscription missed deadlines = %lu", num_missed_deadlines_sub_);
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn

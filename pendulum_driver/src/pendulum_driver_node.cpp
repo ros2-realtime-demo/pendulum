@@ -52,7 +52,9 @@ PendulumDriverNode::PendulumDriverNode(
       declare_parameter("driver.noise_level").get<double>(),
       std::chrono::microseconds {state_publish_period_}
     )
-  )
+  ),
+  num_missed_deadlines_pub_{0U},
+  num_missed_deadlines_sub_{0U}
 {
   init_state_message();
   create_state_publisher();
@@ -77,10 +79,9 @@ void PendulumDriverNode::create_state_publisher()
 {
   rclcpp::PublisherOptions sensor_publisher_options;
   sensor_publisher_options.event_callbacks.deadline_callback =
-    [](rclcpp::QOSDeadlineOfferedInfo &) -> void
+    [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
-      // do nothing for instrumenting purposes
-      // in a real-application we may want to trigger an error for a specific deadline misses
+      num_missed_deadlines_pub_++;
     };
   state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
     state_topic_name_,
@@ -92,10 +93,9 @@ void PendulumDriverNode::create_command_subscription()
 {
   rclcpp::SubscriptionOptions command_subscription_options;
   command_subscription_options.event_callbacks.deadline_callback =
-    [](rclcpp::QOSDeadlineRequestedInfo &) -> void
+    [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
-      // do nothing for instrumenting purposes
-      // in a real-application we may want to trigger an error for a specific deadline misses
+      num_missed_deadlines_sub_++;
     };
   if (enable_topic_stats_) {
     command_subscription_options.topic_stats_options.state = rclcpp::TopicStatisticsState::Enable;
@@ -151,6 +151,8 @@ void PendulumDriverNode::log_driver_state()
   RCLCPP_INFO(get_logger(), "Pole angular velocity = %lf", state.pole_velocity);
   RCLCPP_INFO(get_logger(), "Controller force command = %lf", controller_force_command);
   RCLCPP_INFO(get_logger(), "Disturbance force = %lf", disturbance_force);
+  RCLCPP_INFO(get_logger(), "Publisher missed deadlines = %lu", num_missed_deadlines_pub_);
+  RCLCPP_INFO(get_logger(), "Subscription missed deadlines = %lu", num_missed_deadlines_sub_);
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
