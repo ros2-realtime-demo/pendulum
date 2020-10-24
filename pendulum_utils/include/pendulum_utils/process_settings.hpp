@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_TOOLS__PROCESS_SETTINGS_HPP_
-#define PENDULUM_TOOLS__PROCESS_SETTINGS_HPP_
+#ifndef PENDULUM_UTILS__PROCESS_SETTINGS_HPP_
+#define PENDULUM_UTILS__PROCESS_SETTINGS_HPP_
 
 #include <string>
 #include "rclcpp/rclcpp.hpp"
 
 #include "rcutils/cmdline_parser.h"
 
-#include "pendulum_tools/memory_lock.hpp"
-#include "pendulum_tools/rt_thread.hpp"
+#include "pendulum_utils/memory_lock.hpp"
+#include "pendulum_utils/rt_thread.hpp"
 
 namespace pendulum
 {
-namespace tools
+namespace utils
 {
 struct ProcessSettings
 {
@@ -141,7 +141,7 @@ struct ProcessSettings
   /// configure process child threads (typically DDS threads)
   bool configure_child_threads = false;
 };
-}  // namespace tools
+}  // namespace utils
 }  // namespace pendulum
 
-#endif  // PENDULUM_TOOLS__PROCESS_SETTINGS_HPP_
+#endif  // PENDULUM_UTILS__PROCESS_SETTINGS_HPP_

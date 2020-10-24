@@ -20,12 +20,12 @@
 
 #include "pendulum_driver/pendulum_driver_node.hpp"
 #include "pendulum_controller/pendulum_controller_node.hpp"
-#include "pendulum_tools/process_settings.hpp"
-#include "pendulum_tools/lifecycle_autostart.hpp"
+#include "pendulum_utils/process_settings.hpp"
+#include "pendulum_utils/lifecycle_autostart.hpp"
 
 int main(int argc, char * argv[])
 {
-  pendulum::tools::ProcessSettings settings;
+  pendulum::utils::ProcessSettings settings;
   if (!settings.init(argc, argv)) {
     return EXIT_FAILURE;
   }
@@ -64,8 +64,8 @@ int main(int argc, char * argv[])
     }
 
     if (settings.auto_start_nodes) {
-      pendulum::tools::autostart(*controller_node_ptr);
-      pendulum::tools::autostart(*driver_node_ptr);
+      pendulum::utils::autostart(*controller_node_ptr);
+      pendulum::utils::autostart(*driver_node_ptr);
     }
 
     exec.spin();

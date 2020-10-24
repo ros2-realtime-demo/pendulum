@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_TOOLS__MEMORY_LOCK_HPP_
-#define PENDULUM_TOOLS__MEMORY_LOCK_HPP_
+#ifndef PENDULUM_UTILS__MEMORY_LOCK_HPP_
+#define PENDULUM_UTILS__MEMORY_LOCK_HPP_
 
 #include <sys/types.h>
 #include <sys/syscall.h>
@@ -34,7 +34,7 @@
 
 namespace pendulum
 {
-namespace tools
+namespace utils
 {
 /// \brief Lock currently paged memory using mlockall.
 /// \return Error code to propagate to main
@@ -48,7 +48,7 @@ int lock_and_prefault_dynamic();
 /// \brief Commit a pool of dynamic memory based on a prefixed size
 /// \return Error code to propagate to main
 int lock_and_prefault_dynamic(size_t process_max_dynamic_memory);
-}  // namespace tools
+}  // namespace utils
 }  // namespace pendulum
 
-#endif  // PENDULUM_TOOLS__MEMORY_LOCK_HPP_
+#endif  // PENDULUM_UTILS__MEMORY_LOCK_HPP_
