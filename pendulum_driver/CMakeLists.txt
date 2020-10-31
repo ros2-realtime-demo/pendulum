@@ -21,6 +21,7 @@ find_package(lifecycle_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(pendulum2_msgs REQUIRED)
 find_package(pendulum_tools REQUIRED)
+find_package(rcpputils REQUIRED)
 
 set(dependencies
     rclcpp

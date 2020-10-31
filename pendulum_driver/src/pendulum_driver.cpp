@@ -14,6 +14,7 @@
 
 #include "pendulum_driver/pendulum_driver.hpp"
 #include <vector>
+#include "rcppmath/clamp.hpp"
 
 namespace pendulum
 {
@@ -35,8 +36,6 @@ PendulumDriver::PendulumDriver(const Config & config)
     throw std::runtime_error("Invalid dt_ calculated in PendulumController constructor");
   }
 
-  // we use non-linear equations for the simulation
-  // linearized equations couls be used if there are issues for real-time execution
   derivative_function_ = [this](const std::vector<double> & y,
       double u, size_t i) -> double {
       const double m = cfg_.get_pendulum_mass();
@@ -69,14 +68,7 @@ PendulumDriver::PendulumDriver(const Config & config)
 
 void PendulumDriver::set_controller_cart_force(double force)
 {
-  const auto max_cart_force = cfg_.get_max_cart_force();
-  if (force > max_cart_force) {
-    controller_force_ = max_cart_force;
-  } else if (force < -max_cart_force) {
-    controller_force_ = -max_cart_force;
-  } else {
-    controller_force_ = force;
-  }
+  controller_force_ = rcppmath::clamp(force, -cfg_.get_max_cart_force(), cfg_.get_max_cart_force());
 }
 
 void PendulumDriver::set_state(double cart_pos, double cart_vel, double pole_pos, double pole_vel)
