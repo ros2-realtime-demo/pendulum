@@ -1,15 +1,3 @@
-pendulum_controller:
-  ros__parameters:
-    state_topic_name: "joint_states"
-    command_topic_name: "joint_command"
-    teleop_topic_name: "teleop"
-    enable_topic_stats: False
-    topic_stats_topic_name: "controller_stats"
-    topic_stats_publish_period_ms: 1000
-    deadline_duration_ms: 0
-    controller:
-      feedback_matrix: [-10.0000, -51.5393, 356.8637, 154.4146]
-
 pendulum_driver:
   ros__parameters:
     state_topic_name: "joint_states"

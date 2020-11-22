@@ -59,11 +59,11 @@ int main(int argc, char * argv[])
     exec.spin();
     rclcpp::shutdown();
   } catch (const std::exception & e) {
-    RCLCPP_INFO(rclcpp::get_logger("pendulum_demo"), e.what());
+    RCLCPP_INFO(rclcpp::get_logger("pendulum_driver"), e.what());
     ret = 2;
   } catch (...) {
     RCLCPP_INFO(
-      rclcpp::get_logger("pendulum_demo"), "Unknown exception caught. "
+      rclcpp::get_logger("pendulum_driver"), "Unknown exception caught. "
       "Exiting...");
     ret = -1;
   }

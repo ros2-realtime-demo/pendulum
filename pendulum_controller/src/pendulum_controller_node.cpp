@@ -33,8 +33,6 @@ PendulumControllerNode::PendulumControllerNode(
   state_topic_name_(declare_parameter("state_topic_name").get<std::string>()),
   command_topic_name_(declare_parameter("command_topic_name").get<std::string>()),
   teleop_topic_name_(declare_parameter("teleop_topic_name").get<std::string>()),
-  command_publish_period_(std::chrono::microseconds{
-      declare_parameter("command_publish_period_us").get<std::uint16_t>()}),
   enable_topic_stats_(declare_parameter("enable_topic_stats").get<bool>()),
   topic_stats_topic_name_{declare_parameter("topic_stats_topic_name").get<std::string>()},
   topic_stats_publish_period_{std::chrono::milliseconds {
@@ -49,7 +47,6 @@ PendulumControllerNode::PendulumControllerNode(
   create_teleoperation_subscription();
   create_state_subscription();
   create_command_publisher();
-  create_command_timer_callback();
 }
 
 void PendulumControllerNode::create_teleoperation_subscription()
@@ -75,9 +72,18 @@ void PendulumControllerNode::create_state_subscription()
     state_subscription_options.topic_stats_options.publish_period = topic_stats_publish_period_;
   }
   auto on_sensor_message = [this](const sensor_msgs::msg::JointState::SharedPtr msg) {
+      // update pendulum state
       controller_.set_state(
         msg->position[0], msg->velocity[0],
         msg->position[1], msg->velocity[1]);
+
+      // update pendulum controller output
+      controller_.update();
+
+      // publish pendulum force command
+      command_message_.cmd.force = controller_.get_force_command();
+      command_message_.header.stamp = this->get_clock()->now();
+      command_pub_->publish(command_message_);
     };
   state_sub_ = this->create_subscription<sensor_msgs::msg::JointState>(
     state_topic_name_,
@@ -98,19 +104,6 @@ void PendulumControllerNode::create_command_publisher()
     command_topic_name_,
     rclcpp::QoS(10).deadline(deadline_duration_),
     command_publisher_options);
-}
-
-void PendulumControllerNode::create_command_timer_callback()
-{
-  auto control_timer_callback = [this]() {
-      controller_.update();
-      command_message_.cmd.force = controller_.get_force_command();
-      command_message_.header.stamp = this->get_clock()->now();
-      command_pub_->publish(command_message_);
-    };
-  command_timer_ = this->create_wall_timer(command_publish_period_, control_timer_callback);
-  // cancel immediately to prevent triggering it in this state
-  command_timer_->cancel();
 }
 
 void PendulumControllerNode::log_controller_state()
@@ -144,7 +137,6 @@ PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(get_logger(), "Activating");
   command_pub_->on_activate();
-  command_timer_->reset();
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -152,7 +144,6 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PendulumControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(get_logger(), "Deactivating");
-  command_timer_->cancel();
   command_pub_->on_deactivate();
   // log the status to introspect the result
   log_controller_state();

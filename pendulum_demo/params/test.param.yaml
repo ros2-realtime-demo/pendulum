@@ -29,4 +29,4 @@ pendulum_driver:
       damping_coefficient: 20.0
       gravity: -9.8
       max_cart_force: 1000.0
-      noise_level: 1.0
+      noise_level: 0.0
