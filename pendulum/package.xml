@@ -14,7 +14,7 @@
   <depend>pendulum_controller</depend>
   <depend>pendulum_demo</depend>
   <depend>pendulum_driver</depend>
-  <depend>pendulum_tools</depend>
+  <depend>pendulum_utils</depend>
 
 
   <export>

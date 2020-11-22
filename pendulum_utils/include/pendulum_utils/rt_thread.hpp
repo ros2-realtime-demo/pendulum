@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_TOOLS__RT_THREAD_HPP_
-#define PENDULUM_TOOLS__RT_THREAD_HPP_
+#ifndef PENDULUM_UTILS__RT_THREAD_HPP_
+#define PENDULUM_UTILS__RT_THREAD_HPP_
 
 #include <sys/types.h>
 #include <sys/syscall.h>
@@ -32,12 +32,12 @@
 
 namespace pendulum
 {
-namespace tools
+namespace utils
 {
 int set_thread_priority(size_t sched_priority, int policy);
 int set_this_thread_priority(size_t sched_priority, int policy);
 int set_thread_cpu_affinity(uint32_t cpu_bit_mask);
 int set_this_thread_cpu_affinity(uint32_t cpu_bit_mask);
-}  // namespace tools
+}  // namespace utils
 }  // namespace pendulum
-#endif  // PENDULUM_TOOLS__RT_THREAD_HPP_
+#endif  // PENDULUM_UTILS__RT_THREAD_HPP_

@@ -14,7 +14,7 @@
   <depend>rclcpp_lifecycle</depend>
   <depend>rclcpp_components</depend>
   <depend>lifecycle_msgs</depend>
-  <depend>pendulum_tools</depend>
+  <depend>pendulum_utils</depend>
   <depend>rcpputils</depend>
 
   <test_depend>ament_cmake_gmock</test_depend>

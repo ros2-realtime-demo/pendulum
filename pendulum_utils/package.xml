@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
-  <name>pendulum_tools</name>
+  <name>pendulum_utils</name>
   <version>0.0.1</version>
-  <description>Tools for the pendulum</description>
+  <description>Utils for the pendulum</description>
   <maintainer email="carlos.svic@gmail.com">Carlos San Vicente</maintainer>
   <license>Apache License 2.0</license>
 

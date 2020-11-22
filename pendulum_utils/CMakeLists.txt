@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(pendulum_tools)
+project(pendulum_utils)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -18,20 +18,20 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
 
-set(PENDULUM_TOOLS_LIB pendulum_tools)
+set(PENDULUM_UTILS_LIB pendulum_utils)
 
-add_library(${PENDULUM_TOOLS_LIB} SHARED
+add_library(${PENDULUM_UTILS_LIB} SHARED
   src/memory_lock.cpp
   src/rt_thread.cpp)
 
-target_include_directories(${PENDULUM_TOOLS_LIB}
+target_include_directories(${PENDULUM_UTILS_LIB}
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
-ament_target_dependencies(${PENDULUM_TOOLS_LIB} "rclcpp")
+ament_target_dependencies(${PENDULUM_UTILS_LIB} "rclcpp")
 
-ament_export_targets(export_${PENDULUM_TOOLS_LIB} HAS_LIBRARY_TARGET)
+ament_export_targets(export_${PENDULUM_UTILS_LIB} HAS_LIBRARY_TARGET)
 ament_export_dependencies(
     "rclcpp"
     "rclcpp_lifecycle"
@@ -49,8 +49,8 @@ install(
   DESTINATION include
 )
 
-install(TARGETS ${PENDULUM_TOOLS_LIB}
-    EXPORT export_${PENDULUM_TOOLS_LIB}
+install(TARGETS ${PENDULUM_UTILS_LIB}
+    EXPORT export_${PENDULUM_UTILS_LIB}
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION lib/${PROJECT_NAME}

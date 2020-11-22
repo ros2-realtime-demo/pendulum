@@ -20,7 +20,7 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(pendulum2_msgs REQUIRED)
-find_package(pendulum_tools REQUIRED)
+find_package(pendulum_utils REQUIRED)
 find_package(rcpputils REQUIRED)
 
 set(dependencies
@@ -30,7 +30,7 @@ set(dependencies
     lifecycle_msgs
     sensor_msgs
     pendulum2_msgs
-    pendulum_tools)
+    pendulum_utils)
 
 set(PENDULUM_DRIVER_LIB pendulum_driver)
 add_library(${PENDULUM_DRIVER_LIB} SHARED

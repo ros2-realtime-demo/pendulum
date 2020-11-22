@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pendulum_tools/memory_lock.hpp"
+#include "pendulum_utils/memory_lock.hpp"
 #include <vector>
 
 namespace pendulum
 {
-namespace tools
+namespace utils
 {
 int lock_memory()
 {
@@ -110,5 +110,5 @@ int lock_and_prefault_dynamic(size_t process_max_dynamic_memory)
 
   return 0;
 }
-}  // namespace tools
+}  // namespace utils
 }  // namespace pendulum

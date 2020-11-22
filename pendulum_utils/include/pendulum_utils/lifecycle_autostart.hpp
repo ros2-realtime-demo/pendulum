@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PENDULUM_TOOLS__LIFECYCLE_AUTOSTART_HPP_
-#define PENDULUM_TOOLS__LIFECYCLE_AUTOSTART_HPP_
+#ifndef PENDULUM_UTILS__LIFECYCLE_AUTOSTART_HPP_
+#define PENDULUM_UTILS__LIFECYCLE_AUTOSTART_HPP_
 
 #include <string>
 
@@ -22,7 +22,7 @@
 
 namespace pendulum
 {
-namespace tools
+namespace utils
 {
 /// \brief Transit a LifecycleNode from inactive to active state
 void autostart(rclcpp_lifecycle::LifecycleNode & node)
@@ -34,7 +34,7 @@ void autostart(rclcpp_lifecycle::LifecycleNode & node)
     throw std::runtime_error("Could not activate " + std::string(node.get_name()));
   }
 }
-}  // namespace tools
+}  // namespace utils
 }  // namespace pendulum
 
-#endif  // PENDULUM_TOOLS__LIFECYCLE_AUTOSTART_HPP_
+#endif  // PENDULUM_UTILS__LIFECYCLE_AUTOSTART_HPP_
