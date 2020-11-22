@@ -9,22 +9,15 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>pendulum2_msgs</build_depend>
-  <build_depend>rclcpp_lifecycle</build_depend>
-  <build_depend>rclcpp_components</build_depend>
-  <build_depend>lifecycle_msgs</build_depend>
-  <build_depend>pendulum_utils</build_depend>
+  <depend>sensor_msgs</depend>
+  <depend>pendulum2_msgs</depend>
+  <depend>rclcpp_lifecycle</depend>
+  <depend>rclcpp_components</depend>
+  <depend>lifecycle_msgs</depend>
+  <depend>pendulum_utils</depend>
+  <depend>rcpputils</depend>
 
-  <exec_depend>ros2run</exec_depend>
-  <exec_depend>sensor_msgs</exec_depend>
-  <exec_depend>pendulum2_msgs</exec_depend>
-  <exec_depend>rclcpp_lifecycle</exec_depend>
-  <exec_depend>rclcpp_components</exec_depend>
-  <exec_depend>lifecycle_msgs</exec_depend>
-  <exec_depend>pendulum_utils</exec_depend>
-
-  <test_depend>ament_cmake_gmock</test_depend>
+  <test_depend>apex_test_tools</test_depend>
   <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

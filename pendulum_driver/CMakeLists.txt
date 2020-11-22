@@ -56,9 +56,19 @@ ament_export_targets(export_${PENDULUM_DRIVER_LIB} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${dependencies})
 
 if(BUILD_TESTING)
+  find_package(apex_test_tools REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
+
+  apex_test_tools_add_gtest(test_pendulum_driver test/test_pendulum_driver.cpp)
+  if(TARGET test_pendulum_driver)
+    target_link_libraries(test_pendulum_driver ${PENDULUM_DRIVER_LIB})
+  endif()
+  apex_test_tools_add_gtest(test_pendulum_driver_node test/test_pendulum_driver_node.cpp)
+  if(TARGET test_pendulum_driver_node)
+    target_link_libraries(test_pendulum_driver_node ${PENDULUM_DRIVER_LIB})
+  endif()
 
   find_package(launch_testing_ament_cmake)
   add_launch_test(
