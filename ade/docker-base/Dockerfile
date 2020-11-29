@@ -86,6 +86,7 @@ RUN apt-get update \
   && mkdir -p /root/ros2_$ROS_VERSION/src \
   && wget https://raw.githubusercontent.com/ros2/ros2/$ROS_VERSION/ros2.repos \
   && vcs import src < ros2.repos \
+  && git clone -b $ROS_VERSION https://gitlab.com/ApexAI/apex_test_tools src/apex_test_tools \
   && rosdep init \
   && rosdep update \
   && rosdep install --from-paths src --ignore-src --rosdistro $ROS_VERSION -y --skip-keys "console_bridge fastcdr fastrtps rti-connext-dds-5.3.1 urdfdom_headers" \
