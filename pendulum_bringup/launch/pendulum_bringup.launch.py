@@ -21,8 +21,6 @@ import launch.substitutions
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-from tracetools_launch.action import Trace
-from tracetools_trace.tools.names import DEFAULT_EVENTS_ROS
 
 
 def generate_launch_description():
@@ -72,16 +70,6 @@ def generate_launch_description():
         default_value='False',
         description='Launch RVIZ2 in addition to other nodes'
     )
-    trace_param = DeclareLaunchArgument(
-        'trace',
-        default_value='False',
-        description='Launch ROS tracing action'
-    )
-    trace_memory_param = DeclareLaunchArgument(
-        'trace-memory',
-        default_value='False',
-        description='Launch ROS tracing action with memory functions tracing enabled'
-    )
 
     # Node definitions
     pendulum_demo_runner = Node(
@@ -115,43 +103,17 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('rviz'))
     )
 
-    # Create tracing runners
-    ros_tracing = Trace(
-        session_name='pendulum',
-        events_kernel=[],
-        condition=IfCondition(LaunchConfiguration('trace'))
-    )
+    ld = LaunchDescription()
 
-    ros_tracing_memory_usage = Trace(
-        session_name='pendulum-memory-usage',
-        events_ust=[
-                'lttng_ust_libc:malloc',
-                'lttng_ust_libc:calloc',
-                'lttng_ust_libc:realloc',
-                'lttng_ust_libc:free',
-                'lttng_ust_libc:memalign',
-                'lttng_ust_libc:posix_memalign',
-            ] + DEFAULT_EVENTS_ROS,
-        events_kernel=[
-            'kmem_mm_page_alloc',
-            'kmem_mm_page_free',
-        ],
-        condition=IfCondition(LaunchConfiguration('trace-memory'))
-    )
+    ld.add_action(autostart_param)
+    ld.add_action(priority_param)
+    ld.add_action(cpu_affinity_param)
+    ld.add_action(with_lock_memory_param)
+    ld.add_action(lock_memory_size_param)
+    ld.add_action(config_child_threads_param)
+    ld.add_action(with_rviz_param)
+    ld.add_action(robot_state_publisher_runner)
+    ld.add_action(pendulum_demo_runner)
+    ld.add_action(rviz_runner)
 
-    return LaunchDescription([
-        trace_param,
-        trace_memory_param,
-        ros_tracing,
-        ros_tracing_memory_usage,
-        autostart_param,
-        priority_param,
-        cpu_affinity_param,
-        with_lock_memory_param,
-        lock_memory_size_param,
-        config_child_threads_param,
-        with_rviz_param,
-        robot_state_publisher_runner,
-        pendulum_demo_runner,
-        rviz_runner
-    ])
+    return ld
