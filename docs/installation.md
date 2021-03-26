@@ -56,7 +56,8 @@ $ git clone git@github.com:ros2-realtime-demo/pendulum.git
 
 How to build
 ```
-$ ade start --update --enter
+cd adehome
+$ ade --rc pendulum_ws/src/pendulum/ade/.aderc start --update --enter
 ade$ source /opt/ros/foxy/setup.bash
 ade$ cd pendulum_ws
 ade$ colcon build
