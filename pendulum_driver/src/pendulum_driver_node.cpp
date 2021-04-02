@@ -65,14 +65,11 @@ PendulumDriverNode::PendulumDriverNode(
 
 void PendulumDriverNode::init_state_message()
 {
-  state_message_.name.push_back(cart_base_joint_name_);
-  state_message_.position.push_back(0.0);
-  state_message_.velocity.push_back(0.0);
-  state_message_.effort.push_back(0.0);
-  state_message_.name.push_back(pole_joint_name_);
-  state_message_.position.push_back(0.0);
-  state_message_.velocity.push_back(0.0);
-  state_message_.effort.push_back(0.0);
+  state_message_.cart_position = 0.0;
+  state_message_.cart_velocity = 0.0;
+  state_message_.cart_force = 0.0;
+  state_message_.pole_angle = 0.0;
+  state_message_.pole_velocity = 0.0;
 }
 
 void PendulumDriverNode::create_state_publisher()
@@ -83,7 +80,7 @@ void PendulumDriverNode::create_state_publisher()
     {
       num_missed_deadlines_pub_++;
     };
-  state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
+  state_pub_ = this->create_publisher<pendulum2_msgs::msg::JointState>(
     state_topic_name_,
     rclcpp::QoS(10).deadline(deadline_duration_),
     sensor_publisher_options);
@@ -102,10 +99,10 @@ void PendulumDriverNode::create_command_subscription()
     command_subscription_options.topic_stats_options.publish_topic = topic_stats_topic_name_;
     command_subscription_options.topic_stats_options.publish_period = topic_stats_publish_period_;
   }
-  auto on_command_received = [this](pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg) {
-      driver_.set_controller_cart_force(msg->cmd.force);
+  auto on_command_received = [this](pendulum2_msgs::msg::JointCommand::SharedPtr msg) {
+      driver_.set_controller_cart_force(msg->force);
     };
-  command_sub_ = this->create_subscription<pendulum2_msgs::msg::JointCommandStamped>(
+  command_sub_ = this->create_subscription<pendulum2_msgs::msg::JointCommand>(
     command_topic_name_,
     rclcpp::QoS(10).deadline(deadline_duration_),
     on_command_received,
@@ -114,10 +111,10 @@ void PendulumDriverNode::create_command_subscription()
 
 void PendulumDriverNode::create_disturbance_subscription()
 {
-  auto on_disturbance_received = [this](pendulum2_msgs::msg::JointCommandStamped::SharedPtr msg) {
-      driver_.set_disturbance_force(msg->cmd.force);
+  auto on_disturbance_received = [this](pendulum2_msgs::msg::JointCommand::SharedPtr msg) {
+      driver_.set_disturbance_force(msg->force);
     };
-  disturbance_sub_ = this->create_subscription<pendulum2_msgs::msg::JointCommandStamped>(
+  disturbance_sub_ = this->create_subscription<pendulum2_msgs::msg::JointCommand>(
     disturbance_topic_name_, rclcpp::QoS(10), on_disturbance_received);
 }
 
@@ -126,12 +123,11 @@ void PendulumDriverNode::create_state_timer_callback()
   auto state_timer_callback = [this]() {
       driver_.update();
       const auto state = driver_.get_state();
-      state_message_.position[0] = state.cart_position;
-      state_message_.velocity[0] = state.cart_velocity;
-      state_message_.effort[0] = state.cart_force;
-      state_message_.position[1] = state.pole_angle;
-      state_message_.velocity[1] = state.pole_velocity;
-      state_message_.header.stamp = this->get_clock()->now();
+      state_message_.cart_position = state.cart_position;
+      state_message_.cart_velocity = state.cart_velocity;
+      state_message_.cart_force = state.cart_force;
+      state_message_.pole_angle = state.pole_angle;
+      state_message_.pole_velocity = state.pole_velocity;
       state_pub_->publish(state_message_);
     };
   state_timer_ = this->create_wall_timer(state_publish_period_, state_timer_callback);
