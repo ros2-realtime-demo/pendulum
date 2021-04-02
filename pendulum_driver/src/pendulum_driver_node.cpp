@@ -13,6 +13,10 @@
 // limitations under the License.
 
 #include <string>
+#include <memory>
+
+#include "rclcpp/strategies/message_pool_memory_strategy.hpp"
+#include "rclcpp/strategies/allocator_memory_strategy.hpp"
 
 #include "pendulum_driver/pendulum_driver_node.hpp"
 
@@ -88,6 +92,12 @@ void PendulumDriverNode::create_state_publisher()
 
 void PendulumDriverNode::create_command_subscription()
 {
+  // Pre-allocates message in a pool
+  using rclcpp::strategies::message_pool_memory_strategy::MessagePoolMemoryStrategy;
+  using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
+  auto command_msg_strategy =
+    std::make_shared<MessagePoolMemoryStrategy<pendulum2_msgs::msg::JointCommand, 1>>();
+
   rclcpp::SubscriptionOptions command_subscription_options;
   command_subscription_options.event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
@@ -106,7 +116,8 @@ void PendulumDriverNode::create_command_subscription()
     command_topic_name_,
     rclcpp::QoS(10).deadline(deadline_duration_),
     on_command_received,
-    command_subscription_options);
+    command_subscription_options,
+    command_msg_strategy);
 }
 
 void PendulumDriverNode::create_disturbance_subscription()

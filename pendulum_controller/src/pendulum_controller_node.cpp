@@ -14,6 +14,10 @@
 
 #include <string>
 #include <vector>
+#include <memory>
+
+#include "rclcpp/strategies/message_pool_memory_strategy.hpp"
+#include "rclcpp/strategies/allocator_memory_strategy.hpp"
 
 #include "pendulum_controller/pendulum_controller_node.hpp"
 
@@ -60,6 +64,12 @@ void PendulumControllerNode::create_teleoperation_subscription()
 
 void PendulumControllerNode::create_state_subscription()
 {
+  // Pre-allocates message in a pool
+  using rclcpp::strategies::message_pool_memory_strategy::MessagePoolMemoryStrategy;
+  using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
+  auto state_msg_strategy =
+    std::make_shared<MessagePoolMemoryStrategy<pendulum2_msgs::msg::JointState, 1>>();
+
   rclcpp::SubscriptionOptions state_subscription_options;
   state_subscription_options.event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
@@ -88,7 +98,8 @@ void PendulumControllerNode::create_state_subscription()
     state_topic_name_,
     rclcpp::QoS(10).deadline(deadline_duration_),
     on_sensor_message,
-    state_subscription_options);
+    state_subscription_options,
+    state_msg_strategy);
 }
 
 void PendulumControllerNode::create_command_publisher()
