@@ -16,6 +16,7 @@ find_package(std_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 set(msg_files
+    "msg/JointState.msg"
     "msg/JointCommand.msg"
     "msg/JointCommandStamped.msg"
     "msg/PendulumTeleop.msg"

@@ -1,0 +1,5 @@
+float64 pole_angle
+float64 pole_velocity
+float64 cart_position
+float64 cart_velocity
+float64 cart_force
