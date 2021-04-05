@@ -21,9 +21,8 @@
 #include <cmath>
 #include <vector>
 
-#include "sensor_msgs/msg/joint_state.hpp"
-
-#include "pendulum2_msgs/msg/joint_command_stamped.hpp"
+#include "pendulum2_msgs/msg/joint_state.hpp"
+#include "pendulum2_msgs/msg/joint_command.hpp"
 #include "pendulum2_msgs/msg/pendulum_teleop.hpp"
 #include "pendulum_controller/visibility_control.hpp"
 

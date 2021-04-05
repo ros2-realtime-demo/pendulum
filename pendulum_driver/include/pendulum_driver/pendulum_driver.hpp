@@ -23,8 +23,8 @@
 #include <vector>
 #include <random>
 
-#include "sensor_msgs/msg/joint_state.hpp"
-#include "pendulum2_msgs/msg/joint_command_stamped.hpp"
+#include "pendulum2_msgs/msg/joint_state.hpp"
+#include "pendulum2_msgs/msg/joint_command.hpp"
 
 #include "pendulum_driver/runge_kutta.hpp"
 #include "pendulum_driver/visibility_control.hpp"

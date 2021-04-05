@@ -107,16 +107,13 @@ private:
   std::chrono::milliseconds deadline_duration_;
   PendulumDriver driver_;
 
-  std::shared_ptr<rclcpp::Subscription<
-      pendulum2_msgs::msg::JointCommandStamped>> command_sub_;
-  std::shared_ptr<rclcpp::Subscription<
-      pendulum2_msgs::msg::JointCommandStamped>> disturbance_sub_;
-  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
-      sensor_msgs::msg::JointState>> state_pub_;
+  std::shared_ptr<rclcpp::Subscription<pendulum2_msgs::msg::JointCommand>> command_sub_;
+  std::shared_ptr<rclcpp::Subscription<pendulum2_msgs::msg::JointCommand>> disturbance_sub_;
+  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<pendulum2_msgs::msg::JointState>> state_pub_;
 
   rclcpp::TimerBase::SharedPtr state_timer_;
   rclcpp::TimerBase::SharedPtr update_driver_timer_;
-  sensor_msgs::msg::JointState state_message_;
+  pendulum2_msgs::msg::JointState state_message_;
 
   uint32_t num_missed_deadlines_pub_;
   uint32_t num_missed_deadlines_sub_;

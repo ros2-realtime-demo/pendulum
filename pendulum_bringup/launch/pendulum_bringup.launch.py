@@ -103,6 +103,12 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('rviz'))
     )
 
+    pendulum_state_publisher_runner = Node(
+        package='pendulum_state_publisher',
+        executable='pendulum_state_publisher',
+        condition=IfCondition(LaunchConfiguration('rviz'))
+    )
+
     ld = LaunchDescription()
 
     ld.add_action(autostart_param)
@@ -115,5 +121,6 @@ def generate_launch_description():
     ld.add_action(robot_state_publisher_runner)
     ld.add_action(pendulum_demo_runner)
     ld.add_action(rviz_runner)
+    ld.add_action(pendulum_state_publisher_runner)
 
     return ld

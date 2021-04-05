@@ -89,3 +89,13 @@ TEST_F(TestPendulumControllerNode, trigger_lifecycle_transitions) {
     State::PRIMARY_STATE_FINALIZED, controller_node.trigger_transition(
       rclcpp_lifecycle::Transition(Transition::TRANSITION_UNCONFIGURED_SHUTDOWN)).id());
 }
+
+TEST_F(TestPendulumControllerNode, pendulum_state_message_size) {
+  EXPECT_TRUE(rosidl_generator_traits::has_bounded_size<pendulum2_msgs::msg::JointState>());
+  EXPECT_TRUE(rosidl_generator_traits::has_fixed_size<pendulum2_msgs::msg::JointState>());
+}
+
+TEST_F(TestPendulumControllerNode, pendulum_command_message_size) {
+  EXPECT_TRUE(rosidl_generator_traits::has_bounded_size<pendulum2_msgs::msg::JointCommand>());
+  EXPECT_TRUE(rosidl_generator_traits::has_fixed_size<pendulum2_msgs::msg::JointCommand>());
+}

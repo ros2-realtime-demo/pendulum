@@ -100,13 +100,11 @@ private:
 
   PendulumController controller_;
 
-  std::shared_ptr<rclcpp::Subscription<
-      sensor_msgs::msg::JointState>> state_sub_;
-  std::shared_ptr<rclcpp::Subscription<
-      pendulum2_msgs::msg::PendulumTeleop>> teleop_sub_;
+  std::shared_ptr<rclcpp::Subscription<pendulum2_msgs::msg::JointState>> state_sub_;
+  std::shared_ptr<rclcpp::Subscription<pendulum2_msgs::msg::PendulumTeleop>> teleop_sub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<
-      pendulum2_msgs::msg::JointCommandStamped>> command_pub_;
-  pendulum2_msgs::msg::JointCommandStamped command_message_;
+      pendulum2_msgs::msg::JointCommand>> command_pub_;
+  pendulum2_msgs::msg::JointCommand command_message_;
 
   uint32_t num_missed_deadlines_pub_;
   uint32_t num_missed_deadlines_sub_;

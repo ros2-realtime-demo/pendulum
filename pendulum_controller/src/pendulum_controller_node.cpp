@@ -14,6 +14,10 @@
 
 #include <string>
 #include <vector>
+#include <memory>
+
+#include "rclcpp/strategies/message_pool_memory_strategy.hpp"
+#include "rclcpp/strategies/allocator_memory_strategy.hpp"
 
 #include "pendulum_controller/pendulum_controller_node.hpp"
 
@@ -60,6 +64,12 @@ void PendulumControllerNode::create_teleoperation_subscription()
 
 void PendulumControllerNode::create_state_subscription()
 {
+  // Pre-allocates message in a pool
+  using rclcpp::strategies::message_pool_memory_strategy::MessagePoolMemoryStrategy;
+  using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
+  auto state_msg_strategy =
+    std::make_shared<MessagePoolMemoryStrategy<pendulum2_msgs::msg::JointState, 1>>();
+
   rclcpp::SubscriptionOptions state_subscription_options;
   state_subscription_options.event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
@@ -71,25 +81,25 @@ void PendulumControllerNode::create_state_subscription()
     state_subscription_options.topic_stats_options.publish_topic = topic_stats_topic_name_;
     state_subscription_options.topic_stats_options.publish_period = topic_stats_publish_period_;
   }
-  auto on_sensor_message = [this](const sensor_msgs::msg::JointState::SharedPtr msg) {
+  auto on_sensor_message = [this](const pendulum2_msgs::msg::JointState::SharedPtr msg) {
       // update pendulum state
       controller_.set_state(
-        msg->position[0], msg->velocity[0],
-        msg->position[1], msg->velocity[1]);
+        msg->cart_position, msg->cart_velocity,
+        msg->pole_angle, msg->pole_velocity);
 
       // update pendulum controller output
       controller_.update();
 
       // publish pendulum force command
-      command_message_.cmd.force = controller_.get_force_command();
-      command_message_.header.stamp = this->get_clock()->now();
+      command_message_.force = controller_.get_force_command();
       command_pub_->publish(command_message_);
     };
-  state_sub_ = this->create_subscription<sensor_msgs::msg::JointState>(
+  state_sub_ = this->create_subscription<pendulum2_msgs::msg::JointState>(
     state_topic_name_,
     rclcpp::QoS(10).deadline(deadline_duration_),
     on_sensor_message,
-    state_subscription_options);
+    state_subscription_options,
+    state_msg_strategy);
 }
 
 void PendulumControllerNode::create_command_publisher()
@@ -100,7 +110,7 @@ void PendulumControllerNode::create_command_publisher()
     {
       num_missed_deadlines_pub_++;
     };
-  command_pub_ = this->create_publisher<pendulum2_msgs::msg::JointCommandStamped>(
+  command_pub_ = this->create_publisher<pendulum2_msgs::msg::JointCommand>(
     command_topic_name_,
     rclcpp::QoS(10).deadline(deadline_duration_),
     command_publisher_options);
