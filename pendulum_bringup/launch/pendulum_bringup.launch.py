@@ -65,6 +65,26 @@ def generate_launch_description():
         name='config-child-threads',
         default_value='False',
         description='Configure process child threads (typically DDS threads)')
+    lock_memory_size_param = DeclareLaunchArgument(
+        name='lock-memory-size',
+        default_value='0',
+        description='Set lock memory size in MB')
+    use_rtt_executor = DeclareLaunchArgument(
+        name='use-rtt-executor',
+        default_value='False',
+        description='Use real-time executor using rttest')
+    filename = DeclareLaunchArgument(
+        name='filename',
+        default_value='results',
+        description='Set rttest results filename')
+    iterations = DeclareLaunchArgument(
+        name='iterations',
+        default_value='1000',
+        description='Set demo number of iterations')
+    update_period = DeclareLaunchArgument(
+        name='update-period',
+        default_value='10000',
+        description='Set executor update period')
     with_rviz_param = DeclareLaunchArgument(
         'rviz',
         default_value='False',
@@ -83,7 +103,11 @@ def generate_launch_description():
            '--cpu-affinity', LaunchConfiguration('cpu-affinity'),
            '--lock-memory', LaunchConfiguration('lock-memory'),
            '--lock-memory-size', LaunchConfiguration('lock-memory-size'),
-           '--config-child-threads', LaunchConfiguration('config-child-threads')
+           '--config-child-threads', LaunchConfiguration('config-child-threads'),
+           '--use-rtt-executor', LaunchConfiguration('use-rtt-executor'),
+           '--iterations', LaunchConfiguration('iterations'),
+           '--filename', LaunchConfiguration('filename'),
+           '--update-period', LaunchConfiguration('update-period')
            ]
     )
 
@@ -117,6 +141,10 @@ def generate_launch_description():
     ld.add_action(with_lock_memory_param)
     ld.add_action(lock_memory_size_param)
     ld.add_action(config_child_threads_param)
+    ld.add_action(use_rtt_executor)
+    ld.add_action(filename)
+    ld.add_action(iterations)
+    ld.add_action(update_period)
     ld.add_action(with_rviz_param)
     ld.add_action(robot_state_publisher_runner)
     ld.add_action(pendulum_demo_runner)

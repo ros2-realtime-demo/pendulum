@@ -1,4 +1,4 @@
-// Copyright 2019 Carlos San Vicente
+// Copyright 2021 Carlos San Vicente
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include "pendulum_controller/pendulum_controller_node.hpp"
 #include "pendulum_utils/process_settings.hpp"
 #include "pendulum_utils/lifecycle_autostart.hpp"
+#include "pendulum_utils/rtt_executor.hpp"
 
 int main(int argc, char * argv[])
 {
@@ -41,21 +42,27 @@ int main(int argc, char * argv[])
 
     rclcpp::init(argc, argv);
 
-    // Create a static executor
-    rclcpp::executors::StaticSingleThreadedExecutor exec;
+    std::unique_ptr<rclcpp::Executor> exec;
+
+    if (settings.use_rtt_executor) {
+      // Create real-time instrumented executor
+      exec = std::make_unique<pendulum::utils::RttExecutor>();
+    } else {
+      exec = std::make_unique<rclcpp::executors::StaticSingleThreadedExecutor>();
+    }
 
     // Create pendulum controller node
     using pendulum::pendulum_controller::PendulumControllerNode;
     const auto controller_node_ptr =
-      std::make_shared<PendulumControllerNode>("pendulum_controller");
+        std::make_shared<PendulumControllerNode>("pendulum_controller");
 
-    exec.add_node(controller_node_ptr->get_node_base_interface());
+    exec->add_node(controller_node_ptr->get_node_base_interface());
 
     // Create pendulum simulation
     using pendulum::pendulum_driver::PendulumDriverNode;
     const auto driver_node_ptr = std::make_shared<PendulumDriverNode>("pendulum_driver");
 
-    exec.add_node(driver_node_ptr->get_node_base_interface());
+    exec->add_node(driver_node_ptr->get_node_base_interface());
 
     // configure process real-time settings
     if (!settings.configure_child_threads) {
@@ -68,15 +75,15 @@ int main(int argc, char * argv[])
       pendulum::utils::autostart(*driver_node_ptr);
     }
 
-    exec.spin();
+    exec->spin();
     rclcpp::shutdown();
   } catch (const std::exception & e) {
     RCLCPP_INFO(rclcpp::get_logger("pendulum_demo"), e.what());
     ret = 2;
   } catch (...) {
     RCLCPP_INFO(
-      rclcpp::get_logger("pendulum_demo"), "Unknown exception caught. "
-      "Exiting...");
+        rclcpp::get_logger("pendulum_demo"), "Unknown exception caught. "
+                                             "Exiting...");
     ret = -1;
   }
   return ret;

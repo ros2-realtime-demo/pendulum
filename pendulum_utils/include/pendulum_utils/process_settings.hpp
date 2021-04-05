@@ -19,6 +19,7 @@
 #include "rclcpp/rclcpp.hpp"
 
 #include "rcutils/cmdline_parser.h"
+#include "rttest/rttest.h"
 
 #include "pendulum_utils/memory_lock.hpp"
 #include "pendulum_utils/rt_thread.hpp"
@@ -39,13 +40,19 @@ struct ProcessSettings
       "\t[%s set process real-time priority]\n"
       "\t[%s set process cpu affinity]\n"
       "\t[%s configure process settings in child threads]\n"
+      "\t[%s use real-time executor (using rttest)]\n"
+      "\t[%s configure demo number of iterations]\n"
+      "\t[%s configure executor update period (microseconds)]\n"
       "\t[-h]\n",
       OPTION_AUTO_ACTIVATE_NODES.c_str(),
       OPTION_LOCK_MEMORY.c_str(),
       OPTION_LOCK_MEMORY_SIZE.c_str(),
       OPTION_PRIORITY.c_str(),
       OPTION_CPU_AFFINITY.c_str(),
-      OPTION_CONFIG_CHILD_THREADS.c_str());
+      OPTION_CONFIG_CHILD_THREADS.c_str(),
+      OPTION_USE_RTT_EXECUTOR.c_str(),
+      OPTION_ITERATIONS.c_str(),
+      OPTION_UPDATE_PERIOD_US.c_str());
   }
 
   bool init(int argc, char * argv[])
@@ -58,12 +65,12 @@ struct ProcessSettings
     if (rcutils_cli_option_exist(argv, argv + argc, OPTION_AUTO_ACTIVATE_NODES.c_str())) {
       std::string option = rcutils_cli_get_option(
         argv, argv + argc, OPTION_AUTO_ACTIVATE_NODES.c_str());
-      auto_start_nodes = ( option == "True") ? true : false;
+      auto_start_nodes = (option == "True");
     }
     if (rcutils_cli_option_exist(argv, argv + argc, OPTION_LOCK_MEMORY.c_str())) {
       std::string option = rcutils_cli_get_option(
         argv, argv + argc, OPTION_LOCK_MEMORY_SIZE.c_str());
-      lock_memory = ( option == "True") ? true : false;
+      lock_memory = (option == "True");
     }
     if (rcutils_cli_option_exist(argv, argv + argc, OPTION_LOCK_MEMORY_SIZE.c_str())) {
       lock_memory_size_mb =
@@ -87,7 +94,29 @@ struct ProcessSettings
     if (rcutils_cli_option_exist(argv, argv + argc, OPTION_CONFIG_CHILD_THREADS.c_str())) {
       std::string option = rcutils_cli_get_option(
         argv, argv + argc, OPTION_CONFIG_CHILD_THREADS.c_str());
-      configure_child_threads = ( option == "True") ? true : false;
+      configure_child_threads = (option == "True");
+    }
+
+    // rttest args
+    if (rcutils_cli_option_exist(argv, argv + argc, OPTION_USE_RTT_EXECUTOR.c_str())) {
+      std::string option = rcutils_cli_get_option(
+          argv, argv + argc, OPTION_USE_RTT_EXECUTOR.c_str());
+      use_rtt_executor = (option == "True");
+    }
+    if (rcutils_cli_option_exist(argv, argv + argc, OPTION_ITERATIONS.c_str())) {
+      iterations = std::stoi(
+        rcutils_cli_get_option(
+          argv, argv + argc,
+          OPTION_ITERATIONS.c_str()));
+    }
+    if (rcutils_cli_option_exist(argv, argv + argc, OPTION_UPDATE_PERIOD_US.c_str())) {
+      update_period.tv_nsec = (std::stoi(
+          rcutils_cli_get_option(
+            argv, argv + argc,
+            OPTION_UPDATE_PERIOD_US.c_str()))) * 1000;
+    }
+    if (rcutils_cli_option_exist(argv, argv + argc, OPTION_FILENAME.c_str())) {
+      filename = rcutils_cli_get_option(argv, argv + argc, OPTION_FILENAME.c_str());
     }
 
     return true;
@@ -95,6 +124,11 @@ struct ProcessSettings
 
   void configure_process()
   {
+    if (use_rtt_executor) {
+      // use rttest just to instrument the demo, the process settings are disabled
+      rttest_init(iterations, update_period, SCHED_OTHER, -1, 0, 0, filename);
+    }
+
     // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
     // deterministic (real-time safe) algorithm, fifo.
     if (process_priority > 0 && process_priority < 99) {
@@ -127,6 +161,10 @@ struct ProcessSettings
   const std::string OPTION_PRIORITY = "--priority";
   const std::string OPTION_CPU_AFFINITY = "--cpu-affinity";
   const std::string OPTION_CONFIG_CHILD_THREADS = "--config-child-threads";
+  const std::string OPTION_USE_RTT_EXECUTOR = "--use-rtt-executor";
+  const std::string OPTION_ITERATIONS = "--iterations";
+  const std::string OPTION_UPDATE_PERIOD_US = "--update-period";
+  const std::string OPTION_FILENAME= "--filename";
 
   /// automatically activate lifecycle nodes
   bool auto_start_nodes = false;
@@ -140,6 +178,15 @@ struct ProcessSettings
   size_t lock_memory_size_mb = 0;
   /// configure process child threads (typically DDS threads)
   bool configure_child_threads = false;
+
+  /// rttest args
+  bool use_rtt_executor = false;
+  size_t iterations = 0;
+  struct timespec update_period = {0, 10000000};
+  size_t sched_policy = SCHED_OTHER;
+  size_t stack_size = 0;
+  uint64_t prefault_dynamic_size = 0;
+  char * filename = nullptr;
 };
 }  // namespace utils
 }  // namespace pendulum

@@ -20,6 +20,8 @@
 #include "pendulum_controller/pendulum_controller_node.hpp"
 #include "pendulum_utils/process_settings.hpp"
 #include "pendulum_utils/lifecycle_autostart.hpp"
+#include "pendulum_utils/rtt_executor.hpp"
+
 
 int main(int argc, char * argv[])
 {
@@ -37,8 +39,8 @@ int main(int argc, char * argv[])
     }
     rclcpp::init(argc, argv);
 
-    // Create a static executor
-    rclcpp::executors::StaticSingleThreadedExecutor exec;
+    // Create real-time instrumented executor
+    pendulum::utils::RttExecutor exec;
 
     // Create pendulum controller node
     using pendulum::pendulum_controller::PendulumControllerNode;
