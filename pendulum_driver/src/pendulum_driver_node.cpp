@@ -151,8 +151,8 @@ void PendulumDriverNode::log_driver_state()
   RCLCPP_INFO(get_logger(), "Pole angular velocity = %lf", state.pole_velocity);
   RCLCPP_INFO(get_logger(), "Controller force command = %lf", controller_force_command);
   RCLCPP_INFO(get_logger(), "Disturbance force = %lf", disturbance_force);
-  RCLCPP_INFO(get_logger(), "Publisher missed deadlines = %lu", num_missed_deadlines_pub_);
-  RCLCPP_INFO(get_logger(), "Subscription missed deadlines = %lu", num_missed_deadlines_sub_);
+  RCLCPP_INFO(get_logger(), "Publisher missed deadlines = %u", num_missed_deadlines_pub_);
+  RCLCPP_INFO(get_logger(), "Subscription missed deadlines = %u", num_missed_deadlines_sub_);
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
