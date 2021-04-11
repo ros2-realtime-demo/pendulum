@@ -15,7 +15,7 @@ export RESET="\e[0m"
 
 # Paths
 export WS="/root/ros2_ws"
-export ROS2_DISTRO="foxy"
+export ROS2_DISTRO="rolling"
 
 function prepare_ws()
 {
