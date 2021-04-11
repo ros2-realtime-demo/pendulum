@@ -44,7 +44,8 @@ def generate_test_description():
         name='pendulum_controller',
         parameters=[param_file],
         arguments=['--autostart', 'True'],
-        additional_env={'PYTHONUNBUFFERED': '1'}
+        additional_env={'PYTHONUNBUFFERED': '1'},
+        namespace=''
     )
 
     shutdown_timer = launch.actions.TimerAction(
