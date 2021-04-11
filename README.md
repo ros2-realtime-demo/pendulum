@@ -6,12 +6,12 @@ This is work in progress and should be considered just as a proof of concept on 
  2 features to use in real-time applications. Any feedback and help to improve the project is
   appreciated.
 
-**Foxy branch is under active development. The current status can be checked here: 
+**Foxy branch is under active development. The current status can be checked here:
 https://github.com/ros2-realtime-demo/pendulum/issues/35**
 
 ## Build status
 
-![Build Status](https://github.com/ros2-realtime-demo/pendulum/workflows/build/badge.svg?branch=foxy) [![License](https://img.shields.io/badge/license-Apache%202-blue)]() ![GitHub issues](https://img.shields.io/github/issues/ros2-realtime-demo/pendulum)
+![Build Status](https://github.com/ros2-realtime-demo/pendulum/workflows/build/badge.svg?branch=rolling) [![License](https://img.shields.io/badge/license-Apache%202-blue)]() ![GitHub issues](https://img.shields.io/github/issues/ros2-realtime-demo/pendulum)
 
 ## Table of content
 
@@ -38,9 +38,9 @@ A more detailed description of demo the project design be found here: [Design Ar
 
 ## Install instructions
 
- Several ways to install the pendulum demo project are provided depending on the user needs. 
- 
-- [ADE based installation](docs/installation.md#ade-based-installation): This provides a 
+ Several ways to install the pendulum demo project are provided depending on the user needs.
+
+- [ADE based installation](docs/installation.md#ade-based-installation): This provides a
 pre-configured Docker image with everything ready to be used. This is the recommended option to
  quickly test the demo. It is also useful to have development environment to add new features.
 - [Installation from source](docs/installation.md#installation-from-source): provides instructions
