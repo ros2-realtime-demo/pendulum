@@ -100,7 +100,7 @@ struct ProcessSettings
     // rttest args
     if (rcutils_cli_option_exist(argv, argv + argc, OPTION_USE_RTT_EXECUTOR.c_str())) {
       std::string option = rcutils_cli_get_option(
-          argv, argv + argc, OPTION_USE_RTT_EXECUTOR.c_str());
+        argv, argv + argc, OPTION_USE_RTT_EXECUTOR.c_str());
       use_rtt_executor = (option == "True");
     }
     if (rcutils_cli_option_exist(argv, argv + argc, OPTION_ITERATIONS.c_str())) {
@@ -164,7 +164,7 @@ struct ProcessSettings
   const std::string OPTION_USE_RTT_EXECUTOR = "--use-rtt-executor";
   const std::string OPTION_ITERATIONS = "--iterations";
   const std::string OPTION_UPDATE_PERIOD_US = "--update-period";
-  const std::string OPTION_FILENAME= "--filename";
+  const std::string OPTION_FILENAME = "--filename";
 
   /// automatically activate lifecycle nodes
   bool auto_start_nodes = false;

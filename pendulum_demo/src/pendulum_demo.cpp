@@ -54,7 +54,7 @@ int main(int argc, char * argv[])
     // Create pendulum controller node
     using pendulum::pendulum_controller::PendulumControllerNode;
     const auto controller_node_ptr =
-        std::make_shared<PendulumControllerNode>("pendulum_controller");
+      std::make_shared<PendulumControllerNode>("pendulum_controller");
 
     exec->add_node(controller_node_ptr->get_node_base_interface());
 
@@ -82,8 +82,8 @@ int main(int argc, char * argv[])
     ret = 2;
   } catch (...) {
     RCLCPP_INFO(
-        rclcpp::get_logger("pendulum_demo"), "Unknown exception caught. "
-                                             "Exiting...");
+      rclcpp::get_logger("pendulum_demo"), "Unknown exception caught. "
+      "Exiting...");
     ret = -1;
   }
   return ret;
