@@ -7,5 +7,5 @@ export ADE_DOCKER_RUN_ARGS="
   --privileged
 "
 export ADE_IMAGES="
-    ros2realtimedemo/pendulum:ade-base-foxy
+    ros2realtimedemo/pendulum:ade-base-rolling
 "
