@@ -6,8 +6,7 @@ This is work in progress and should be considered just as a proof of concept on 
  2 features to use in real-time applications. Any feedback and help to improve the project is
   appreciated.
 
-**Foxy branch is under active development. The current status can be checked here:
-https://github.com/ros2-realtime-demo/pendulum/issues/35**
+**Rolling branch is under active development.**
 
 ## Build status
 
@@ -27,7 +26,7 @@ https://github.com/ros2-realtime-demo/pendulum/issues/35**
 ## Project description
 
 The aim of this project is to show the real-time capabilities using the ROS2 framework. This
- project is based on the [previous](https://docs.ros.org/en/foxy/Tutorials/Real-Time-Programming.html)
+ project is based on the [previous](https://docs.ros.org/en/rolling/Tutorials/Real-Time-Programming.html)
   work made by the Open Robotics. The project uses these packages as a base.
 
 This is the motivation of using an inverted pendulum for a real-time demo:
@@ -57,7 +56,7 @@ pre-configured Docker image with everything ready to be used. This is the recomm
 If installed as an ADE image:
 
 ```bash
-source /opt/ros/foxy/setup.bash
+source /opt/ros/rolling/setup.bash
 ```
 
 If installed from source:

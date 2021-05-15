@@ -63,7 +63,7 @@ Note, the demo doesn't not include for the moment any log message, see the follo
 ### Modify the parameters
 
 The method used to configure the node specific options is by using 
-[ros2 parameters](https://docs.ros.org/en/foxy/Tutorials/Parameters/Understanding-ROS2-Parameters.html).
+[ros2 parameters](https://docs.ros.org/en/rolling/Tutorials/Parameters/Understanding-ROS2-Parameters.html).
 The parameters yaml file is located in `src/pendulum/pendulum_bringup/params/pendulum.param.yaml
 `, by default it contains the following parameters.
 
@@ -107,7 +107,7 @@ pendulum_driver:
 ### Use ros2 command line interface tools (ros2cli)
 
 The easiest way to instrospect the demo is by using the 
-[ros2 command line interface tools](https://docs.ros.org/en/foxy/Concepts/About-Command-Line-Tools.html).
+[ros2 command line interface tools](https://docs.ros.org/en/rolling/Concepts/About-Command-Line-Tools.html).
 
 In terminal 1:
 
