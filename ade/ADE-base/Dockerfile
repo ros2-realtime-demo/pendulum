@@ -1,4 +1,4 @@
-FROM ros2realtimedemo/pendulum:base-foxy-tracers
+FROM ros2realtimedemo/pendulum:base-rolling-tracers
 
 MAINTAINER Lander Usategui <lander dot usategui at gmail dot com>
 
