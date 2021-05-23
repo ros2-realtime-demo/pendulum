@@ -34,17 +34,20 @@ PendulumControllerNode::PendulumControllerNode(
   const std::string & node_name,
   const rclcpp::NodeOptions & options)
 : LifecycleNode(node_name, options),
-  state_topic_name_(declare_parameter("state_topic_name").get<std::string>()),
-  command_topic_name_(declare_parameter("command_topic_name").get<std::string>()),
-  teleop_topic_name_(declare_parameter("teleop_topic_name").get<std::string>()),
-  enable_topic_stats_(declare_parameter("enable_topic_stats").get<bool>()),
-  topic_stats_topic_name_{declare_parameter("topic_stats_topic_name").get<std::string>()},
+  state_topic_name_(declare_parameter<std::string>("state_topic_name", "pendulum_joint_states")),
+  command_topic_name_(declare_parameter<std::string>("command_topic_name", "joint_command")),
+  teleop_topic_name_(declare_parameter<std::string>("teleop_topic_name", "teleop")),
+  enable_topic_stats_(declare_parameter<bool>("enable_topic_stats", false)),
+  topic_stats_topic_name_{declare_parameter<std::string>(
+      "topic_stats_topic_name",
+      "controller_stats")},
   topic_stats_publish_period_{std::chrono::milliseconds {
-        declare_parameter("topic_stats_publish_period_ms").get<std::uint16_t>()}},
+        declare_parameter<std::uint16_t>("topic_stats_publish_period_ms", 1000U)}},
   deadline_duration_{std::chrono::milliseconds {
-        declare_parameter("deadline_duration_ms").get<std::uint16_t>()}},
+        declare_parameter<std::uint16_t>("deadline_duration_ms", 0U)}},
   controller_(PendulumController::Config(
-      declare_parameter("controller.feedback_matrix").get<std::vector<double>>())),
+      declare_parameter<std::vector<double>>("controller.feedback_matrix",
+      {-10.0000, -51.5393, 356.8637, 154.4146}))),
   num_missed_deadlines_pub_{0U},
   num_missed_deadlines_sub_{0U}
 {
