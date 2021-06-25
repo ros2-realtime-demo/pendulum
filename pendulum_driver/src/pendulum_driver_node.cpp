@@ -32,28 +32,28 @@ PendulumDriverNode::PendulumDriverNode(
   const std::string & node_name,
   const rclcpp::NodeOptions & options)
 : LifecycleNode(node_name, options),
-  state_topic_name_(declare_parameter("state_topic_name").get<std::string>()),
-  command_topic_name_(declare_parameter("command_topic_name").get<std::string>()),
-  disturbance_topic_name_(declare_parameter("disturbance_topic_name").get<std::string>()),
-  cart_base_joint_name_(declare_parameter("cart_base_joint_name").get<std::string>()),
-  pole_joint_name_(declare_parameter("pole_joint_name").get<std::string>()),
+  state_topic_name_(declare_parameter<std::string>("state_topic_name", "pendulum_joint_states")),
+  command_topic_name_(declare_parameter<std::string>("command_topic_name", "joint_command")),
+  disturbance_topic_name_(declare_parameter<std::string>("disturbance_topic_name", "disturbance")),
+  cart_base_joint_name_(declare_parameter<std::string>("cart_base_joint_name", "cart_base_joint")),
+  pole_joint_name_(declare_parameter<std::string>("pole_joint_name", "pole_joint")),
   state_publish_period_(std::chrono::microseconds{
-      declare_parameter("state_publish_period_us").get<std::uint16_t>()}),
-  enable_topic_stats_(declare_parameter("enable_topic_stats").get<bool>()),
-  topic_stats_topic_name_{declare_parameter("topic_stats_topic_name").get<std::string>()},
+      declare_parameter<std::uint16_t>("state_publish_period_us", 1000U)}),
+  enable_topic_stats_(declare_parameter<bool>("enable_topic_stats", false)),
+  topic_stats_topic_name_{declare_parameter<std::string>("topic_stats_topic_name", "driver_stats")},
   topic_stats_publish_period_{std::chrono::milliseconds{
-        declare_parameter("topic_stats_publish_period_ms").get<std::uint16_t>()}},
+        declare_parameter<std::uint16_t>("topic_stats_publish_period_ms", 1000U)}},
   deadline_duration_{std::chrono::milliseconds{
-        declare_parameter("deadline_duration_ms").get<std::uint16_t>()}},
+        declare_parameter<std::uint16_t>("deadline_duration_ms", 0U)}},
   driver_(
     PendulumDriver::Config(
-      declare_parameter("driver.pendulum_mass").get<double>(),
-      declare_parameter("driver.cart_mass").get<double>(),
-      declare_parameter("driver.pendulum_length").get<double>(),
-      declare_parameter("driver.damping_coefficient").get<double>(),
-      declare_parameter("driver.gravity").get<double>(),
-      declare_parameter("driver.max_cart_force").get<double>(),
-      declare_parameter("driver.noise_level").get<double>(),
+      declare_parameter<double>("driver.pendulum_mass", 1.0),
+      declare_parameter<double>("driver.cart_mass", 5.0),
+      declare_parameter<double>("driver.pendulum_length", 2.0),
+      declare_parameter<double>("driver.damping_coefficient", 20.0),
+      declare_parameter<double>("driver.gravity", -9.8),
+      declare_parameter<double>("driver.max_cart_force", 1000.0),
+      declare_parameter<double>("driver.noise_level", 1.0),
       std::chrono::microseconds {state_publish_period_}
     )
   ),
