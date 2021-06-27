@@ -33,11 +33,13 @@ int main(int argc, char * argv[])
   int32_t ret = 0;
 
   try {
+    /*
     // configure process real-time settings
     if (settings.configure_child_threads) {
       // process child threads created by ROS nodes will inherit the settings
       settings.configure_process();
     }
+    */
 
     rclcpp::init(argc, argv);
 
@@ -47,7 +49,7 @@ int main(int argc, char * argv[])
     // Create pendulum controller node
     using pendulum::pendulum_controller::PendulumControllerNode;
     const auto controller_node_ptr =
-      std::make_shared<PendulumControllerNode>("pendulum_controller");
+        std::make_shared<PendulumControllerNode>("pendulum_controller");
 
     exec.add_node(controller_node_ptr->get_node_base_interface());
 
@@ -57,49 +59,52 @@ int main(int argc, char * argv[])
 
     exec.add_node(driver_node_ptr->get_node_base_interface());
 
+    /*
     // configure process real-time settings
     if (!settings.configure_child_threads) {
       // process child threads created by ROS nodes will NOT inherit the settings
       settings.configure_process();
     }
+    */
+
+    // TODO(carlosvg): protect shared variables, using try-lock or std::atomic
+    // TODO(carlosvg): configure threads individually
+    auto executor_thread = std::thread(
+        [&exec]() {
+          exec.spin();
+        });
+    auto driver_realtime_thread = std::thread(
+        [&driver_node_ptr, &settings]() {
+          settings.configure_process();
+          driver_node_ptr->realtime_loop();
+        });
+    auto controller_realtime_thread = std::thread(
+        [&controller_node_ptr, &settings]() {
+          settings.configure_process();
+          controller_node_ptr->realtime_loop();
+        });
 
     if (settings.auto_start_nodes) {
       pendulum::utils::autostart(*controller_node_ptr);
       pendulum::utils::autostart(*driver_node_ptr);
     }
 
-    auto controller_rt_cb = controller_node_ptr->get_realtime_callback_group();
-    auto driver_rt_cb = driver_node_ptr->get_realtime_callback_group();
-
-    auto controller_command_publisher = controller_node_ptr->get_command_publisher();
-    auto controller_state_subscription = controller_node_ptr->get_state_subscription();
-    auto driver_state_publisher = driver_node_ptr->get_state_publisher();
-    auto driver_command_publisher= driver_node_ptr->get_command_subscription();
-    auto driver_state_timer= driver_node_ptr->get_state_timer();
-
-    auto thread = std::thread([&exec]() {
-      // spin will block until work comes in, execute work as it becomes available, and keep blocking.
-      // It will only be interrupted by Ctrl-C.
-      exec.spin();
-    });
-    // exec.spin();
-
-    // Create a static executor
-    rclcpp::executors::StaticSingleThreadedExecutor exec_rt;
-    exec_rt.add_callback_group(controller_rt_cb, controller_node_ptr->get_node_base_interface());
-    exec_rt.add_callback_group(driver_rt_cb, driver_node_ptr->get_node_base_interface());
-
-    exec_rt.spin();
+    // TODO(carlosvg): add wait loop or experiment duration option
+    const std::chrono::seconds EXPERIMENT_DURATION = std::chrono::seconds(10);
+    std::this_thread::sleep_for(EXPERIMENT_DURATION);
 
     rclcpp::shutdown();
-    thread.join();
+    executor_thread.join();
+    driver_realtime_thread.join();
+    controller_realtime_thread.join();
+
   } catch (const std::exception & e) {
     RCLCPP_INFO(rclcpp::get_logger("pendulum_demo"), e.what());
     ret = 2;
   } catch (...) {
     RCLCPP_INFO(
-      rclcpp::get_logger("pendulum_demo"), "Unknown exception caught. "
-      "Exiting...");
+        rclcpp::get_logger("pendulum_demo"), "Unknown exception caught. "
+                                             "Exiting...");
     ret = -1;
   }
   return ret;

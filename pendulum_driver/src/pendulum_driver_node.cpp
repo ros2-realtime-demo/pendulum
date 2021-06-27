@@ -58,7 +58,8 @@ PendulumDriverNode::PendulumDriverNode(
     )
   ),
   num_missed_deadlines_pub_{0U},
-  num_missed_deadlines_sub_{0U}
+  num_missed_deadlines_sub_{0U},
+  realtime_cb_group_(create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false))
 {
   init_state_message();
   create_state_publisher();
@@ -79,6 +80,7 @@ void PendulumDriverNode::init_state_message()
 void PendulumDriverNode::create_state_publisher()
 {
   rclcpp::PublisherOptions sensor_publisher_options;
+  sensor_publisher_options.callback_group = realtime_cb_group_;
   sensor_publisher_options.event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
@@ -99,6 +101,7 @@ void PendulumDriverNode::create_command_subscription()
     std::make_shared<MessagePoolMemoryStrategy<pendulum2_msgs::msg::JointCommand, 1>>();
 
   rclcpp::SubscriptionOptions command_subscription_options;
+  command_subscription_options.callback_group = realtime_cb_group_;
   command_subscription_options.event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
@@ -141,9 +144,40 @@ void PendulumDriverNode::create_state_timer_callback()
       state_message_.pole_velocity = state.pole_velocity;
       state_pub_->publish(state_message_);
     };
-  state_timer_ = this->create_wall_timer(state_publish_period_, state_timer_callback);
+  state_timer_ = this->create_wall_timer(state_publish_period_, state_timer_callback, realtime_cb_group_);
   // cancel immediately to prevent triggering it in this state
   state_timer_->cancel();
+}
+
+void PendulumDriverNode::realtime_loop()
+{
+  rclcpp::WaitSet wait_set;
+  wait_set.add_subscription(command_sub_);
+  wait_set.add_timer(state_timer_);
+
+  while (rclcpp::ok()) {
+    const auto wait_result = wait_set.wait(std::chrono::seconds(5));
+
+    if (wait_result.kind() == rclcpp::WaitResultKind::Ready) {
+      if (wait_result.get_wait_set().get_rcl_wait_set().timers[0U]) {
+        state_timer_->execute_callback();
+      }
+      if (wait_result.get_wait_set().get_rcl_wait_set().subscriptions[0U]) {
+        pendulum2_msgs::msg::JointCommand msg;
+        rclcpp::MessageInfo msg_info;
+        if (command_sub_->take(msg, msg_info)) {
+          std::shared_ptr<void> message = std::make_shared<pendulum2_msgs::msg::JointCommand >(msg);
+          command_sub_->handle_message(message, msg_info);
+        }
+      }
+    } else if (wait_result.kind() == rclcpp::WaitResultKind::Timeout) {
+      if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
+        RCLCPP_INFO(get_logger(), "Wait-set timeout");
+      }
+    } else {
+      RCLCPP_INFO(get_logger(), "Wait-set failed.");
+    }
+  }
 }
 
 void PendulumDriverNode::log_driver_state()

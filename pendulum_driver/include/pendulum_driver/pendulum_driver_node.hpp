@@ -51,6 +51,29 @@ public:
     const std::string & node_name,
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
+  rclcpp::Subscription<pendulum2_msgs::msg::JointCommand>::SharedPtr
+  get_command_subscription() const
+  {
+    return command_sub_;
+  }
+
+  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<pendulum2_msgs::msg::JointState>>
+  get_state_publisher() const
+  {
+    return state_pub_;
+  }
+
+  rclcpp::TimerBase::SharedPtr get_state_timer() const
+  {
+    return state_timer_;
+  }
+
+  rclcpp::CallbackGroup::SharedPtr get_realtime_callback_group() const {
+    return realtime_cb_group_;
+  }
+
+  void realtime_loop();
+
 private:
   /// \brief Initialize state message
   void init_state_message();
@@ -117,6 +140,8 @@ private:
 
   uint32_t num_missed_deadlines_pub_;
   uint32_t num_missed_deadlines_sub_;
+
+  rclcpp::CallbackGroup::SharedPtr realtime_cb_group_;
 };
 }  // namespace pendulum_driver
 }  // namespace pendulum

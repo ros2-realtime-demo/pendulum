@@ -52,6 +52,24 @@ public:
     const std::string & node_name,
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
+  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<pendulum2_msgs::msg::JointCommand>>
+  get_command_publisher() const
+  {
+    return command_pub_;
+  }
+
+  std::shared_ptr<rclcpp::Subscription<pendulum2_msgs::msg::JointState>>
+  get_state_subscription() const
+  {
+    return state_sub_;
+  }
+
+  rclcpp::CallbackGroup::SharedPtr get_realtime_callback_group() const {
+    return realtime_cb_group_;
+  }
+
+  void realtime_loop();
+
 private:
   /// \brief Create teleoperation subscription
   void create_teleoperation_subscription();
@@ -108,6 +126,8 @@ private:
 
   uint32_t num_missed_deadlines_pub_;
   uint32_t num_missed_deadlines_sub_;
+
+  rclcpp::CallbackGroup::SharedPtr realtime_cb_group_;
 };
 }  // namespace pendulum_controller
 }  // namespace pendulum

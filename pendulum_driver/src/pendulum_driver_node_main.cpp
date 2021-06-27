@@ -30,11 +30,13 @@ int main(int argc, char * argv[])
 
   int32_t ret = 0;
   try {
+    /*
     // configure process real-time settings
     if (settings.configure_child_threads) {
       // process child threads created by ROS nodes will inherit the settings
       settings.configure_process();
     }
+    */
     rclcpp::init(argc, argv);
 
     // Create a static executor
@@ -46,18 +48,37 @@ int main(int argc, char * argv[])
 
     exec.add_node(driver_node_ptr->get_node_base_interface());
 
+    /*
     // configure process real-time settings
     if (!settings.configure_child_threads) {
       // process child threads created by ROS nodes will NOT inherit the settings
       settings.configure_process();
     }
+    */
 
     if (settings.auto_start_nodes) {
       pendulum::utils::autostart(*driver_node_ptr);
     }
 
-    exec.spin();
+    auto low_prio_thread = std::thread(
+        [&exec]() {
+          exec.spin();
+        });
+    auto high_prio_thread = std::thread(
+        [&driver_node_ptr, &settings]() {
+          settings.configure_process();
+          // wait until state is active
+          // wait until a cmd msg is received
+          driver_node_ptr->realtime_loop();
+        });
+
+    const std::chrono::seconds EXPERIMENT_DURATION = std::chrono::seconds(10);
+    std::this_thread::sleep_for(EXPERIMENT_DURATION);
+
     rclcpp::shutdown();
+    low_prio_thread.join();
+    high_prio_thread.join();
+
   } catch (const std::exception & e) {
     RCLCPP_INFO(rclcpp::get_logger("pendulum_driver"), e.what());
     ret = 2;

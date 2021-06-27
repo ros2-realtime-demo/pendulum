@@ -72,20 +72,6 @@ def generate_launch_description():
     )
 
     # Node definitions
-    pendulum_demo_runner = Node(
-        package='pendulum_demo',
-        executable='pendulum_demo_waitset',
-        output='screen',
-        parameters=[param_file],
-        arguments=[
-           '--autostart', LaunchConfiguration('autostart'),
-           '--priority', LaunchConfiguration('priority'),
-           '--cpu-affinity', LaunchConfiguration('cpu-affinity'),
-           '--lock-memory', LaunchConfiguration('lock-memory'),
-           '--lock-memory-size', LaunchConfiguration('lock-memory-size'),
-           '--config-child-threads', LaunchConfiguration('config-child-threads')
-           ]
-    )
 
     robot_state_publisher_runner = Node(
         package='robot_state_publisher',
@@ -119,7 +105,7 @@ def generate_launch_description():
     ld.add_action(config_child_threads_param)
     ld.add_action(with_rviz_param)
     ld.add_action(robot_state_publisher_runner)
-    ld.add_action(pendulum_demo_runner)
+    #ld.add_action(pendulum_demo_runner)
     ld.add_action(rviz_runner)
     ld.add_action(pendulum_state_publisher_runner)
 

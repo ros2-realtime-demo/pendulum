@@ -49,7 +49,8 @@ PendulumControllerNode::PendulumControllerNode(
       declare_parameter<std::vector<double>>("controller.feedback_matrix",
       {-10.0000, -51.5393, 356.8637, 154.4146}))),
   num_missed_deadlines_pub_{0U},
-  num_missed_deadlines_sub_{0U}
+  num_missed_deadlines_sub_{0U},
+  realtime_cb_group_(create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false))
 {
   create_teleoperation_subscription();
   create_state_subscription();
@@ -74,6 +75,7 @@ void PendulumControllerNode::create_state_subscription()
     std::make_shared<MessagePoolMemoryStrategy<pendulum2_msgs::msg::JointState, 1>>();
 
   rclcpp::SubscriptionOptions state_subscription_options;
+  state_subscription_options.callback_group = realtime_cb_group_;
   state_subscription_options.event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
     {
@@ -108,6 +110,7 @@ void PendulumControllerNode::create_state_subscription()
 void PendulumControllerNode::create_command_publisher()
 {
   rclcpp::PublisherOptions command_publisher_options;
+  command_publisher_options.callback_group = realtime_cb_group_;
   command_publisher_options.event_callbacks.deadline_callback =
     [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
     {
@@ -117,6 +120,37 @@ void PendulumControllerNode::create_command_publisher()
     command_topic_name_,
     rclcpp::QoS(10).deadline(deadline_duration_),
     command_publisher_options);
+}
+
+void PendulumControllerNode::realtime_loop()
+{
+  rclcpp::WaitSet wait_set;
+  wait_set.add_subscription(state_sub_);
+
+  while (rclcpp::ok()) {
+    // TODO(carlosvg): set timeout to double update period
+    const auto wait_result = wait_set.wait(std::chrono::seconds(5));
+
+    if (wait_result.kind() == rclcpp::WaitResultKind::Ready) {
+      // TODO(carlosvg): add timer
+      if (wait_result.get_wait_set().get_rcl_wait_set().subscriptions[0U]) {
+        pendulum2_msgs::msg::JointState msg;
+        rclcpp::MessageInfo msg_info;
+        if (state_sub_->take(msg, msg_info)) {
+          // TODO(carlosvg): replace msg handling with direct function calls
+          std::shared_ptr<void> message = std::make_shared<pendulum2_msgs::msg::JointState>(msg);
+          state_sub_->handle_message(message, msg_info);
+        }
+      }
+    } else if (wait_result.kind() == rclcpp::WaitResultKind::Timeout) {
+      if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
+        // TODO(carlosvg): transition to error, or increment count
+        RCLCPP_INFO(get_logger(), "Wait-set timeout");
+      }
+    } else {
+      RCLCPP_INFO(get_logger(), "Wait-set failed.");
+    }
+  }
 }
 
 void PendulumControllerNode::log_controller_state()

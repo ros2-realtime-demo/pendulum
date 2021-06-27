@@ -22,6 +22,13 @@ target_link_libraries(${PENDULUM_DEMO_EXE}
     pendulum_controller::pendulum_controller
     pendulum_driver::pendulum_driver)
 
+set(PENDULUM_DEMO_WAITSET_EXE pendulum_demo_waitset)
+
+add_executable(${PENDULUM_DEMO_WAITSET_EXE} "src/pendulum_demo_waitset.cpp")
+target_link_libraries(${PENDULUM_DEMO_WAITSET_EXE}
+    pendulum_controller::pendulum_controller
+    pendulum_driver::pendulum_driver)
+
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
@@ -47,7 +54,7 @@ install(
     DESTINATION share/${PROJECT_NAME}
 )
 
-install(TARGETS ${PENDULUM_DEMO_EXE}
+install(TARGETS ${PENDULUM_DEMO_EXE} ${PENDULUM_DEMO_WAITSET_EXE}
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION lib/${PROJECT_NAME}
