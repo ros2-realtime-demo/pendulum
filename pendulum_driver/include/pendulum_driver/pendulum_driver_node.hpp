@@ -27,6 +27,7 @@
 #include "rclcpp/strategies/message_pool_memory_strategy.hpp"
 #include "rclcpp/strategies/allocator_memory_strategy.hpp"
 
+#include "pendulum_utils/process_settings.hpp"
 #include "pendulum_driver/pendulum_driver.hpp"
 #include "pendulum_driver/visibility_control.hpp"
 
@@ -68,11 +69,29 @@ public:
     return state_timer_;
   }
 
-  rclcpp::CallbackGroup::SharedPtr get_realtime_callback_group() const {
+  rclcpp::CallbackGroup::SharedPtr get_realtime_callback_group() const
+  {
     return realtime_cb_group_;
   }
 
   void realtime_loop();
+
+  pendulum::utils::ProcessSettings get_proc_settings()
+  {
+    return proc_settings_;
+  }
+
+  void init()
+  {
+    if (auto_start_node_) {
+      if (lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE != this->configure().id()) {
+        throw std::runtime_error("Could not configure " + std::string(this->get_name()));
+      }
+      if (lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE != this->activate().id()) {
+        throw std::runtime_error("Could not activate " + std::string(this->get_name()));
+      }
+    }
+  }
 
 private:
   /// \brief Initialize state message
@@ -123,10 +142,7 @@ private:
   const std::string disturbance_topic_name_;
   const std::string cart_base_joint_name_;
   const std::string pole_joint_name_;
-  std::chrono::microseconds state_publish_period_;
-  bool enable_topic_stats_;
-  const std::string topic_stats_topic_name_;
-  std::chrono::milliseconds topic_stats_publish_period_;
+  std::chrono::microseconds update_period_;
   std::chrono::milliseconds deadline_duration_;
   PendulumDriver driver_;
 
@@ -138,10 +154,15 @@ private:
   rclcpp::TimerBase::SharedPtr update_driver_timer_;
   pendulum2_msgs::msg::JointState state_message_;
 
-  uint32_t num_missed_deadlines_pub_;
-  uint32_t num_missed_deadlines_sub_;
+  uint32_t num_missed_deadlines_;
 
   rclcpp::CallbackGroup::SharedPtr realtime_cb_group_;
+
+  /// automatically activate lifecycle nodes
+  bool auto_start_node_ = false;
+
+  pendulum::utils::ProcessSettings proc_settings_;
+
 };
 }  // namespace pendulum_driver
 }  // namespace pendulum

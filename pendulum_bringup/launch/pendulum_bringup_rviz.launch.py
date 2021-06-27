@@ -70,8 +70,49 @@ def generate_launch_description():
         default_value='False',
         description='Launch RVIZ2 in addition to other nodes'
     )
+    with_controller_param = DeclareLaunchArgument(
+        'controller',
+        default_value='True',
+        description='Launch controller node'
+    )
+    with_driver_param = DeclareLaunchArgument(
+        'driver',
+        default_value='True',
+        description='Launch driver node'
+    )
 
     # Node definitions
+    pendulum_controller_runner = Node(
+        package='pendulum_controller',
+        executable='pendulum_controller_exe',
+        output='screen',
+        parameters=[param_file],
+        arguments=[
+            '--autostart', LaunchConfiguration('autostart'),
+            '--priority', LaunchConfiguration('priority'),
+            '--cpu-affinity', LaunchConfiguration('cpu-affinity'),
+            '--lock-memory', LaunchConfiguration('lock-memory'),
+            '--lock-memory-size', LaunchConfiguration('lock-memory-size'),
+            '--config-child-threads', LaunchConfiguration('config-child-threads')
+        ],
+        condition=IfCondition(LaunchConfiguration('controller'))
+    )
+
+    pendulum_driver_runner = Node(
+        package='pendulum_driver',
+        executable='pendulum_driver_exe',
+        output='screen',
+        parameters=[param_file],
+        arguments=[
+            '--autostart', LaunchConfiguration('autostart'),
+            '--priority', LaunchConfiguration('priority'),
+            '--cpu-affinity', LaunchConfiguration('cpu-affinity'),
+            '--lock-memory', LaunchConfiguration('lock-memory'),
+            '--lock-memory-size', LaunchConfiguration('lock-memory-size'),
+            '--config-child-threads', LaunchConfiguration('config-child-threads')
+        ],
+        condition=IfCondition(LaunchConfiguration('driver'))
+    )
 
     robot_state_publisher_runner = Node(
         package='robot_state_publisher',
@@ -104,8 +145,11 @@ def generate_launch_description():
     ld.add_action(lock_memory_size_param)
     ld.add_action(config_child_threads_param)
     ld.add_action(with_rviz_param)
+    ld.add_action(with_controller_param)
+    ld.add_action(with_driver_param)
     ld.add_action(robot_state_publisher_runner)
-    #ld.add_action(pendulum_demo_runner)
+    ld.add_action(pendulum_controller_runner)
+    ld.add_action(pendulum_driver_runner)
     ld.add_action(rviz_runner)
     ld.add_action(pendulum_state_publisher_runner)
 

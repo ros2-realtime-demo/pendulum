@@ -25,22 +25,9 @@
 
 int main(int argc, char * argv[])
 {
-  pendulum::utils::ProcessSettings settings;
-  if (!settings.init(argc, argv)) {
-    return EXIT_FAILURE;
-  }
-
   int32_t ret = 0;
 
   try {
-    /*
-    // configure process real-time settings
-    if (settings.configure_child_threads) {
-      // process child threads created by ROS nodes will inherit the settings
-      settings.configure_process();
-    }
-    */
-
     rclcpp::init(argc, argv);
 
     // Create a static executor
@@ -59,35 +46,23 @@ int main(int argc, char * argv[])
 
     exec.add_node(driver_node_ptr->get_node_base_interface());
 
-    /*
-    // configure process real-time settings
-    if (!settings.configure_child_threads) {
-      // process child threads created by ROS nodes will NOT inherit the settings
-      settings.configure_process();
-    }
-    */
 
     // TODO(carlosvg): protect shared variables, using try-lock or std::atomic
+    //  (static assert lock free)
+
     // TODO(carlosvg): configure threads individually
     auto executor_thread = std::thread(
         [&exec]() {
           exec.spin();
         });
     auto driver_realtime_thread = std::thread(
-        [&driver_node_ptr, &settings]() {
-          settings.configure_process();
+        [&driver_node_ptr]() {
           driver_node_ptr->realtime_loop();
         });
     auto controller_realtime_thread = std::thread(
-        [&controller_node_ptr, &settings]() {
-          settings.configure_process();
+        [&controller_node_ptr]() {
           controller_node_ptr->realtime_loop();
         });
-
-    if (settings.auto_start_nodes) {
-      pendulum::utils::autostart(*controller_node_ptr);
-      pendulum::utils::autostart(*driver_node_ptr);
-    }
 
     // TODO(carlosvg): add wait loop or experiment duration option
     const std::chrono::seconds EXPERIMENT_DURATION = std::chrono::seconds(10);

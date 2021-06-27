@@ -29,6 +29,7 @@
 #include "lifecycle_msgs/msg/transition_event.hpp"
 #include "lifecycle_msgs/msg/transition.hpp"
 
+#include "pendulum_utils/process_settings.hpp"
 #include "pendulum_controller/pendulum_controller.hpp"
 #include "pendulum_controller/visibility_control.hpp"
 
@@ -64,11 +65,29 @@ public:
     return state_sub_;
   }
 
-  rclcpp::CallbackGroup::SharedPtr get_realtime_callback_group() const {
+  rclcpp::CallbackGroup::SharedPtr get_realtime_callback_group() const
+  {
     return realtime_cb_group_;
   }
 
+  void init()
+  {
+    if (auto_start_node_) {
+      if (lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE != this->configure().id()) {
+        throw std::runtime_error("Could not configure " + std::string(this->get_name()));
+      }
+      if (lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE != this->activate().id()) {
+        throw std::runtime_error("Could not activate " + std::string(this->get_name()));
+      }
+    }
+  }
+
   void realtime_loop();
+
+  pendulum::utils::ProcessSettings get_proc_settings()
+  {
+    return proc_settings_;
+  }
 
 private:
   /// \brief Create teleoperation subscription
@@ -111,9 +130,6 @@ private:
   const std::string state_topic_name_;
   const std::string command_topic_name_;
   const std::string teleop_topic_name_;
-  bool enable_topic_stats_;
-  const std::string topic_stats_topic_name_;
-  std::chrono::milliseconds topic_stats_publish_period_;
   std::chrono::milliseconds deadline_duration_;
 
   PendulumController controller_;
@@ -124,10 +140,14 @@ private:
       pendulum2_msgs::msg::JointCommand>> command_pub_;
   pendulum2_msgs::msg::JointCommand command_message_;
 
-  uint32_t num_missed_deadlines_pub_;
-  uint32_t num_missed_deadlines_sub_;
+  uint32_t num_missed_deadlines_;
 
   rclcpp::CallbackGroup::SharedPtr realtime_cb_group_;
+
+  /// automatically activate lifecycle nodes
+  bool auto_start_node_ = false;
+
+  pendulum::utils::ProcessSettings proc_settings_;
 };
 }  // namespace pendulum_controller
 }  // namespace pendulum

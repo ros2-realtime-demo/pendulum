@@ -1,5 +1,6 @@
 pendulum_controller:
   ros__parameters:
+    auto_start_node: True
     state_topic_name: "pendulum_joint_states"
     command_topic_name: "joint_command"
     teleop_topic_name: "teleop"
@@ -9,9 +10,16 @@ pendulum_controller:
     deadline_duration_ms: 0
     controller:
       feedback_matrix: [-10.0000, -51.5393, 356.8637, 154.4146]
+    proc_settings:
+      lock_memory: False
+      process_priority: 0
+      cpu_affinity: 0
+      lock_memory_size_mb: 0
+      configure_child_threads: False
 
 pendulum_driver:
   ros__parameters:
+    auto_start_node: True
     state_topic_name: "pendulum_joint_states"
     command_topic_name: "joint_command"
     disturbance_topic_name: "disturbance"
@@ -30,3 +38,9 @@ pendulum_driver:
       gravity: -9.8
       max_cart_force: 1000.0
       noise_level: 0.0
+    proc_settings:
+      lock_memory: False
+      process_priority: 0
+      cpu_affinity: 0
+      lock_memory_size_mb: 0
+      configure_child_threads: False

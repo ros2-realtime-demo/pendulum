@@ -17,24 +17,14 @@
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
-#include "pendulum_controller/pendulum_controller_node.hpp"
 #include "pendulum_utils/process_settings.hpp"
+#include "pendulum_controller/pendulum_controller_node.hpp"
 #include "pendulum_utils/lifecycle_autostart.hpp"
 
 int main(int argc, char * argv[])
 {
-  pendulum::utils::ProcessSettings settings;
-  if (!settings.init(argc, argv)) {
-    return EXIT_FAILURE;
-  }
-
   int32_t ret = 0;
   try {
-    // configure process real-time settings
-    if (settings.configure_child_threads) {
-      // process child threads created by ROS nodes will inherit the settings
-      settings.configure_process();
-    }
     rclcpp::init(argc, argv);
 
     // Create a static executor
@@ -47,18 +37,34 @@ int main(int argc, char * argv[])
 
     exec.add_node(controller_node_ptr->get_node_base_interface());
 
-    // configure process real-time settings
-    if (!settings.configure_child_threads) {
-      // process child threads created by ROS nodes will NOT inherit the settings
-      settings.configure_process();
+    auto controller_rt_cb = controller_node_ptr->get_realtime_callback_group();
+    pendulum::utils::ProcessSettings proc_settings = controller_node_ptr->get_proc_settings();
+
+    auto thread = std::thread(
+      [&exec]() {
+        exec.spin();
+      });
+
+    auto rt_thread = std::thread(
+      [&controller_node_ptr, &proc_settings]() {
+        pendulum::utils::configure_process_priority(
+          proc_settings.process_priority,
+          proc_settings.cpu_affinity);
+        controller_node_ptr->realtime_loop();
+      });
+
+    if (proc_settings.lock_memory) {
+      pendulum::utils::lock_process_memory(proc_settings.lock_memory_size_mb);
     }
 
-    if (settings.auto_start_nodes) {
-      pendulum::utils::autostart(*controller_node_ptr);
-    }
+    controller_node_ptr->init();
 
-    exec.spin();
+    // TODO(carlosvg): add wait loop or experiment duration option
+    rclcpp::sleep_for(std::chrono::seconds(3600));
+
     rclcpp::shutdown();
+    thread.join();
+    rt_thread.join();
   } catch (const std::exception & e) {
     RCLCPP_INFO(rclcpp::get_logger("pendulum_demo"), e.what());
     ret = 2;

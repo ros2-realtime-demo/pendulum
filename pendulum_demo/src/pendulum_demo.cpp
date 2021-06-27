@@ -25,20 +25,9 @@
 
 int main(int argc, char * argv[])
 {
-  pendulum::utils::ProcessSettings settings;
-  if (!settings.init(argc, argv)) {
-    return EXIT_FAILURE;
-  }
-
   int32_t ret = 0;
 
   try {
-    // configure process real-time settings
-    if (settings.configure_child_threads) {
-      // process child threads created by ROS nodes will inherit the settings
-      settings.configure_process();
-    }
-
     rclcpp::init(argc, argv);
 
     // Create a static executor
@@ -57,32 +46,14 @@ int main(int argc, char * argv[])
 
     exec.add_node(driver_node_ptr->get_node_base_interface());
 
-    // configure process real-time settings
-    if (!settings.configure_child_threads) {
-      // process child threads created by ROS nodes will NOT inherit the settings
-      settings.configure_process();
-    }
-
-    if (settings.auto_start_nodes) {
-      pendulum::utils::autostart(*controller_node_ptr);
-      pendulum::utils::autostart(*driver_node_ptr);
-    }
-
     auto controller_rt_cb = controller_node_ptr->get_realtime_callback_group();
     auto driver_rt_cb = driver_node_ptr->get_realtime_callback_group();
-
-    auto controller_command_publisher = controller_node_ptr->get_command_publisher();
-    auto controller_state_subscription = controller_node_ptr->get_state_subscription();
-    auto driver_state_publisher = driver_node_ptr->get_state_publisher();
-    auto driver_command_publisher= driver_node_ptr->get_command_subscription();
-    auto driver_state_timer= driver_node_ptr->get_state_timer();
 
     auto thread = std::thread([&exec]() {
       // spin will block until work comes in, execute work as it becomes available, and keep blocking.
       // It will only be interrupted by Ctrl-C.
       exec.spin();
     });
-    // exec.spin();
 
     // Create a static executor
     rclcpp::executors::StaticSingleThreadedExecutor exec_rt;

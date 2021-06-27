@@ -42,11 +42,7 @@ protected:
     params.emplace_back("state_topic_name", "joint_states");
     params.emplace_back("command_topic_name", "command");
     params.emplace_back("teleop_topic_name", "setpoint");
-    params.emplace_back("command_publish_period_us", 10000);
-    params.emplace_back("enable_topic_stats", false);
-    params.emplace_back("topic_stats_topic_name", "controller_stats");
-    params.emplace_back("topic_stats_publish_period_ms", 1000);
-    params.emplace_back("deadline_duration_ms", 0);
+    params.emplace_back("deadline_us", 2000);
     params.emplace_back("controller.feedback_matrix", feedback_matrix);
     node_options.parameter_overrides(params);
   }

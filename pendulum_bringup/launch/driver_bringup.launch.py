@@ -15,27 +15,39 @@
 import os
 
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
+import launch.substitutions
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-from launch.actions import IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
+
 
 def generate_launch_description():
     # Get the bringup directory
     bringup_dir = FindPackageShare('pendulum_bringup').find('pendulum_bringup')
 
-    rviz_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([bringup_dir, '/launch/rviz.launch.py'])
+    # Set parameter file path
+    param_file_path = os.path.join(bringup_dir, 'params', 'pendulum.param.yaml')
+    param_file = launch.substitutions.LaunchConfiguration('params', default=[param_file_path])
+
+    with_driver_param = DeclareLaunchArgument(
+        'driver',
+        default_value='True',
+        description='Launch driver node'
     )
-    controller_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([bringup_dir, '/launch/controller_bringup.launch.py'])
-    )
-    driver_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([bringup_dir, '/launch/driver_bringup.launch.py'])
+
+    pendulum_driver_runner = Node(
+        package='pendulum_driver',
+        executable='pendulum_driver_exe',
+        output='screen',
+        parameters=[param_file],
+        arguments=[],
+        condition=IfCondition(LaunchConfiguration('driver'))
     )
 
     ld = LaunchDescription()
-    ld.add_action(controller_launch)
-    ld.add_action(driver_launch)
-    ld.add_action(rviz_launch)
+    ld.add_action(with_driver_param)
+    ld.add_action(pendulum_driver_runner)
 
     return ld

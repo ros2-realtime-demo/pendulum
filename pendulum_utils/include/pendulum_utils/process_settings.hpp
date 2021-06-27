@@ -29,107 +29,19 @@ namespace utils
 {
 struct ProcessSettings
 {
-  void print_usage()
-  {
-    RCLCPP_INFO(
-      rclcpp::get_logger("process_settings"),
-      "\t[%s auto start nodes]\n"
-      "\t[%s lock memory]\n"
-      "\t[%s lock a fixed memory size in MB]\n"
-      "\t[%s set process real-time priority]\n"
-      "\t[%s set process cpu affinity]\n"
-      "\t[%s configure process settings in child threads]\n"
-      "\t[-h]\n",
-      OPTION_AUTO_ACTIVATE_NODES.c_str(),
-      OPTION_LOCK_MEMORY.c_str(),
-      OPTION_LOCK_MEMORY_SIZE.c_str(),
-      OPTION_PRIORITY.c_str(),
-      OPTION_CPU_AFFINITY.c_str(),
-      OPTION_CONFIG_CHILD_THREADS.c_str());
-  }
+  ProcessSettings(
+      bool lock_memory,
+      int process_priority,
+      uint32_t cpu_affinity,
+      size_t lock_memory_size_mb,
+      bool configure_child_threads)
+      : lock_memory(lock_memory),
+        process_priority(process_priority),
+        cpu_affinity(cpu_affinity),
+        lock_memory_size_mb(lock_memory_size_mb),
+        configure_child_threads(configure_child_threads)
+  {}
 
-  bool init(int argc, char * argv[])
-  {
-    if (rcutils_cli_option_exist(argv, argv + argc, "-h")) {
-      print_usage();
-      return false;
-    }
-    // Optional argument parsing
-    if (rcutils_cli_option_exist(argv, argv + argc, OPTION_AUTO_ACTIVATE_NODES.c_str())) {
-      std::string option = rcutils_cli_get_option(
-        argv, argv + argc, OPTION_AUTO_ACTIVATE_NODES.c_str());
-      auto_start_nodes = ( option == "True") ? true : false;
-    }
-    if (rcutils_cli_option_exist(argv, argv + argc, OPTION_LOCK_MEMORY.c_str())) {
-      std::string option = rcutils_cli_get_option(
-        argv, argv + argc, OPTION_LOCK_MEMORY_SIZE.c_str());
-      lock_memory = ( option == "True") ? true : false;
-    }
-    if (rcutils_cli_option_exist(argv, argv + argc, OPTION_LOCK_MEMORY_SIZE.c_str())) {
-      lock_memory_size_mb =
-        std::stoi(rcutils_cli_get_option(argv, argv + argc, OPTION_LOCK_MEMORY_SIZE.c_str()));
-      if (lock_memory_size_mb > 0U) {
-        lock_memory = true;
-      }
-    }
-    if (rcutils_cli_option_exist(argv, argv + argc, OPTION_PRIORITY.c_str())) {
-      process_priority = std::stoi(
-        rcutils_cli_get_option(
-          argv, argv + argc,
-          OPTION_PRIORITY.c_str()));
-    }
-    if (rcutils_cli_option_exist(argv, argv + argc, OPTION_CPU_AFFINITY.c_str())) {
-      cpu_affinity = std::stoi(
-        rcutils_cli_get_option(
-          argv, argv + argc,
-          OPTION_CPU_AFFINITY.c_str()));
-    }
-    if (rcutils_cli_option_exist(argv, argv + argc, OPTION_CONFIG_CHILD_THREADS.c_str())) {
-      std::string option = rcutils_cli_get_option(
-        argv, argv + argc, OPTION_CONFIG_CHILD_THREADS.c_str());
-      configure_child_threads = ( option == "True") ? true : false;
-    }
-
-    return true;
-  }
-
-  void configure_process()
-  {
-    // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
-    // deterministic (real-time safe) algorithm, fifo.
-    if (process_priority > 0 && process_priority < 99) {
-      if (set_this_thread_priority(process_priority, SCHED_FIFO)) {
-        throw std::runtime_error("Couldn't set scheduling priority and policy");
-      }
-    }
-    if (cpu_affinity > 0U) {
-      if (set_this_thread_cpu_affinity(cpu_affinity)) {
-        throw std::runtime_error("Couldn't set cpu affinity");
-      }
-    }
-
-    if (lock_memory) {
-      int res = 0;
-      if (lock_memory_size_mb > 0) {
-        res = lock_and_prefault_dynamic(lock_memory_size_mb * 1024 * 1024);
-      } else {
-        res = lock_and_prefault_dynamic();
-      }
-      if (res != 0) {
-        throw std::runtime_error("Couldn't lock  virtual memory");
-      }
-    }
-  }
-
-  const std::string OPTION_AUTO_ACTIVATE_NODES = "--autostart";
-  const std::string OPTION_LOCK_MEMORY = "--lock-memory";
-  const std::string OPTION_LOCK_MEMORY_SIZE = "--lock-memory-size";
-  const std::string OPTION_PRIORITY = "--priority";
-  const std::string OPTION_CPU_AFFINITY = "--cpu-affinity";
-  const std::string OPTION_CONFIG_CHILD_THREADS = "--config-child-threads";
-
-  /// automatically activate lifecycle nodes
-  bool auto_start_nodes = false;
   /// lock and prefault memory
   bool lock_memory = false;
   /// process priority value to set
@@ -141,6 +53,37 @@ struct ProcessSettings
   /// configure process child threads (typically DDS threads)
   bool configure_child_threads = false;
 };
+
+
+void lock_process_memory(size_t lock_memory_size_mb)
+{
+  int res = 0;
+  if (lock_memory_size_mb > 0) {
+    res = lock_and_prefault_dynamic(lock_memory_size_mb * 1024 * 1024);
+  } else {
+    res = lock_and_prefault_dynamic();
+  }
+  if (res != 0) {
+    throw std::runtime_error("Couldn't lock  virtual memory");
+  }
+}
+
+void configure_process_priority(int process_priority, uint32_t cpu_affinity)
+{
+  // Set the priority of this thread to the maximum safe value, and set its scheduling policy to a
+  // deterministic (real-time safe) algorithm, fifo.
+  if (process_priority > 0 && process_priority < 99) {
+    if (set_this_thread_priority(process_priority, SCHED_FIFO)) {
+      throw std::runtime_error("Couldn't set scheduling priority and policy");
+    }
+  }
+  if (cpu_affinity > 0U) {
+    if (set_this_thread_cpu_affinity(cpu_affinity)) {
+      throw std::runtime_error("Couldn't set cpu affinity");
+    }
+  }
+}
+
 }  // namespace utils
 }  // namespace pendulum
 

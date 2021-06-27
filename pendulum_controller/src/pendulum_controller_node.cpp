@@ -37,20 +37,23 @@ PendulumControllerNode::PendulumControllerNode(
   state_topic_name_(declare_parameter<std::string>("state_topic_name", "pendulum_joint_states")),
   command_topic_name_(declare_parameter<std::string>("command_topic_name", "joint_command")),
   teleop_topic_name_(declare_parameter<std::string>("teleop_topic_name", "teleop")),
-  enable_topic_stats_(declare_parameter<bool>("enable_topic_stats", false)),
-  topic_stats_topic_name_{declare_parameter<std::string>(
-      "topic_stats_topic_name",
-      "controller_stats")},
-  topic_stats_publish_period_{std::chrono::milliseconds {
-        declare_parameter<std::uint16_t>("topic_stats_publish_period_ms", 1000U)}},
   deadline_duration_{std::chrono::milliseconds {
-        declare_parameter<std::uint16_t>("deadline_duration_ms", 0U)}},
+        declare_parameter<std::uint16_t>("deadline_us", 2000U)}},
   controller_(PendulumController::Config(
       declare_parameter<std::vector<double>>("controller.feedback_matrix",
       {-10.0000, -51.5393, 356.8637, 154.4146}))),
-  num_missed_deadlines_pub_{0U},
-  num_missed_deadlines_sub_{0U},
-  realtime_cb_group_(create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false))
+  num_missed_deadlines_{0U},
+  realtime_cb_group_(create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false)),
+  auto_start_node_(declare_parameter<bool>("auto_start_node", false)),
+  proc_settings_(
+    pendulum::utils::ProcessSettings(
+      declare_parameter<bool>("proc_settings.lock_memory", false),
+      declare_parameter<std::uint16_t>("proc_settings.process_priority", 0U),
+      declare_parameter<std::uint16_t>("proc_settings.cpu_affinity", 0U),
+      declare_parameter<std::uint16_t>("proc_settings.lock_memory_size_mb", 0U),
+      declare_parameter<bool>("proc_settings.configure_child_threads", false)
+    )
+  )
 {
   create_teleoperation_subscription();
   create_state_subscription();
@@ -76,16 +79,6 @@ void PendulumControllerNode::create_state_subscription()
 
   rclcpp::SubscriptionOptions state_subscription_options;
   state_subscription_options.callback_group = realtime_cb_group_;
-  state_subscription_options.event_callbacks.deadline_callback =
-    [this](rclcpp::QOSDeadlineRequestedInfo &) -> void
-    {
-      num_missed_deadlines_sub_++;
-    };
-  if (enable_topic_stats_) {
-    state_subscription_options.topic_stats_options.state = rclcpp::TopicStatisticsState::Enable;
-    state_subscription_options.topic_stats_options.publish_topic = topic_stats_topic_name_;
-    state_subscription_options.topic_stats_options.publish_period = topic_stats_publish_period_;
-  }
   auto on_sensor_message = [this](const pendulum2_msgs::msg::JointState::SharedPtr msg) {
       // update pendulum state
       controller_.set_state(
@@ -101,7 +94,7 @@ void PendulumControllerNode::create_state_subscription()
     };
   state_sub_ = this->create_subscription<pendulum2_msgs::msg::JointState>(
     state_topic_name_,
-    rclcpp::QoS(10).deadline(deadline_duration_),
+    rclcpp::QoS(1),
     on_sensor_message,
     state_subscription_options,
     state_msg_strategy);
@@ -111,16 +104,12 @@ void PendulumControllerNode::create_command_publisher()
 {
   rclcpp::PublisherOptions command_publisher_options;
   command_publisher_options.callback_group = realtime_cb_group_;
-  command_publisher_options.event_callbacks.deadline_callback =
-    [this](rclcpp::QOSDeadlineOfferedInfo &) -> void
-    {
-      num_missed_deadlines_pub_++;
-    };
   command_pub_ = this->create_publisher<pendulum2_msgs::msg::JointCommand>(
     command_topic_name_,
-    rclcpp::QoS(10).deadline(deadline_duration_),
+    rclcpp::QoS(1),
     command_publisher_options);
 }
+
 
 void PendulumControllerNode::realtime_loop()
 {
@@ -128,27 +117,22 @@ void PendulumControllerNode::realtime_loop()
   wait_set.add_subscription(state_sub_);
 
   while (rclcpp::ok()) {
-    // TODO(carlosvg): set timeout to double update period
-    const auto wait_result = wait_set.wait(std::chrono::seconds(5));
-
+    const auto wait_result = wait_set.wait(deadline_duration_);
     if (wait_result.kind() == rclcpp::WaitResultKind::Ready) {
-      // TODO(carlosvg): add timer
       if (wait_result.get_wait_set().get_rcl_wait_set().subscriptions[0U]) {
         pendulum2_msgs::msg::JointState msg;
         rclcpp::MessageInfo msg_info;
         if (state_sub_->take(msg, msg_info)) {
-          // TODO(carlosvg): replace msg handling with direct function calls
           std::shared_ptr<void> message = std::make_shared<pendulum2_msgs::msg::JointState>(msg);
           state_sub_->handle_message(message, msg_info);
+        } else {
+          // msg not valid
         }
       }
     } else if (wait_result.kind() == rclcpp::WaitResultKind::Timeout) {
       if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
-        // TODO(carlosvg): transition to error, or increment count
-        RCLCPP_INFO(get_logger(), "Wait-set timeout");
+        num_missed_deadlines_++;
       }
-    } else {
-      RCLCPP_INFO(get_logger(), "Wait-set failed.");
     }
   }
 }
@@ -166,8 +150,7 @@ void PendulumControllerNode::log_controller_state()
   RCLCPP_INFO(get_logger(), "Teleoperation cart position = %lf", teleoperation_command.at(0));
   RCLCPP_INFO(get_logger(), "Teleoperation cart velocity = %lf", teleoperation_command.at(1));
   RCLCPP_INFO(get_logger(), "Force command = %lf", force_command);
-  RCLCPP_INFO(get_logger(), "Publisher missed deadlines = %u", num_missed_deadlines_pub_);
-  RCLCPP_INFO(get_logger(), "Subscription missed deadlines = %u", num_missed_deadlines_sub_);
+  RCLCPP_INFO(get_logger(), "Num missed deadlines = %u", num_missed_deadlines_);
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn

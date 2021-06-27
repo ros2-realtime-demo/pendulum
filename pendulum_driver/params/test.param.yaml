@@ -18,3 +18,10 @@ pendulum_driver:
       gravity: -9.8
       max_cart_force: 1000.0
       noise_level: 1.0
+    proc_settings:
+      auto_start_node: True
+      lock_memory: False
+      process_priority: 0
+      cpu_affinity: 0
+      lock_memory_size_mb: 0
+      configure_child_threads: False
