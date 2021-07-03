@@ -16,9 +16,7 @@
 #include <utility>
 #include <vector>
 
-namespace pendulum
-{
-namespace pendulum_controller
+namespace pendulum::pendulum_controller
 {
 PendulumController::Config::Config(std::vector<double> feedback_matrix)
 : feedback_matrix{std::move(feedback_matrix)} {}
@@ -44,64 +42,70 @@ void PendulumController::reset()
 
 void PendulumController::update()
 {
-  const std::array<double, 4> state{
-    joint_state_.cart_position,
-    joint_state_.cart_velocity,
-    joint_state_.pole_angle,
-    joint_state_.pole_velocity};
-
-  const std::array<double, 4> reference{
-    pendulum_teleop_.cart_position,
-    pendulum_teleop_.cart_velocity,
-    pendulum_teleop_.pole_angle,
-    pendulum_teleop_.pole_velocity};
-  set_force_command(calculate(state, reference));
+  RealtimeTeleopData::ScopedAccess<ThreadType::realtime> teleop(teleop_);
+  RealtimeStateData::ScopedAccess<ThreadType::realtime> state(state_);
+  const std::array<double, 4> state_array{
+    state->cart_position,
+    state->cart_velocity,
+    state->pole_angle,
+    state->pole_velocity};
+  const std::array<double, 4> reference_array{
+    teleop->cart_position,
+    teleop->cart_velocity,
+    teleop->pole_angle,
+    teleop->pole_velocity};
+  set_force_command(calculate(state_array, reference_array));
 }
 
 void PendulumController::set_teleop(
   double cart_position, double cart_velocity,
   double pole_angle, double pole_velocity)
 {
-  pendulum_teleop_.cart_position = cart_position;
-  pendulum_teleop_.cart_velocity = cart_velocity;
-  pendulum_teleop_.pole_angle = pole_angle;
-  pendulum_teleop_.pole_velocity = pole_velocity;
+  RealtimeTeleopData::ScopedAccess<ThreadType::nonRealtime> teleop(teleop_);
+  teleop->cart_position = cart_position;
+  teleop->cart_velocity = cart_velocity;
+  teleop->pole_angle = pole_angle;
+  teleop->pole_velocity = pole_velocity;
 }
 
 void PendulumController::set_teleop(double cart_position, double cart_velocity)
 {
-  pendulum_teleop_.cart_position = cart_position;
-  pendulum_teleop_.cart_velocity = cart_velocity;
+  RealtimeTeleopData::ScopedAccess<ThreadType::nonRealtime> teleop(teleop_);
+  teleop->cart_position = cart_position;
+  teleop->cart_velocity = cart_velocity;
 }
 
 void PendulumController::set_state(
   double cart_position, double cart_velocity,
   double pole_angle, double pole_velocity)
 {
-  joint_state_.pole_angle = pole_angle;
-  joint_state_.pole_velocity = pole_velocity;
-  joint_state_.cart_position = cart_position;
-  joint_state_.cart_velocity = cart_velocity;
+  RealtimeStateData::ScopedAccess<ThreadType::realtime> state(state_);
+  state->pole_angle = pole_angle;
+  state->pole_velocity = pole_velocity;
+  state->cart_position = cart_position;
+  state->cart_velocity = cart_velocity;
 }
 
 void PendulumController::set_force_command(double force)
 {
-  force_command_ = force;
+  force_command_.store(force);
 }
 
-const pendulum2_msgs::msg::PendulumTeleop & PendulumController::get_teleop() const
+PendulumController::PendulumData PendulumController::get_teleop()
 {
-  return pendulum_teleop_;
+  RealtimeTeleopData::ScopedAccess<ThreadType::realtime> teleop(teleop_);
+  return *teleop;
 }
 
-const pendulum2_msgs::msg::JointState & PendulumController::get_state() const
+PendulumController::PendulumData PendulumController::get_state()
 {
-  return joint_state_;
+  RealtimeStateData::ScopedAccess<ThreadType::nonRealtime> joint_state(state_);
+  return *joint_state;
 }
 
 double PendulumController::get_force_command() const
 {
-  return force_command_;
+  return force_command_.load();
 }
 
 double PendulumController::calculate(
@@ -114,5 +118,4 @@ double PendulumController::calculate(
   }
   return controller_output;
 }
-}  // namespace pendulum_controller
-}  // namespace pendulum
+}  // namespace pendulum::pendulum_controller

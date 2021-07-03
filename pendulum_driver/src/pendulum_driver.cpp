@@ -16,9 +16,7 @@
 #include <vector>
 #include "rcppmath/clamp.hpp"
 
-namespace pendulum
-{
-namespace pendulum_driver
+namespace pendulum::pendulum_driver
 {
 PendulumDriver::PendulumDriver(const Config & config)
 : cfg_(config),
@@ -67,11 +65,6 @@ PendulumDriver::PendulumDriver(const Config & config)
     };
 }
 
-void PendulumDriver::set_controller_cart_force(double force)
-{
-  controller_force_ = rcppmath::clamp(force, -cfg_.get_max_cart_force(), cfg_.get_max_cart_force());
-}
-
 void PendulumDriver::set_state(double cart_pos, double cart_vel, double pole_pos, double pole_vel)
 {
   joint_state_.cart_position = cart_pos;
@@ -80,29 +73,39 @@ void PendulumDriver::set_state(double cart_pos, double cart_vel, double pole_pos
   joint_state_.pole_velocity = pole_vel;
 }
 
-void PendulumDriver::set_disturbance_force(double force)
+void PendulumDriver::set_controller_cart_force(double force)
 {
-  disturbance_force_ = force;
+  controller_force_.store(
+    rcppmath::clamp(
+      force, -cfg_.get_max_cart_force(),
+      cfg_.get_max_cart_force()));
 }
 
-const pendulum2_msgs::msg::JointState & PendulumDriver::get_state() const
+void PendulumDriver::set_disturbance_force(double force)
+{
+  disturbance_force_.store(force);
+}
+
+PendulumDriver::PendulumData PendulumDriver::get_state()
 {
   return joint_state_;
 }
 
 double PendulumDriver::get_controller_cart_force() const
 {
-  return controller_force_;
+  return controller_force_.load();
 }
 
 double PendulumDriver::get_disturbance_force() const
 {
-  return disturbance_force_;
+  return disturbance_force_.load();
 }
 
 void PendulumDriver::update()
 {
-  double cart_force = disturbance_force_ + controller_force_;
+  double disturbance_force = get_disturbance_force();
+  double controller_force = get_controller_cart_force();
+  double cart_force = disturbance_force + controller_force;
   ode_solver_.step(derivative_function_, X_, dt_, cart_force);
 
   joint_state_.cart_position = X_[0];
@@ -121,5 +124,4 @@ void PendulumDriver::reset()
   X_ = {0.0, 0.0, M_PI, 0.0};
 }
 
-}  // namespace pendulum_driver
-}  // namespace pendulum
+}  // namespace pendulum::pendulum_driver

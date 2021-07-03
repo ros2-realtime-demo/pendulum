@@ -20,6 +20,9 @@
 
 #include <cmath>
 #include <vector>
+#include <atomic>
+
+#include "pendulum_utils/RealtimeObject.hpp"
 
 #include "pendulum2_msgs/msg/joint_state.hpp"
 #include "pendulum2_msgs/msg/joint_command.hpp"
@@ -37,6 +40,28 @@ namespace pendulum::pendulum_controller
 class PENDULUM_CONTROLLER_PUBLIC PendulumController
 {
 public:
+  /// Struct representing the dynamic/kinematic state of the pendulum.
+  struct PendulumData
+  {
+    // Position of the cart in meters
+    double cart_position = 0.0;
+    // Velocity of the cart in meters/s
+    double cart_velocity = 0.0;
+    // Angular position of the pendulum in radians
+    // PI is up position
+    double pole_angle = M_PI;
+    // angular velocity of the pendulum in rad/s
+    double pole_velocity = 0.0;
+    // total force applied to the cart in Newton
+    double cart_force = 0.0;
+  };
+
+  using RealtimeTeleopData = farbot::RealtimeObject<PendulumData,
+      farbot::RealtimeObjectOptions::nonRealtimeMutatable>;
+  using RealtimeStateData = farbot::RealtimeObject<PendulumData,
+      farbot::RealtimeObjectOptions::realtimeMutatable>;
+  using ThreadType = farbot::ThreadType;
+
   class PENDULUM_CONTROLLER_PUBLIC Config
   {
 public:
@@ -61,6 +86,7 @@ private:
   void reset();
 
   /// \brief Update controller output command
+  /// \remarks safe to call from real-time thread
   void update();
 
   /// \brief Updates the teleop data when a teleoperation message arrives.
@@ -82,22 +108,26 @@ private:
   /// \param[in] cart_vel cart velocity in m/s
   /// \param[in] pole_pos pole position in radians
   /// \param[in] pole_vel pole velocity in radians/s
+  /// \remarks safe to call from real-time thread
   void set_state(double cart_pos, double cart_vel, double pole_pos, double pole_vel);
 
   /// \brief Updates the command data from the controller before publishing.
   /// \param[in] msg Command force in Newton.
+  /// \remarks safe to call from real-time thread
   void set_force_command(double cart_force);
 
   /// \brief Get pendulum teleoperation data
   /// \return Teleoperation data
-  [[nodiscard]] const pendulum2_msgs::msg::PendulumTeleop & get_teleop() const;
+  /// \remarks safe to call from real-time thread
+  [[nodiscard]] PendulumData get_teleop();
 
   /// \brief Get pendulum state
   /// \return State data
-  [[nodiscard]] const pendulum2_msgs::msg::JointState & get_state() const;
+  [[nodiscard]] PendulumData get_state();
 
   /// \brief Get force command data
   /// \return Force command in Newton
+  /// \remarks safe to call from real-time thread
   [[nodiscard]] double get_force_command() const;
 
 private:
@@ -109,13 +139,13 @@ private:
   const Config cfg_;
 
   // Holds the pendulum teleoperation reference values.
-  pendulum2_msgs::msg::PendulumTeleop pendulum_teleop_;
+  RealtimeTeleopData teleop_;
 
   // Holds the pendulum full state variables
-  pendulum2_msgs::msg::JointState joint_state_;
+  RealtimeStateData state_;
 
   // Force command to control the inverted pendulum
-  double force_command_;
+  std::atomic<double> force_command_;
 };
 }  // namespace pendulum::pendulum_controller
 #endif  // PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_

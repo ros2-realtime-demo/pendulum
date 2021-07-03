@@ -22,12 +22,16 @@
 #include <chrono>
 #include <vector>
 #include <random>
+#include <atomic>
 
 #include "pendulum2_msgs/msg/joint_state.hpp"
 #include "pendulum2_msgs/msg/joint_command.hpp"
 
 #include "pendulum_driver/runge_kutta.hpp"
 #include "pendulum_driver/visibility_control.hpp"
+
+
+static_assert(std::atomic<double>::is_always_lock_free);
 
 namespace pendulum
 {
@@ -44,7 +48,7 @@ public:
   static constexpr std::size_t STATE_DIM = 4U;
 
   /// Struct representing the dynamic/kinematic state of the pendulum.
-  struct PendulumState
+  struct PendulumData
   {
     // Position of the cart in meters
     double cart_position = 0.0;
@@ -150,7 +154,7 @@ private:
 
   /// \brief Get pendulum state
   /// \return State data
-  [[nodiscard]] const pendulum2_msgs::msg::JointState & get_state() const;
+  [[nodiscard]] PendulumData get_state();
 
   /// \brief Gets the applied force by the controller motor to the cart
   /// \return controller cart applied force in Newton
@@ -170,8 +174,7 @@ private:
   // Pendulum simulation configuration parameters
   const Config cfg_;
   double dt_;
-  pendulum2_msgs::msg::JointState joint_state_;
-  double force_command_;
+  PendulumData joint_state_;
 
   RungeKutta ode_solver_;
   // state array for ODE solver
@@ -183,10 +186,10 @@ private:
 
   // force applied by the controller
   // this can be considered as the force applied by the cart motor
-  double controller_force_ = 0.0;
+  std::atomic<double> controller_force_ = 0.0;
   // external disturbance force
   // this can be considered as something pushing the cart
-  double disturbance_force_ = 0.0;
+  std::atomic<double> disturbance_force_ = 0.0;
 
   // utils to generate random noise
   std::random_device rd;

@@ -21,6 +21,8 @@
 
 using pendulum::pendulum_controller::PendulumController;
 
+static_assert(std::atomic<double>::is_always_lock_free);
+
 class TestPendulumController : public ::testing::Test
 {
 protected:
@@ -42,17 +44,17 @@ TEST_F(TestPendulumController, config)
   EXPECT_FLOAT_EQ(test_feedback_matrix.at(3), feedback_matrix.at(3));
 }
 
-TEST_F(TestPendulumController, set_teleoperation)
+TEST_F(TestPendulumController, set_get_teleoperation)
 {
   PendulumController controller{config};
   double cart_pos{1.0};
   double cart_vel{2.0};
   double pole_pos{3.0};
   double pole_vel{4.0};
-  pendulum2_msgs::msg::PendulumTeleop teleop_data;
+  PendulumController::PendulumData teleop_data;
 
-  apex_test_tools::memory_test::start();
   controller.set_teleop(cart_pos, cart_vel, pole_pos, pole_vel);
+  apex_test_tools::memory_test::start();
   teleop_data = controller.get_teleop();
   apex_test_tools::memory_test::stop();
 
@@ -64,8 +66,8 @@ TEST_F(TestPendulumController, set_teleoperation)
   cart_pos = 5.0;
   cart_vel = 6.0;
 
-  apex_test_tools::memory_test::start();
   controller.set_teleop(cart_pos, cart_vel);
+  apex_test_tools::memory_test::start();
   teleop_data = controller.get_teleop();
   apex_test_tools::memory_test::stop();
 
@@ -73,19 +75,19 @@ TEST_F(TestPendulumController, set_teleoperation)
   EXPECT_FLOAT_EQ(cart_vel, teleop_data.cart_velocity);
 }
 
-TEST_F(TestPendulumController, set_state)
+TEST_F(TestPendulumController, set_get_state)
 {
   PendulumController controller{config};
   double cart_pos{1.0};
   double cart_vel{2.0};
   double pole_pos{3.0};
   double pole_vel{4.0};
-  pendulum2_msgs::msg::JointState state_data;
+  PendulumController::PendulumData state_data;
 
   apex_test_tools::memory_test::start();
   controller.set_state(cart_pos, cart_vel, pole_pos, pole_vel);
-  state_data = controller.get_state();
   apex_test_tools::memory_test::stop();
+  state_data = controller.get_state();
 
   EXPECT_FLOAT_EQ(cart_pos, state_data.cart_position);
   EXPECT_FLOAT_EQ(cart_vel, state_data.cart_velocity);
@@ -93,7 +95,7 @@ TEST_F(TestPendulumController, set_state)
   EXPECT_FLOAT_EQ(pole_vel, state_data.pole_velocity);
 }
 
-TEST_F(TestPendulumController, set_force_command)
+TEST_F(TestPendulumController, set_get_force_command)
 {
   PendulumController controller{config};
   double expected_force{1.0};
@@ -129,9 +131,7 @@ TEST_F(TestPendulumController, reset)
   controller.set_state(1.0, 2.0, 3.0, 4.0);
   controller.set_teleop(5.0, 6.0, 7.0, 8.0);
 
-  apex_test_tools::memory_test::start();
   controller.reset();
-  apex_test_tools::memory_test::stop();
 
   auto state_data = controller.get_state();
   EXPECT_FLOAT_EQ(0.0, state_data.cart_position);

@@ -72,12 +72,15 @@ public:
 
   void start();
 
+  /// \remarks safe to call from real-time thread
   void run_realtime_loop();
 
+  /// \remarks safe to call from real-time thread
   void update_realtime_loop();
 
   void wait_for_driver();
 
+  /// \remarks safe to call from real-time thread
   void update_controller(const pendulum2_msgs::msg::JointState & msg);
 
 
