@@ -58,6 +58,7 @@ PendulumControllerNode::PendulumControllerNode(
   create_teleoperation_subscription();
   create_state_subscription();
   create_command_publisher();
+  wait_set_.add_subscription(state_sub_);
 }
 
 void PendulumControllerNode::create_teleoperation_subscription()
@@ -80,14 +81,7 @@ void PendulumControllerNode::create_state_subscription()
   rclcpp::SubscriptionOptions state_subscription_options;
   state_subscription_options.callback_group = realtime_cb_group_;
   auto on_sensor_message = [this](const pendulum2_msgs::msg::JointState::SharedPtr msg) {
-      // update pendulum state
-      controller_.set_state(
-        msg->cart_position, msg->cart_velocity,
-        msg->pole_angle, msg->pole_velocity);
-
-      // update pendulum controller output
-      controller_.update();
-
+      update_controller(*msg);
       // publish pendulum force command
       command_message_.force = controller_.get_force_command();
       command_pub_->publish(command_message_);
@@ -110,31 +104,73 @@ void PendulumControllerNode::create_command_publisher()
     command_publisher_options);
 }
 
-
-void PendulumControllerNode::realtime_loop()
+void PendulumControllerNode::start()
 {
-  rclcpp::WaitSet wait_set;
-  wait_set.add_subscription(state_sub_);
-
-  while (rclcpp::ok()) {
-    const auto wait_result = wait_set.wait(deadline_duration_);
-    if (wait_result.kind() == rclcpp::WaitResultKind::Ready) {
-      if (wait_result.get_wait_set().get_rcl_wait_set().subscriptions[0U]) {
-        pendulum2_msgs::msg::JointState msg;
-        rclcpp::MessageInfo msg_info;
-        if (state_sub_->take(msg, msg_info)) {
-          std::shared_ptr<void> message = std::make_shared<pendulum2_msgs::msg::JointState>(msg);
-          state_sub_->handle_message(message, msg_info);
-        } else {
-          // msg not valid
-        }
-      }
-    } else if (wait_result.kind() == rclcpp::WaitResultKind::Timeout) {
-      if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
-        num_missed_deadlines_++;
-      }
+  if (auto_start_node_) {
+    if (lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE != this->configure().id()) {
+      throw std::runtime_error("Could not configure " + std::string(this->get_name()));
+    }
+    if (lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE != this->activate().id()) {
+      throw std::runtime_error("Could not activate " + std::string(this->get_name()));
     }
   }
+}
+
+void PendulumControllerNode::run_realtime_loop()
+{
+  wait_for_driver();
+  while (rclcpp::ok()) {
+    update_realtime_loop();
+  }
+}
+
+void PendulumControllerNode::wait_for_driver()
+{
+  bool is_ready = false;
+  while (rclcpp::ok() && !is_ready) {
+    bool sub_matched = command_pub_->get_subscription_count() == 1U;
+    bool pub_matched = state_sub_->get_publisher_count() == 1U;
+    bool is_active_state = this->get_current_state().id() ==
+      lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE;
+    is_ready = sub_matched && pub_matched && is_active_state;
+    if (!is_ready) {
+      rclcpp::sleep_for(std::chrono::milliseconds(10));
+    }
+  }
+}
+
+void PendulumControllerNode::update_realtime_loop()
+{
+  const auto wait_result = wait_set_.wait(deadline_duration_);
+  if (wait_result.kind() == rclcpp::WaitResultKind::Ready) {
+    if (wait_result.get_wait_set().get_rcl_wait_set().subscriptions[0U]) {
+      pendulum2_msgs::msg::JointState msg;
+      rclcpp::MessageInfo msg_info;
+      if (state_sub_->take(msg, msg_info)) {
+        update_controller(msg);
+        // publish pendulum force command
+        command_message_.force = controller_.get_force_command();
+        command_pub_->publish(command_message_);
+      } else {
+        // msg not valid
+      }
+    }
+  } else if (wait_result.kind() == rclcpp::WaitResultKind::Timeout) {
+    if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
+      num_missed_deadlines_++;
+    }
+  }
+}
+
+void PendulumControllerNode::update_controller(const pendulum2_msgs::msg::JointState & msg)
+{
+  // update pendulum state
+  controller_.set_state(
+    msg.cart_position, msg.cart_velocity,
+    msg.pole_angle, msg.pole_velocity);
+
+  // update pendulum controller output
+  controller_.update();
 }
 
 void PendulumControllerNode::log_controller_state()
@@ -143,12 +179,16 @@ void PendulumControllerNode::log_controller_state()
   const auto teleoperation_command = controller_.get_teleop();
   const double force_command = controller_.get_force_command();
 
-  RCLCPP_INFO(get_logger(), "Cart position = %lf", state.at(0));
-  RCLCPP_INFO(get_logger(), "Cart velocity = %lf", state.at(1));
-  RCLCPP_INFO(get_logger(), "Pole angle = %lf", state.at(2));
-  RCLCPP_INFO(get_logger(), "Pole angular velocity = %lf", state.at(3));
-  RCLCPP_INFO(get_logger(), "Teleoperation cart position = %lf", teleoperation_command.at(0));
-  RCLCPP_INFO(get_logger(), "Teleoperation cart velocity = %lf", teleoperation_command.at(1));
+  RCLCPP_INFO(get_logger(), "Cart position = %lf", state.cart_position);
+  RCLCPP_INFO(get_logger(), "Cart velocity = %lf", state.cart_velocity);
+  RCLCPP_INFO(get_logger(), "Pole angle = %lf", state.pole_angle);
+  RCLCPP_INFO(get_logger(), "Pole angular velocity = %lf", state.pole_velocity);
+  RCLCPP_INFO(
+    get_logger(), "Teleoperation cart position = %lf",
+    teleoperation_command.cart_position);
+  RCLCPP_INFO(
+    get_logger(), "Teleoperation cart velocity = %lf",
+    teleoperation_command.cart_velocity);
   RCLCPP_INFO(get_logger(), "Force command = %lf", force_command);
   RCLCPP_INFO(get_logger(), "Num missed deadlines = %u", num_missed_deadlines_);
 }

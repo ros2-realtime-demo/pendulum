@@ -71,7 +71,7 @@ TEST_F(TestPendulumDriver, config)
 TEST_F(TestPendulumDriver, set_state)
 {
   PendulumDriver driver{config};
-  PendulumDriver::PendulumState state;
+  pendulum2_msgs::msg::JointState state;
   double cart_position{1.0};
   double cart_velocity{2.0};
   double pole_angle{3.0};
@@ -117,7 +117,7 @@ TEST_F(TestPendulumDriver, set_disturbance_force)
 TEST_F(TestPendulumDriver, init_state)
 {
   PendulumDriver driver{config};
-  PendulumDriver::PendulumState state;
+  pendulum2_msgs::msg::JointState state;
   double controller_cart_force{0.0};
   double disturbance_force{0.0};
 
@@ -138,7 +138,7 @@ TEST_F(TestPendulumDriver, init_state)
 TEST_F(TestPendulumDriver, reset)
 {
   PendulumDriver driver{config};
-  PendulumDriver::PendulumState state;
+  pendulum2_msgs::msg::JointState state;
   double controller_cart_force{0.0};
   double disturbance_force{0.0};
   driver.set_state(1.0, 2.0, 3.0, 4.0);

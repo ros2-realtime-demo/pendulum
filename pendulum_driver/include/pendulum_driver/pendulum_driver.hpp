@@ -82,35 +82,35 @@ public:
 
     /// \brief Gets the pendulum mass
     /// \return Pendulum mass in kilograms
-    double get_pendulum_mass() const;
+    [[nodiscard]] double get_pendulum_mass() const;
 
     /// \brief Gets the cart mass
     /// \return Cart mass in kilograms
-    double get_cart_mass() const;
+    [[nodiscard]] double get_cart_mass() const;
 
     /// \brief Gets the pendulum length
     /// \return Pendulum length in meters
-    double get_pendulum_length() const;
+    [[nodiscard]] double get_pendulum_length() const;
 
     /// \brief Gets the pendulum damping coefficient
     /// \return Damping coefficient
-    double get_damping_coefficient() const;
+    [[nodiscard]] double get_damping_coefficient() const;
 
     /// \brief Gets the gravity
     /// \return Gravity in m/s^2
-    double get_gravity() const;
+    [[nodiscard]] double get_gravity() const;
 
     /// \brief Gets the maximum allowed cart force
     /// \return Maximum cart force
-    double get_max_cart_force() const;
+    [[nodiscard]] double get_max_cart_force() const;
 
     /// \brief Gets the simulated noise level
     /// \return Noise level
-    double get_noise_level() const;
+    [[nodiscard]] double get_noise_level() const;
 
     /// \brief Gets the physics simulation update period
     /// \return physics simulation update period
-    std::chrono::microseconds get_physics_update_period() const;
+    [[nodiscard]] std::chrono::microseconds get_physics_update_period() const;
 
 private:
     /// pendulum mass in kg
@@ -150,15 +150,15 @@ private:
 
   /// \brief Get pendulum state
   /// \return State data
-  const PendulumState & get_state() const;
+  [[nodiscard]] const pendulum2_msgs::msg::JointState & get_state() const;
 
   /// \brief Gets the applied force by the controller motor to the cart
   /// \return controller cart applied force in Newton
-  double get_controller_cart_force() const;
+  [[nodiscard]] double get_controller_cart_force() const;
 
   /// \brief Gets the applied force by a disturbance
   /// \return cart disturbance force in Newton.
-  double get_disturbance_force() const;
+  [[nodiscard]] double get_disturbance_force() const;
 
   /// \brief Updates the driver simulation.
   void update();
@@ -170,7 +170,8 @@ private:
   // Pendulum simulation configuration parameters
   const Config cfg_;
   double dt_;
-  PendulumState state_;
+  pendulum2_msgs::msg::JointState joint_state_;
+  double force_command_;
 
   RungeKutta ode_solver_;
   // state array for ODE solver

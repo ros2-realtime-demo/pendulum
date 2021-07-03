@@ -30,10 +30,10 @@ PendulumController::Config::get_feedback_matrix() const
 }
 
 PendulumController::PendulumController(const Config & config)
-: cfg_(config),
-  state_{0.0, 0.0, M_PI, 0.0},
-  reference_{0.0, 0.0, M_PI, 0.0}
-{}
+: cfg_(config)
+{
+  reset();
+}
 
 void PendulumController::reset()
 {
@@ -44,30 +44,44 @@ void PendulumController::reset()
 
 void PendulumController::update()
 {
-  set_force_command(calculate(state_, reference_));
+  const std::array<double, 4> state{
+    joint_state_.cart_position,
+    joint_state_.cart_velocity,
+    joint_state_.pole_angle,
+    joint_state_.pole_velocity};
+
+  const std::array<double, 4> reference{
+    pendulum_teleop_.cart_position,
+    pendulum_teleop_.cart_velocity,
+    pendulum_teleop_.pole_angle,
+    pendulum_teleop_.pole_velocity};
+  set_force_command(calculate(state, reference));
 }
 
 void PendulumController::set_teleop(
-  double cart_pos, double cart_vel,
-  double pole_pos, double pole_vel)
+  double cart_position, double cart_velocity,
+  double pole_angle, double pole_velocity)
 {
-  reference_[0] = cart_pos;
-  reference_[1] = cart_vel;
-  reference_[2] = pole_pos;
-  reference_[3] = pole_vel;
+  pendulum_teleop_.cart_position = cart_position;
+  pendulum_teleop_.cart_velocity = cart_velocity;
+  pendulum_teleop_.pole_angle = pole_angle;
+  pendulum_teleop_.pole_velocity = pole_velocity;
 }
 
-void PendulumController::set_teleop(double cart_pos, double cart_vel)
+void PendulumController::set_teleop(double cart_position, double cart_velocity)
 {
-  reference_[0] = cart_pos;
-  reference_[1] = cart_vel;
+  pendulum_teleop_.cart_position = cart_position;
+  pendulum_teleop_.cart_velocity = cart_velocity;
 }
 
 void PendulumController::set_state(
-  double cart_pos, double cart_vel,
-  double pole_pos, double pole_vel)
+  double cart_position, double cart_velocity,
+  double pole_angle, double pole_velocity)
 {
-  state_ = {cart_pos, cart_vel, pole_pos, pole_vel};
+  joint_state_.pole_angle = pole_angle;
+  joint_state_.pole_velocity = pole_velocity;
+  joint_state_.cart_position = cart_position;
+  joint_state_.cart_velocity = cart_velocity;
 }
 
 void PendulumController::set_force_command(double force)
@@ -75,14 +89,14 @@ void PendulumController::set_force_command(double force)
   force_command_ = force;
 }
 
-const std::vector<double> & PendulumController::get_teleop() const
+const pendulum2_msgs::msg::PendulumTeleop & PendulumController::get_teleop() const
 {
-  return reference_;
+  return pendulum_teleop_;
 }
 
-const std::vector<double> & PendulumController::get_state() const
+const pendulum2_msgs::msg::JointState & PendulumController::get_state() const
 {
-  return state_;
+  return joint_state_;
 }
 
 double PendulumController::get_force_command() const
@@ -91,21 +105,13 @@ double PendulumController::get_force_command() const
 }
 
 double PendulumController::calculate(
-  const std::vector<double> & state,
-  const std::vector<double> & reference) const
+  const std::array<double, 4> & state,
+  const std::array<double, 4> & reference) const
 {
   double controller_output = 0.0;
-  size_t dim = state.size();
-  if ((dim != reference.size()) &&
-    (dim != cfg_.get_feedback_matrix().size()))
-  {
-    throw std::invalid_argument("wrong state size vector");
-  }
-
-  for (size_t i = 0; i < dim; i++) {
+  for (size_t i = 0; i < 4; i++) {
     controller_output += -cfg_.get_feedback_matrix()[i] * (state[i] - reference[i]);
   }
-
   return controller_output;
 }
 }  // namespace pendulum_controller

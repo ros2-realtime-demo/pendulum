@@ -49,17 +49,17 @@ TEST_F(TestPendulumController, set_teleoperation)
   double cart_vel{2.0};
   double pole_pos{3.0};
   double pole_vel{4.0};
-  std::vector<double> teleop_data(4);
+  pendulum2_msgs::msg::PendulumTeleop teleop_data;
 
   apex_test_tools::memory_test::start();
   controller.set_teleop(cart_pos, cart_vel, pole_pos, pole_vel);
   teleop_data = controller.get_teleop();
   apex_test_tools::memory_test::stop();
 
-  EXPECT_FLOAT_EQ(cart_pos, teleop_data.at(0));
-  EXPECT_FLOAT_EQ(cart_vel, teleop_data.at(1));
-  EXPECT_FLOAT_EQ(pole_pos, teleop_data.at(2));
-  EXPECT_FLOAT_EQ(pole_vel, teleop_data.at(3));
+  EXPECT_FLOAT_EQ(cart_pos, teleop_data.cart_position);
+  EXPECT_FLOAT_EQ(cart_vel, teleop_data.cart_velocity);
+  EXPECT_FLOAT_EQ(pole_pos, teleop_data.pole_angle);
+  EXPECT_FLOAT_EQ(pole_vel, teleop_data.pole_velocity);
 
   cart_pos = 5.0;
   cart_vel = 6.0;
@@ -69,8 +69,8 @@ TEST_F(TestPendulumController, set_teleoperation)
   teleop_data = controller.get_teleop();
   apex_test_tools::memory_test::stop();
 
-  EXPECT_FLOAT_EQ(cart_pos, teleop_data.at(0));
-  EXPECT_FLOAT_EQ(cart_vel, teleop_data.at(1));
+  EXPECT_FLOAT_EQ(cart_pos, teleop_data.cart_position);
+  EXPECT_FLOAT_EQ(cart_vel, teleop_data.cart_velocity);
 }
 
 TEST_F(TestPendulumController, set_state)
@@ -80,17 +80,17 @@ TEST_F(TestPendulumController, set_state)
   double cart_vel{2.0};
   double pole_pos{3.0};
   double pole_vel{4.0};
-  std::vector<double> state_data(4);
+  pendulum2_msgs::msg::JointState state_data;
 
   apex_test_tools::memory_test::start();
   controller.set_state(cart_pos, cart_vel, pole_pos, pole_vel);
   state_data = controller.get_state();
   apex_test_tools::memory_test::stop();
 
-  EXPECT_FLOAT_EQ(cart_pos, state_data.at(0));
-  EXPECT_FLOAT_EQ(cart_vel, state_data.at(1));
-  EXPECT_FLOAT_EQ(pole_pos, state_data.at(2));
-  EXPECT_FLOAT_EQ(pole_vel, state_data.at(3));
+  EXPECT_FLOAT_EQ(cart_pos, state_data.cart_position);
+  EXPECT_FLOAT_EQ(cart_vel, state_data.cart_velocity);
+  EXPECT_FLOAT_EQ(pole_pos, state_data.pole_angle);
+  EXPECT_FLOAT_EQ(pole_vel, state_data.pole_velocity);
 }
 
 TEST_F(TestPendulumController, set_force_command)
@@ -111,16 +111,16 @@ TEST_F(TestPendulumController, init_state)
   PendulumController controller{config};
 
   auto state_data = controller.get_state();
-  EXPECT_FLOAT_EQ(0.0, state_data.at(0));
-  EXPECT_FLOAT_EQ(0.0, state_data.at(1));
-  EXPECT_FLOAT_EQ(M_PI, state_data.at(2));
-  EXPECT_FLOAT_EQ(0.0, state_data.at(3));
+  EXPECT_FLOAT_EQ(0.0, state_data.cart_position);
+  EXPECT_FLOAT_EQ(0.0, state_data.cart_velocity);
+  EXPECT_FLOAT_EQ(M_PI, state_data.pole_angle);
+  EXPECT_FLOAT_EQ(0.0, state_data.pole_velocity);
 
   auto teleop_data = controller.get_teleop();
-  EXPECT_FLOAT_EQ(0.0, teleop_data.at(0));
-  EXPECT_FLOAT_EQ(0.0, teleop_data.at(1));
-  EXPECT_FLOAT_EQ(M_PI, teleop_data.at(2));
-  EXPECT_FLOAT_EQ(0.0, teleop_data.at(3));
+  EXPECT_FLOAT_EQ(0.0, teleop_data.cart_position);
+  EXPECT_FLOAT_EQ(0.0, teleop_data.cart_velocity);
+  EXPECT_FLOAT_EQ(M_PI, teleop_data.pole_angle);
+  EXPECT_FLOAT_EQ(0.0, teleop_data.pole_velocity);
 }
 
 TEST_F(TestPendulumController, reset)
@@ -134,16 +134,16 @@ TEST_F(TestPendulumController, reset)
   apex_test_tools::memory_test::stop();
 
   auto state_data = controller.get_state();
-  EXPECT_FLOAT_EQ(0.0, state_data.at(0));
-  EXPECT_FLOAT_EQ(0.0, state_data.at(1));
-  EXPECT_FLOAT_EQ(M_PI, state_data.at(2));
-  EXPECT_FLOAT_EQ(0.0, state_data.at(3));
+  EXPECT_FLOAT_EQ(0.0, state_data.cart_position);
+  EXPECT_FLOAT_EQ(0.0, state_data.cart_velocity);
+  EXPECT_FLOAT_EQ(M_PI, state_data.pole_angle);
+  EXPECT_FLOAT_EQ(0.0, state_data.pole_velocity);
 
   auto teleop_data = controller.get_teleop();
-  EXPECT_FLOAT_EQ(0.0, teleop_data.at(0));
-  EXPECT_FLOAT_EQ(0.0, teleop_data.at(1));
-  EXPECT_FLOAT_EQ(M_PI, teleop_data.at(2));
-  EXPECT_FLOAT_EQ(0.0, teleop_data.at(3));
+  EXPECT_FLOAT_EQ(0.0, teleop_data.cart_position);
+  EXPECT_FLOAT_EQ(0.0, teleop_data.cart_velocity);
+  EXPECT_FLOAT_EQ(M_PI, teleop_data.pole_angle);
+  EXPECT_FLOAT_EQ(0.0, teleop_data.pole_velocity);
 }
 
 TEST_F(TestPendulumController, update)

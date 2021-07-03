@@ -30,6 +30,7 @@ PendulumDriver::PendulumDriver(const Config & config)
   noise_gen_(std::uniform_real_distribution<double>(
       -config.get_noise_level(), config.get_noise_level()))
 {
+  reset();
   // Calculate the controller timestep (for discrete differentiation/integration).
   dt_ = cfg_.get_physics_update_period().count() / (1000.0 * 1000.0);
   if (std::isnan(dt_) || dt_ == 0) {
@@ -73,10 +74,10 @@ void PendulumDriver::set_controller_cart_force(double force)
 
 void PendulumDriver::set_state(double cart_pos, double cart_vel, double pole_pos, double pole_vel)
 {
-  state_.cart_position = cart_pos;
-  state_.cart_velocity = cart_vel;
-  state_.pole_angle = pole_pos;
-  state_.pole_velocity = pole_vel;
+  joint_state_.cart_position = cart_pos;
+  joint_state_.cart_velocity = cart_vel;
+  joint_state_.pole_angle = pole_pos;
+  joint_state_.pole_velocity = pole_vel;
 }
 
 void PendulumDriver::set_disturbance_force(double force)
@@ -84,9 +85,9 @@ void PendulumDriver::set_disturbance_force(double force)
   disturbance_force_ = force;
 }
 
-const PendulumDriver::PendulumState & PendulumDriver::get_state() const
+const pendulum2_msgs::msg::JointState & PendulumDriver::get_state() const
 {
-  return state_;
+  return joint_state_;
 }
 
 double PendulumDriver::get_controller_cart_force() const
@@ -104,11 +105,11 @@ void PendulumDriver::update()
   double cart_force = disturbance_force_ + controller_force_;
   ode_solver_.step(derivative_function_, X_, dt_, cart_force);
 
-  state_.cart_position = X_[0];
-  state_.cart_velocity = X_[1];
-  state_.cart_force = cart_force;
-  state_.pole_angle = X_[2];
-  state_.pole_velocity = X_[3];
+  joint_state_.cart_position = X_[0];
+  joint_state_.cart_velocity = X_[1];
+  joint_state_.cart_force = cart_force;
+  joint_state_.pole_angle = X_[2];
+  joint_state_.pole_velocity = X_[3];
 }
 
 void PendulumDriver::reset()

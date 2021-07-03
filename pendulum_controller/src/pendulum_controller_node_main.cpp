@@ -50,14 +50,14 @@ int main(int argc, char * argv[])
         pendulum::utils::configure_process_priority(
           proc_settings.process_priority,
           proc_settings.cpu_affinity);
-        controller_node_ptr->realtime_loop();
+        controller_node_ptr->run_realtime_loop();
       });
 
     if (proc_settings.lock_memory) {
       pendulum::utils::lock_process_memory(proc_settings.lock_memory_size_mb);
     }
 
-    controller_node_ptr->init();
+    controller_node_ptr->start();
 
     // TODO(carlosvg): add wait loop or experiment duration option
     rclcpp::sleep_for(std::chrono::seconds(3600));

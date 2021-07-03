@@ -70,19 +70,16 @@ public:
     return realtime_cb_group_;
   }
 
-  void init()
-  {
-    if (auto_start_node_) {
-      if (lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE != this->configure().id()) {
-        throw std::runtime_error("Could not configure " + std::string(this->get_name()));
-      }
-      if (lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE != this->activate().id()) {
-        throw std::runtime_error("Could not activate " + std::string(this->get_name()));
-      }
-    }
-  }
+  void start();
 
-  void realtime_loop();
+  void run_realtime_loop();
+
+  void update_realtime_loop();
+
+  void wait_for_driver();
+
+  void update_controller(const pendulum2_msgs::msg::JointState & msg);
+
 
   pendulum::utils::ProcessSettings get_proc_settings()
   {
@@ -148,6 +145,8 @@ private:
   bool auto_start_node_ = false;
 
   pendulum::utils::ProcessSettings proc_settings_;
+
+  rclcpp::WaitSet wait_set_;
 };
 }  // namespace pendulum_controller
 }  // namespace pendulum

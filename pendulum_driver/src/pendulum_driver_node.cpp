@@ -71,6 +71,7 @@ PendulumDriverNode::PendulumDriverNode(
   create_command_subscription();
   create_disturbance_subscription();
   create_state_timer_callback();
+  wait_set_.add_timer(state_timer_);
 }
 
 void PendulumDriverNode::init_state_message()
@@ -140,28 +141,41 @@ void PendulumDriverNode::create_state_timer_callback()
   state_timer_->cancel();
 }
 
-void PendulumDriverNode::realtime_loop()
+void PendulumDriverNode::start()
 {
-  rclcpp::WaitSet wait_set;
-  // wait_set.add_subscription(command_sub_);
-  wait_set.add_timer(state_timer_);
+  if (auto_start_node_) {
+    if (lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE != this->configure().id()) {
+      throw std::runtime_error("Could not configure " + std::string(this->get_name()));
+    }
+    if (lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE != this->activate().id()) {
+      throw std::runtime_error("Could not activate " + std::string(this->get_name()));
+    }
+  }
+}
 
+void PendulumDriverNode::run_realtime_loop()
+{
   while (rclcpp::ok()) {
-    const auto wait_result = wait_set.wait(deadline_duration_);
-    if (wait_result.kind() == rclcpp::WaitResultKind::Ready) {
-      if (wait_result.get_wait_set().get_rcl_wait_set().timers[0U]) {
-        // take a msg if available
-        pendulum2_msgs::msg::JointCommand msg;
-        rclcpp::MessageInfo msg_info;
-        if (command_sub_->take(msg, msg_info)) {
-          driver_.set_controller_cart_force(msg.force);
-        }
-        state_timer_->execute_callback();
+    update_realtime_loop();
+  }
+}
+
+void PendulumDriverNode::update_realtime_loop()
+{
+  const auto wait_result = wait_set_.wait(deadline_duration_);
+  if (wait_result.kind() == rclcpp::WaitResultKind::Ready) {
+    if (wait_result.get_wait_set().get_rcl_wait_set().timers[0U]) {
+      // take a msg if available
+      pendulum2_msgs::msg::JointCommand msg;
+      rclcpp::MessageInfo msg_info;
+      if (command_sub_->take(msg, msg_info)) {
+        driver_.set_controller_cart_force(msg.force);
       }
-    } else if (wait_result.kind() == rclcpp::WaitResultKind::Timeout) {
-      if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
-        ++num_missed_deadlines_;
-      }
+      state_timer_->execute_callback();
+    }
+  } else if (wait_result.kind() == rclcpp::WaitResultKind::Timeout) {
+    if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
+      ++num_missed_deadlines_;
     }
   }
 }

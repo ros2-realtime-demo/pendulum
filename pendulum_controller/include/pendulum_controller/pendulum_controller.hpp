@@ -26,9 +26,7 @@
 #include "pendulum2_msgs/msg/pendulum_teleop.hpp"
 #include "pendulum_controller/visibility_control.hpp"
 
-namespace pendulum
-{
-namespace pendulum_controller
+namespace pendulum::pendulum_controller
 {
 /// \class This class implements a <a href="https://en.wikipedia.org/wiki/Full_state_feedback">
 ///        Full State Feedback controller (FSF)</a>
@@ -48,7 +46,7 @@ public:
 
     /// \brief Gets the feedback matrix
     /// \return feedback matrix array
-    const std::vector<double> & get_feedback_matrix() const;
+    [[nodiscard]] const std::vector<double> & get_feedback_matrix() const;
 
 private:
     /// feedback_matrix Feedback matrix values
@@ -92,34 +90,32 @@ private:
 
   /// \brief Get pendulum teleoperation data
   /// \return Teleoperation data
-  const std::vector<double> & get_teleop() const;
+  [[nodiscard]] const pendulum2_msgs::msg::PendulumTeleop & get_teleop() const;
 
   /// \brief Get pendulum state
   /// \return State data
-  const std::vector<double> & get_state() const;
+  [[nodiscard]] const pendulum2_msgs::msg::JointState & get_state() const;
 
   /// \brief Get force command data
   /// \return Force command in Newton
-  double get_force_command() const;
+  [[nodiscard]] double get_force_command() const;
 
 private:
-  PENDULUM_CONTROLLER_LOCAL double calculate(
-    const std::vector<double> & state,
-    const std::vector<double> & reference) const;
+  [[nodiscard]] PENDULUM_CONTROLLER_LOCAL double calculate(
+    const std::array<double, 4> & state,
+    const std::array<double, 4> & reference) const;
 
   // Controller configuration parameters
   const Config cfg_;
 
-  // Holds the pendulum full state variables
-  std::vector<double> state_;
+  // Holds the pendulum teleoperation reference values.
+  pendulum2_msgs::msg::PendulumTeleop pendulum_teleop_;
 
-  // Holds the pendulum reference values.
-  // Some values may be set by by the user and others are fixed by default
-  std::vector<double> reference_;
+  // Holds the pendulum full state variables
+  pendulum2_msgs::msg::JointState joint_state_;
 
   // Force command to control the inverted pendulum
   double force_command_;
 };
-}  // namespace pendulum_controller
-}  // namespace pendulum
+}  // namespace pendulum::pendulum_controller
 #endif  // PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
