@@ -71,7 +71,7 @@ PendulumDriverNode::PendulumDriverNode(
   create_command_subscription();
   create_disturbance_subscription();
   create_state_timer_callback();
-  wait_set_.add_timer(state_timer_);
+  create_wait_set();
 }
 
 void PendulumDriverNode::init_state_message()
@@ -141,6 +141,17 @@ void PendulumDriverNode::create_state_timer_callback()
   state_timer_->cancel();
 }
 
+void PendulumDriverNode::create_wait_set()
+{
+  wait_set_ = std::make_shared<rclcpp::StaticWaitSet<0, 0, 1, 0, 0, 0>>(
+    std::array<rclcpp::StaticWaitSet<0, 0, 1, 0, 0, 0>::SubscriptionEntry, 0>{},
+    std::array<rclcpp::GuardCondition::SharedPtr, 0>{},
+    std::array<rclcpp::TimerBase::SharedPtr, 1>{state_timer_});
+  // call wait to enforce initial allocations
+  auto wait_result = wait_set_->wait(std::chrono::milliseconds(0));
+  (void)wait_result;
+}
+
 void PendulumDriverNode::start()
 {
   if (auto_start_node_) {
@@ -162,21 +173,19 @@ void PendulumDriverNode::run_realtime_loop()
 
 void PendulumDriverNode::update_realtime_loop()
 {
-  const auto wait_result = wait_set_.wait(deadline_duration_);
+  const auto wait_result = wait_set_->wait(deadline_duration_);
   if (wait_result.kind() == rclcpp::WaitResultKind::Ready) {
     if (wait_result.get_wait_set().get_rcl_wait_set().timers[0U]) {
-      // take a msg if available
       pendulum2_msgs::msg::JointCommand msg;
       rclcpp::MessageInfo msg_info;
+      // take a msg if available
       if (command_sub_->take(msg, msg_info)) {
         driver_.set_controller_cart_force(msg.force);
       }
       state_timer_->execute_callback();
     }
   } else if (wait_result.kind() == rclcpp::WaitResultKind::Timeout) {
-    if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
-      ++num_missed_deadlines_;
-    }
+    ++num_missed_deadlines_;
   }
 }
 

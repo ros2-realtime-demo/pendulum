@@ -100,6 +100,9 @@ private:
   /// \brief Create timer callback
   void create_state_timer_callback();
 
+  /// \brief Create wait-set
+  void create_wait_set();
+
   /// \brief Log pendulum driver state
   void log_driver_state();
 
@@ -154,7 +157,7 @@ private:
 
   pendulum::utils::ProcessSettings proc_settings_;
 
-  rclcpp::WaitSet wait_set_;
+  std::shared_ptr<rclcpp::StaticWaitSet<0, 0, 1, 0, 0, 0>> wait_set_;
 };
 }  // namespace pendulum_driver
 }  // namespace pendulum

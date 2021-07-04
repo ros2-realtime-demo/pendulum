@@ -21,35 +21,35 @@
 #include "pendulum_utils/process_settings.hpp"
 #include "pendulum_utils/lifecycle_autostart.hpp"
 
+using pendulum::pendulum_driver::PendulumDriverNode;
+using pendulum::utils::ProcessSettings;
+using pendulum::utils::configure_process_priority;
+using pendulum::utils::lock_process_memory;
+
 int main(int argc, char * argv[])
 {
   int32_t ret = 0;
   try {
     rclcpp::init(argc, argv);
 
-    // Create a static executor
-    rclcpp::executors::StaticSingleThreadedExecutor exec;
-
     // Create pendulum simulation
-    using pendulum::pendulum_driver::PendulumDriverNode;
     const auto driver_node_ptr = std::make_shared<PendulumDriverNode>("pendulum_driver");
+    ProcessSettings rt_settings = driver_node_ptr->get_proc_settings();
 
+    // Create a static executor to run non-real time tasks
+    rclcpp::executors::StaticSingleThreadedExecutor exec;
     exec.add_node(driver_node_ptr->get_node_base_interface());
-
-    auto driver_rt_cb = driver_node_ptr->get_realtime_callback_group();
-    pendulum::utils::ProcessSettings proc_settings = driver_node_ptr->get_proc_settings();
-
     auto thread = std::thread([&exec]() {exec.spin();});
+
+    // Create a thread to run real-time tasks
     auto rt_thread = std::thread(
-      [&driver_node_ptr, &proc_settings]() {
-        pendulum::utils::configure_process_priority(
-          proc_settings.process_priority,
-          proc_settings.cpu_affinity);
+      [&driver_node_ptr, &rt_settings]() {
+        configure_process_priority(rt_settings.process_priority, rt_settings.cpu_affinity);
         driver_node_ptr->run_realtime_loop();
       });
 
-    if (proc_settings.lock_memory) {
-      pendulum::utils::lock_process_memory(proc_settings.lock_memory_size_mb);
+    if (rt_settings.lock_memory) {
+      lock_process_memory(rt_settings.lock_memory_size_mb);
     }
 
     driver_node_ptr->start();
@@ -64,9 +64,7 @@ int main(int argc, char * argv[])
     RCLCPP_INFO(rclcpp::get_logger("pendulum_driver"), e.what());
     ret = 2;
   } catch (...) {
-    RCLCPP_INFO(
-      rclcpp::get_logger("pendulum_driver"), "Unknown exception caught. "
-      "Exiting...");
+    RCLCPP_INFO(rclcpp::get_logger("pendulum_driver"), "Unknown exception caught. Exiting...");
     ret = -1;
   }
   return ret;

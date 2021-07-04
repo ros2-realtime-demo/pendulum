@@ -1,0 +1,42 @@
+pendulum_controller:
+  ros__parameters:
+    auto_start_node: False
+    use_executor: False
+    state_topic_name: "pendulum_joint_states"
+    command_topic_name: "joint_command"
+    teleop_topic_name: "teleop"
+    deadline_us: 2000
+    controller:
+      feedback_matrix: [-10.0000, -51.5393, 356.8637, 154.4146]
+    proc_settings:
+      lock_memory: False
+      process_priority: 0
+      cpu_affinity: 0
+      lock_memory_size_mb: 0
+      configure_child_threads: False
+
+pendulum_driver:
+  ros__parameters:
+    auto_start_node: False
+    use_executor: False
+    state_topic_name: "pendulum_joint_states"
+    command_topic_name: "joint_command"
+    disturbance_topic_name: "disturbance"
+    cart_base_joint_name: "cart_base_joint"
+    pole_joint_name: "pole_joint"
+    update_period_us: 1000
+    deadline_us: 2000
+    driver:
+      pendulum_mass: 1.0
+      cart_mass: 5.0
+      pendulum_length: 2.0
+      damping_coefficient: 20.0
+      gravity: -9.8
+      max_cart_force: 1000.0
+      noise_level: 1.0
+    proc_settings:
+      lock_memory: False
+      process_priority: 0
+      cpu_affinity: 0
+      lock_memory_size_mb: 0
+      configure_child_threads: False

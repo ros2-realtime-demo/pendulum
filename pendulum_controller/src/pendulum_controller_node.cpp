@@ -58,7 +58,7 @@ PendulumControllerNode::PendulumControllerNode(
   create_teleoperation_subscription();
   create_state_subscription();
   create_command_publisher();
-  wait_set_.add_subscription(state_sub_);
+  create_wait_set();
 }
 
 void PendulumControllerNode::create_teleoperation_subscription()
@@ -92,6 +92,15 @@ void PendulumControllerNode::create_state_subscription()
     on_sensor_message,
     state_subscription_options,
     state_msg_strategy);
+}
+
+void PendulumControllerNode::create_wait_set()
+{
+  wait_set_ = std::make_shared<rclcpp::StaticWaitSet<1, 0, 0, 0, 0, 0>>(
+    std::array<rclcpp::StaticWaitSet<1, 0, 0, 0, 0, 0>::SubscriptionEntry, 1>{{{state_sub_}}});
+  // call wait to enforce initial allocations
+  auto wait_result = wait_set_->wait(std::chrono::milliseconds(0));
+  (void)wait_result;
 }
 
 void PendulumControllerNode::create_command_publisher()
@@ -130,9 +139,7 @@ void PendulumControllerNode::wait_for_driver()
   while (rclcpp::ok() && !is_ready) {
     bool sub_matched = command_pub_->get_subscription_count() == 1U;
     bool pub_matched = state_sub_->get_publisher_count() == 1U;
-    bool is_active_state = this->get_current_state().id() ==
-      lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE;
-    is_ready = sub_matched && pub_matched && is_active_state;
+    is_ready = sub_matched && pub_matched;
     if (!is_ready) {
       rclcpp::sleep_for(std::chrono::milliseconds(10));
     }
@@ -141,7 +148,7 @@ void PendulumControllerNode::wait_for_driver()
 
 void PendulumControllerNode::update_realtime_loop()
 {
-  const auto wait_result = wait_set_.wait(deadline_duration_);
+  const auto wait_result = wait_set_->wait(deadline_duration_);
   if (wait_result.kind() == rclcpp::WaitResultKind::Ready) {
     if (wait_result.get_wait_set().get_rcl_wait_set().subscriptions[0U]) {
       pendulum2_msgs::msg::JointState msg;
@@ -156,9 +163,7 @@ void PendulumControllerNode::update_realtime_loop()
       }
     }
   } else if (wait_result.kind() == rclcpp::WaitResultKind::Timeout) {
-    if (this->get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE) {
-      num_missed_deadlines_++;
-    }
+    num_missed_deadlines_++;
   }
 }
 

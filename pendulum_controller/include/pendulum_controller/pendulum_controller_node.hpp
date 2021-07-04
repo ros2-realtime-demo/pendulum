@@ -102,6 +102,9 @@ private:
   /// \brief Log pendulum controller state
   void log_controller_state();
 
+  /// \brief Create wait-set
+  void create_wait_set();
+
   /// \brief Transition callback for state configuring
   /// \param[in] lifecycle node state
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -149,7 +152,7 @@ private:
 
   pendulum::utils::ProcessSettings proc_settings_;
 
-  rclcpp::WaitSet wait_set_;
+  std::shared_ptr<rclcpp::StaticWaitSet<1, 0, 0, 0, 0, 0>> wait_set_;
 };
 }  // namespace pendulum_controller
 }  // namespace pendulum
