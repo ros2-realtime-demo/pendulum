@@ -30,7 +30,7 @@
 #include "pendulum2_msgs/msg/pendulum_teleop.hpp"
 #include "pendulum_controller/visibility_control.hpp"
 
-namespace pendulum::pendulum_controller
+namespace pendulum_controller
 {
 /// \class This class implements a <a href="https://en.wikipedia.org/wiki/Full_state_feedback">
 ///        Full State Feedback controller (FSF)</a>
@@ -41,7 +41,7 @@ namespace pendulum::pendulum_controller
 class PENDULUM_CONTROLLER_PUBLIC PendulumController
 {
 public:
-  using PendulumState = pendulum::utils::PendulumState;
+  using PendulumState = utils::PendulumState;
   using RealtimeTeleopData = farbot::RealtimeObject<PendulumState,
       farbot::RealtimeObjectOptions::nonRealtimeMutatable>;
   using RealtimeStateData = farbot::RealtimeObject<PendulumState,
@@ -133,5 +133,5 @@ private:
   // Force command to control the inverted pendulum
   std::atomic<double> force_command_;
 };
-}  // namespace pendulum::pendulum_controller
+}  // namespace pendulum_controller
 #endif  // PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_

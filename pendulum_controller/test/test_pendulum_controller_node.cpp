@@ -16,7 +16,7 @@
 #include <vector>
 #include "pendulum_controller/pendulum_controller_node.hpp"
 
-using pendulum::pendulum_controller::PendulumControllerNode;
+using pendulum_controller::PendulumControllerNode;
 
 // TODO(carlossvg): add bad initialization test
 // TODO(carlossvg): add enable_topic_stats test

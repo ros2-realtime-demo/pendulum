@@ -17,10 +17,8 @@
 
 #include <cmath>
 
-
-namespace pendulum::utils
+namespace utils
 {
-
 /// Struct representing the dynamic/kinematic state of the pendulum.
 struct PendulumState
 {
@@ -43,6 +41,5 @@ struct PendulumState
   // this can be considered as something pushing the cart
   double disturbance_force_ = 0.0;
 };
-
-}  // namespace pendulum::utils
+}  // namespace utils
 #endif  // PENDULUM_UTILS__PENDULUM_DATA_HPP_

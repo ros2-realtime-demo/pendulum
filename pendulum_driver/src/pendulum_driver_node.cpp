@@ -20,7 +20,7 @@
 
 #include "pendulum_driver/pendulum_driver_node.hpp"
 
-namespace pendulum::pendulum_driver
+namespace pendulum_driver
 {
 PendulumDriverNode::PendulumDriverNode(const rclcpp::NodeOptions & options)
 : PendulumDriverNode("pendulum_driver", options)
@@ -55,7 +55,7 @@ PendulumDriverNode::PendulumDriverNode(
   realtime_cb_group_(create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false)),
   auto_start_node_(declare_parameter<bool>("auto_start_node", false)),
   proc_settings_(
-    pendulum::utils::ProcessSettings(
+    utils::ProcessSettings(
       declare_parameter<bool>("proc_settings.lock_memory", false),
       declare_parameter<std::uint16_t>("proc_settings.process_priority", 0U),
       declare_parameter<std::uint16_t>("proc_settings.cpu_affinity", 0U),
@@ -248,7 +248,7 @@ PendulumDriverNode::on_shutdown(const rclcpp_lifecycle::State &)
   RCLCPP_INFO(get_logger(), "Shutting down");
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
-}  // namespace pendulum::pendulum_driver
+}  // namespace pendulum_driver
 
 #include "rclcpp_components/register_node_macro.hpp"
 
@@ -256,4 +256,4 @@ PendulumDriverNode::on_shutdown(const rclcpp_lifecycle::State &)
 // This acts as a sort of entry point,
 // allowing the component to be discoverable when its library
 // is being loaded into a running process.
-RCLCPP_COMPONENTS_REGISTER_NODE(pendulum::pendulum_driver::PendulumDriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(pendulum_driver::PendulumDriverNode)

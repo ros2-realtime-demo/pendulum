@@ -21,11 +21,11 @@
 #include "pendulum_driver/pendulum_driver_node.hpp"
 #include "pendulum_controller/pendulum_controller_node.hpp"
 
-using pendulum::pendulum_driver::PendulumDriverNode;
-using pendulum::pendulum_controller::PendulumControllerNode;
-using pendulum::utils::ProcessSettings;
-using pendulum::utils::configure_process_priority;
-using pendulum::utils::lock_process_memory;
+using pendulum_driver::PendulumDriverNode;
+using pendulum_controller::PendulumControllerNode;
+using utils::ProcessSettings;
+using utils::configure_process_priority;
+using utils::lock_process_memory;
 
 class TestPendulum : public ::testing::Test
 {

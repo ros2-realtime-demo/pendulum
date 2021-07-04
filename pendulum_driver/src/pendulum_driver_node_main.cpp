@@ -21,10 +21,10 @@
 #include "pendulum_utils/process_settings.hpp"
 #include "pendulum_utils/lifecycle_autostart.hpp"
 
-using pendulum::pendulum_driver::PendulumDriverNode;
-using pendulum::utils::ProcessSettings;
-using pendulum::utils::configure_process_priority;
-using pendulum::utils::lock_process_memory;
+using pendulum_driver::PendulumDriverNode;
+using utils::ProcessSettings;
+using utils::configure_process_priority;
+using utils::lock_process_memory;
 
 int main(int argc, char * argv[])
 {

@@ -23,8 +23,7 @@
 #include "pendulum_utils/memory_lock.hpp"
 #include "pendulum_utils/rt_thread.hpp"
 
-namespace pendulum
-{
+
 namespace utils
 {
 struct ProcessSettings
@@ -85,6 +84,5 @@ void configure_process_priority(int process_priority, uint32_t cpu_affinity)
 }
 
 }  // namespace utils
-}  // namespace pendulum
 
 #endif  // PENDULUM_UTILS__PROCESS_SETTINGS_HPP_

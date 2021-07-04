@@ -19,8 +19,8 @@
 
 // TODO(carlossvg): add out of range tests
 
-using pendulum::pendulum_controller::PendulumController;
-using pendulum::utils::PendulumState;
+using pendulum_controller::PendulumController;
+using utils::PendulumState;
 
 static_assert(std::atomic<double>::is_always_lock_free);
 

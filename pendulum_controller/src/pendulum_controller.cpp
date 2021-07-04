@@ -16,9 +16,9 @@
 #include <utility>
 #include <vector>
 
-using pendulum::utils::PendulumState;
+using utils::PendulumState;
 
-namespace pendulum::pendulum_controller
+namespace pendulum_controller
 {
 PendulumController::Config::Config(std::vector<double> feedback_matrix)
 : feedback_matrix{std::move(feedback_matrix)} {}
@@ -120,4 +120,4 @@ double PendulumController::calculate(
   }
   return controller_output;
 }
-}  // namespace pendulum::pendulum_controller
+}  // namespace pendulum_controller

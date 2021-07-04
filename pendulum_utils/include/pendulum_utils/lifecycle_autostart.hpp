@@ -20,8 +20,6 @@
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "lifecycle_msgs/msg/transition_event.hpp"
 
-namespace pendulum
-{
 namespace utils
 {
 /// \brief Transit a LifecycleNode from inactive to active state
@@ -35,6 +33,6 @@ void autostart(rclcpp_lifecycle::LifecycleNode & node)
   }
 }
 }  // namespace utils
-}  // namespace pendulum
+
 
 #endif  // PENDULUM_UTILS__LIFECYCLE_AUTOSTART_HPP_

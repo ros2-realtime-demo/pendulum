@@ -31,7 +31,7 @@
 #include "pendulum_driver/pendulum_driver.hpp"
 #include "pendulum_driver/visibility_control.hpp"
 
-namespace pendulum::pendulum_driver
+namespace pendulum_driver
 {
 /// \class This class implements a node containing a simulated inverted pendulum or
 /// the drivers for a real one.
@@ -57,7 +57,7 @@ public:
   }
 
   /// \brief Get the process settings to configure the real-time thread
-  pendulum::utils::ProcessSettings get_proc_settings()
+  utils::ProcessSettings get_proc_settings()
   {
     return proc_settings_;
   }
@@ -147,10 +147,10 @@ private:
 
   std::atomic_bool is_active_ = false;
 
-  pendulum::utils::ProcessSettings proc_settings_;
+  utils::ProcessSettings proc_settings_;
 
   std::shared_ptr<rclcpp::StaticWaitSet<0, 0, 1, 0, 0, 0>> wait_set_;
 };
-}  // namespace pendulum::pendulum_driver
+}  // namespace pendulum_driver
 
 #endif  // PENDULUM_DRIVER__PENDULUM_DRIVER_NODE_HPP_

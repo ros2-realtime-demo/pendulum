@@ -21,7 +21,7 @@
 
 #include "pendulum_controller/pendulum_controller_node.hpp"
 
-namespace pendulum::pendulum_controller
+namespace pendulum_controller
 {
 PendulumControllerNode::PendulumControllerNode(const rclcpp::NodeOptions & options)
 : PendulumControllerNode("pendulum_controller", options)
@@ -43,7 +43,7 @@ PendulumControllerNode::PendulumControllerNode(
   realtime_cb_group_(create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false)),
   auto_start_node_(declare_parameter<bool>("auto_start_node", false)),
   proc_settings_(
-    pendulum::utils::ProcessSettings(
+    utils::ProcessSettings(
       declare_parameter<bool>("proc_settings.lock_memory", false),
       declare_parameter<std::uint16_t>("proc_settings.process_priority", 0U),
       declare_parameter<std::uint16_t>("proc_settings.cpu_affinity", 0U),
@@ -240,11 +240,11 @@ PendulumControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
   RCLCPP_INFO(get_logger(), "Shutting down");
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
-}  // namespace pendulum::pendulum_controller
+}  // namespace pendulum_controller
 
 #include "rclcpp_components/register_node_macro.hpp"
 
 // Register the component with class_loader.
 // This acts as a sort of entry point, allowing the component to be discoverable when its library
 // is being loaded into a running process.
-RCLCPP_COMPONENTS_REGISTER_NODE(pendulum::pendulum_controller::PendulumControllerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(pendulum_controller::PendulumControllerNode)

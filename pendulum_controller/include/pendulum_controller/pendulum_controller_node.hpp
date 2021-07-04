@@ -33,7 +33,7 @@
 #include "pendulum_controller/pendulum_controller.hpp"
 #include "pendulum_controller/visibility_control.hpp"
 
-namespace pendulum::pendulum_controller
+namespace pendulum_controller
 {
 /// \class This class implements a node containing a controller for the inverted pendulum.
 class PendulumControllerNode : public rclcpp_lifecycle::LifecycleNode
@@ -58,7 +58,7 @@ public:
   }
 
   /// \brief Get the process settings to configure the real-time thread
-  pendulum::utils::ProcessSettings get_proc_settings()
+  utils::ProcessSettings get_proc_settings()
   {
     return proc_settings_;
   }
@@ -145,10 +145,10 @@ private:
   bool auto_start_node_ = false;
   std::atomic_bool is_active_ = false;
 
-  pendulum::utils::ProcessSettings proc_settings_;
+  utils::ProcessSettings proc_settings_;
 
   std::shared_ptr<rclcpp::StaticWaitSet<1, 0, 0, 0, 0, 0>> wait_set_;
 };
-}  // namespace pendulum::pendulum_controller
+}  // namespace pendulum_controller
 
 #endif  // PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_NODE_HPP_

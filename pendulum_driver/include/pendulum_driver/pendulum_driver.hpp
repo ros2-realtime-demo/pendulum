@@ -34,7 +34,7 @@
 
 static_assert(std::atomic<double>::is_always_lock_free);
 
-namespace pendulum::pendulum_driver
+namespace pendulum_driver
 {
 /// \class This class implements a simulation for the inverted pendulum on a cart.
 ///
@@ -46,7 +46,7 @@ public:
   // dimension of the space state array
   static constexpr std::size_t STATE_DIM = 4U;
 
-  using PendulumState = pendulum::utils::PendulumState;
+  using PendulumState = utils::PendulumState;
 
   class Config
   {
@@ -184,5 +184,5 @@ private:
   // pointer to the derivative motion functions (ODE)
   derivativeF derivative_function_;
 };
-}  // namespace pendulum::pendulum_driver
+}  // namespace pendulum_driver
 #endif  // PENDULUM_DRIVER__PENDULUM_DRIVER_HPP_

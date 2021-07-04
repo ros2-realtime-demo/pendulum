@@ -16,9 +16,9 @@
 #include <vector>
 #include "rcppmath/clamp.hpp"
 
-using pendulum::utils::PendulumState;
+using utils::PendulumState;
 
-namespace pendulum::pendulum_driver
+namespace pendulum_driver
 {
 PendulumDriver::PendulumDriver(const Config & config)
 : cfg_(config),
@@ -126,4 +126,4 @@ void PendulumDriver::reset()
   X_ = {0.0, 0.0, M_PI, 0.0};
 }
 
-}  // namespace pendulum::pendulum_driver
+}  // namespace pendulum_driver

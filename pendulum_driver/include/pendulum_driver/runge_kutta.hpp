@@ -23,7 +23,7 @@
 #include <stdexcept>
 #include <functional>
 
-namespace pendulum::pendulum_driver
+namespace pendulum_driver
 {
 using derivativeF = std::function<double (const std::vector<double> &, double, size_t)>;
 
@@ -100,6 +100,6 @@ private:
   std::vector<double> k1, k2, k3, k4;
   const size_t N;
 };
-}  // namespace pendulum::pendulum_driver
+}  // namespace pendulum_driver
 
 #endif  // PENDULUM_DRIVER__RUNGE_KUTTA_HPP_

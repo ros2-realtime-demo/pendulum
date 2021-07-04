@@ -19,8 +19,8 @@
 
 // TODO(carlossvg): add out of range tests
 
-using pendulum::pendulum_driver::PendulumDriver;
-using pendulum::utils::PendulumState;
+using pendulum_driver::PendulumDriver;
+using utils::PendulumState;
 
 class TestPendulumDriver : public ::testing::Test
 {

@@ -21,7 +21,7 @@
 // TODO(carlossvg): add deadline QoS test
 // TODO(carlossvg): add test checking simulation
 
-using pendulum::pendulum_driver::PendulumDriverNode;
+using pendulum_driver::PendulumDriverNode;
 
 class TestPendulumDriverNode : public ::testing::Test
 {
