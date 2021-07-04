@@ -1,4 +1,4 @@
-# Copyright 2019 Carlos San Vicente
+# Copyright 2021 Carlos San Vicente
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ import os
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
-import launch.substitutions
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -32,10 +31,6 @@ def generate_launch_description():
     with open(urdf_file, 'r') as infp:
         robot_desc = infp.read()
     rsp_params = {'robot_description': robot_desc}
-
-    # Set parameter file path
-    param_file_path = os.path.join(bringup_dir, 'params', 'pendulum.param.yaml')
-    param_file = launch.substitutions.LaunchConfiguration('params', default=[param_file_path])
 
     # Set rviz config path
     rviz_cfg_path = os.path.join(bringup_dir, 'rviz/pendulum.rviz')

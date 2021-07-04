@@ -30,16 +30,16 @@ namespace utils
 struct ProcessSettings
 {
   ProcessSettings(
-      bool lock_memory,
-      int process_priority,
-      uint32_t cpu_affinity,
-      size_t lock_memory_size_mb,
-      bool configure_child_threads)
-      : lock_memory(lock_memory),
-        process_priority(process_priority),
-        cpu_affinity(cpu_affinity),
-        lock_memory_size_mb(lock_memory_size_mb),
-        configure_child_threads(configure_child_threads)
+    bool lock_memory,
+    int process_priority,
+    uint32_t cpu_affinity,
+    size_t lock_memory_size_mb,
+    bool configure_child_threads)
+  : lock_memory(lock_memory),
+    process_priority(process_priority),
+    cpu_affinity(cpu_affinity),
+    lock_memory_size_mb(lock_memory_size_mb),
+    configure_child_threads(configure_child_threads)
   {}
 
   /// lock and prefault memory

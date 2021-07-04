@@ -20,11 +20,13 @@
 
 // Code taken from: https://github.com/hogliux/farbot
 
-#pragma once
+#ifndef PENDULUM_UTILS__REALTIMEOBJECT_HPP_
+#define PENDULUM_UTILS__REALTIMEOBJECT_HPP_
 
 #include <atomic>
 #include <memory>
 #include <mutex>
+#include <utility>
 
 #include "pendulum_utils/detail/RealtimeObject.tcc"
 
@@ -44,9 +46,9 @@ enum class ThreadType
 };
 
 //==============================================================================
-/** Useful class to synchronise access to an object from multiple threads with the additional feature that one
- * designated thread will never wait to get access to the object. */
-template <typename T, RealtimeObjectOptions Options>
+/** Useful class to synchronise access to an object from multiple threads with the additional
+ * feature that one designated thread will never wait to get access to the object. */
+template<typename T, RealtimeObjectOptions Options>
 class RealtimeObject
 {
 public:
@@ -54,20 +56,27 @@ public:
   RealtimeObject() = default;
 
   /** Creates a copy of T */
-  explicit RealtimeObject(const T & obj) : mImpl(obj) {}
+  explicit RealtimeObject(const T & obj)
+  : mImpl(obj) {}
 
   /** Moves T into this realtime wrapper */
-  explicit RealtimeObject(T && obj) : mImpl(std::move(obj)) {}
+  explicit RealtimeObject(T && obj)
+  : mImpl(std::move(obj)) {}
 
   ~RealtimeObject() = default;
 
   /** Create T by calling T's constructor which takes args */
-  template <typename... Args>
-  static RealtimeObject create(Args && ... args)    { return Impl::create(std::forward<Args>(args)...); }
+  template<typename ... Args>
+  static RealtimeObject create(Args && ... args)
+  {
+    return Impl::create(std::forward<Args>(args)...);
+  }
 
   //==============================================================================
-  using RealtimeAcquireReturnType    = std::conditional_t<Options == RealtimeObjectOptions::nonRealtimeMutatable, const T, T>;
-  using NonRealtimeAcquireReturnType = std::conditional_t<Options == RealtimeObjectOptions::realtimeMutatable,    const T, T>;
+  using RealtimeAcquireReturnType =
+    std::conditional_t<Options == RealtimeObjectOptions::nonRealtimeMutatable, const T, T>;
+  using NonRealtimeAcquireReturnType =
+    std::conditional_t<Options == RealtimeObjectOptions::realtimeMutatable, const T, T>;
 
   //==============================================================================
   /** Returns a reference to T. Use this method on the real-time thread.
@@ -78,20 +87,23 @@ public:
    *
    *  This method is wait- and lock-free.
    */
-  RealtimeAcquireReturnType& realtimeAcquire() noexcept     { return mImpl.realtimeAcquire(); }
+  RealtimeAcquireReturnType & realtimeAcquire() noexcept     {return mImpl.realtimeAcquire();}
 
   /** Releases the lock on T previously acquired by realtimeAcquire.
    *
    *  This method is wait- and lock-free.
    */
-  void realtimeRelease() noexcept                           { mImpl.realtimeRelease(); }
+  void realtimeRelease() noexcept                           {mImpl.realtimeRelease();}
 
   /** Replace the underlying value with a new instance of T by forwarding
    *  the method's arguments to T's constructor
    */
-  template <RealtimeObjectOptions O = Options, typename... Args>
+  template<RealtimeObjectOptions O = Options, typename ... Args>
   std::enable_if_t<O == RealtimeObjectOptions::realtimeMutatable, std::void_t<Args...>>
-  realtimeReplace(Args && ... args) noexcept               { mImpl.realtimeReplace(std::forward<Args>(args)...); }
+  realtimeReplace(Args && ... args) noexcept
+  {
+    mImpl.realtimeReplace(std::forward<Args>(args)...);
+  }
 
   //==============================================================================
   /** Returns a reference to T. Use this method on the non real-time thread.
@@ -102,60 +114,64 @@ public:
    *
    *  This method uses a lock should not be used on a realtime thread.
    */
-  NonRealtimeAcquireReturnType& nonRealtimeAcquire()       { return mImpl.nonRealtimeAcquire(); }
+  NonRealtimeAcquireReturnType & nonRealtimeAcquire() {return mImpl.nonRealtimeAcquire();}
 
   /** Releases the lock on T previously acquired by nonRealtimeAcquire.
    *
    *  This method uses both a lock and a spin loop and should not be used
    *  on a realtime thread.
    */
-  void nonRealtimeRelease()                                { mImpl.nonRealtimeRelease(); }
+  void nonRealtimeRelease() {mImpl.nonRealtimeRelease();}
 
   /** Replace the underlying value with a new instance of T by forwarding
    *  the method's arguments to T's constructor
    */
-  template <RealtimeObjectOptions O = Options, typename... Args>
+  template<RealtimeObjectOptions O = Options, typename ... Args>
   std::enable_if_t<O == RealtimeObjectOptions::nonRealtimeMutatable, std::void_t<Args...>>
-  nonRealtimeReplace(Args && ... args)                     { mImpl.nonRealtimeReplace(std::forward<Args>(args)...); }
+  nonRealtimeReplace(Args && ... args) {mImpl.nonRealtimeReplace(std::forward<Args>(args)...);}
 
   //==============================================================================
   /** Instead of calling acquire and release manually, you can also use this RAII
    *  version which calls acquire automatically on construction and release when
    *  destructed.
    */
-  template <ThreadType threadType>
-  class ScopedAccess    : public std::conditional_t<Options == RealtimeObjectOptions::realtimeMutatable,
+  template<ThreadType threadType>
+  class ScopedAccess
+    : public std::conditional_t<Options == RealtimeObjectOptions::realtimeMutatable,
       detail::RealtimeMutatable<T>,
-                          detail::NonRealtimeMutatable<T>>::template ScopedAccess<threadType == ThreadType::realtime>
+      detail::NonRealtimeMutatable<T>>::template ScopedAccess<threadType == ThreadType::realtime>
   {
-    public:
-    explicit ScopedAccess (RealtimeObject& parent)
-    : Impl::template ScopedAccess<threadType == ThreadType::realtime> (parent.mImpl) {}
+public:
+    explicit ScopedAccess(RealtimeObject & parent)
+    : Impl::template ScopedAccess<threadType == ThreadType::realtime>(parent.mImpl) {}
 
 #if DOXYGEN
     // Various ways to get access to the underlying object.
-        // Non-const method are only supported on the realtime
-        // or non-realtime thread as indicated by the Options
-        // template argument
-        T* get() noexcept;
-        const T* get() const noexcept;
-        T &operator *() noexcept;
-        const T &operator *() const noexcept;
-        T* operator->() noexcept;
-        const T* operator->() const noexcept;
+    // Non-const method are only supported on the realtime
+    // or non-realtime thread as indicated by the Options
+    // template argument
+    T * get() noexcept;
+    const T * get() const noexcept;
+    T & operator*() noexcept;
+    const T & operator*() const noexcept;
+    T * operator->() noexcept;
+    const T * operator->() const noexcept;
 #endif
 
     //==============================================================================
-    ScopedAccess(const ScopedAccess&) = delete;
+    ScopedAccess(const ScopedAccess &) = delete;
     ScopedAccess(ScopedAccess &&) = delete;
-    ScopedAccess& operator=(const ScopedAccess&) = delete;
-    ScopedAccess& operator=(ScopedAccess&&) = delete;
+    ScopedAccess & operator=(const ScopedAccess &) = delete;
+    ScopedAccess & operator=(ScopedAccess &&) = delete;
   };
+
 private:
   using Impl = std::conditional_t<Options == RealtimeObjectOptions::realtimeMutatable,
       detail::RealtimeMutatable<T>,
-  detail::NonRealtimeMutatable<T>>;
+      detail::NonRealtimeMutatable<T>>;
   Impl mImpl;
 };
 
-}
+}  // namespace farbot
+
+#endif  // PENDULUM_UTILS__REALTIMEOBJECT_HPP_
