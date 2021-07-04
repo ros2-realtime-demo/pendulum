@@ -18,7 +18,6 @@ pendulum_controller:
 pendulum_driver:
   ros__parameters:
     auto_start_node: True
-    use_executor: False
     state_topic_name: "pendulum_joint_states"
     command_topic_name: "joint_command"
     disturbance_topic_name: "disturbance"
