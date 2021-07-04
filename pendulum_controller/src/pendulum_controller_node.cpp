@@ -21,11 +21,8 @@
 
 #include "pendulum_controller/pendulum_controller_node.hpp"
 
-namespace pendulum
+namespace pendulum::pendulum_controller
 {
-namespace pendulum_controller
-{
-
 PendulumControllerNode::PendulumControllerNode(const rclcpp::NodeOptions & options)
 : PendulumControllerNode("pendulum_controller", options)
 {}
@@ -238,8 +235,7 @@ PendulumControllerNode::on_shutdown(const rclcpp_lifecycle::State &)
   RCLCPP_INFO(get_logger(), "Shutting down");
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
-}  // namespace pendulum_controller
-}  // namespace pendulum
+}  // namespace pendulum::pendulum_controller
 
 #include "rclcpp_components/register_node_macro.hpp"
 

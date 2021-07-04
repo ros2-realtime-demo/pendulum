@@ -31,9 +31,7 @@
 #include "pendulum_driver/pendulum_driver.hpp"
 #include "pendulum_driver/visibility_control.hpp"
 
-namespace pendulum
-{
-namespace pendulum_driver
+namespace pendulum::pendulum_driver
 {
 /// \class This class implements a node containing a simulated inverted pendulum or
 /// the drivers for a real one.
@@ -52,36 +50,29 @@ public:
     const std::string & node_name,
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
-  rclcpp::Subscription<pendulum2_msgs::msg::JointCommand>::SharedPtr
-  get_command_subscription() const
-  {
-    return command_sub_;
-  }
 
-  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<pendulum2_msgs::msg::JointState>>
-  get_state_publisher() const
-  {
-    return state_pub_;
-  }
-
-  rclcpp::TimerBase::SharedPtr get_state_timer() const
-  {
-    return state_timer_;
-  }
-
-  rclcpp::CallbackGroup::SharedPtr get_realtime_callback_group() const
+  /// \brief
+  [[maybe_unused]] rclcpp::CallbackGroup::SharedPtr get_realtime_callback_group() const
   {
     return realtime_cb_group_;
   }
 
-
+  /// \brief Get the process settings to configure the real-time thread
   pendulum::utils::ProcessSettings get_proc_settings()
   {
     return proc_settings_;
   }
 
+  /// \brief Start the activity by transitioning the node to active state
+  /// \remarks safe to call from real-time thread
   void start();
+
+  /// \brief Run the real-time loop
+  /// \remarks safe to call from real-time thread
   void run_realtime_loop();
+
+  /// \brief Real-time loop update
+  /// \remarks safe to call from real-time thread
   void update_realtime_loop();
 
 private:
@@ -159,7 +150,6 @@ private:
 
   std::shared_ptr<rclcpp::StaticWaitSet<0, 0, 1, 0, 0, 0>> wait_set_;
 };
-}  // namespace pendulum_driver
-}  // namespace pendulum
+}  // namespace pendulum::pendulum_driver
 
 #endif  // PENDULUM_DRIVER__PENDULUM_DRIVER_NODE_HPP_

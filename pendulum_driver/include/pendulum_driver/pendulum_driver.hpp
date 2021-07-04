@@ -33,9 +33,7 @@
 
 static_assert(std::atomic<double>::is_always_lock_free);
 
-namespace pendulum
-{
-namespace pendulum_driver
+namespace pendulum::pendulum_driver
 {
 /// \class This class implements a simulation for the inverted pendulum on a cart.
 ///
@@ -199,6 +197,5 @@ private:
   // pointer to the derivative motion functions (ODE)
   derivativeF derivative_function_;
 };
-}  // namespace pendulum_driver
-}  // namespace pendulum
+}  // namespace pendulum::pendulum_driver
 #endif  // PENDULUM_DRIVER__PENDULUM_DRIVER_HPP_

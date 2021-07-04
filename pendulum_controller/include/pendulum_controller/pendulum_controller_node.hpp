@@ -33,9 +33,7 @@
 #include "pendulum_controller/pendulum_controller.hpp"
 #include "pendulum_controller/visibility_control.hpp"
 
-namespace pendulum
-{
-namespace pendulum_controller
+namespace pendulum::pendulum_controller
 {
 /// \class This class implements a node containing a controller for the inverted pendulum.
 class PendulumControllerNode : public rclcpp_lifecycle::LifecycleNode
@@ -53,41 +51,35 @@ public:
     const std::string & node_name,
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
-  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<pendulum2_msgs::msg::JointCommand>>
-  get_command_publisher() const
-  {
-    return command_pub_;
-  }
-
-  std::shared_ptr<rclcpp::Subscription<pendulum2_msgs::msg::JointState>>
-  get_state_subscription() const
-  {
-    return state_sub_;
-  }
-
-  rclcpp::CallbackGroup::SharedPtr get_realtime_callback_group() const
+  [[maybe_unused]] rclcpp::CallbackGroup::SharedPtr get_realtime_callback_group() const
   {
     return realtime_cb_group_;
   }
 
-  void start();
-
-  /// \remarks safe to call from real-time thread
-  void run_realtime_loop();
-
-  /// \remarks safe to call from real-time thread
-  void update_realtime_loop();
-
-  void wait_for_driver();
-
-  /// \remarks safe to call from real-time thread
-  void update_controller(const pendulum2_msgs::msg::JointState & msg);
-
-
+  /// \brief Get the process settings to configure the real-time thread
   pendulum::utils::ProcessSettings get_proc_settings()
   {
     return proc_settings_;
   }
+
+  /// \brief Start the activity by transitioning the node to active state
+  void start();
+
+  /// \brief Run the real-time loop
+  /// \remarks safe to call from real-time thread
+  void run_realtime_loop();
+
+  /// \brief Real-time loop update
+  /// \remarks safe to call from real-time thread
+  void update_realtime_loop();
+
+  /// \brief
+  void wait_for_driver();
+
+  /// \brief
+  /// \param[in] node_name Name of this node
+  /// \remarks safe to call from real-time thread
+  void update_controller(const pendulum2_msgs::msg::JointState & msg);
 
 private:
   /// \brief Create teleoperation subscription
@@ -154,7 +146,6 @@ private:
 
   std::shared_ptr<rclcpp::StaticWaitSet<1, 0, 0, 0, 0, 0>> wait_set_;
 };
-}  // namespace pendulum_controller
-}  // namespace pendulum
+}  // namespace pendulum::pendulum_controller
 
 #endif  // PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_NODE_HPP_

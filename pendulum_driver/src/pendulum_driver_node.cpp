@@ -20,9 +20,7 @@
 
 #include "pendulum_driver/pendulum_driver_node.hpp"
 
-namespace pendulum
-{
-namespace pendulum_driver
+namespace pendulum::pendulum_driver
 {
 PendulumDriverNode::PendulumDriverNode(const rclcpp::NodeOptions & options)
 : PendulumDriverNode("pendulum_driver", options)
@@ -246,8 +244,7 @@ PendulumDriverNode::on_shutdown(const rclcpp_lifecycle::State &)
   RCLCPP_INFO(get_logger(), "Shutting down");
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
-}  // namespace pendulum_driver
-}  // namespace pendulum
+}  // namespace pendulum:pendulum_driver
 
 #include "rclcpp_components/register_node_macro.hpp"
 
