@@ -16,14 +16,14 @@
 /// \brief This file provides an implementation for a Runge-Kutta method to solve
 ///        ordinary differential equations (ODE)
 
-#ifndef PENDULUM_DRIVER__RUNGE_KUTTA_HPP_
-#define PENDULUM_DRIVER__RUNGE_KUTTA_HPP_
+#ifndef PENDULUM_UTILS__RUNGE_KUTTA_HPP_
+#define PENDULUM_UTILS__RUNGE_KUTTA_HPP_
 
 #include <vector>
 #include <stdexcept>
 #include <functional>
 
-namespace pendulum_driver
+namespace utils
 {
 using derivativeF = std::function<double (const std::vector<double> &, double, size_t)>;
 
@@ -100,6 +100,6 @@ private:
   std::vector<double> k1, k2, k3, k4;
   const size_t N;
 };
-}  // namespace pendulum_driver
+}  // namespace utils
 
-#endif  // PENDULUM_DRIVER__RUNGE_KUTTA_HPP_
+#endif  // PENDULUM_UTILS__RUNGE_KUTTA_HPP_

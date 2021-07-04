@@ -25,10 +25,11 @@
 #include <atomic>
 
 #include "pendulum_utils/pendulum_data.hpp"
+#include "pendulum_utils/runge_kutta.hpp"
+
 #include "pendulum2_msgs/msg/joint_state.hpp"
 #include "pendulum2_msgs/msg/joint_command.hpp"
 
-#include "pendulum_driver/runge_kutta.hpp"
 #include "pendulum_driver/visibility_control.hpp"
 
 
@@ -161,7 +162,7 @@ private:
   double dt_;
   PendulumState pendulum_state_;
 
-  RungeKutta ode_solver_;
+  utils::RungeKutta ode_solver_;
   // state array for ODE solver
   // X[0]: cart position
   // X[1]: cart velocity
@@ -182,7 +183,7 @@ private:
   std::uniform_real_distribution<double> noise_gen_;
 
   // pointer to the derivative motion functions (ODE)
-  derivativeF derivative_function_;
+  utils::derivativeF derivative_function_;
 };
 }  // namespace pendulum_driver
 #endif  // PENDULUM_DRIVER__PENDULUM_DRIVER_HPP_
