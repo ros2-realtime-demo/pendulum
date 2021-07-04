@@ -12,10 +12,9 @@
   <depend>pendulum2_msgs</depend>
   <depend>pendulum_bringup</depend>
   <depend>pendulum_controller</depend>
-  <depend>pendulum_demo</depend>
   <depend>pendulum_driver</depend>
   <depend>pendulum_utils</depend>
-
+  <depend>pendulum_tests</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

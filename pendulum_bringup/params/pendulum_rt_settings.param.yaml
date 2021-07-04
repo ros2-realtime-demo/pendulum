@@ -9,10 +9,10 @@ pendulum_controller:
     controller:
       feedback_matrix: [-10.0000, -51.5393, 356.8637, 154.4146]
     proc_settings:
-      lock_memory: False
-      process_priority: 0
-      cpu_affinity: 0
-      lock_memory_size_mb: 0
+      lock_memory: True
+      process_priority: 80
+      cpu_affinity: 1
+      lock_memory_size_mb: 100
       configure_child_threads: False
 
 pendulum_driver:
@@ -35,8 +35,8 @@ pendulum_driver:
       max_cart_force: 1000.0
       noise_level: 1.0
     proc_settings:
-      lock_memory: False
-      process_priority: 0
-      cpu_affinity: 0
-      lock_memory_size_mb: 0
+      lock_memory: True
+      process_priority: 80
+      cpu_affinity: 1
+      lock_memory_size_mb: 100
       configure_child_threads: False

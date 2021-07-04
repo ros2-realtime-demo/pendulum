@@ -76,11 +76,6 @@ install(
     DESTINATION include
 )
 
-install(
-    DIRECTORY params
-    DESTINATION share/${PROJECT_NAME}
-)
-
 install(TARGETS ${PENDULUM_DRIVER_LIB} ${PENDULUM_DRIVER_EXE}
     EXPORT export_${PENDULUM_DRIVER_LIB}
     LIBRARY DESTINATION lib
