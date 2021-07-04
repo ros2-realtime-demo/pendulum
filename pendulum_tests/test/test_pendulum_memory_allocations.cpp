@@ -14,12 +14,12 @@
 
 #include <gtest/gtest.h>
 #include <vector>
+#include <memory>
 
 #include "apex_test_tools/apex_test_tools.hpp"
 
 #include "pendulum_driver/pendulum_driver_node.hpp"
 #include "pendulum_controller/pendulum_controller_node.hpp"
-
 
 using pendulum::pendulum_driver::PendulumDriverNode;
 using pendulum::pendulum_controller::PendulumControllerNode;
@@ -74,30 +74,6 @@ protected:
   }
 };
 
-TEST_F(TestPendulum, waitset)
-{
-  auto guard_condition = std::make_shared<rclcpp::GuardCondition>();
-
-  rclcpp::StaticWaitSet<0, 1, 0, 0, 0, 0> static_wait_set(
-    std::array<rclcpp::StaticWaitSet<0, 1, 0, 0, 0, 0>::SubscriptionEntry, 0>{},
-    std::array<rclcpp::GuardCondition::SharedPtr, 1>{{guard_condition}},
-    std::array<rclcpp::TimerBase::SharedPtr, 0>{},
-    std::array<rclcpp::ClientBase::SharedPtr, 0>{},
-    std::array<rclcpp::ServiceBase::SharedPtr, 0>{},
-    std::array<rclcpp::StaticWaitSet<0, 1, 0, 0, 0, 0>::WaitableEntry, 0>{});
-
-  //rclcpp::WaitResult<rclcpp::StaticWaitSet<0, 1, 0, 0, 0, 0>> wait_result = static_wait_set.wait
-  //(std::chrono::seconds(1));
-  static_wait_set.wait(std::chrono::seconds(0));
-
-  apex_test_tools::memory_test::start();
-  auto wait_result2 = static_wait_set.wait(std::chrono::seconds(1));
-  // bool result = wait_result.kind() == rclcpp::WaitResultKind::Timeout;
-  // auto wait_result = static_wait_set.wait(std::chrono::seconds(1));
-  // wait_result.kind() == rclcpp::WaitResultKind::Ready;
-  apex_test_tools::memory_test::stop();
-  // EXPECT_TRUE(result);
-}
 
 TEST_F(TestPendulum, real_time_loop_does_not_allocate)
 {

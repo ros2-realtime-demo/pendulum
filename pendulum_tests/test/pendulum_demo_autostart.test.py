@@ -11,20 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import os
 import signal
-
 import unittest
 
-import launch
-import launch_ros.actions
-import launch_ros.events
-import launch_ros.events.lifecycle
-
+from launch import LaunchDescription
+import launch.substitutions
+from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-
-import launch_testing
 import launch_testing.actions
 import launch_testing.asserts
 import launch_testing.util
@@ -34,16 +28,25 @@ import pytest
 
 @pytest.mark.rostest
 def generate_test_description():
-    package_dir = FindPackageShare('pendulum_demo').find('pendulum_demo')
-    param_file_path = os.path.join(package_dir, 'params', 'test.param.yaml')
+    test_dir = FindPackageShare('pendulum_tests').find('pendulum_tests')
+
+    param_file_path = os.path.join(test_dir, 'params', 'test_autostart.param.yaml')
     param_file = launch.substitutions.LaunchConfiguration('params', default=[param_file_path])
 
-    pendulum_demo = launch_ros.actions.Node(
-        package='pendulum_demo',
-        executable='pendulum_demo',
+    controller_launch = Node(
+        package='pendulum_controller',
+        executable='pendulum_controller_exe',
         output='screen',
         parameters=[param_file],
-        arguments=['--autostart', 'True'],
+        arguments=[]
+    )
+
+    driver_launch = Node(
+        package='pendulum_driver',
+        executable='pendulum_driver_exe',
+        output='screen',
+        parameters=[param_file],
+        arguments=[]
     )
 
     shutdown_timer = launch.actions.TimerAction(
@@ -52,37 +55,45 @@ def generate_test_description():
             launch.actions.EmitEvent(
                 event=launch.events.process.SignalProcess(
                     signal_number=signal.SIGINT,
-                    process_matcher=lambda proc: proc is pendulum_demo
+                    process_matcher=lambda proc: proc is controller_launch
                 )
+            ),
+            launch.actions.EmitEvent(
+                event=launch.events.process.SignalProcess(
+                    signal_number=signal.SIGINT,
+                    process_matcher=lambda proc: proc is driver_launch
+                ),
             )
         ]
     )
 
-    return (
-        launch.LaunchDescription([
-            pendulum_demo,
-            shutdown_timer,
-            launch_testing.util.KeepAliveProc(),
-            launch_testing.actions.ReadyToTest(),
-        ]),
-        {
-            'pendulum_demo': pendulum_demo,
-        }
-    )
+    ld = LaunchDescription()
+    ld.add_action(controller_launch)
+    ld.add_action(driver_launch)
+    ld.add_action(shutdown_timer)
+    ld.add_action(launch_testing.util.KeepAliveProc())
+    ld.add_action(launch_testing.actions.ReadyToTest())
+
+    return ld, {
+        'controller_launch': controller_launch,
+        'driver_launch': driver_launch
+    }
 
 
 class TestPendulumDemo(unittest.TestCase):
 
-    def test_proc_starts(self, proc_info, pendulum_demo):
-        proc_info.assertWaitForStartup(process=pendulum_demo, timeout=5)
+    def test_proc_starts(self, proc_info, controller_launch, driver_launch):
+        proc_info.assertWaitForStartup(process=controller_launch, timeout=5)
+        proc_info.assertWaitForStartup(process=driver_launch, timeout=5)
 
-    def test_proc_terminates(self, proc_info, pendulum_demo):
-        proc_info.assertWaitForShutdown(pendulum_demo, timeout=10)
+    def test_proc_terminates(self, proc_info, controller_launch, driver_launch):
+        proc_info.assertWaitForShutdown(controller_launch, timeout=10)
+        proc_info.assertWaitForShutdown(driver_launch, timeout=10)
 
 
 @launch_testing.post_shutdown_test()
 class TestShutdown(unittest.TestCase):
 
-    def test_node_graceful_shutdown(self, proc_info, pendulum_demo):
-        """Test pendulum_demo graceful shutdown."""
-        launch_testing.asserts.assertExitCodes(proc_info, process=pendulum_demo)
+    def test_node_graceful_shutdown(self, proc_info, controller_launch, driver_launch):
+        launch_testing.asserts.assertExitCodes(proc_info, process=controller_launch)
+        launch_testing.asserts.assertExitCodes(proc_info, process=driver_launch)
