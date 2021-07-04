@@ -35,7 +35,7 @@ PendulumControllerNode::PendulumControllerNode(
   command_topic_name_(declare_parameter<std::string>("command_topic_name", "joint_command")),
   teleop_topic_name_(declare_parameter<std::string>("teleop_topic_name", "teleop")),
   deadline_duration_{std::chrono::milliseconds {
-        declare_parameter<std::uint16_t>("deadline_us", 2000U)}},
+      declare_parameter<std::uint16_t>("deadline_us", 2000U)}},
   controller_(PendulumController::Config(
       declare_parameter<std::vector<double>>("controller.feedback_matrix",
       {-10.0000, -51.5393, 356.8637, 154.4146}))),
@@ -136,7 +136,8 @@ void PendulumControllerNode::wait_for_driver()
   while (rclcpp::ok() && !is_ready) {
     bool sub_matched = command_pub_->get_subscription_count() == 1U;
     bool pub_matched = state_sub_->get_publisher_count() == 1U;
-    is_ready = sub_matched && pub_matched;
+    bool is_active = is_active_.load();
+    is_ready = sub_matched && pub_matched && is_active;
     if (!is_ready) {
       rclcpp::sleep_for(std::chrono::milliseconds(10));
     }
@@ -160,7 +161,9 @@ void PendulumControllerNode::update_realtime_loop()
       }
     }
   } else if (wait_result.kind() == rclcpp::WaitResultKind::Timeout) {
-    num_missed_deadlines_++;
+    if (is_active_.load()) {
+      ++num_missed_deadlines_;
+    }
   }
 }
 
@@ -209,6 +212,7 @@ PendulumControllerNode::on_activate(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(get_logger(), "Activating");
   command_pub_->on_activate();
+  is_active_.store(true);
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -219,6 +223,7 @@ PendulumControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
   command_pub_->on_deactivate();
   // log the status to introspect the result
   log_controller_state();
+  is_active_.store(false);
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 

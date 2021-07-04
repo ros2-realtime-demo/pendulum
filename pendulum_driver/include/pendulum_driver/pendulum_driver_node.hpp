@@ -50,8 +50,7 @@ public:
     const std::string & node_name,
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
-
-  /// \brief
+  /// \brief Get the callback group for real-time entities
   [[maybe_unused]] rclcpp::CallbackGroup::SharedPtr get_realtime_callback_group() const
   {
     return realtime_cb_group_;
@@ -145,6 +144,8 @@ private:
 
   /// automatically activate lifecycle nodes
   bool auto_start_node_ = false;
+
+  std::atomic_bool is_active_ = false;
 
   pendulum::utils::ProcessSettings proc_settings_;
 

@@ -36,9 +36,9 @@ PendulumDriverNode::PendulumDriverNode(
   cart_base_joint_name_(declare_parameter<std::string>("cart_base_joint_name", "cart_base_joint")),
   pole_joint_name_(declare_parameter<std::string>("pole_joint_name", "pole_joint")),
   update_period_(std::chrono::microseconds{
-      declare_parameter<std::uint16_t>("update_period_us", 1000U)}),
+    declare_parameter<std::uint16_t>("update_period_us", 1000U)}),
   deadline_duration_{std::chrono::milliseconds{
-        declare_parameter<std::uint16_t>("deadline_us", 2000U)}},
+      declare_parameter<std::uint16_t>("deadline_us", 2000U)}},
   driver_(
     PendulumDriver::Config(
       declare_parameter<double>("driver.pendulum_mass", 1.0),
@@ -183,7 +183,9 @@ void PendulumDriverNode::update_realtime_loop()
       state_timer_->execute_callback();
     }
   } else if (wait_result.kind() == rclcpp::WaitResultKind::Timeout) {
-    ++num_missed_deadlines_;
+    if (is_active_.load()) {
+      ++num_missed_deadlines_;
+    }
   }
 }
 
@@ -217,6 +219,7 @@ PendulumDriverNode::on_activate(const rclcpp_lifecycle::State &)
   RCLCPP_INFO(get_logger(), "Activating");
   state_pub_->on_activate();
   state_timer_->reset();
+  is_active_.store(true);
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -228,6 +231,7 @@ PendulumDriverNode::on_deactivate(const rclcpp_lifecycle::State &)
   state_pub_->on_deactivate();
   // log the status to introspect the result
   log_driver_state();
+  is_active_.store(false);
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
@@ -244,7 +248,7 @@ PendulumDriverNode::on_shutdown(const rclcpp_lifecycle::State &)
   RCLCPP_INFO(get_logger(), "Shutting down");
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
-}  // namespace pendulum:pendulum_driver
+}  // namespace pendulum::pendulum_driver
 
 #include "rclcpp_components/register_node_macro.hpp"
 

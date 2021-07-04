@@ -51,6 +51,7 @@ public:
     const std::string & node_name,
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
+  /// \brief Get the callback group for real-time entities
   [[maybe_unused]] rclcpp::CallbackGroup::SharedPtr get_realtime_callback_group() const
   {
     return realtime_cb_group_;
@@ -74,10 +75,11 @@ public:
   void update_realtime_loop();
 
   /// \brief
+  /// \remarks safe to call from real-time thread
   void wait_for_driver();
 
   /// \brief
-  /// \param[in] node_name Name of this node
+  /// \param[in] msg Message with the pendulum state data
   /// \remarks safe to call from real-time thread
   void update_controller(const pendulum2_msgs::msg::JointState & msg);
 
@@ -141,6 +143,7 @@ private:
 
   /// automatically activate lifecycle nodes
   bool auto_start_node_ = false;
+  std::atomic_bool is_active_ = false;
 
   pendulum::utils::ProcessSettings proc_settings_;
 
