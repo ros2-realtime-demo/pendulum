@@ -18,9 +18,7 @@
 #include <cmath>
 
 
-namespace pendulum
-{
-namespace utils
+namespace pendulum::utils
 {
 
 /// Struct representing the dynamic/kinematic state of the pendulum.
@@ -46,23 +44,5 @@ struct PendulumState
   double disturbance_force_ = 0.0;
 };
 
-/// Struct representing the dynamic/kinematic state of the pendulum.
-struct PendulumReference
-{
-  // Position of the cart in meters
-  double cart_position = 0.0;
-  // Velocity of the cart in meters/s
-  double cart_velocity = 0.0;
-  // Angular position of the pendulum in radians
-  // PI is up position
-  double pole_angle = M_PI;
-  // angular velocity of the pendulum in rad/s
-  double pole_velocity = 0.0;
-  // total force applied to the cart in Newton
-  double cart_force = 0.0;
-};
-
-
-}  // namespace utils
-}  // namespace pendulum
+}  // namespace pendulum::utils
 #endif  // PENDULUM_UTILS__PENDULUM_DATA_HPP_
