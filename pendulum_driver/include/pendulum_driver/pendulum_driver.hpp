@@ -24,6 +24,7 @@
 #include <random>
 #include <atomic>
 
+#include "pendulum_utils/pendulum_data.hpp"
 #include "pendulum2_msgs/msg/joint_state.hpp"
 #include "pendulum2_msgs/msg/joint_command.hpp"
 
@@ -45,21 +46,7 @@ public:
   // dimension of the space state array
   static constexpr std::size_t STATE_DIM = 4U;
 
-  /// Struct representing the dynamic/kinematic state of the pendulum.
-  struct PendulumData
-  {
-    // Position of the cart in meters
-    double cart_position = 0.0;
-    // Velocity of the cart in meters/s
-    double cart_velocity = 0.0;
-    // Angular position of the pendulum in radians
-    // PI is up position
-    double pole_angle = M_PI;
-    // angular velocity of the pendulum in rad/s
-    double pole_velocity = 0.0;
-    // total force applied to the cart in Newton
-    double cart_force = 0.0;
-  };
+  using PendulumState = pendulum::utils::PendulumState;
 
   class Config
   {
@@ -152,7 +139,7 @@ private:
 
   /// \brief Get pendulum state
   /// \return State data
-  [[nodiscard]] PendulumData get_state();
+  [[nodiscard]] PendulumState get_state();
 
   /// \brief Gets the applied force by the controller motor to the cart
   /// \return controller cart applied force in Newton
@@ -172,7 +159,7 @@ private:
   // Pendulum simulation configuration parameters
   const Config cfg_;
   double dt_;
-  PendulumData joint_state_;
+  PendulumState pendulum_state_;
 
   RungeKutta ode_solver_;
   // state array for ODE solver

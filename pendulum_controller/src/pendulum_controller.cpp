@@ -16,6 +16,8 @@
 #include <utility>
 #include <vector>
 
+using pendulum::utils::PendulumState;
+
 namespace pendulum::pendulum_controller
 {
 PendulumController::Config::Config(std::vector<double> feedback_matrix)
@@ -91,13 +93,13 @@ void PendulumController::set_force_command(double force)
   force_command_.store(force);
 }
 
-PendulumController::PendulumData PendulumController::get_teleop()
+PendulumState PendulumController::get_teleop()
 {
   RealtimeTeleopData::ScopedAccess<ThreadType::realtime> teleop(teleop_);
   return *teleop;
 }
 
-PendulumController::PendulumData PendulumController::get_state()
+PendulumState PendulumController::get_state()
 {
   RealtimeStateData::ScopedAccess<ThreadType::nonRealtime> joint_state(state_);
   return *joint_state;

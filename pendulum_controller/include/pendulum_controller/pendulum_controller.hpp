@@ -22,6 +22,7 @@
 #include <vector>
 #include <atomic>
 
+#include "pendulum_utils/pendulum_data.hpp"
 #include "pendulum_utils/RealtimeObject.hpp"
 
 #include "pendulum2_msgs/msg/joint_state.hpp"
@@ -40,25 +41,10 @@ namespace pendulum::pendulum_controller
 class PENDULUM_CONTROLLER_PUBLIC PendulumController
 {
 public:
-  /// Struct representing the dynamic/kinematic state of the pendulum.
-  struct PendulumData
-  {
-    // Position of the cart in meters
-    double cart_position = 0.0;
-    // Velocity of the cart in meters/s
-    double cart_velocity = 0.0;
-    // Angular position of the pendulum in radians
-    // PI is up position
-    double pole_angle = M_PI;
-    // angular velocity of the pendulum in rad/s
-    double pole_velocity = 0.0;
-    // total force applied to the cart in Newton
-    double cart_force = 0.0;
-  };
-
-  using RealtimeTeleopData = farbot::RealtimeObject<PendulumData,
+  using PendulumState = pendulum::utils::PendulumState;
+  using RealtimeTeleopData = farbot::RealtimeObject<PendulumState,
       farbot::RealtimeObjectOptions::nonRealtimeMutatable>;
-  using RealtimeStateData = farbot::RealtimeObject<PendulumData,
+  using RealtimeStateData = farbot::RealtimeObject<PendulumState,
       farbot::RealtimeObjectOptions::realtimeMutatable>;
   using ThreadType = farbot::ThreadType;
 
@@ -119,11 +105,11 @@ private:
   /// \brief Get pendulum teleoperation data
   /// \return Teleoperation data
   /// \remarks safe to call from real-time thread
-  [[nodiscard]] PendulumData get_teleop();
+  [[nodiscard]] PendulumState get_teleop();
 
   /// \brief Get pendulum state
   /// \return State data
-  [[nodiscard]] PendulumData get_state();
+  [[nodiscard]] PendulumState get_state();
 
   /// \brief Get force command data
   /// \return Force command in Newton

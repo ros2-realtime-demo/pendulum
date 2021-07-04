@@ -16,6 +16,8 @@
 #include <vector>
 #include "rcppmath/clamp.hpp"
 
+using pendulum::utils::PendulumState;
+
 namespace pendulum::pendulum_driver
 {
 PendulumDriver::PendulumDriver(const Config & config)
@@ -67,10 +69,10 @@ PendulumDriver::PendulumDriver(const Config & config)
 
 void PendulumDriver::set_state(double cart_pos, double cart_vel, double pole_pos, double pole_vel)
 {
-  joint_state_.cart_position = cart_pos;
-  joint_state_.cart_velocity = cart_vel;
-  joint_state_.pole_angle = pole_pos;
-  joint_state_.pole_velocity = pole_vel;
+  pendulum_state_.cart_position = cart_pos;
+  pendulum_state_.cart_velocity = cart_vel;
+  pendulum_state_.pole_angle = pole_pos;
+  pendulum_state_.pole_velocity = pole_vel;
 }
 
 void PendulumDriver::set_controller_cart_force(double force)
@@ -86,9 +88,9 @@ void PendulumDriver::set_disturbance_force(double force)
   disturbance_force_.store(force);
 }
 
-PendulumDriver::PendulumData PendulumDriver::get_state()
+PendulumState PendulumDriver::get_state()
 {
-  return joint_state_;
+  return pendulum_state_;
 }
 
 double PendulumDriver::get_controller_cart_force() const
@@ -108,11 +110,11 @@ void PendulumDriver::update()
   double cart_force = disturbance_force + controller_force;
   ode_solver_.step(derivative_function_, X_, dt_, cart_force);
 
-  joint_state_.cart_position = X_[0];
-  joint_state_.cart_velocity = X_[1];
-  joint_state_.cart_force = cart_force;
-  joint_state_.pole_angle = X_[2];
-  joint_state_.pole_velocity = X_[3];
+  pendulum_state_.cart_position = X_[0];
+  pendulum_state_.cart_velocity = X_[1];
+  pendulum_state_.cart_force = cart_force;
+  pendulum_state_.pole_angle = X_[2];
+  pendulum_state_.pole_velocity = X_[3];
 }
 
 void PendulumDriver::reset()

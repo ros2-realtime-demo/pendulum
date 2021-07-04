@@ -20,6 +20,7 @@
 // TODO(carlossvg): add out of range tests
 
 using pendulum::pendulum_controller::PendulumController;
+using pendulum::utils::PendulumState;
 
 static_assert(std::atomic<double>::is_always_lock_free);
 
@@ -51,7 +52,7 @@ TEST_F(TestPendulumController, set_get_teleoperation)
   double cart_vel{2.0};
   double pole_pos{3.0};
   double pole_vel{4.0};
-  PendulumController::PendulumData teleop_data;
+  PendulumState teleop_data;
 
   controller.set_teleop(cart_pos, cart_vel, pole_pos, pole_vel);
   apex_test_tools::memory_test::start();
@@ -82,7 +83,7 @@ TEST_F(TestPendulumController, set_get_state)
   double cart_vel{2.0};
   double pole_pos{3.0};
   double pole_vel{4.0};
-  PendulumController::PendulumData state_data;
+  PendulumState state_data;
 
   apex_test_tools::memory_test::start();
   controller.set_state(cart_pos, cart_vel, pole_pos, pole_vel);
