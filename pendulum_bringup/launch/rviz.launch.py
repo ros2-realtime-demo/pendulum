@@ -43,7 +43,7 @@ def generate_launch_description():
     # Create the launch configuration variables
     with_rviz_param = DeclareLaunchArgument(
         'rviz',
-        default_value='False',
+        default_value='True',
         description='Launch RVIZ2 in addition to other nodes'
     )
 
