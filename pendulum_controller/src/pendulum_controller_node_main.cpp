@@ -20,6 +20,7 @@
 #include "pendulum_utils/process_settings.hpp"
 #include "pendulum_controller/pendulum_controller_node.hpp"
 
+
 using pendulum_controller::PendulumControllerNode;
 using utils::ProcessSettings;
 using utils::configure_process_priority;
@@ -54,8 +55,9 @@ int main(int argc, char * argv[])
 
     controller_node_ptr->start();
 
-    // TODO(carlosvg): add wait loop or experiment duration option
-    rclcpp::sleep_for(std::chrono::seconds(3600));
+    while (rclcpp::ok()) {
+      rclcpp::sleep_for(std::chrono::seconds(1));
+    }
 
     rclcpp::shutdown();
     thread.join();

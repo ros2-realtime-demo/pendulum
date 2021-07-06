@@ -37,8 +37,6 @@ PendulumDriverNode::PendulumDriverNode(
   pole_joint_name_(declare_parameter<std::string>("pole_joint_name", "pole_joint")),
   update_period_(std::chrono::microseconds{
     declare_parameter<std::uint16_t>("update_period_us", 1000U)}),
-  deadline_duration_{std::chrono::milliseconds{
-      declare_parameter<std::uint16_t>("deadline_us", 2000U)}},
   driver_(
     PendulumDriver::Config(
       declare_parameter<double>("driver.pendulum_mass", 1.0),
@@ -51,7 +49,6 @@ PendulumDriverNode::PendulumDriverNode(
       std::chrono::microseconds {update_period_}
     )
   ),
-  num_missed_deadlines_{0U},
   realtime_cb_group_(create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false)),
   auto_start_node_(declare_parameter<bool>("auto_start_node", false)),
   proc_settings_(
@@ -62,7 +59,9 @@ PendulumDriverNode::PendulumDriverNode(
       declare_parameter<std::uint16_t>("proc_settings.lock_memory_size_mb", 0U),
       declare_parameter<bool>("proc_settings.configure_child_threads", false)
     )
-  )
+  ),
+  num_missed_deadlines_{0U},
+  num_missed_messages_{0U}
 {
   init_state_message();
   create_state_publisher();
@@ -123,7 +122,7 @@ void PendulumDriverNode::create_disturbance_subscription()
 
 void PendulumDriverNode::create_state_timer_callback()
 {
-  auto state_timer_callback = [this]() {
+  auto state_timer_callback = [this]() -> void {
       driver_.update();
       const auto state = driver_.get_state();
       state_message_.cart_position = state.cart_position;
@@ -162,30 +161,69 @@ void PendulumDriverNode::start()
   }
 }
 
+void PendulumDriverNode::wait_for_start(bool wait_for_publisher_matched)
+{
+  bool is_ready = false;
+  bool sub_matched = false;
+  while (rclcpp::ok() && !is_ready) {
+    if (wait_for_publisher_matched) {
+      sub_matched = state_pub_->get_subscription_count() == 1U;
+    }
+    bool is_active = is_active_.load();
+    is_ready = wait_for_publisher_matched ? (sub_matched && is_active) : is_active;
+    if (!is_ready) {
+      rclcpp::sleep_for(std::chrono::milliseconds(10));
+    }
+  }
+}
+
 void PendulumDriverNode::run_realtime_loop()
 {
+  wait_for_start();
+  utils::periodic_task_init(period_info_, update_period_);
   while (rclcpp::ok()) {
+    wait_rest_of_period(period_info_);
+
+    auto timepoint_before_task = std::chrono::steady_clock::now();
     update_realtime_loop();
+    auto timepoint_after_task = std::chrono::steady_clock::now();
+
+    // update period and overruns
+    auto overruns = increment_period_until_no_overruns(period_info_);
+    num_missed_deadlines_ += overruns;
+
+    update_rt_loop_statistics(timepoint_before_task, timepoint_after_task);
   }
 }
 
 void PendulumDriverNode::update_realtime_loop()
 {
-  const auto wait_result = wait_set_->wait(deadline_duration_);
-  if (wait_result.kind() == rclcpp::WaitResultKind::Ready) {
-    if (wait_result.get_wait_set().get_rcl_wait_set().timers[0U]) {
-      pendulum2_msgs::msg::JointCommand msg;
-      rclcpp::MessageInfo msg_info;
-      // take a msg if available
-      if (command_sub_->take(msg, msg_info)) {
-        driver_.set_controller_cart_force(msg.force);
-      }
-      state_timer_->execute_callback();
-    }
-  } else if (wait_result.kind() == rclcpp::WaitResultKind::Timeout) {
-    if (is_active_.load()) {
-      ++num_missed_deadlines_;
-    }
+  pendulum2_msgs::msg::JointCommand msg;
+  rclcpp::MessageInfo msg_info;
+  // take a msg if it is available
+  if (command_sub_->take(msg, msg_info)) {
+    driver_.set_controller_cart_force(msg.force);
+  } else {
+    ++num_missed_messages_;
+  }
+  state_timer_->execute_callback();
+  ++iteration_;
+}
+
+void PendulumDriverNode::update_rt_loop_statistics(
+  std::chrono::steady_clock::time_point timepoint_before_task,
+  std::chrono::steady_clock::time_point timepoint_after_task)
+{
+  auto wake_up_latency = period_info_.wake_up_time - timepoint_before_task;
+  auto task_duration = timepoint_after_task - timepoint_before_task;
+  {
+    RealtimeStatisticsTracker::ScopedAccess<ThreadType::realtime> tr(wake_up_latency_tracker_);
+    tr->add_sample(std::chrono::duration_cast<std::chrono::microseconds>(wake_up_latency).count());
+    tr->add_sample(wake_up_latency.count());
+  }
+  {
+    RealtimeStatisticsTracker::ScopedAccess<ThreadType::realtime> tr(rt_task_duration_tracker_);
+    tr->add_sample(std::chrono::duration_cast<std::chrono::microseconds>(task_duration).count());
   }
 }
 
@@ -195,13 +233,27 @@ void PendulumDriverNode::log_driver_state()
   const auto disturbance_force = driver_.get_disturbance_force();
   const double controller_force_command = driver_.get_controller_cart_force();
 
+  RCLCPP_INFO(get_logger(), "Iteration %lu", iteration_.load());
   RCLCPP_INFO(get_logger(), "Cart position = %lf", state.cart_position);
   RCLCPP_INFO(get_logger(), "Cart velocity = %lf", state.cart_velocity);
   RCLCPP_INFO(get_logger(), "Pole angle = %lf", state.pole_angle);
   RCLCPP_INFO(get_logger(), "Pole angular velocity = %lf", state.pole_velocity);
   RCLCPP_INFO(get_logger(), "Controller force command = %lf", controller_force_command);
   RCLCPP_INFO(get_logger(), "Disturbance force = %lf", disturbance_force);
-  RCLCPP_INFO(get_logger(), "Num missed deadlines = %u", num_missed_deadlines_);
+  {
+    RealtimeStatisticsTracker::ScopedAccess<ThreadType::nonRealtime> tr(wake_up_latency_tracker_);
+    RCLCPP_INFO(
+      get_logger(), "Timer wake-up latency (us): avg=%lf, min=%lf, max=%lf, std=%lf",
+      tr->mean(), tr->min(), tr->max(), std::sqrt(tr->variance()));
+  }
+  {
+    RealtimeStatisticsTracker::ScopedAccess<ThreadType::nonRealtime> tr(rt_task_duration_tracker_);
+    RCLCPP_INFO(
+      get_logger(), "Real-time task duration (us): avg=%lf, min=%lf, max=%lf, std=%lf",
+      tr->mean(), tr->min(), tr->max(), std::sqrt(tr->variance()));
+  }
+  RCLCPP_INFO(get_logger(), "Num missed deadlines = %lu", num_missed_deadlines_.load());
+  RCLCPP_INFO(get_logger(), "Num missed messages = %lu", num_missed_messages_.load());
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn

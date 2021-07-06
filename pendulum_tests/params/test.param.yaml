@@ -4,7 +4,6 @@ pendulum_controller:
     state_topic_name: "pendulum_joint_states"
     command_topic_name: "joint_command"
     teleop_topic_name: "teleop"
-    deadline_us: 2000
     controller:
       feedback_matrix: [-10.0000, -51.5393, 356.8637, 154.4146]
     proc_settings:
@@ -23,7 +22,6 @@ pendulum_driver:
     cart_base_joint_name: "cart_base_joint"
     pole_joint_name: "pole_joint"
     update_period_us: 1000
-    deadline_us: 2000
     driver:
       pendulum_mass: 1.0
       cart_mass: 5.0

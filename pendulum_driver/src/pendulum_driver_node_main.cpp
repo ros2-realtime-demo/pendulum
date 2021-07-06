@@ -53,8 +53,10 @@ int main(int argc, char * argv[])
 
     driver_node_ptr->start();
 
-    // TODO(carlosvg): add wait loop or experiment duration option
-    rclcpp::sleep_for(std::chrono::seconds(3600));
+    while (rclcpp::ok()) {
+      rclcpp::sleep_for(std::chrono::seconds(1));
+      driver_node_ptr->log_driver_state();
+    }
 
     rclcpp::shutdown();
     thread.join();
