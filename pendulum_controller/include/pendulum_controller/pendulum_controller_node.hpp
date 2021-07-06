@@ -29,11 +29,10 @@
 #include "lifecycle_msgs/msg/transition_event.hpp"
 #include "lifecycle_msgs/msg/transition.hpp"
 
+#include "pendulum_utils/process_settings.hpp"
 #include "pendulum_controller/pendulum_controller.hpp"
 #include "pendulum_controller/visibility_control.hpp"
 
-namespace pendulum
-{
 namespace pendulum_controller
 {
 /// \class This class implements a node containing a controller for the inverted pendulum.
@@ -52,6 +51,38 @@ public:
     const std::string & node_name,
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
+  /// \brief Get the callback group for real-time entities
+  [[maybe_unused]] rclcpp::CallbackGroup::SharedPtr get_realtime_callback_group() const
+  {
+    return realtime_cb_group_;
+  }
+
+  /// \brief Get the process settings to configure the real-time thread
+  utils::ProcessSettings get_proc_settings()
+  {
+    return proc_settings_;
+  }
+
+  /// \brief Start the activity by transitioning the node to active state
+  void start();
+
+  /// \brief Run the real-time loop
+  /// \remarks safe to call from real-time thread
+  void run_realtime_loop();
+
+  /// \brief Real-time loop update
+  /// \remarks safe to call from real-time thread
+  void update_realtime_loop();
+
+  /// \brief
+  /// \remarks safe to call from real-time thread
+  void wait_for_driver();
+
+  /// \brief
+  /// \param[in] msg Message with the pendulum state data
+  /// \remarks safe to call from real-time thread
+  void update_controller(const pendulum2_msgs::msg::JointState & msg);
+
 private:
   /// \brief Create teleoperation subscription
   void create_teleoperation_subscription();
@@ -64,6 +95,9 @@ private:
 
   /// \brief Log pendulum controller state
   void log_controller_state();
+
+  /// \brief Create wait-set
+  void create_wait_set();
 
   /// \brief Transition callback for state configuring
   /// \param[in] lifecycle node state
@@ -93,9 +127,6 @@ private:
   const std::string state_topic_name_;
   const std::string command_topic_name_;
   const std::string teleop_topic_name_;
-  bool enable_topic_stats_;
-  const std::string topic_stats_topic_name_;
-  std::chrono::milliseconds topic_stats_publish_period_;
   std::chrono::milliseconds deadline_duration_;
 
   PendulumController controller_;
@@ -106,10 +137,18 @@ private:
       pendulum2_msgs::msg::JointCommand>> command_pub_;
   pendulum2_msgs::msg::JointCommand command_message_;
 
-  uint32_t num_missed_deadlines_pub_;
-  uint32_t num_missed_deadlines_sub_;
+  uint32_t num_missed_deadlines_;
+
+  rclcpp::CallbackGroup::SharedPtr realtime_cb_group_;
+
+  /// automatically activate lifecycle nodes
+  bool auto_start_node_ = false;
+  std::atomic_bool is_active_ = false;
+
+  utils::ProcessSettings proc_settings_;
+
+  std::shared_ptr<rclcpp::StaticWaitSet<1, 0, 0, 0, 0, 0>> wait_set_;
 };
 }  // namespace pendulum_controller
-}  // namespace pendulum
 
 #endif  // PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_NODE_HPP_

@@ -69,30 +69,11 @@ if(BUILD_TESTING)
   if(TARGET test_pendulum_driver_node)
     target_link_libraries(test_pendulum_driver_node ${PENDULUM_DRIVER_LIB})
   endif()
-
-  find_package(launch_testing_ament_cmake)
-  add_launch_test(
-      test/pendulum_driver_lifecycle.test.py
-      TARGET pendulum_driver_lifecycle.test
-      ENV
-      TIMEOUT 30
-  )
-  add_launch_test(
-      test/pendulum_driver_autostart.test.py
-      TARGET pendulum_driver_autostart.test
-      ENV
-      TIMEOUT 30
-  )
 endif()
 
 install(
     DIRECTORY include/
     DESTINATION include
-)
-
-install(
-    DIRECTORY params
-    DESTINATION share/${PROJECT_NAME}
 )
 
 install(TARGETS ${PENDULUM_DRIVER_LIB} ${PENDULUM_DRIVER_EXE}

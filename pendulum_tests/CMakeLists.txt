@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(pendulum_demo)
+project(pendulum_tests)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -15,17 +15,16 @@ find_package(ament_cmake REQUIRED)
 find_package(pendulum_controller REQUIRED)
 find_package(pendulum_driver REQUIRED)
 
-set(PENDULUM_DEMO_EXE pendulum_demo)
-
-add_executable(${PENDULUM_DEMO_EXE} "src/pendulum_demo.cpp")
-target_link_libraries(${PENDULUM_DEMO_EXE}
-    pendulum_controller::pendulum_controller
-    pendulum_driver::pendulum_driver)
-
 if(BUILD_TESTING)
+  find_package(apex_test_tools REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
+
+  apex_test_tools_add_gtest(test_pendulum_memory_allocations test/test_pendulum_memory_allocations.cpp)
+  target_link_libraries(test_pendulum_memory_allocations
+      pendulum_controller::pendulum_controller
+      pendulum_driver::pendulum_driver)
 
   find_package(launch_testing_ament_cmake)
   add_launch_test(

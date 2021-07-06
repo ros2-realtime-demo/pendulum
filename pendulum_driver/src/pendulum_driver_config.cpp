@@ -15,11 +15,8 @@
 #include "pendulum_driver/pendulum_driver.hpp"
 #include <array>
 
-namespace pendulum
-{
 namespace pendulum_driver
 {
-
 PendulumDriver::Config::Config(
   const double pendulum_mass,
   const double cart_mass,
@@ -78,6 +75,4 @@ std::chrono::microseconds PendulumDriver::Config::get_physics_update_period() co
 {
   return physics_update_period;
 }
-
 }  // namespace pendulum_driver
-}  // namespace pendulum

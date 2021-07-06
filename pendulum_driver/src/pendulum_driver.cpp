@@ -16,8 +16,8 @@
 #include <vector>
 #include "rcppmath/clamp.hpp"
 
-namespace pendulum
-{
+using utils::PendulumState;
+
 namespace pendulum_driver
 {
 PendulumDriver::PendulumDriver(const Config & config)
@@ -30,6 +30,7 @@ PendulumDriver::PendulumDriver(const Config & config)
   noise_gen_(std::uniform_real_distribution<double>(
       -config.get_noise_level(), config.get_noise_level()))
 {
+  reset();
   // Calculate the controller timestep (for discrete differentiation/integration).
   dt_ = cfg_.get_physics_update_period().count() / (1000.0 * 1000.0);
   if (std::isnan(dt_) || dt_ == 0) {
@@ -66,49 +67,54 @@ PendulumDriver::PendulumDriver(const Config & config)
     };
 }
 
-void PendulumDriver::set_controller_cart_force(double force)
-{
-  controller_force_ = rcppmath::clamp(force, -cfg_.get_max_cart_force(), cfg_.get_max_cart_force());
-}
-
 void PendulumDriver::set_state(double cart_pos, double cart_vel, double pole_pos, double pole_vel)
 {
-  state_.cart_position = cart_pos;
-  state_.cart_velocity = cart_vel;
-  state_.pole_angle = pole_pos;
-  state_.pole_velocity = pole_vel;
+  pendulum_state_.cart_position = cart_pos;
+  pendulum_state_.cart_velocity = cart_vel;
+  pendulum_state_.pole_angle = pole_pos;
+  pendulum_state_.pole_velocity = pole_vel;
+}
+
+void PendulumDriver::set_controller_cart_force(double force)
+{
+  controller_force_.store(
+    rcppmath::clamp(
+      force, -cfg_.get_max_cart_force(),
+      cfg_.get_max_cart_force()));
 }
 
 void PendulumDriver::set_disturbance_force(double force)
 {
-  disturbance_force_ = force;
+  disturbance_force_.store(force);
 }
 
-const PendulumDriver::PendulumState & PendulumDriver::get_state() const
+PendulumState PendulumDriver::get_state()
 {
-  return state_;
+  return pendulum_state_;
 }
 
 double PendulumDriver::get_controller_cart_force() const
 {
-  return controller_force_;
+  return controller_force_.load();
 }
 
 double PendulumDriver::get_disturbance_force() const
 {
-  return disturbance_force_;
+  return disturbance_force_.load();
 }
 
 void PendulumDriver::update()
 {
-  double cart_force = disturbance_force_ + controller_force_;
+  double disturbance_force = get_disturbance_force();
+  double controller_force = get_controller_cart_force();
+  double cart_force = disturbance_force + controller_force;
   ode_solver_.step(derivative_function_, X_, dt_, cart_force);
 
-  state_.cart_position = X_[0];
-  state_.cart_velocity = X_[1];
-  state_.cart_force = cart_force;
-  state_.pole_angle = X_[2];
-  state_.pole_velocity = X_[3];
+  pendulum_state_.cart_position = X_[0];
+  pendulum_state_.cart_velocity = X_[1];
+  pendulum_state_.cart_force = cart_force;
+  pendulum_state_.pole_angle = X_[2];
+  pendulum_state_.pole_velocity = X_[3];
 }
 
 void PendulumDriver::reset()
@@ -121,4 +127,3 @@ void PendulumDriver::reset()
 }
 
 }  // namespace pendulum_driver
-}  // namespace pendulum

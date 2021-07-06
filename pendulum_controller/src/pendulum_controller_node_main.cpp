@@ -17,55 +17,56 @@
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
-#include "pendulum_controller/pendulum_controller_node.hpp"
 #include "pendulum_utils/process_settings.hpp"
-#include "pendulum_utils/lifecycle_autostart.hpp"
+#include "pendulum_controller/pendulum_controller_node.hpp"
+
+
+using pendulum_controller::PendulumControllerNode;
+using utils::ProcessSettings;
+using utils::configure_process_priority;
+using utils::lock_process_memory;
 
 int main(int argc, char * argv[])
 {
-  pendulum::utils::ProcessSettings settings;
-  if (!settings.init(argc, argv)) {
-    return EXIT_FAILURE;
-  }
-
   int32_t ret = 0;
   try {
-    // configure process real-time settings
-    if (settings.configure_child_threads) {
-      // process child threads created by ROS nodes will inherit the settings
-      settings.configure_process();
-    }
     rclcpp::init(argc, argv);
 
-    // Create a static executor
-    rclcpp::executors::StaticSingleThreadedExecutor exec;
-
     // Create pendulum controller node
-    using pendulum::pendulum_controller::PendulumControllerNode;
     const auto controller_node_ptr =
       std::make_shared<PendulumControllerNode>("pendulum_controller");
+    ProcessSettings rt_settings = controller_node_ptr->get_proc_settings();
 
+    // Create a static executor to run non-real time tasks
+    rclcpp::executors::StaticSingleThreadedExecutor exec;
     exec.add_node(controller_node_ptr->get_node_base_interface());
+    auto thread = std::thread([&exec]() {exec.spin();});
 
-    // configure process real-time settings
-    if (!settings.configure_child_threads) {
-      // process child threads created by ROS nodes will NOT inherit the settings
-      settings.configure_process();
+    // Create a thread to run real-time tasks
+    auto rt_thread = std::thread(
+      [&controller_node_ptr, &rt_settings]() {
+        configure_process_priority(rt_settings.process_priority, rt_settings.cpu_affinity);
+        controller_node_ptr->run_realtime_loop();
+      });
+
+    if (rt_settings.lock_memory) {
+      lock_process_memory(rt_settings.lock_memory_size_mb);
     }
 
-    if (settings.auto_start_nodes) {
-      pendulum::utils::autostart(*controller_node_ptr);
+    controller_node_ptr->start();
+
+    while (rclcpp::ok()) {
+      rclcpp::sleep_for(std::chrono::seconds(1));
     }
 
-    exec.spin();
     rclcpp::shutdown();
+    thread.join();
+    rt_thread.join();
   } catch (const std::exception & e) {
-    RCLCPP_INFO(rclcpp::get_logger("pendulum_demo"), e.what());
+    RCLCPP_INFO(rclcpp::get_logger("pendulum_controller"), e.what());
     ret = 2;
   } catch (...) {
-    RCLCPP_INFO(
-      rclcpp::get_logger("pendulum_demo"), "Unknown exception caught. "
-      "Exiting...");
+    RCLCPP_INFO(rclcpp::get_logger("pendulum_controller"), "Unknown exception caught. Exiting...");
     ret = -1;
   }
   return ret;

@@ -16,6 +16,7 @@ export RESET="\e[0m"
 # Paths
 export WS="/root/ros2_ws"
 export ROS2_DISTRO="rolling"
+export SKIP_PACKAGES="pendulum_demo"
 
 function prepare_ws()
 {
@@ -38,7 +39,8 @@ function run_rosdep()
   apt update -qq && rosdep update
   rosdep install -q -y --from-paths . --ignore-src --rosdistro \
                                   "${ROS2_DISTRO}" \
-                                   --as-root=apt:false || true
+                                  --skip-keys "${SKIP_PACKAGES}" \
+                                   --as-root=apt:false
   result=$?
   if [ $result -ne 0 ]; then
     echo -e "${RED}run_rosdep failled${RESET}"

@@ -13,19 +13,16 @@
 # limitations under the License.
 
 import os
-import re
+import signal
 
 import unittest
 
-import launch
+from launch import LaunchDescription
 import launch.event_handlers.on_process_start
-
 import launch_ros.actions
 import launch_ros.events
-import launch_ros.events.lifecycle
-from launch_ros.substitutions import FindPackageShare
 
-import launch_testing
+from launch_ros.substitutions import FindPackageShare
 import launch_testing.actions
 import launch_testing.asserts
 import launch_testing.util
@@ -109,50 +106,69 @@ def create_lifecycle_events(node):
 
 @pytest.mark.rostest
 def generate_test_description():
-    package_dir = FindPackageShare('pendulum_demo').find('pendulum_demo')
-    param_file_path = os.path.join(package_dir, 'params', 'test.param.yaml')
-    param_file = launch.substitutions.LaunchConfiguration('params', default=[param_file_path])
+    test_dir = FindPackageShare('pendulum_tests').find('pendulum_tests')
 
-    driver_node = launch_ros.actions.LifecycleNode(
-        package='pendulum_driver',
-        executable='pendulum_driver_exe',
-        name='pendulum_driver',
-        parameters=[param_file],
-        arguments=['--autostart', 'False'],
-        additional_env={'PYTHONUNBUFFERED': '1'},
-        namespace=''
-    )
+    param_file_path = os.path.join(test_dir, 'params', 'test.param.yaml')
+    param_file = launch.substitutions.LaunchConfiguration('params', default=[param_file_path])
 
     controller_node = launch_ros.actions.LifecycleNode(
         package='pendulum_controller',
         executable='pendulum_controller_exe',
         name='pendulum_controller',
         parameters=[param_file],
-        arguments=['--autostart', 'False'],
         additional_env={'PYTHONUNBUFFERED': '1'},
         namespace=''
     )
 
-    ld = launch.LaunchDescription()
+    driver_node = launch_ros.actions.LifecycleNode(
+        package='pendulum_driver',
+        executable='pendulum_driver_exe',
+        name='pendulum_driver',
+        parameters=[param_file],
+        additional_env={'PYTHONUNBUFFERED': '1'},
+        namespace=''
+    )
+
+    shutdown_timer = launch.actions.TimerAction(
+            period=5.0,
+            actions=[
+                launch.actions.EmitEvent(
+                    event=launch.events.process.SignalProcess(
+                        signal_number=signal.SIGINT,
+                        process_matcher=lambda proc: proc is controller_node
+                    )
+                ),
+                launch.actions.EmitEvent(
+                    event=launch.events.process.SignalProcess(
+                        signal_number=signal.SIGINT,
+                        process_matcher=lambda proc: proc is driver_node
+                    ),
+                )
+            ]
+        )
+
+    ld = LaunchDescription()
     ld.add_action(controller_node)
     ld.add_action(driver_node)
+    ld.add_action(shutdown_timer)
+    ld.add_action(launch_testing.util.KeepAliveProc())
+    ld.add_action(launch_testing.actions.ReadyToTest())
     for ev in create_lifecycle_events(controller_node):
         ld.add_action(ev)
     for ev in create_lifecycle_events(driver_node):
         ld.add_action(ev)
     ld.add_action(launch_testing.actions.ReadyToTest())
-    return (ld,
-            {
-                'driver_node': driver_node,
-                'controller_node': controller_node,
-            })
+    return ld, {
+        'controller_node': controller_node,
+        'driver_node': driver_node
+    }
 
 
 class TestDriverNode(unittest.TestCase):
 
-    def test_proc_starts(self, proc_info, driver_node, controller_node):
-        proc_info.assertWaitForStartup(process=driver_node, timeout=5)
+    def test_proc_starts(self, proc_info, controller_node, driver_node):
         proc_info.assertWaitForStartup(process=controller_node, timeout=5)
+        proc_info.assertWaitForStartup(process=driver_node, timeout=5)
 
 
 class TestLifecycle(unittest.TestCase):
@@ -186,19 +202,6 @@ class TestLifecycle(unittest.TestCase):
         pub.publish(msg)
 
         proc_output.assertWaitFor('Deactivating', process=driver_node, timeout=5)
-        pattern = re.compile(r'Cart position = [+-]?\d+(?:\.\d+)?')
-        proc_output.assertWaitFor(expected_output=pattern, process=driver_node, timeout=5)
-        pattern = re.compile(r'Cart velocity = [+-]?\d+(?:\.\d+)?')
-        proc_output.assertWaitFor(expected_output=pattern, process=driver_node, timeout=5)
-        # Expect pole angle between 2.7 and 3.6 radians
-        pattern = re.compile(r'Pole angle = (2\.[7-9](\d+)?)|(3\.[0-6](\d+)?)')
-        proc_output.assertWaitFor(expected_output=pattern, process=driver_node, timeout=5)
-        pattern = re.compile(r'Pole angular velocity = [+-]?\d+(?:\.\d+)?')
-        proc_output.assertWaitFor(expected_output=pattern, process=driver_node, timeout=5)
-        pattern = re.compile(r'Controller force command = [+-]?\d+(?:\.\d+)?')
-        proc_output.assertWaitFor(expected_output=pattern, process=driver_node, timeout=5)
-        pattern = re.compile(r'Disturbance force = [+-]?\d+(?:\.\d+)?')
-        proc_output.assertWaitFor(expected_output=pattern, process=driver_node, timeout=5)
         proc_output.assertWaitFor('Cleaning up', process=driver_node, timeout=5)
         proc_output.assertWaitFor('Shutting down', process=driver_node, timeout=5)
 
@@ -208,7 +211,7 @@ class TestLifecycle(unittest.TestCase):
 @launch_testing.post_shutdown_test()
 class TestShutdown(unittest.TestCase):
 
-    def test_node_graceful_shutdown(self, proc_info, driver_node, controller_node):
+    def test_node_graceful_shutdown(self, proc_info, controller_node, driver_node):
         """Test controller_node graceful shutdown."""
-        launch_testing.asserts.assertExitCodes(proc_info, process=driver_node)
         launch_testing.asserts.assertExitCodes(proc_info, process=controller_node)
+        launch_testing.asserts.assertExitCodes(proc_info, process=driver_node)

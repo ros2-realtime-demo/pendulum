@@ -20,14 +20,16 @@
 
 #include <cmath>
 #include <vector>
+#include <atomic>
+
+#include "pendulum_utils/pendulum_data.hpp"
+#include "pendulum_utils/RealtimeObject.hpp"
 
 #include "pendulum2_msgs/msg/joint_state.hpp"
 #include "pendulum2_msgs/msg/joint_command.hpp"
 #include "pendulum2_msgs/msg/pendulum_teleop.hpp"
 #include "pendulum_controller/visibility_control.hpp"
 
-namespace pendulum
-{
 namespace pendulum_controller
 {
 /// \class This class implements a <a href="https://en.wikipedia.org/wiki/Full_state_feedback">
@@ -39,6 +41,13 @@ namespace pendulum_controller
 class PENDULUM_CONTROLLER_PUBLIC PendulumController
 {
 public:
+  using PendulumState = utils::PendulumState;
+  using RealtimeTeleopData = farbot::RealtimeObject<PendulumState,
+      farbot::RealtimeObjectOptions::nonRealtimeMutatable>;
+  using RealtimeStateData = farbot::RealtimeObject<PendulumState,
+      farbot::RealtimeObjectOptions::realtimeMutatable>;
+  using ThreadType = farbot::ThreadType;
+
   class PENDULUM_CONTROLLER_PUBLIC Config
   {
 public:
@@ -48,7 +57,7 @@ public:
 
     /// \brief Gets the feedback matrix
     /// \return feedback matrix array
-    const std::vector<double> & get_feedback_matrix() const;
+    [[nodiscard]] const std::vector<double> & get_feedback_matrix() const;
 
 private:
     /// feedback_matrix Feedback matrix values
@@ -63,6 +72,7 @@ private:
   void reset();
 
   /// \brief Update controller output command
+  /// \remarks safe to call from real-time thread
   void update();
 
   /// \brief Updates the teleop data when a teleoperation message arrives.
@@ -84,42 +94,44 @@ private:
   /// \param[in] cart_vel cart velocity in m/s
   /// \param[in] pole_pos pole position in radians
   /// \param[in] pole_vel pole velocity in radians/s
+  /// \remarks safe to call from real-time thread
   void set_state(double cart_pos, double cart_vel, double pole_pos, double pole_vel);
 
   /// \brief Updates the command data from the controller before publishing.
   /// \param[in] msg Command force in Newton.
+  /// \remarks safe to call from real-time thread
   void set_force_command(double cart_force);
 
   /// \brief Get pendulum teleoperation data
   /// \return Teleoperation data
-  const std::vector<double> & get_teleop() const;
+  /// \remarks safe to call from real-time thread
+  [[nodiscard]] PendulumState get_teleop();
 
   /// \brief Get pendulum state
   /// \return State data
-  const std::vector<double> & get_state() const;
+  [[nodiscard]] PendulumState get_state();
 
   /// \brief Get force command data
   /// \return Force command in Newton
-  double get_force_command() const;
+  /// \remarks safe to call from real-time thread
+  [[nodiscard]] double get_force_command() const;
 
 private:
-  PENDULUM_CONTROLLER_LOCAL double calculate(
-    const std::vector<double> & state,
-    const std::vector<double> & reference) const;
+  [[nodiscard]] PENDULUM_CONTROLLER_LOCAL double calculate(
+    const std::array<double, 4> & state,
+    const std::array<double, 4> & reference) const;
 
   // Controller configuration parameters
   const Config cfg_;
 
-  // Holds the pendulum full state variables
-  std::vector<double> state_;
+  // Holds the pendulum teleoperation reference values.
+  RealtimeTeleopData teleop_;
 
-  // Holds the pendulum reference values.
-  // Some values may be set by by the user and others are fixed by default
-  std::vector<double> reference_;
+  // Holds the pendulum full state variables
+  RealtimeStateData state_;
 
   // Force command to control the inverted pendulum
-  double force_command_;
+  std::atomic<double> force_command_;
 };
 }  // namespace pendulum_controller
-}  // namespace pendulum
 #endif  // PENDULUM_CONTROLLER__PENDULUM_CONTROLLER_HPP_
