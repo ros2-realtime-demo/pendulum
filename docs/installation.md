@@ -58,7 +58,7 @@ How to build
 ```
 cd adehome
 $ ade --rc pendulum_ws/src/pendulum/ade/.aderc start --update --enter
-ade$ source /opt/ros/foxy/setup.bash
+ade$ source /opt/ros/rolling/setup.bash
 ade$ cd pendulum_ws
 ade$ colcon build
 ```
