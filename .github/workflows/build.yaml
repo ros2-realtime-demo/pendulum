@@ -14,7 +14,7 @@ jobs:
     name: Deployment
     runs-on: ubuntu-22.04
     needs: [build]
-    if: github.ref == 'refs/heads/rolling'
+    # if: github.ref == 'refs/heads/rolling'
     steps:
       - uses: actions/checkout@v2
       - name: Deploy
