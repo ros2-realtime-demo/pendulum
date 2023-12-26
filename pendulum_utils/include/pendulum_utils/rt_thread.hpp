@@ -30,8 +30,6 @@
 
 #include <iostream>
 
-namespace pendulum
-{
 namespace utils
 {
 int set_thread_priority(pid_t pid, size_t sched_priority, int policy);
@@ -39,5 +37,4 @@ int set_this_thread_priority(size_t sched_priority, int policy);
 int set_thread_cpu_affinity(pid_t pid, uint32_t cpu_bit_mask);
 int set_this_thread_cpu_affinity(uint32_t cpu_bit_mask);
 }  // namespace utils
-}  // namespace pendulum
 #endif  // PENDULUM_UTILS__RT_THREAD_HPP_

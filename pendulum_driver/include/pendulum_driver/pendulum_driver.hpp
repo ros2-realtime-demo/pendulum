@@ -22,15 +22,19 @@
 #include <chrono>
 #include <vector>
 #include <random>
+#include <atomic>
+
+#include "pendulum_utils/pendulum_data.hpp"
+#include "pendulum_utils/runge_kutta.hpp"
 
 #include "pendulum2_msgs/msg/joint_state.hpp"
 #include "pendulum2_msgs/msg/joint_command.hpp"
 
-#include "pendulum_driver/runge_kutta.hpp"
 #include "pendulum_driver/visibility_control.hpp"
 
-namespace pendulum
-{
+
+static_assert(std::atomic<double>::is_always_lock_free);
+
 namespace pendulum_driver
 {
 /// \class This class implements a simulation for the inverted pendulum on a cart.
@@ -43,21 +47,7 @@ public:
   // dimension of the space state array
   static constexpr std::size_t STATE_DIM = 4U;
 
-  /// Struct representing the dynamic/kinematic state of the pendulum.
-  struct PendulumState
-  {
-    // Position of the cart in meters
-    double cart_position = 0.0;
-    // Velocity of the cart in meters/s
-    double cart_velocity = 0.0;
-    // Angular position of the pendulum in radians
-    // PI is up position
-    double pole_angle = M_PI;
-    // angular velocity of the pendulum in rad/s
-    double pole_velocity = 0.0;
-    // total force applied to the cart in Newton
-    double cart_force = 0.0;
-  };
+  using PendulumState = utils::PendulumState;
 
   class Config
   {
@@ -82,35 +72,35 @@ public:
 
     /// \brief Gets the pendulum mass
     /// \return Pendulum mass in kilograms
-    double get_pendulum_mass() const;
+    [[nodiscard]] double get_pendulum_mass() const;
 
     /// \brief Gets the cart mass
     /// \return Cart mass in kilograms
-    double get_cart_mass() const;
+    [[nodiscard]] double get_cart_mass() const;
 
     /// \brief Gets the pendulum length
     /// \return Pendulum length in meters
-    double get_pendulum_length() const;
+    [[nodiscard]] double get_pendulum_length() const;
 
     /// \brief Gets the pendulum damping coefficient
     /// \return Damping coefficient
-    double get_damping_coefficient() const;
+    [[nodiscard]] double get_damping_coefficient() const;
 
     /// \brief Gets the gravity
     /// \return Gravity in m/s^2
-    double get_gravity() const;
+    [[nodiscard]] double get_gravity() const;
 
     /// \brief Gets the maximum allowed cart force
     /// \return Maximum cart force
-    double get_max_cart_force() const;
+    [[nodiscard]] double get_max_cart_force() const;
 
     /// \brief Gets the simulated noise level
     /// \return Noise level
-    double get_noise_level() const;
+    [[nodiscard]] double get_noise_level() const;
 
     /// \brief Gets the physics simulation update period
     /// \return physics simulation update period
-    std::chrono::microseconds get_physics_update_period() const;
+    [[nodiscard]] std::chrono::microseconds get_physics_update_period() const;
 
 private:
     /// pendulum mass in kg
@@ -150,15 +140,15 @@ private:
 
   /// \brief Get pendulum state
   /// \return State data
-  const PendulumState & get_state() const;
+  [[nodiscard]] PendulumState get_state();
 
   /// \brief Gets the applied force by the controller motor to the cart
   /// \return controller cart applied force in Newton
-  double get_controller_cart_force() const;
+  [[nodiscard]] double get_controller_cart_force() const;
 
   /// \brief Gets the applied force by a disturbance
   /// \return cart disturbance force in Newton.
-  double get_disturbance_force() const;
+  [[nodiscard]] double get_disturbance_force() const;
 
   /// \brief Updates the driver simulation.
   void update();
@@ -170,9 +160,9 @@ private:
   // Pendulum simulation configuration parameters
   const Config cfg_;
   double dt_;
-  PendulumState state_;
+  PendulumState pendulum_state_;
 
-  RungeKutta ode_solver_;
+  utils::RungeKutta ode_solver_;
   // state array for ODE solver
   // X[0]: cart position
   // X[1]: cart velocity
@@ -182,10 +172,10 @@ private:
 
   // force applied by the controller
   // this can be considered as the force applied by the cart motor
-  double controller_force_ = 0.0;
+  std::atomic<double> controller_force_ = 0.0;
   // external disturbance force
   // this can be considered as something pushing the cart
-  double disturbance_force_ = 0.0;
+  std::atomic<double> disturbance_force_ = 0.0;
 
   // utils to generate random noise
   std::random_device rd;
@@ -193,8 +183,7 @@ private:
   std::uniform_real_distribution<double> noise_gen_;
 
   // pointer to the derivative motion functions (ODE)
-  derivativeF derivative_function_;
+  utils::derivativeF derivative_function_;
 };
 }  // namespace pendulum_driver
-}  // namespace pendulum
 #endif  // PENDULUM_DRIVER__PENDULUM_DRIVER_HPP_

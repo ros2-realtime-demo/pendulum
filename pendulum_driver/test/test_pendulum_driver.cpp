@@ -19,7 +19,8 @@
 
 // TODO(carlossvg): add out of range tests
 
-using pendulum::pendulum_driver::PendulumDriver;
+using pendulum_driver::PendulumDriver;
+using utils::PendulumState;
 
 class TestPendulumDriver : public ::testing::Test
 {
@@ -68,10 +69,10 @@ TEST_F(TestPendulumDriver, config)
   EXPECT_EQ(test_state_publish_period.count(), state_publish_period.count());
 }
 
-TEST_F(TestPendulumDriver, set_state)
+TEST_F(TestPendulumDriver, set_get_state)
 {
   PendulumDriver driver{config};
-  PendulumDriver::PendulumState state;
+  PendulumState state;
   double cart_position{1.0};
   double cart_velocity{2.0};
   double pole_angle{3.0};
@@ -88,7 +89,7 @@ TEST_F(TestPendulumDriver, set_state)
   EXPECT_FLOAT_EQ(pole_velocity, state.pole_velocity);
 }
 
-TEST_F(TestPendulumDriver, set_controller_cart_force)
+TEST_F(TestPendulumDriver, set_get_controller_cart_force)
 {
   PendulumDriver driver{config};
   double expected_force{1.0};
@@ -101,7 +102,7 @@ TEST_F(TestPendulumDriver, set_controller_cart_force)
   EXPECT_FLOAT_EQ(expected_force, force);
 }
 
-TEST_F(TestPendulumDriver, set_disturbance_force)
+TEST_F(TestPendulumDriver, set_get_disturbance_force)
 {
   PendulumDriver driver{config};
   double expected_force{1.0};
@@ -117,7 +118,7 @@ TEST_F(TestPendulumDriver, set_disturbance_force)
 TEST_F(TestPendulumDriver, init_state)
 {
   PendulumDriver driver{config};
-  PendulumDriver::PendulumState state;
+  PendulumState state;
   double controller_cart_force{0.0};
   double disturbance_force{0.0};
 
@@ -138,7 +139,7 @@ TEST_F(TestPendulumDriver, init_state)
 TEST_F(TestPendulumDriver, reset)
 {
   PendulumDriver driver{config};
-  PendulumDriver::PendulumState state;
+  PendulumState state;
   double controller_cart_force{0.0};
   double disturbance_force{0.0};
   driver.set_state(1.0, 2.0, 3.0, 4.0);

@@ -16,8 +16,8 @@
 #include <utility>
 #include <vector>
 
-namespace pendulum
-{
+using utils::PendulumState;
+
 namespace pendulum_controller
 {
 PendulumController::Config::Config(std::vector<double> feedback_matrix)
@@ -30,10 +30,10 @@ PendulumController::Config::get_feedback_matrix() const
 }
 
 PendulumController::PendulumController(const Config & config)
-: cfg_(config),
-  state_{0.0, 0.0, M_PI, 0.0},
-  reference_{0.0, 0.0, M_PI, 0.0}
-{}
+: cfg_(config)
+{
+  reset();
+}
 
 void PendulumController::reset()
 {
@@ -44,69 +44,80 @@ void PendulumController::reset()
 
 void PendulumController::update()
 {
-  set_force_command(calculate(state_, reference_));
+  RealtimeTeleopData::ScopedAccess<ThreadType::realtime> teleop(teleop_);
+  RealtimeStateData::ScopedAccess<ThreadType::realtime> state(state_);
+  const std::array<double, 4> state_array{
+    state->cart_position,
+    state->cart_velocity,
+    state->pole_angle,
+    state->pole_velocity};
+  const std::array<double, 4> reference_array{
+    teleop->cart_position,
+    teleop->cart_velocity,
+    teleop->pole_angle,
+    teleop->pole_velocity};
+  set_force_command(calculate(state_array, reference_array));
 }
 
 void PendulumController::set_teleop(
-  double cart_pos, double cart_vel,
-  double pole_pos, double pole_vel)
+  double cart_position, double cart_velocity,
+  double pole_angle, double pole_velocity)
 {
-  reference_[0] = cart_pos;
-  reference_[1] = cart_vel;
-  reference_[2] = pole_pos;
-  reference_[3] = pole_vel;
+  RealtimeTeleopData::ScopedAccess<ThreadType::nonRealtime> teleop(teleop_);
+  teleop->cart_position = cart_position;
+  teleop->cart_velocity = cart_velocity;
+  teleop->pole_angle = pole_angle;
+  teleop->pole_velocity = pole_velocity;
 }
 
-void PendulumController::set_teleop(double cart_pos, double cart_vel)
+void PendulumController::set_teleop(double cart_position, double cart_velocity)
 {
-  reference_[0] = cart_pos;
-  reference_[1] = cart_vel;
+  RealtimeTeleopData::ScopedAccess<ThreadType::nonRealtime> teleop(teleop_);
+  teleop->cart_position = cart_position;
+  teleop->cart_velocity = cart_velocity;
 }
 
 void PendulumController::set_state(
-  double cart_pos, double cart_vel,
-  double pole_pos, double pole_vel)
+  double cart_position, double cart_velocity,
+  double pole_angle, double pole_velocity)
 {
-  state_ = {cart_pos, cart_vel, pole_pos, pole_vel};
+  RealtimeStateData::ScopedAccess<ThreadType::realtime> state(state_);
+  state->pole_angle = pole_angle;
+  state->pole_velocity = pole_velocity;
+  state->cart_position = cart_position;
+  state->cart_velocity = cart_velocity;
 }
 
 void PendulumController::set_force_command(double force)
 {
-  force_command_ = force;
+  force_command_.store(force);
 }
 
-const std::vector<double> & PendulumController::get_teleop() const
+PendulumState PendulumController::get_teleop()
 {
-  return reference_;
+  RealtimeTeleopData::ScopedAccess<ThreadType::realtime> teleop(teleop_);
+  return *teleop;
 }
 
-const std::vector<double> & PendulumController::get_state() const
+PendulumState PendulumController::get_state()
 {
-  return state_;
+  RealtimeStateData::ScopedAccess<ThreadType::nonRealtime> joint_state(state_);
+  return *joint_state;
 }
 
 double PendulumController::get_force_command() const
 {
-  return force_command_;
+  return force_command_.load();
 }
 
 double PendulumController::calculate(
-  const std::vector<double> & state,
-  const std::vector<double> & reference) const
+  const std::array<double, 4> & state,
+  const std::array<double, 4> & reference) const
 {
   double controller_output = 0.0;
-  size_t dim = state.size();
-  if ((dim != reference.size()) &&
-    (dim != cfg_.get_feedback_matrix().size()))
-  {
-    throw std::invalid_argument("wrong state size vector");
-  }
-
-  for (size_t i = 0; i < dim; i++) {
+  for (size_t i = 0; i < 4; i++) {
     controller_output += -cfg_.get_feedback_matrix()[i] * (state[i] - reference[i]);
   }
-
   return controller_output;
 }
 }  // namespace pendulum_controller
-}  // namespace pendulum

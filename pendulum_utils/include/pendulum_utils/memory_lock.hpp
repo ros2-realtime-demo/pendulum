@@ -32,8 +32,6 @@
 #include <cstring>
 #include <memory>
 
-namespace pendulum
-{
 namespace utils
 {
 /// \brief Lock currently paged memory using mlockall.
@@ -49,6 +47,5 @@ int lock_and_prefault_dynamic();
 /// \return Error code to propagate to main
 int lock_and_prefault_dynamic(size_t process_max_dynamic_memory);
 }  // namespace utils
-}  // namespace pendulum
 
 #endif  // PENDULUM_UTILS__MEMORY_LOCK_HPP_

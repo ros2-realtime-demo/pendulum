@@ -21,7 +21,7 @@
 // TODO(carlossvg): add deadline QoS test
 // TODO(carlossvg): add test checking simulation
 
-using pendulum::pendulum_driver::PendulumDriverNode;
+using pendulum_driver::PendulumDriverNode;
 
 class TestPendulumDriverNode : public ::testing::Test
 {
@@ -43,11 +43,8 @@ protected:
     params.emplace_back("disturbance_topic_name", "disturbance");
     params.emplace_back("cart_base_joint_name", "cart_base_joint");
     params.emplace_back("pole_joint_name", "pole_joint");
-    params.emplace_back("state_publish_period_us", 10000);
-    params.emplace_back("enable_topic_stats", false);
-    params.emplace_back("topic_stats_topic_name", "driver_stats");
-    params.emplace_back("topic_stats_publish_period_ms", 1000);
-    params.emplace_back("deadline_duration_ms", 0);
+    params.emplace_back("update_period_us", 1000);
+    params.emplace_back("deadline_us", 2000);
     params.emplace_back("driver.pendulum_mass", 1.0);
     params.emplace_back("driver.cart_mass", 5.0);
     params.emplace_back("driver.pendulum_length", 2.0);
