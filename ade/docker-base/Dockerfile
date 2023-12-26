@@ -3,23 +3,29 @@ FROM $OS_VERSION
 
 MAINTAINER Lander Usategui <lander dot usategui at gmail dot com>
 
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US.UTF-8
-ENV LC_ALL en_US.UTF-8
-
 ENV ROS_VERSION rolling
 
 WORKDIR /root/ros2_$ROS_VERSION
 
+RUN apt-get update && \
+    apt-get install -y \
+       apt-utils \
+       curl \
+       locales \
+       software-properties-common \
+       tzdata \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN locale-gen en_US.UTF-8; dpkg-reconfigure -f noninteractive locales
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+
 RUN apt-get update \
-  && echo 'Etc/UTC' > /etc/timezone \
-  && ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime \
   && apt-get install -y \
     firefox \
     sudo \
-    locales \
-    tzdata \
-    libogre-1.12 \
+    libogre1.12.10 \
     htop \
     stress-ng \
     rt-tests \
