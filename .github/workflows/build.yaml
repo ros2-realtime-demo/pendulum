@@ -10,10 +10,23 @@ jobs:
       run: |
         docker build -t ci-pendulum .
 
+  build-base:
+    name: Base
+    runs-on: ubuntu-22.04
+    needs: [Build]
+    # if: github.ref == 'refs/heads/rolling'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Base
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_TOKEN }}
+          cd ade/docker-base && docker build --build-arg OS_VERSION=ubuntu:22.04 -t ros2realtimedemo/pendulum:base-rolling-tracers .
+          docker push ros2realtimedemo/pendulum:ade-base-rolling
+
   deployment:
     name: Deployment
     runs-on: ubuntu-22.04
-    needs: [build]
+    needs: [Base]
     # if: github.ref == 'refs/heads/rolling'
     steps:
       - uses: actions/checkout@v2
