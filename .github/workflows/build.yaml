@@ -2,22 +2,22 @@ name: build
 on: [push, pull_request]
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v1
     - name: Build/Tests
       run: |
         docker build -t ci-pendulum .
 
-  deployment:
-     name: Deployment
-    runs-on: ubuntu-18.04
-    needs: [build]
-    if: github.ref == 'refs/heads/rolling'
-    steps:
-      - uses: actions/checkout@v1
-      - name: Deploy
-        run: |
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_TOKEN }}
-          cd ade/ADE-base && docker build -t ros2realtimedemo/pendulum:ade-base-rolling .
-          docker push ros2realtimedemo/pendulum:ade-base-rolling
+   deployment:
+      name: Deployment
+     runs-on: ubuntu-22.04
+     needs: [build]
+     if: github.ref == 'refs/heads/rolling'
+     steps:
+       - uses: actions/checkout@v1
+       - name: Deploy
+         run: |
+           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_TOKEN }}
+           cd ade/ADE-base && docker build -t ros2realtimedemo/pendulum:ade-base-rolling .
+           docker push ros2realtimedemo/pendulum:ade-base-rolling
