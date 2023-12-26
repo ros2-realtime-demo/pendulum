@@ -25,7 +25,7 @@ RUN apt-get update \
   && apt-get install -y \
     firefox \
     sudo \
-    libogre-1.12 \
+    libogre1.12.10 \
     htop \
     stress-ng \
     rt-tests \
